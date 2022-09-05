@@ -1,5 +1,5 @@
 # Nyatta
 
-[![CircleCI](https://circleci.com/gh/3dw1nM0535/nyatta.svg?style=svg&circle-token=3cbb6018-a753-4c55-9840-ff6fcd236d0d)](https://circleci.com/gh/3dw1nM0535/nyatta)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/3dw1nM0535/nyatta/tree/develop.svg?style=svg&circle-token=7452b2e6b80f387c0554a994e607894e2e67b0d0)](https://dl.circleci.com/status-badge/redirect/gh/3dw1nM0535/nyatta/tree/develop)
 
 Find apartments for longer stays
