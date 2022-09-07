@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func OpenDB(config *Config, logger *zap.Logger) (*gorm.DB, error) {
+func OpenDB(config *Config, logger *zap.SugaredLogger) (*gorm.DB, error) {
 	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName, config.SslMode)
 
 	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{})

@@ -1,15 +1,29 @@
 package service
 
 import (
+	"github.com/3dw1nM0535/nyatta/graph/model"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type UserServices struct {
-	store *gorm.DB
-	log   *zap.Logger
+type UserService interface {
+	CreateUser(user *model.NewUser) (*model.User, error)
+	GetUser(id string) (*model.User, error)
 }
 
-func NewUserService(store *gorm.DB, logger *zap.Logger) *UserServices {
+type UserServices struct {
+	store *gorm.DB
+	log   *zap.SugaredLogger
+}
+
+func NewUserService(store *gorm.DB, logger *zap.SugaredLogger) *UserServices {
 	return &UserServices{store, logger}
+}
+
+func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
+	return &model.User{}, nil
+}
+
+func (u *UserServices) GetUser(id string) (*model.User, error) {
+	return &model.User{}, nil
 }
