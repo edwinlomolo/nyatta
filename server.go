@@ -6,7 +6,7 @@ import (
 
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	h "github.com/3dw1nM0535/nyatta/handler"
-	service "github.com/3dw1nM0535/nyatta/services"
+	"github.com/3dw1nM0535/nyatta/services"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
@@ -24,9 +24,9 @@ func main() {
 
 	// Initialize service(s)
 	ctx := context.Background()
-	logger, _ := service.NewLogger(cfg)
+	logger, _ := services.NewLogger(cfg)
 	store, _ := nyatta_context.OpenDB(cfg, logger)
-	userService := service.NewUserService(store, logger)
+	userService := services.NewUserService(store, logger)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)

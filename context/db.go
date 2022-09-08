@@ -10,7 +10,7 @@ import (
 )
 
 func OpenDB(config *Config, logger *zap.SugaredLogger) (*gorm.DB, error) {
-	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName, config.SslMode)
+	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DevDBName, config.SslMode)
 
 	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{})
 	if err != nil {

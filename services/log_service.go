@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
