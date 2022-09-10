@@ -25,24 +25,35 @@ func init() {
 	userService = services.NewUserService(store, logger)
 }
 
-func Test_WhichService(t *testing.T) {
-	serviceName := userService.ServiceName()
+func Test_User_Services(t *testing.T) {
+	var newUser *model.User
+	t.Run("should_create_new_user", func(t *testing.T) {
+		newUser, _ = userService.CreateUser(&model.NewUser{
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "johndoe@email.com",
+		})
 
-	assert.Equal(t, serviceName, "UserServices")
-}
-
-func Test_CreateUser(t *testing.T) {
-	newUser, _ := userService.CreateUser(&model.NewUser{
-		FirstName: "John",
-		LastName:  "Doe",
-		Email:     "johndoe@email.com",
+		assert.Equal(t, newUser.FirstName, "John")
+		assert.Equal(t, newUser.LastName, "Doe")
 	})
 
-	assert.EqualValues(t, newUser.FirstName, "")
-}
+	t.Run("should_get_existing_user_by_id", func(t *testing.T) {
+		foundUser, err := userService.GetUser(newUser.ID)
 
-func Test_GetUser(t *testing.T) {
-	foundUser, _ := userService.GetUser("1")
+		assert.Equal(t, foundUser.FirstName, "John")
+		assert.Equal(t, foundUser.LastName, "Doe")
+		assert.Nil(t, err)
+	})
 
-	assert.EqualValues(t, foundUser.ID, "")
+	t.Run("should_get_existing_user_by_email", func(t *testing.T) {
+		foundUser, err := userService.GetUser(newUser.Email)
+
+		assert.Equal(t, foundUser.Email, "johndoe@email.com")
+		assert.Nil(t, err)
+	})
+
+	t.Run("should_get_service_name_called", func(t *testing.T) {
+		assert.Equal(t, userService.ServiceName(), "UserServices")
+	})
 }

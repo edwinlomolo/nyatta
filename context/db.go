@@ -3,6 +3,7 @@ package nyatta_context
 import (
 	"fmt"
 
+	"github.com/3dw1nM0535/nyatta/graph/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -17,5 +18,15 @@ func OpenDB(config *Config, logger *zap.SugaredLogger) (*gorm.DB, error) {
 		return nil, err
 	}
 	logger.Info("Database is connected")
+	db.Migrator().DropTable(&model.User{})
+	if err := AutoMigrate(db); err != nil {
+		logger.Errorf("%s: %v", DatabaseError, err)
+	}
 	return db, nil
+}
+
+func AutoMigrate(db *gorm.DB) error {
+	return db.AutoMigrate(
+		&model.User{},
+	)
 }

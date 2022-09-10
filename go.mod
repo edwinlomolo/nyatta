@@ -4,7 +4,9 @@ go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.17.16
+	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.13.0
+	github.com/stretchr/testify v1.8.0
 	github.com/vektah/gqlparser/v2 v2.5.0
 	go.uber.org/zap v1.23.0
 	gorm.io/driver/postgres v1.3.9
@@ -39,8 +41,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
-	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/urfave/cli/v2 v2.8.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect

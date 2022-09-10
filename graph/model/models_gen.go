@@ -2,21 +2,8 @@
 
 package model
 
-import (
-	"time"
-)
-
 type NewUser struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-}
-
-type User struct {
-	ID        string     `json:"id"`
-	Email     string     `json:"email"`
-	FirstName string     `json:"first_name"`
-	LastName  string     `json:"last_name"`
-	CreatedAt *time.Time `json:"createdAt"`
-	UpdatedAt *time.Time `json:"updatedAt"`
 }
