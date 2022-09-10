@@ -46,15 +46,8 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 
 func (u *UserServices) GetUser(id string) (*model.User, error) {
 	var foundUser *model.User
-	// Id can be actual user id/email
 	if err := u.store.Where("id = ?", id).Find(&foundUser).Error; err != nil {
 		return nil, err
-	}
-
-	if foundUser.ID == "" {
-		if err := u.store.Where("email = ?", id).Find(&foundUser).Error; err != nil {
-			return nil, err
-		}
 	}
 	return foundUser, nil
 }

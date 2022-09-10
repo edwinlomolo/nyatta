@@ -39,17 +39,11 @@ func Test_User_Services(t *testing.T) {
 	})
 
 	t.Run("should_get_existing_user_by_id", func(t *testing.T) {
-		foundUser, err := userService.GetUser(newUser.ID)
+		id := newUser.ID.String()
+		foundUser, err := userService.GetUser(id)
 
 		assert.Equal(t, foundUser.FirstName, "John")
 		assert.Equal(t, foundUser.LastName, "Doe")
-		assert.Nil(t, err)
-	})
-
-	t.Run("should_get_existing_user_by_email", func(t *testing.T) {
-		foundUser, err := userService.GetUser(newUser.Email)
-
-		assert.Equal(t, foundUser.Email, "johndoe@email.com")
 		assert.Nil(t, err)
 	})
 
