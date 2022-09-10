@@ -8,4 +8,5 @@ run:
 	go run server.go
 
 test:
+#	go clean -testcache
 	go test -v ./...
