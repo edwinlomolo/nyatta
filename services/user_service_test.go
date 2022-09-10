@@ -40,7 +40,7 @@ func Test_User_Services(t *testing.T) {
 	})
 
 	t.Run("should_get_existing_user_by_id", func(t *testing.T) {
-		foundUser, err := userService.GetUser(newUser.ID.String())
+		foundUser, err := userService.GetUser(newUser.ID)
 
 		assert.Equal(t, foundUser.FirstName, "John")
 		assert.Equal(t, foundUser.LastName, "Doe")

@@ -37,7 +37,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 
 	logHandler := h.LoggingHandler{DebugMode: false}
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

@@ -11,6 +11,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -36,6 +37,27 @@ func init() {
 	ctx = context.WithValue(ctx, "log", logger)
 }
 
-func Test_Resolver_CreateUser(t *testing.T) {
-	var _ = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))))
+func Test_Resolver_User(t *testing.T) {
+	var srv = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))))
+	var createUser struct {
+		CreateUser struct {
+			Email string
+			ID    string
+		}
+	}
+	t.Run("resolver_should_create_user", func(t *testing.T) {
+
+		srv.MustPost(`mutation { createUser (input: { first_name: "Jane", last_name: "Doe", email: "janedoe@email.com" }) { id email } }`, &createUser)
+
+		assert.Equal(t, createUser.CreateUser.Email, "janedoe@email.com")
+	})
+	t.Run("resolver_should_get_user", func(t *testing.T) {
+		var getUser struct {
+			GetUser struct{ Email string }
+		}
+
+		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email } }`, &getUser, client.Var("id", createUser.CreateUser.ID))
+
+		assert.Equal(t, getUser.GetUser.Email, "janedoe@email.com")
+	})
 }
