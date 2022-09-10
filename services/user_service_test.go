@@ -27,6 +27,7 @@ func init() {
 
 func Test_User_Services(t *testing.T) {
 	var newUser *model.User
+
 	t.Run("should_create_new_user", func(t *testing.T) {
 		newUser, _ = userService.CreateUser(&model.NewUser{
 			FirstName: "John",
@@ -39,8 +40,7 @@ func Test_User_Services(t *testing.T) {
 	})
 
 	t.Run("should_get_existing_user_by_id", func(t *testing.T) {
-		id := newUser.ID.String()
-		foundUser, err := userService.GetUser(id)
+		foundUser, err := userService.GetUser(newUser.ID.String())
 
 		assert.Equal(t, foundUser.FirstName, "John")
 		assert.Equal(t, foundUser.LastName, "Doe")
