@@ -27,14 +27,16 @@ func init() {
 
 func Test_User_Services(t *testing.T) {
 	var newUser *model.User
+	var err error
 
 	t.Run("should_create_new_user", func(t *testing.T) {
-		newUser, _ = userService.CreateUser(&model.NewUser{
+		newUser, err = userService.CreateUser(&model.NewUser{
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     "johndoe@email.com",
 		})
 
+		assert.Nil(t, err)
 		assert.Equal(t, newUser.FirstName, "John")
 		assert.Equal(t, newUser.LastName, "Doe")
 	})
