@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/rs/xid"
 	"gorm.io/gorm"
 )
 
@@ -17,9 +17,9 @@ type User struct {
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
-// UUID default id for user
+// Assign default id for user during create
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	uuid, _ := uuid.NewRandom()
-	tx.Statement.SetColumn("id", uuid.String())
+	id := xid.New()
+	tx.Statement.SetColumn("id", id.String())
 	return
 }
