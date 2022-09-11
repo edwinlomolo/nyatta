@@ -17,6 +17,7 @@ type User struct {
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
+// UUID default id for user
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	uuid, _ := uuid.NewRandom()
 	tx.Statement.SetColumn("id", uuid.String())
