@@ -13,6 +13,7 @@ import (
 
 type AuthService interface {
 	SignJwt(user *model.User) (string, error)
+	ValidateJWT(token *string) (*jwt.Token, error)
 }
 
 type AuthServices struct {
