@@ -2,13 +2,17 @@ package resolver_test
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"testing"
 
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
+	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	h "github.com/3dw1nM0535/nyatta/handler"
 	"github.com/3dw1nM0535/nyatta/services"
+	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/stretchr/testify/assert"
@@ -23,13 +27,17 @@ var (
 	store         *gorm.DB
 	cfg           *nyatta_context.Config
 	configuration *nyatta_context.Config
+	err           error
 )
 
 func init() {
-	configuration, _ = nyatta_context.LoadConfig("../../")
+	configuration, err = nyatta_context.LoadConfig("../../")
+	if err != nil {
+		log.Fatalf("Error reading Test config: %v", err)
+	}
 	logger, _ = services.NewLogger(configuration)
 	store, _ = nyatta_context.OpenDB(configuration, logger)
-	userService = services.NewUserService(store, logger)
+	userService = services.NewUserService(store, logger, configuration)
 
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "config", cfg)
@@ -39,25 +47,29 @@ func init() {
 
 func Test_Resolver_User(t *testing.T) {
 	var srv = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))))
-	var createUser struct {
-		CreateUser struct {
-			Email string
-			ID    string
+	var signIn struct {
+		SignIn struct {
+			Token string
 		}
 	}
-	t.Run("resolver_should_create_user", func(t *testing.T) {
+	var user *model.User
 
-		srv.MustPost(`mutation { createUser (input: { first_name: "Jane", last_name: "Doe", email: "janedoe@email.com" }) { id email } }`, &createUser)
+	t.Run("resolver_should_sign_in_user", func(t *testing.T) {
+		query := fmt.Sprintf(`mutation { signIn (input: { first_name: "%s", last_name: "%s", email: "%s" }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail())
 
-		assert.Equal(t, createUser.CreateUser.Email, "janedoe@email.com")
+		srv.MustPost(query, &signIn)
+
+		assert.NotEqual(t, signIn.SignIn.Token, "")
 	})
 	t.Run("resolver_should_get_user", func(t *testing.T) {
 		var getUser struct {
 			GetUser struct{ Email string }
 		}
 
-		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email } }`, &getUser, client.Var("id", createUser.CreateUser.ID))
+		email := util.GenerateRandomEmail()
+		user, _ = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email})
+		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email } }`, &getUser, client.Var("id", user.ID))
 
-		assert.Equal(t, getUser.GetUser.Email, "janedoe@email.com")
+		assert.Equal(t, getUser.GetUser.Email, email)
 	})
 }

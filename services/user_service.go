@@ -12,15 +12,18 @@ import (
 type UserService interface {
 	CreateUser(user *model.NewUser) (*model.User, error)
 	GetUser(id string) (*model.User, error)
+	SignIn(user *model.User) (*string, error)
 }
 
 type UserServices struct {
 	store *gorm.DB
 	log   *zap.SugaredLogger
+	auth  *AuthServices
 }
 
-func NewUserService(store *gorm.DB, logger *zap.SugaredLogger) *UserServices {
-	return &UserServices{store, logger}
+func NewUserService(store *gorm.DB, logger *zap.SugaredLogger, config *nyatta_context.Config) *UserServices {
+	authServices := NewAuthService(logger, config)
+	return &UserServices{store, logger, authServices}
 }
 
 func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
@@ -42,6 +45,18 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 		return nil, err
 	}
 	return newUser, nil
+}
+
+func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
+	newUser, err := u.CreateUser(user)
+	if err != nil {
+		return nil, fmt.Errorf("Error signing in user: %v", err)
+	}
+	token, err := u.auth.SignJWT(newUser)
+	if err != nil {
+		return nil, fmt.Errorf("Error signing user token: %v", err)
+	}
+	return token, nil
 }
 
 func (u *UserServices) GetUser(id string) (*model.User, error) {

@@ -8,12 +8,16 @@ input NewUser {
   last_name: String!
 }
 
+type Token {
+  token: String!
+}
+
 type Query {
   getUser(id: ID!): User!
 }
 
 type Mutation {
-  createUser(input: NewUser!): User!
+  signIn(input: NewUser!): Token!
 }
 
 schema {

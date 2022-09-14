@@ -26,7 +26,7 @@ func main() {
 	ctx := context.Background()
 	logger, _ := services.NewLogger(cfg)
 	store, _ := nyatta_context.OpenDB(cfg, logger)
-	userService := services.NewUserService(store, logger)
+	userService := services.NewUserService(store, logger, cfg)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)

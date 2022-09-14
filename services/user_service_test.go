@@ -6,6 +6,7 @@ import (
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
+	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -22,7 +23,7 @@ func init() {
 	configuration, _ = nyatta_context.LoadConfig("..")
 	logger, _ = services.NewLogger(configuration)
 	store, _ = nyatta_context.OpenDB(configuration, logger)
-	userService = services.NewUserService(store, logger)
+	userService = services.NewUserService(store, logger, configuration)
 }
 
 func Test_User_Services(t *testing.T) {
@@ -39,6 +40,13 @@ func Test_User_Services(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, newUser.FirstName, "John")
 		assert.Equal(t, newUser.LastName, "Doe")
+	})
+
+	t.Run("should_sign_in_user", func(t *testing.T) {
+		token, err := userService.SignIn(&model.NewUser{FirstName: "John", LastName: "Doe", Email: util.GenerateRandomEmail()})
+
+		assert.Nil(t, err)
+		assert.NotEqual(t, token, "")
 	})
 
 	t.Run("should_get_existing_user_by_id", func(t *testing.T) {

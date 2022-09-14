@@ -43,5 +43,6 @@ func Test_AuthServices(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.NotNil(t, token)
+		assert.True(t, token.Valid)
 	})
 }
