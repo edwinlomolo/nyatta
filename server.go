@@ -14,10 +14,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-const (
-	defaultPort = "8080"
-)
-
 func main() {
 	// Load env config(s)
 	cfg, _ := nyatta_context.LoadConfig(".")
@@ -32,17 +28,12 @@ func main() {
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "log", logger)
 
-	port := cfg.Port
-	if port == "" {
-		port = defaultPort
-	}
-
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 
 	logHandler := h.LoggingHandler{DebugMode: false}
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", h.AddContext(ctx, logHandler.Logging(srv)))
 
-	logger.Debugf("connect to http://localhost:%s/ for GraphQL playground", port)
-	logger.Fatal(http.ListenAndServe(":"+port, nil))
+	logger.Debugf("connect to http://localhost:%s/ for GraphQL playground", cfg.Port)
+	logger.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
 }
