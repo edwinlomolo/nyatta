@@ -7,8 +7,8 @@ import (
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func randString(length int) string {
-	s := make([]rune, length)
+func randString() string {
+	s := make([]rune, 5)
 	for i := range s {
 		s[i] = letters[rand.Intn(len(letters))]
 	}
@@ -16,5 +16,5 @@ func randString(length int) string {
 }
 
 func GenerateRandomEmail() string {
-	return fmt.Sprintf("%s@email.com", randString(5))
+	return fmt.Sprintf("%s@email.com", randString())
 }
