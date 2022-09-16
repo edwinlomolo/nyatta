@@ -15,5 +15,5 @@ func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*mo
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", nyatta_context.ResolverError, err)
 	}
-	return &model.Token{*token}, nil
+	return &model.Token{Token: *token}, nil
 }
