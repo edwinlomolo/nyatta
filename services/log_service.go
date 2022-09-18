@@ -5,8 +5,11 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	logger *zap.SugaredLogger
+)
+
 func NewLogger(cfg *nyatta_context.Config) (log *zap.SugaredLogger, err error) {
-	var logger *zap.SugaredLogger
 	if cfg.Env == "development" || cfg.Env == "test" {
 		newLogger, err := zap.NewDevelopment()
 		if err = err; err != nil {
