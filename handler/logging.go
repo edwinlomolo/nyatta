@@ -6,9 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type LoggingHandler struct {
-	DebugMode bool
-}
+type LoggingHandler struct{}
 
 func (l *LoggingHandler) Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -17,9 +15,6 @@ func (l *LoggingHandler) Logging(h http.Handler) http.Handler {
 		// Some info on what is happening with request(s)
 		log.Infof("%s %s %s %s", r.RemoteAddr, r.Method, r.URL, r.Proto)
 		// TODO: log request body contents?
-		if l.DebugMode {
-			return
-		}
 		h.ServeHTTP(w, r)
 	})
 }

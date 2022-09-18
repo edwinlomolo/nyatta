@@ -30,7 +30,7 @@ func main() {
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 
-	logHandler := h.LoggingHandler{DebugMode: false}
+	logHandler := h.LoggingHandler{}
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", h.AddContext(ctx, logHandler.Logging(srv)))
 
