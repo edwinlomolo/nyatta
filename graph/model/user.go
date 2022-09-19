@@ -17,6 +17,16 @@ type User struct {
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
+type UserCredentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Response struct {
+	Code int    `json:"code"`
+	Err  string `json:"error,omitempty"`
+}
+
 // Assign default id for user during create
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	id := xid.New()
