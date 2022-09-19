@@ -1,29 +1,26 @@
-package services_test
+package services
 
 import (
 	"testing"
 
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 var (
-	userService   *services.UserServices
+	userService   *UserServices
 	store         *gorm.DB
-	logger        *zap.SugaredLogger
 	configuration *nyatta_context.Config
 )
 
 func init() {
 	configuration, _ = nyatta_context.LoadConfig("..")
-	logger, _ = services.NewLogger(configuration)
+	logger, _ = NewLogger(configuration)
 	store, _ = nyatta_context.OpenDB(configuration, logger)
-	userService = services.NewUserService(store, logger, configuration)
+	userService = NewUserService(store, logger, configuration)
 }
 
 func Test_User_Services(t *testing.T) {

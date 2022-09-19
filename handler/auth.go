@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -16,11 +16,12 @@ func Login() http.Handler {
 		_, err := validateBasicAuthHeader(r)
 		if err != nil {
 			response := &model.Response{
-				Code: http.StatusInternalServerError,
+				Code: http.StatusBadRequest,
 				Err:  err.Error(),
 			}
 			loginResponse.Response = response
 			writeResponse(w, loginResponse, loginResponse.Code)
+			return
 		}
 		response := &model.Response{
 			Code: http.StatusOK,
@@ -34,12 +35,12 @@ func Login() http.Handler {
 func validateBasicAuthHeader(r *http.Request) (*model.UserCredentials, error) {
 	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(auth) != 2 || auth[0] != "Basic" {
-		return nil, fmt.Errorf("%d: credentials error", http.StatusBadRequest)
+		return nil, errors.New("credentials error")
 	}
 	payload, _ := base64.StdEncoding.DecodeString(auth[1])
 	pair := strings.SplitN(string(payload), ":", 2)
 	if len(pair) != 2 {
-		return nil, fmt.Errorf("%d: credentials error", http.StatusBadRequest)
+		return nil, errors.New("credentials error")
 	}
 	return &model.UserCredentials{
 		Email:    pair[0],

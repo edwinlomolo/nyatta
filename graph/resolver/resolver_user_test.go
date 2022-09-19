@@ -1,4 +1,4 @@
-package resolver_test
+package resolver
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	h "github.com/3dw1nM0535/nyatta/handler"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
@@ -46,7 +45,7 @@ func init() {
 }
 
 func Test_Resolver_User(t *testing.T) {
-	var srv = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))))
+	var srv = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(New()))))
 	var signIn struct {
 		SignIn struct {
 			Token string

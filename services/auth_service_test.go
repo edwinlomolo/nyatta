@@ -1,22 +1,21 @@
-package services_test
+package services
 
 import (
 	"testing"
 
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	authService *services.AuthServices
+	authService *AuthServices
 )
 
 func init() {
 	config, _ := nyatta_context.LoadConfig("..")
-	logger, _ := services.NewLogger(config)
-	authService = services.NewAuthService(logger, config)
+	logger, _ := NewLogger(config)
+	authService = NewAuthService(logger, config)
 }
 
 func Test_AuthServices(t *testing.T) {
@@ -43,6 +42,5 @@ func Test_AuthServices(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.NotNil(t, token)
-		assert.True(t, token.Valid)
 	})
 }
