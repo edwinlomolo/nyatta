@@ -54,6 +54,13 @@ func Test_User_Services(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("should_get_existing_user_by_email", func(t *testing.T) {
+		foundUser, err := userService.FindByEmail(newUser.Email)
+
+		assert.Nil(t, err)
+		assert.Equal(t, newUser.Email, foundUser.Email)
+	})
+
 	t.Run("should_get_service_name_called", func(t *testing.T) {
 		assert.Equal(t, userService.ServiceName(), "UserServices")
 	})

@@ -67,6 +67,14 @@ func (u *UserServices) GetUser(id string) (*model.User, error) {
 	return foundUser, nil
 }
 
+func (u *UserServices) FindByEmail(email string) (*model.User, error) {
+	var foundUser *model.User
+	if err := u.store.Where("email = ?", email).First(&foundUser).Error; err != nil {
+		return nil, err
+	}
+	return foundUser, nil
+}
+
 func (u *UserServices) ServiceName() string {
 	return "UserServices"
 }
