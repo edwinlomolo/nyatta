@@ -4,30 +4,40 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/services"
 )
 
 func Login() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
 		loginResponse := &model.LoginResponse{}
-		_, err := validateBasicAuthHeader(r)
+		var newUser *model.NewUser
+
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(reqBody, &newUser)
+		token, err := ctx.Value("userService").(*services.UserServices).SignIn(newUser)
 		if err != nil {
 			response := &model.Response{
-				Code: http.StatusBadRequest,
+				Code: http.StatusInternalServerError,
 				Err:  err.Error(),
 			}
 			loginResponse.Response = response
 			writeResponse(w, loginResponse, loginResponse.Code)
 			return
 		}
+
 		response := &model.Response{
 			Code: http.StatusOK,
 		}
 		loginResponse.Response = response
-		loginResponse.AccessToken = "token"
+		loginResponse.AccessToken = *token
+
 		writeResponse(w, loginResponse, loginResponse.Code)
 	})
 }

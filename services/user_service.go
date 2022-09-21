@@ -11,7 +11,8 @@ import (
 
 type UserService interface {
 	CreateUser(user *model.NewUser) (*model.User, error)
-	GetUser(id string) (*model.User, error)
+	FindById(id string) (*model.User, error)
+	FindByEmail(email string) (*model.User, error)
 	SignIn(user *model.User) (*string, error)
 }
 
@@ -48,9 +49,19 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 }
 
 func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
-	newUser, err := u.CreateUser(user)
+	// Find user returning user
+	var newUser *model.User
+	var err error
+	newUser, err = u.FindByEmail(user.Email)
 	if err != nil {
 		return nil, fmt.Errorf("Error signing in user: %v", err)
+	}
+	// User cannot be found - new user
+	if newUser == nil {
+		newUser, err = u.CreateUser(user)
+		if err != nil {
+			return nil, fmt.Errorf("Error creating new user: %v", err)
+		}
 	}
 	token, err := u.auth.SignJWT(newUser)
 	if err != nil {
@@ -59,7 +70,7 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	return token, nil
 }
 
-func (u *UserServices) GetUser(id string) (*model.User, error) {
+func (u *UserServices) FindById(id string) (*model.User, error) {
 	var foundUser *model.User
 	if err := u.store.Where("id = ?", id).Find(&foundUser).Error; err != nil {
 		return nil, err
@@ -69,7 +80,7 @@ func (u *UserServices) GetUser(id string) (*model.User, error) {
 
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	var foundUser *model.User
-	if err := u.store.Where("email = ?", email).First(&foundUser).Error; err != nil {
+	if err := u.store.Where("email = ?", email).Find(&foundUser).Error; err != nil {
 		return nil, err
 	}
 	return foundUser, nil

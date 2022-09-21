@@ -11,7 +11,7 @@ import (
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
-	foundUser, err := ctx.Value("userService").(*services.UserServices).GetUser(id)
+	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", nyatta_context.ResolverError, err)
 	}
