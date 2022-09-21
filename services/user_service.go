@@ -5,6 +5,7 @@ import (
 
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	jwt "github.com/dgrijalva/jwt-go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -84,6 +85,11 @@ func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 		return nil, err
 	}
 	return foundUser, nil
+}
+
+func (u *UserServices) ValidateToken(tokenString *string) (*jwt.Token, error) {
+	token, err := u.auth.ValidateJWT(tokenString)
+	return token, err
 }
 
 func (u *UserServices) ServiceName() string {

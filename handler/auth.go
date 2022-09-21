@@ -63,6 +63,7 @@ func Authenticate(h http.Handler) http.Handler {
 				userId = string(userIdBytes[:])
 			}
 		} else {
+			// TODO use logger
 			log.Println(err)
 		}
 
@@ -84,7 +85,7 @@ func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token,
 		return nil, errors.New(nyatta_context.CredentialsError)
 	}
 	tokenString = auth[1]
-	token, err := ctx.Value("authService").(*services.AuthServices).ValidateJWT(&tokenString)
+	token, err := ctx.Value("userService").(*services.UserServices).ValidateToken(&tokenString)
 	return token, err
 }
 
