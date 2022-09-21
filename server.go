@@ -32,7 +32,8 @@ func main() {
 
 	logHandler := h.LoggingHandler{}
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", h.AddContext(ctx, logHandler.Logging(srv)))
+	http.Handle("/login", h.AddContext(ctx, logHandler.Logging(h.Login())))
+	http.Handle("/query", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	logger.Debugf("connect to http://localhost:%s/ for GraphQL playground", cfg.Port)
 	logger.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
