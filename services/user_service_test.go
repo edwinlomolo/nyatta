@@ -44,6 +44,11 @@ func Test_User_Services(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.NotEqual(t, token, "")
+
+		tokenValid, err := userService.ValidateToken(token)
+
+		assert.Nil(t, err)
+		assert.True(t, tokenValid.Valid)
 	})
 
 	t.Run("should_get_existing_user_by_id", func(t *testing.T) {

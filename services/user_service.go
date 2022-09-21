@@ -15,6 +15,7 @@ type UserService interface {
 	FindById(id string) (*model.User, error)
 	FindByEmail(email string) (*model.User, error)
 	SignIn(user *model.User) (*string, error)
+	ValidateToken(token *string) (*jwt.Token, error)
 }
 
 type UserServices struct {
