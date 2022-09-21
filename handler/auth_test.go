@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,38 +10,38 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/3dw1nM0535/nyatta/graph/model"
+	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/services"
+	"github.com/3dw1nM0535/nyatta/util"
 )
 
 func Test_Auth_Handler(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.SetBasicAuth("admin", "1234")
-		loginResponse := &model.LoginResponse{}
-		_, err := validateBasicAuthHeader(r)
-		if err != nil {
-			response := &model.Response{
-				Code: http.StatusBadRequest,
-				Err:  err.Error(),
-			}
-			loginResponse.Response = response
-			writeResponse(w, loginResponse, loginResponse.Code)
-			return
-		}
-		response := &model.Response{
-			Code: http.StatusOK,
-		}
-		loginResponse.Response = response
-		loginResponse.AccessToken = "token"
-		writeResponse(w, loginResponse, loginResponse.Code)
-	}))
+	// Load env config(s)
+	cfg, _ := nyatta_context.LoadConfig("..")
+
+	// Initialize service(s)
+	ctx := context.Background()
+	logger, _ := services.NewLogger(cfg)
+	store, _ := nyatta_context.OpenDB(cfg, logger)
+	userService := services.NewUserService(store, logger, cfg)
+
+	ctx = context.WithValue(ctx, "config", cfg)
+	ctx = context.WithValue(ctx, "userService", userService)
+	ctx = context.WithValue(ctx, "log", logger)
+	srv := httptest.NewServer(AddContext(ctx, Login()))
+
 	defer srv.Close()
 
-	c := srv.Client()
+	var jsonStr = []byte(fmt.Sprintf(`{"first_name": "%s", "last_name": "%s", "email": "%s"}`, "john", "doe", util.GenerateRandomEmail()))
+	url := fmt.Sprintf("%s/login", srv.URL)
+	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))
 
-	res, err := c.Post(fmt.Sprintf("%s/login", srv.URL), "application/json", nil)
+	client := srv.Client()
+	res, err := client.Do(req)
 	if err != nil {
-		t.Errorf("expected error to be nil got %v", err)
+		t.Errorf("expected error to be nil, got %v", err)
 	}
+
 	defer res.Body.Close()
 
 	data, err := ioutil.ReadAll(res.Body)
@@ -48,9 +50,13 @@ func Test_Auth_Handler(t *testing.T) {
 	}
 	var creds struct {
 		AccessToken string `json:"access_token"`
+		Code        int    `json:"code"`
 	}
 	json.Unmarshal(data, &creds)
 	if creds.AccessToken == "" {
 		t.Errorf("expected token to be provided, got %s", creds.AccessToken)
+	}
+	if creds.Code != 200 {
+		t.Errorf("expected 201 created code, got %d", creds.Code)
 	}
 }
