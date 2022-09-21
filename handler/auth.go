@@ -38,7 +38,7 @@ func Login() http.Handler {
 		}
 
 		response := &model.Response{
-			Code: http.StatusOK,
+			Code: http.StatusCreated,
 		}
 		loginResponse.Response = response
 		loginResponse.AccessToken = *token
