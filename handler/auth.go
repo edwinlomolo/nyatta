@@ -1,12 +1,9 @@
 package handler
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
@@ -40,22 +37,6 @@ func Login() http.Handler {
 
 		writeResponse(w, loginResponse, loginResponse.Code)
 	})
-}
-
-func validateBasicAuthHeader(r *http.Request) (*model.UserCredentials, error) {
-	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
-	if len(auth) != 2 || auth[0] != "Basic" {
-		return nil, errors.New("credentials error")
-	}
-	payload, _ := base64.StdEncoding.DecodeString(auth[1])
-	pair := strings.SplitN(string(payload), ":", 2)
-	if len(pair) != 2 {
-		return nil, errors.New("credentials error")
-	}
-	return &model.UserCredentials{
-		Email:    pair[0],
-		Password: pair[1],
-	}, nil
 }
 
 func writeResponse(w http.ResponseWriter, response interface{}, code int) {
