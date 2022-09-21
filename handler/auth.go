@@ -1,12 +1,20 @@
 package handler
 
 import (
+	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
+	"log"
+	"net"
 	"net/http"
+	"strings"
 
+	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 func Login() http.Handler {
@@ -37,6 +45,47 @@ func Login() http.Handler {
 
 		writeResponse(w, loginResponse, loginResponse.Code)
 	})
+}
+
+func Authenticate(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var (
+			userId       string
+			isAuthorized bool
+		)
+
+		ctx := r.Context()
+		token, err := validateBearerAuthHeader(ctx, r)
+		if err == nil {
+			isAuthorized = true
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				userIdBytes, _ := base64.StdEncoding.DecodeString(claims["id"].(string))
+				userId = string(userIdBytes[:])
+			}
+		} else {
+			log.Println(err)
+		}
+
+		userIp, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			log.Printf("Request Ip error: %v", err)
+		}
+		ctx = context.WithValue(ctx, "ip", &userIp)
+		ctx = context.WithValue(ctx, "userId", &userId)
+		ctx = context.WithValue(ctx, "is_authorized", isAuthorized)
+		h.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token, error) {
+	var tokenString string
+	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
+	if len(auth) != 2 || auth[0] != "Bearer" {
+		return nil, errors.New(nyatta_context.CredentialsError)
+	}
+	tokenString = auth[1]
+	token, err := ctx.Value("authService").(*services.AuthServices).ValidateJWT(&tokenString)
+	return token, err
 }
 
 func writeResponse(w http.ResponseWriter, response interface{}, code int) {
