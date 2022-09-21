@@ -63,6 +63,6 @@ func Test_Auth_Handler(t *testing.T) {
 		}
 	})
 
-	t.Run("should_authenticate_request_successfully", func(t *testing.T) {
+	t.Run("should_authenticate_any_request_successfully", func(t *testing.T) {
 	})
 }
