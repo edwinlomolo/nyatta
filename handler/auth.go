@@ -64,7 +64,9 @@ func Authenticate(h http.Handler) http.Handler {
 			}
 		} else {
 			// TODO use logger
-			log.Println(err)
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized"))
+			return
 		}
 
 		userIp, _, err := net.SplitHostPort(r.RemoteAddr)
