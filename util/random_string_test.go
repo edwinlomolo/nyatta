@@ -3,6 +3,8 @@ package util
 import (
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_string_randomness(t *testing.T) {
@@ -10,8 +12,6 @@ func Test_string_randomness(t *testing.T) {
 
 		email := GenerateRandomEmail()
 		match, _ := regexp.MatchString("([a-zA-Z]+)@email.com", email)
-		if !match {
-			t.Errorf("expected %s to contain email example", email)
-		}
+		assert.True(t, match)
 	})
 }

@@ -13,6 +13,7 @@ import (
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_Auth_Handler(t *testing.T) {
@@ -46,24 +47,16 @@ func Test_Auth_Handler(t *testing.T) {
 
 		client := srv.Client()
 		res, err := client.Do(req)
-		if err != nil {
-			t.Errorf("expected error to be nil, got %v", err)
-		}
+		assert.Nil(t, err)
 
 		defer res.Body.Close()
 
 		data, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("expected error to be nil, got %v", err)
-		}
+		assert.Nil(t, err)
 
 		json.Unmarshal(data, &creds)
-		if creds.AccessToken == "" {
-			t.Errorf("expected token to be provided, got %s", creds.AccessToken)
-		}
-		if creds.Code != 201 {
-			t.Errorf("expected 201 created code, got %d", creds.Code)
-		}
+		assert.NotEmpty(t, creds.AccessToken)
+		assert.Equal(t, creds.Code, 201)
 	})
 
 	t.Run("should_drop_any_unauthed_request_successfully", func(t *testing.T) {
@@ -76,24 +69,15 @@ func Test_Auth_Handler(t *testing.T) {
 		defer srv.Close()
 
 		res, err := http.Get(srv.URL)
-		if err != nil {
-			t.Errorf("expected err to be nil, got: %v", err)
-		}
+		assert.Nil(t, err)
 
 		defer res.Body.Close()
 		data, err := ioutil.ReadAll(res.Body)
+		assert.Nil(t, err)
 
-		if err != nil {
-			t.Errorf("expected err to be nil, got %v", err)
-		}
+		assert.Equal(t, string(data), "Unauthorized")
+		assert.Equal(t, res.Status, "401 Unauthorized")
 
-		if string(data) != "Unauthorized" {
-			t.Errorf("got %s expected Unauthorized", string(data))
-		}
-
-		if res.Status != "401 Unauthorized" {
-			t.Errorf("expected 401 Unauthorized got %v", res.Status)
-		}
 	})
 	t.Run("should_authenticate_any_authed_request_successfully", func(t *testing.T) {
 		tokenString := fmt.Sprintf("Bearer %s", creds.AccessToken)
@@ -109,22 +93,12 @@ func Test_Auth_Handler(t *testing.T) {
 
 		client := srv.Client()
 		res, err := client.Do(req)
-		if err != nil {
-			t.Errorf("expected err to be nil got %v", err)
-		}
-
-		if res.Status != "200 OK" {
-			t.Errorf("expected 200 OK status got %v", res.Status)
-		}
+		assert.Nil(t, err)
+		assert.Equal(t, res.Status, "200 OK")
 
 		data, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("expected err to be nil got %v", err)
-		}
-
-		if string(data) != "Hello, world" {
-			t.Errorf("expected Hello, world got %s", string(data))
-		}
+		assert.Nil(t, err)
+		assert.Equal(t, string(data), "Hello, world")
 
 	})
 }
