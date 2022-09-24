@@ -52,7 +52,7 @@ func Test_Resolver_User(t *testing.T) {
 	// get authed test user
 	accessToken := makeLoginUser()
 
-	var srv = makeAuthedServer(accessToken)
+	var srv = makeAuthedServer(accessToken, ctx)
 
 	t.Run("resolver_should_sign_in_user", func(t *testing.T) {
 

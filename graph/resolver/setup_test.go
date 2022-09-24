@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -46,7 +47,7 @@ func makeLoginUser() string {
 	return creds.AccessToken
 }
 
-func makeAuthedServer(tokenString string) *client.Client {
+func makeAuthedServer(tokenString string, ctx context.Context) *client.Client {
 	var srv *client.Client
 	if len(tokenString) == 0 {
 		// return unauthed client
