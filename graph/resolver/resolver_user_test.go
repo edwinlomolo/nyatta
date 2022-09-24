@@ -1,9 +1,14 @@
 package resolver
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	nyatta_context "github.com/3dw1nM0535/nyatta/context"
@@ -45,15 +50,43 @@ func init() {
 }
 
 func Test_Resolver_User(t *testing.T) {
-	var srv = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(New()))))
+	var jsonStr = []byte(fmt.Sprintf(`{"first_name": "%s", "last_name": "%s", "email": "%s"}`, "john", "doe", util.GenerateRandomEmail()))
 	var signIn struct {
 		SignIn struct {
 			Token string
 		}
 	}
 	var user *model.User
+	var creds struct {
+		AccessToken string `json:"access_token"`
+		Code        int    `json:"code"`
+	}
+
+	// login
+	httpServer := httptest.NewServer(h.AddContext(ctx, h.Login()))
+
+	defer httpServer.Close()
+
+	url := fmt.Sprintf("%s/login", httpServer.URL)
+	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))
+
+	c := httpServer.Client()
+	res, err := c.Do(req)
+	assert.Nil(t, err)
+
+	defer res.Body.Close()
+
+	data, err := ioutil.ReadAll(res.Body)
+	assert.Nil(t, err)
+
+	json.Unmarshal(data, &creds)
+	assert.NotEmpty(t, creds.AccessToken)
+	assert.Equal(t, creds.Code, 201)
+
+	var srv = client.New(h.AddContext(ctx, h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))), client.AddHeader("Authorization", fmt.Sprintf("Bearer %s", creds.AccessToken)))
 
 	t.Run("resolver_should_sign_in_user", func(t *testing.T) {
+
 		query := fmt.Sprintf(`mutation { signIn (input: { first_name: "%s", last_name: "%s", email: "%s" }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail())
 
 		srv.MustPost(query, &signIn)
