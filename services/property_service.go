@@ -19,5 +19,5 @@ func NewPropertyService(store *gorm.DB, logger *zap.SugaredLogger) *PropertyServ
 }
 
 func (p PropertyServices) ServiceName() string {
-	return "Property Service"
+	return "PropertyServices"
 }
