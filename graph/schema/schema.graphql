@@ -8,6 +8,13 @@ input NewUser {
   last_name: String!
 }
 
+input NewProperty {
+  name: String!
+  town: String!
+  postalCode: String!
+}
+
+# after signin return this
 type Token {
   token: String!
 }
@@ -18,6 +25,7 @@ type Query {
 
 type Mutation {
   signIn(input: NewUser!): Token!
+  createProperty(input: NewProperty!): Property!
 }
 
 schema {

@@ -1,0 +1,9 @@
+# Represent a property
+type Property {
+  id: ID!
+  name: String!
+  town: String!
+  postalCode: String!
+  createdAt: Time
+  updatedAt: Time
+}

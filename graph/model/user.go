@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/rs/xid"
@@ -24,7 +25,7 @@ type UserCredentials struct {
 
 // Assign default id for user during create
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	id := xid.New()
-	tx.Statement.SetColumn("id", id.String())
+	newId := fmt.Sprintf("N%v", xid.New().String())
+	tx.Statement.SetColumn("id", newId)
 	return
 }
