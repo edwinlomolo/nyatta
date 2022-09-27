@@ -17,7 +17,7 @@ type NewProperty struct {
 type Property struct {
 	ID         string     `gorm:"primaryKey" json:"id"`
 	Name       string     `gorm:"type:varchar(100);not null" json:"name"`
-	Town       string     `gorm:"type:varchar(100):not null;uniqueIndex" json:"town"`
+	Town       string     `gorm:"type:varchar(100);not null;uniqueIndex" json:"town"`
 	PostalCode string     `gorm:"type:varchar(6);not null;uniqueIndex" json:"postalCode"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`
