@@ -19,7 +19,7 @@ func Test_property_service(t *testing.T) {
 	t.Run("should_create_property", func(t *testing.T) {
 		newProperty := &model.NewProperty{
 			Name:       "Jonsaga Properties",
-			Town:       "Huruma",
+			Town:       "Upper Hill",
 			PostalCode: "00500",
 		}
 		var err error
@@ -28,7 +28,7 @@ func Test_property_service(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.Equal(t, property.Name, "Jonsaga Properties")
-		assert.Equal(t, property.Town, "Huruma")
+		assert.Equal(t, property.Town, "Upper Hill")
 		assert.Equal(t, property.PostalCode, "00500")
 		assert.NotEmpty(t, property.ID)
 	})
