@@ -44,6 +44,7 @@ func Test_property_service(t *testing.T) {
 		foundProperty, err := propertyService.GetProperty("erkhlshf")
 
 		assert.NotNil(t, err)
+		assert.Equal(t, err.Error(), "Property does not exist")
 		assert.Nil(t, foundProperty)
 	})
 
