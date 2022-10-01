@@ -1,0 +1,9 @@
+# Represent property amenity
+type Amenity {
+  id: ID!
+  name: String!
+  provider: String
+  propertyId: ID!
+  createdAt: Time
+  updatedAt: Time
+}

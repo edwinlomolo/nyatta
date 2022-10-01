@@ -14,6 +14,7 @@ type PropertyService interface {
 	GetProperty(id string) (*model.Property, error)
 	FindByTown(town string) ([]*model.Property, error)
 	FindByPostalCode(postalCode string) ([]*model.Property, error)
+	AddAmenity(*model.AmenityInput) (*model.Amenity, error)
 }
 
 type PropertyServices struct {
@@ -46,7 +47,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 
 func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	var foundProperty *model.Property
-	err := p.store.Where("id = ?", id).Find(&foundProperty).Error
+	err := p.store.Where("id = ?", id).Preload("Amenities").Find(&foundProperty).Error
 	if err != nil {
 		return nil, err
 	}
@@ -78,4 +79,18 @@ func (p *PropertyServices) FindByPostalCode(postalCode string) ([]*model.Propert
 	}
 
 	return foundProperties, nil
+}
+
+func (p *PropertyServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenity, error) {
+	newAmenity := &model.Amenity{
+		Name:       amenity.Name,
+		Provider:   amenity.Provider,
+		PropertyID: amenity.PropertyID,
+	}
+	err := p.store.Create(&newAmenity).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return newAmenity, nil
 }

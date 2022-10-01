@@ -61,4 +61,22 @@ func Test_property_service(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, len(foundProperties), 1)
 	})
+
+	t.Run("should_add_property_amenity", func(t *testing.T) {
+		amenity, err := propertyService.AddAmenity(&model.AmenityInput{
+			Name:       "Home Fibre",
+			Provider:   "Safaricom Home Internet Services",
+			PropertyID: property.ID,
+		})
+
+		assert.Nil(t, err)
+		assert.Equal(t, amenity.Name, "Home Fibre")
+		assert.Equal(t, amenity.Provider, "Safaricom Home Internet Services")
+
+		// get property amenities
+		property, err := propertyService.GetProperty(property.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(property.Amenities), 1)
+	})
 }

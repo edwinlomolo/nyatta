@@ -4,6 +4,7 @@ type Property {
   name: String!
   town: String!
   postalCode: String!
+  amenities: [Amenity!]!
   createdAt: Time
   updatedAt: Time
 }

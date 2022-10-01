@@ -17,13 +17,14 @@ type NewProperty struct {
 type Property struct {
 	ID         string     `gorm:"primaryKey" json:"id"`
 	Name       string     `gorm:"type:varchar(100);not null" json:"name"`
-	Town       string     `gorm:"type:varchar(100);not null;uniqueIndex" json:"town"`
-	PostalCode string     `gorm:"type:varchar(6);not null;uniqueIndex" json:"postalCode"`
+	Town       string     `gorm:"type:varchar(100);not null;index" json:"town"`
+	Amenities  []Amenity  `json:"amenities"`
+	PostalCode string     `gorm:"type:varchar(6);not null;index" json:"postalCode"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`
 }
 
-// Assign default id for property during create
+// Assign default random id for property during create
 func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
 	newId := fmt.Sprintf("N%v", xid.New().String())
 	tx.Statement.SetColumn("id", newId)

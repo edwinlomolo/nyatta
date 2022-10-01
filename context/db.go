@@ -21,6 +21,7 @@ func OpenDB(config *Config, logger *zap.SugaredLogger) (*gorm.DB, error) {
 	db.Migrator().DropTable(
 		&model.User{},
 		&model.Property{},
+		&model.Amenity{},
 	)
 	if err := AutoMigrate(db); err != nil {
 		logger.Errorf("%s: %v", DatabaseError, err)
@@ -32,5 +33,6 @@ func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&model.User{},
 		&model.Property{},
+		&model.Amenity{},
 	)
 }

@@ -14,6 +14,12 @@ input NewProperty {
   postalCode: String!
 }
 
+input AmenityInput {
+  name: String!
+  provider: String!
+  propertyId: ID!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -26,6 +32,7 @@ type Query {
 type Mutation {
   signIn(input: NewUser!): Token!
   createProperty(input: NewProperty!): Property!
+  addAmenity(input: AmenityInput!): Amenity!
 }
 
 schema {
