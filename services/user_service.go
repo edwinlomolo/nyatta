@@ -74,7 +74,7 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 
 func (u *UserServices) FindById(id string) (*model.User, error) {
 	var foundUser *model.User
-	if err := u.store.Where("id = ?", id).Find(&foundUser).Error; err != nil {
+	if err := u.store.Where("id = ?", id).Preload("Properties").Find(&foundUser).Error; err != nil {
 		return nil, err
 	}
 	return foundUser, nil
@@ -82,7 +82,7 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	var foundUser *model.User
-	if err := u.store.Where("email = ?", email).Find(&foundUser).Error; err != nil {
+	if err := u.store.Where("email = ?", email).Preload("Properties").Find(&foundUser).Error; err != nil {
 		return nil, err
 	}
 	return foundUser, nil

@@ -4,11 +4,18 @@ import (
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_property_service(t *testing.T) {
 	propertyService := NewPropertyService(store, logger)
+	user, err := userService.CreateUser(&model.NewUser{
+		FirstName: "John",
+		LastName:  "Doe",
+		Email:     util.GenerateRandomEmail(),
+	})
+	assert.Nil(t, err)
 
 	var property *model.Property
 
@@ -21,6 +28,7 @@ func Test_property_service(t *testing.T) {
 			Name:       "Jonsaga Properties",
 			Town:       "Upper Hill",
 			PostalCode: "00500",
+			CreatedBy:  user.ID,
 		}
 		var err error
 
@@ -78,5 +86,11 @@ func Test_property_service(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.Equal(t, len(property.Amenities), 1)
+	})
+
+	t.Run("should_get_properties_belonging_to_a_user", func(t *testing.T) {
+		user, err := userService.FindById(user.ID)
+		assert.Nil(t, err)
+		assert.Equal(t, len(user.Properties), 1)
 	})
 }

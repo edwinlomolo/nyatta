@@ -9,13 +9,14 @@ import (
 )
 
 type User struct {
-	ID        string     `gorm:"primaryKey" json:"id"`
-	FirstName string     `gorm:"type:varchar(100);not null" json:"first_name"`
-	LastName  string     `gorm:"type:varchar(100);not null" json:"last_name"`
-	Email     string     `gorm:"uniqueIndex" json:"email"`
-	CreatedAt *time.Time `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
+	ID         string     `gorm:"primaryKey" json:"id"`
+	FirstName  string     `gorm:"type:varchar(100);not null" json:"first_name"`
+	LastName   string     `gorm:"type:varchar(100);not null" json:"last_name"`
+	Email      string     `gorm:"uniqueIndex" json:"email"`
+	Properties []Property `gorm:"foreignKey:CreatedBy" json:"properties"`
+	CreatedAt  *time.Time `json:"created_at"`
+	UpdatedAt  *time.Time `json:"updated_at"`
+	DeletedAt  *time.Time `json:"deleted_at"`
 }
 
 type UserCredentials struct {

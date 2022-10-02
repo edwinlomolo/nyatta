@@ -12,6 +12,7 @@ type NewProperty struct {
 	Name       string `json:"name"`
 	Town       string `json:"town"`
 	PostalCode string `json:"postalCode"`
+	CreatedBy  string `json:"createdBy"`
 }
 
 type Property struct {
@@ -19,6 +20,7 @@ type Property struct {
 	Name       string     `gorm:"type:varchar(100);not null" json:"name"`
 	Town       string     `gorm:"type:varchar(100);not null;index" json:"town"`
 	Amenities  []Amenity  `json:"amenities"`
+	CreatedBy  string     `json:"createdBy"`
 	PostalCode string     `gorm:"type:varchar(6);not null;index" json:"postalCode"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`

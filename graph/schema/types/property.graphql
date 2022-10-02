@@ -5,6 +5,7 @@ type Property {
   town: String!
   postalCode: String!
   amenities: [Amenity!]!
+  createdBy: ID!
   createdAt: Time
   updatedAt: Time
 }

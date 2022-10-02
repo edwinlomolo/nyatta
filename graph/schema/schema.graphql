@@ -12,6 +12,7 @@ input NewProperty {
   name: String!
   town: String!
   postalCode: String!
+  createdBy: ID!
 }
 
 input AmenityInput {

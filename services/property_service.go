@@ -35,6 +35,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 		Name:       property.Name,
 		Town:       property.Town,
 		PostalCode: property.PostalCode,
+		CreatedBy:  property.CreatedBy,
 	}
 
 	err := p.store.Create(&newProperty).Error
