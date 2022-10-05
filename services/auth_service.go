@@ -12,7 +12,7 @@ import (
 )
 
 type AuthService interface {
-	SignJwt(user *model.User) (string, error)
+	SignJWT(user *model.User) (*string, error)
 	ValidateJWT(token *string) (*jwt.Token, error)
 }
 
@@ -21,6 +21,8 @@ type AuthServices struct {
 	secret    *string
 	expiresIn *time.Duration
 }
+
+var _ AuthService = (*AuthServices)(nil)
 
 func NewAuthService(logger *zap.SugaredLogger, config *nyatta_context.Config) *AuthServices {
 	return &AuthServices{logger, &config.JWTSecret, &config.JWTExpiration}

@@ -14,7 +14,7 @@ type UserService interface {
 	CreateUser(user *model.NewUser) (*model.User, error)
 	FindById(id string) (*model.User, error)
 	FindByEmail(email string) (*model.User, error)
-	SignIn(user *model.User) (*string, error)
+	SignIn(user *model.NewUser) (*string, error)
 	ValidateToken(token *string) (*jwt.Token, error)
 }
 
@@ -23,6 +23,8 @@ type UserServices struct {
 	log   *zap.SugaredLogger
 	auth  *AuthServices
 }
+
+var _ UserService = (*UserServices)(nil)
 
 func NewUserService(store *gorm.DB, logger *zap.SugaredLogger, config *nyatta_context.Config) *UserServices {
 	authServices := NewAuthService(logger, config)
