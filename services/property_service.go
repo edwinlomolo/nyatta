@@ -63,7 +63,7 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 func (p *PropertyServices) FindByTown(town string) ([]*model.Property, error) {
 	var foundProperties []*model.Property
 
-	err := p.store.Where("town = ?", town).Find(&foundProperties).Error
+	err := p.store.Where("town = ?", town).Preload("Amenities").Find(&foundProperties).Error
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (p *PropertyServices) FindByTown(town string) ([]*model.Property, error) {
 func (p *PropertyServices) FindByPostalCode(postalCode string) ([]*model.Property, error) {
 	var foundProperties []*model.Property
 
-	err := p.store.Where("postal_code = ?", postalCode).Find(&foundProperties).Error
+	err := p.store.Where("postal_code = ?", postalCode).Preload("Amenities").Find(&foundProperties).Error
 	if err != nil {
 		return nil, err
 	}
