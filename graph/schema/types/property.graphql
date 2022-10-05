@@ -4,7 +4,7 @@ type Property {
   name: String!
   town: String!
   postalCode: String!
-  amenities: [Amenity!]!
+  amenities: [Amenity!]! # TODO: shared amenities with property units
   createdBy: ID!
   createdAt: Time
   updatedAt: Time
