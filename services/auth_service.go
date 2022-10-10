@@ -22,7 +22,7 @@ type AuthServices struct {
 	expiresIn *time.Duration
 }
 
-var _ AuthService = (*AuthServices)(nil)
+var _ AuthService = &AuthServices{}
 
 func NewAuthService(logger *zap.SugaredLogger, config *nyatta_context.Config) *AuthServices {
 	return &AuthServices{logger, &config.JWTSecret, &config.JWTExpiration}

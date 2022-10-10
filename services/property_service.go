@@ -22,7 +22,7 @@ type PropertyServices struct {
 	logger *zap.SugaredLogger
 }
 
-var _ PropertyService = (*PropertyServices)(nil)
+var _ PropertyService = &PropertyServices{}
 
 func NewPropertyService(store *gorm.DB, logger *zap.SugaredLogger) *PropertyServices {
 	return &PropertyServices{store: store, logger: logger}

@@ -24,7 +24,7 @@ type UserServices struct {
 	auth  *AuthServices
 }
 
-var _ UserService = (*UserServices)(nil)
+var _ UserService = &UserServices{}
 
 func NewUserService(store *gorm.DB, logger *zap.SugaredLogger, config *nyatta_context.Config) *UserServices {
 	authServices := NewAuthService(logger, config)
