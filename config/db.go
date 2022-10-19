@@ -10,6 +10,27 @@ import (
 	"go.uber.org/zap"
 )
 
+type DatabaseConfig struct {
+	RDBMS RDBMS
+}
+
+// RDBMS - relational databases variables
+type RDBMS struct {
+	Env struct {
+		Driver string
+		Host   string
+		Port   string
+	}
+	Access struct {
+		DbName string
+		User   string
+		Pass   string
+	}
+	Ssl struct {
+		SslMode string
+	}
+}
+
 func OpenDB(config *Config, logger *zap.SugaredLogger) (*gorm.DB, error) {
 	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DevDBName, config.SslMode)
 
