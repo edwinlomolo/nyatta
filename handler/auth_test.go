@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/stretchr/testify/assert"
@@ -18,12 +18,12 @@ import (
 
 func Test_Auth_Handler(t *testing.T) {
 	// Load env config(s)
-	cfg, _ := nyatta_context.LoadConfig("..")
+	cfg, _ := config.LoadConfig("..")
 
 	// Initialize service(s)
 	ctx := context.Background()
 	logger, _ := services.NewLogger(cfg)
-	store, _ := nyatta_context.OpenDB(cfg, logger)
+	store, _ := config.OpenDB(cfg, logger)
 	userService := services.NewUserService(store, logger, cfg)
 
 	ctx = context.WithValue(ctx, "config", cfg)

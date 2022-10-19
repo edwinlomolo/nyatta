@@ -6,7 +6,7 @@ import (
 	"log"
 	"testing"
 
-	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
@@ -21,18 +21,18 @@ var (
 	userService   *services.UserServices
 	logger        *zap.SugaredLogger
 	store         *gorm.DB
-	cfg           *nyatta_context.Config
-	configuration *nyatta_context.Config
+	cfg           *config.Config
+	configuration *config.Config
 	err           error
 )
 
 func init() {
-	configuration, err = nyatta_context.LoadConfig("../../")
+	configuration, err = config.LoadConfig("../../")
 	if err != nil {
 		log.Fatalf("Error reading Test config: %v", err)
 	}
 	logger, _ = services.NewLogger(configuration)
-	store, _ = nyatta_context.OpenDB(configuration, logger)
+	store, _ = config.OpenDB(configuration, logger)
 	userService = services.NewUserService(store, logger, configuration)
 
 	ctx = context.Background()

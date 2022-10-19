@@ -1,4 +1,4 @@
-package nyatta_context
+package config
 
 import "errors"
 

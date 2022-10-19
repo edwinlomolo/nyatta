@@ -3,7 +3,7 @@ package services
 import (
 	"testing"
 
-	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/stretchr/testify/assert"
@@ -13,13 +13,13 @@ import (
 var (
 	userService   *UserServices
 	store         *gorm.DB
-	configuration *nyatta_context.Config
+	configuration *config.Config
 )
 
 func init() {
-	configuration, _ = nyatta_context.LoadConfig("..")
+	configuration, _ = config.LoadConfig("..")
 	logger, _ = NewLogger(configuration)
-	store, _ = nyatta_context.OpenDB(configuration, logger)
+	store, _ = config.OpenDB(configuration, logger)
 	userService = NewUserService(store, logger, configuration)
 }
 

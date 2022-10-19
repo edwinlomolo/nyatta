@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"strings"
 
-	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -84,7 +84,7 @@ func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token,
 	var tokenString string
 	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(auth) != 2 || auth[0] != "Bearer" {
-		return nil, errors.New(nyatta_context.CredentialsError)
+		return nil, errors.New(config.CredentialsError)
 	}
 	tokenString = auth[1]
 	token, err := ctx.Value("userService").(*services.UserServices).ValidateToken(&tokenString)

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	jwt "github.com/dgrijalva/jwt-go"
 	"go.uber.org/zap"
@@ -24,7 +24,7 @@ type AuthServices struct {
 
 var _ AuthService = &AuthServices{}
 
-func NewAuthService(logger *zap.SugaredLogger, config *nyatta_context.Config) *AuthServices {
+func NewAuthService(logger *zap.SugaredLogger, config *config.Config) *AuthServices {
 	return &AuthServices{logger, &config.JWTSecret, &config.JWTExpiration}
 }
 

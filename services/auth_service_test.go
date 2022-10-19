@@ -3,7 +3,7 @@ package services
 import (
 	"testing"
 
-	nyatta_context "github.com/3dw1nM0535/nyatta/context"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	config, _ := nyatta_context.LoadConfig("..")
+	config, _ := config.LoadConfig("..")
 	logger, _ := NewLogger(config)
 	authService = NewAuthService(logger, config)
 }
