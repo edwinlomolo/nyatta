@@ -6,7 +6,6 @@ import (
 
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 // env - load environment variables
@@ -22,20 +21,39 @@ func env() {
 type Configuration struct {
 	Database  DatabaseConfig
 	JwtConfig Jwt
+	Server    ServerConfig
 }
 
 var configAll *Configuration
 
 // Config - load all configurations
-func _Config() *Configuration {
+func LoadConfig() *Configuration {
 	var configuration Configuration
 
 	configuration.Database = database()
 	configuration.JwtConfig = jsonWebToken()
+	configuration.Server = server()
 
 	configAll = &configuration
 
 	return configAll
+}
+
+// GetConfig - get all configurations variables
+func GetConfig() *Configuration {
+	return configAll
+}
+
+// server - all server config variables
+func server() ServerConfig {
+	var serverConfig ServerConfig
+
+	// Load environment variables
+	env()
+
+	serverConfig.ServerPort = os.Getenv("SERVERPORT")
+
+	return serverConfig
 }
 
 // database - all db variables
@@ -78,58 +96,14 @@ func jsonWebToken() Jwt {
 	// Load env variables
 	env()
 
-	jwt.JWT.Expires = os.Getenv("JWTEXPIRE")
+	t := os.Getenv("JWTEXPIRE")
+	duration, err := time.ParseDuration(t)
+	if err != nil {
+		log.Errorf("panic: jwt duration: %v", err)
+	}
+
+	jwt.JWT.Expires = duration
 	jwt.JWT.Secret = os.Getenv("JWTSECRET")
 
 	return jwt
-}
-
-type Config struct {
-	// DB
-	DBPort     string
-	DBUser     string
-	DBHost     string
-	DBPassword string
-	Port       string
-	TestDBName string
-	DevDBName  string
-	ProdDBName string
-	SslMode    string
-
-	// Env
-	Env string
-
-	// JWT
-	JWTSecret     string
-	JWTExpiration time.Duration
-}
-
-func LoadConfig(path string) (cfg *Config, err error) {
-	config := viper.New()
-	config.AddConfigPath(path)
-	config.SetConfigName(".env")
-	config.SetConfigType("env")
-	config.AutomaticEnv()
-	err = config.ReadInConfig()
-
-	if err != nil {
-		// TODO: reuse internal service logger
-		log.Fatalf("Error reading env config: %s\n", err)
-	}
-
-	cfgs := &Config{
-		DBPort:        config.Get("DBPort").(string),
-		DBUser:        config.Get("DBUser").(string),
-		DBHost:        config.Get("DBHost").(string),
-		DBPassword:    config.Get("DBPassword").(string),
-		Port:          config.Get("Port").(string),
-		SslMode:       config.Get("SslMode").(string),
-		Env:           config.Get("Env").(string),
-		TestDBName:    config.Get("TestDBName").(string),
-		DevDBName:     config.Get("DevDBName").(string),
-		ProdDBName:    config.Get("ProdDBName").(string),
-		JWTSecret:     config.Get("JWTSecret").(string),
-		JWTExpiration: config.GetDuration("JWTExpiration"),
-	}
-	return cfgs, nil
 }

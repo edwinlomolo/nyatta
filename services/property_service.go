@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"go.uber.org/zap"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -19,12 +19,12 @@ type PropertyService interface {
 
 type PropertyServices struct {
 	store  *gorm.DB
-	logger *zap.SugaredLogger
+	logger *log.Logger
 }
 
 var _ PropertyService = &PropertyServices{}
 
-func NewPropertyService(store *gorm.DB, logger *zap.SugaredLogger) *PropertyServices {
+func NewPropertyService(store *gorm.DB, logger *log.Logger) *PropertyServices {
 	return &PropertyServices{store: store, logger: logger}
 }
 

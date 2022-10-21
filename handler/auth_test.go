@@ -8,23 +8,31 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/database"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_Auth_Handler(t *testing.T) {
 	// Load env config(s)
-	cfg, _ := config.LoadConfig("..")
+	logger := log.New()
+	err := godotenv.Load(os.ExpandEnv("../.env"))
+	if err != nil {
+		logger.Errorf("panic loading env: %v", err)
+	}
+	cfg := config.LoadConfig()
 
 	// Initialize service(s)
 	ctx := context.Background()
-	logger, _ := services.NewLogger(cfg)
-	store, _ := config.OpenDB(cfg, logger)
-	userService := services.NewUserService(store, logger, cfg)
+	store, _ := database.InitDB(&cfg.Database.RDBMS)
+	userService := services.NewUserService(store, logger, &cfg.JwtConfig)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)

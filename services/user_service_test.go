@@ -1,11 +1,15 @@
 package services
 
 import (
+	"os"
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/database"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/util"
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -13,14 +17,20 @@ import (
 var (
 	userService   *UserServices
 	store         *gorm.DB
-	configuration *config.Config
+	configuration *config.Configuration
+	authService   *AuthServices
 )
 
 func init() {
-	configuration, _ = config.LoadConfig("..")
-	logger, _ = NewLogger(configuration)
-	store, _ = config.OpenDB(configuration, logger)
-	userService = NewUserService(store, logger, configuration)
+	logger := log.New()
+	err := godotenv.Load(os.ExpandEnv("../.env"))
+	if err != nil {
+		logger.Errorf("panic loading env: %v", err)
+	}
+	configuration := config.LoadConfig()
+	store, _ = database.InitDB(&configuration.Database.RDBMS)
+	userService = NewUserService(store, logger, &configuration.JwtConfig)
+	authService = NewAuthService(logger, &configuration.JwtConfig)
 }
 
 func Test_User_Services(t *testing.T) {

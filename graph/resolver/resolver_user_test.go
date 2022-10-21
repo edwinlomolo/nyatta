@@ -3,40 +3,45 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"log"
+	"os"
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/database"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/client"
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 var (
 	ctx           context.Context
 	userService   *services.UserServices
-	logger        *zap.SugaredLogger
+	logger        *log.Logger
 	store         *gorm.DB
-	cfg           *config.Config
-	configuration *config.Config
+	configuration *config.Configuration
 	err           error
 )
 
 func init() {
-	configuration, err = config.LoadConfig("../../")
+	logger := log.New()
+	err := godotenv.Load(os.ExpandEnv("../../.env"))
+	if err != nil {
+		log.Errorf("panic loading env: %v", err)
+	}
+	configuration = config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Error reading Test config: %v", err)
 	}
-	logger, _ = services.NewLogger(configuration)
-	store, _ = config.OpenDB(configuration, logger)
-	userService = services.NewUserService(store, logger, configuration)
+	store, _ = database.InitDB(&configuration.Database.RDBMS)
+	userService = services.NewUserService(store, logger, &configuration.JwtConfig)
 
 	ctx = context.Background()
-	ctx = context.WithValue(ctx, "config", cfg)
+	ctx = context.WithValue(ctx, "config", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "log", logger)
 }

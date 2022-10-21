@@ -6,7 +6,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	jwt "github.com/dgrijalva/jwt-go"
-	"go.uber.org/zap"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -20,13 +20,13 @@ type UserService interface {
 
 type UserServices struct {
 	store *gorm.DB
-	log   *zap.SugaredLogger
+	log   *log.Logger
 	auth  *AuthServices
 }
 
 var _ UserService = &UserServices{}
 
-func NewUserService(store *gorm.DB, logger *zap.SugaredLogger, config *config.Config) *UserServices {
+func NewUserService(store *gorm.DB, logger *log.Logger, config *config.Jwt) *UserServices {
 	authServices := NewAuthService(logger, config)
 	return &UserServices{store, logger, authServices}
 }
@@ -53,14 +53,14 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 }
 
 func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
-	// Find user returning user
+	// user - existing user
 	var newUser *model.User
 	var err error
 	newUser, err = u.FindByEmail(user.Email)
 	if err != nil {
 		return nil, fmt.Errorf("Error signing in user: %v", err)
 	}
-	// User cannot be found - new user
+	// user - new user
 	if newUser == nil {
 		newUser, err = u.CreateUser(user)
 		if err != nil {

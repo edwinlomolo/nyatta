@@ -5,11 +5,12 @@ import (
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/util"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_property_service(t *testing.T) {
-	propertyService := NewPropertyService(store, logger)
+	propertyService := NewPropertyService(store, log.New())
 	user, err := userService.CreateUser(&model.NewUser{
 		FirstName: "John",
 		LastName:  "Doe",

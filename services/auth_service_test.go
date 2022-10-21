@@ -3,20 +3,9 @@ package services
 import (
 	"testing"
 
-	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/stretchr/testify/assert"
 )
-
-var (
-	authService *AuthServices
-)
-
-func init() {
-	config, _ := config.LoadConfig("..")
-	logger, _ := NewLogger(config)
-	authService = NewAuthService(logger, config)
-}
 
 func Test_AuthServices(t *testing.T) {
 	var newUser *model.User

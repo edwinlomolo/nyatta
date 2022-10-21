@@ -8,7 +8,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	jwt "github.com/dgrijalva/jwt-go"
-	"go.uber.org/zap"
+	log "github.com/sirupsen/logrus"
 )
 
 type AuthService interface {
@@ -17,15 +17,15 @@ type AuthService interface {
 }
 
 type AuthServices struct {
-	log       *zap.SugaredLogger
+	log       *log.Logger
 	secret    *string
 	expiresIn *time.Duration
 }
 
 var _ AuthService = &AuthServices{}
 
-func NewAuthService(logger *zap.SugaredLogger, config *config.Config) *AuthServices {
-	return &AuthServices{logger, &config.JWTSecret, &config.JWTExpiration}
+func NewAuthService(logger *log.Logger, config *config.Jwt) *AuthServices {
+	return &AuthServices{logger, &config.JWT.Secret, &config.JWT.Expires}
 }
 
 func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
