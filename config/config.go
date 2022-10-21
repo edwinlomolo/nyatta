@@ -96,8 +96,7 @@ func jsonWebToken() Jwt {
 	// Load env variables
 	env()
 
-	t := os.Getenv("JWTEXPIRE")
-	duration, err := time.ParseDuration(t)
+	duration, err := time.ParseDuration(os.Getenv("JWTEXPIRE"))
 	if err != nil {
 		log.Errorf("panic: jwt duration: %v", err)
 	}
