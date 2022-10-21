@@ -28,7 +28,7 @@ type Property struct {
 
 // Assign default random id for property during create
 func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
-	newId := fmt.Sprintf("N%v", xid.New().String())
+	newId := fmt.Sprintf("P%v", xid.New().String())
 	tx.Statement.SetColumn("id", newId)
 	return
 }

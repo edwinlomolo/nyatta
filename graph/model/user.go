@@ -26,7 +26,7 @@ type UserCredentials struct {
 
 // Assign default id for user during create
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	newId := fmt.Sprintf("N%v", xid.New().String())
+	newId := fmt.Sprintf("U%v", xid.New().String())
 	tx.Statement.SetColumn("id", newId)
 	return
 }
