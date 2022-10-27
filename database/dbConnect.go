@@ -60,6 +60,7 @@ func dropAllTables(db *gorm.DB) error {
 		&model.Property{},
 		&model.Amenity{},
 	); err != nil {
+		log.WithError(err)
 		return err
 	}
 	log.Info("Database tables deleted")
@@ -73,6 +74,7 @@ func startMigration(db *gorm.DB) error {
 		&model.Property{},
 		&model.Amenity{},
 	); err != nil {
+		log.WithError(err)
 		return err
 	}
 	log.Info("Database tables migrated")
