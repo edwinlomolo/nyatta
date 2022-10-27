@@ -31,7 +31,7 @@ func Test_Auth_Handler(t *testing.T) {
 
 	// Initialize service(s)
 	ctx := context.Background()
-	store, _ := database.InitDB(&cfg.Database.RDBMS)
+	store, _ := database.InitDB()
 	userService := services.NewUserService(store, logger, &cfg.JwtConfig)
 
 	ctx = context.WithValue(ctx, "config", cfg)

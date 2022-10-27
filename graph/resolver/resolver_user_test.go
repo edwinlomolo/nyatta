@@ -37,7 +37,8 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error reading Test config: %v", err)
 	}
-	store, _ = database.InitDB(&configuration.Database.RDBMS)
+	store, _ = database.InitDB()
+
 	userService = services.NewUserService(store, logger, &configuration.JwtConfig)
 
 	ctx = context.Background()

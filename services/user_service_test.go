@@ -28,7 +28,7 @@ func init() {
 		logger.Errorf("panic loading env: %v", err)
 	}
 	configuration := config.LoadConfig()
-	store, _ = database.InitDB(&configuration.Database.RDBMS)
+	store, _ = database.InitDB()
 	userService = NewUserService(store, logger, &configuration.JwtConfig)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
 }

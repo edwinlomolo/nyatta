@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	cfg "github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -16,8 +16,19 @@ var (
 	DatabaseError = errors.New("DatabaseError")
 )
 
-func InitDB(config *cfg.RDBMS) (*gorm.DB, error) {
-	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.Env.Host, config.Env.Port, config.Access.User, config.Access.Pass, config.Access.DbName, config.Ssl.SslMode)
+var dbClient *gorm.DB
+
+func InitDB() (*gorm.DB, error) {
+	configureDB := config.GetConfig().Database.RDBMS
+
+	host := configureDB.Env.Host
+	port := configureDB.Env.Port
+	user := configureDB.Access.User
+	pass := configureDB.Access.Pass
+	name := configureDB.Access.DbName
+	ssl_mode := configureDB.Ssl.SslMode
+
+	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, pass, name, ssl_mode)
 
 	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.LogLevel(1)),
@@ -25,22 +36,45 @@ func InitDB(config *cfg.RDBMS) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	dbClient = db
 	log.Info("Database is connected")
-	db.Migrator().DropTable(
-		&model.User{},
-		&model.Property{},
-		&model.Amenity{},
-	)
-	if err := AutoMigrate(db); err != nil {
-		log.Errorf("%s: %v", DatabaseError, err)
+	if err := dropAllTables(dbClient); err != nil {
+		return nil, err
 	}
-	return db, nil
+
+	if err := startMigration(dbClient); err != nil {
+		return nil, err
+	}
+	return dbClient, nil
 }
 
-func AutoMigrate(db *gorm.DB) error {
-	return db.AutoMigrate(
+// GetDB - get database client
+func GetDB() *gorm.DB {
+	return dbClient
+}
+
+// DropAllTables - cleanup database tables
+func dropAllTables(db *gorm.DB) error {
+	if err := db.Migrator().DropTable(
 		&model.User{},
 		&model.Property{},
 		&model.Amenity{},
-	)
+	); err != nil {
+		return err
+	}
+	log.Info("Database tables deleted")
+	return nil
+}
+
+// StartMigration - setup database tables/columns and any missing indexes
+func startMigration(db *gorm.DB) error {
+	if err := db.AutoMigrate(
+		&model.User{},
+		&model.Property{},
+		&model.Amenity{},
+	); err != nil {
+		return err
+	}
+	log.Info("Database tables migrated")
+	return nil
 }

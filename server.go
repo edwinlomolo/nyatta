@@ -24,7 +24,7 @@ func main() {
 	// Initialize service(s)
 	ctx := context.Background()
 	logger := log.New()
-	store, _ := database.InitDB(&configuration.Database.RDBMS)
+	store, _ := database.InitDB()
 	userService := services.NewUserService(store, logger, &configuration.JwtConfig)
 
 	ctx = context.WithValue(ctx, "config", config.GetConfig())
