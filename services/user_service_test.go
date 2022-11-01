@@ -21,7 +21,8 @@ var (
 	authService   *AuthServices
 )
 
-func init() {
+func TestMain(m *testing.M) {
+	// setup test
 	logger := log.New()
 	err := godotenv.Load(os.ExpandEnv("../.env"))
 	if err != nil {
@@ -31,6 +32,9 @@ func init() {
 	store, _ = database.InitDB()
 	userService = NewUserService(store, logger, &configuration.JwtConfig)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
+
+	// exit once done
+	os.Exit(m.Run())
 }
 
 func Test_User_Services(t *testing.T) {
@@ -41,7 +45,7 @@ func Test_User_Services(t *testing.T) {
 		newUser, err = userService.CreateUser(&model.NewUser{
 			FirstName: "John",
 			LastName:  "Doe",
-			Email:     "johndoe@email.com",
+			Email:     util.GenerateRandomEmail(),
 		})
 
 		assert.Nil(t, err)

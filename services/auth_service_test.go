@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +16,7 @@ func Test_AuthServices(t *testing.T) {
 		newUser, err = userService.CreateUser(&model.NewUser{
 			FirstName: "Jane",
 			LastName:  "Doe",
-			Email:     "janedoe@email.com",
+			Email:     util.GenerateRandomEmail(),
 		})
 
 		assert.Nil(t, err)

@@ -27,7 +27,8 @@ var (
 	err           error
 )
 
-func init() {
+func TestMain(m *testing.M) {
+	// setup tests
 	logger := log.New()
 	err := godotenv.Load(os.ExpandEnv("../../.env"))
 	if err != nil {
@@ -45,6 +46,9 @@ func init() {
 	ctx = context.WithValue(ctx, "config", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "log", logger)
+
+	// exit once done
+	os.Exit(m.Run())
 }
 
 func Test_Resolver_User(t *testing.T) {

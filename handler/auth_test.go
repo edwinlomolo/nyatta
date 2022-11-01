@@ -20,7 +20,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Auth_Handler(t *testing.T) {
+var ctx context.Context
+
+func TestMain(m *testing.M) {
 	// Load env config(s)
 	logger := log.New()
 	err := godotenv.Load(os.ExpandEnv("../.env"))
@@ -30,7 +32,7 @@ func Test_Auth_Handler(t *testing.T) {
 	cfg := config.LoadConfig()
 
 	// Initialize service(s)
-	ctx := context.Background()
+	ctx = context.Background()
 	store, _ := database.InitDB()
 	userService := services.NewUserService(store, logger, &cfg.JwtConfig)
 
@@ -38,6 +40,11 @@ func Test_Auth_Handler(t *testing.T) {
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "log", logger)
 
+	// exit once done
+	os.Exit(m.Run())
+}
+
+func Test_Auth_Handler(t *testing.T) {
 	var creds struct {
 		AccessToken string `json:"access_token"`
 		Code        int    `json:"code"`
