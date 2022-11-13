@@ -7,7 +7,8 @@ jobs:
     working_directory: ~/repo
     # Specify execution environment
     docker:
-      - image: cimg/go:1.15.10
+      - image: cimg/go:1.18
+      - image: cimg/postgres:9.6-alpine
     # Add steps to job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
