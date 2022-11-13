@@ -18,6 +18,7 @@ var (
 
 var dbClient *gorm.DB
 
+// InitDB - setup db and return connection instance/error
 func InitDB() (*gorm.DB, error) {
 	configureDB := config.GetConfig().Database.RDBMS
 
@@ -53,7 +54,7 @@ func GetDB() *gorm.DB {
 	return dbClient
 }
 
-// DropAllTables - cleanup database tables
+// dropAllTables - cleanup database tables
 func dropAllTables(db *gorm.DB) error {
 	if err := db.Migrator().DropTable(
 		&model.User{},
@@ -67,7 +68,7 @@ func dropAllTables(db *gorm.DB) error {
 	return nil
 }
 
-// StartMigration - setup database tables/columns and any missing indexes
+// startMigration - setup database tables/columns and any missing indexes
 func startMigration(db *gorm.DB) error {
 	if err := db.AutoMigrate(
 		&model.User{},

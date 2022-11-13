@@ -27,6 +27,7 @@ func main() {
 	store, _ := database.InitDB()
 	userService := services.NewUserService(store, logger, &configuration.JwtConfig)
 
+	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "log", logger)

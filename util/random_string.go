@@ -7,6 +7,7 @@ import (
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+// randString - generate random string ids
 func randString() string {
 	s := make([]rune, 5)
 	for i := range s {
@@ -15,6 +16,7 @@ func randString() string {
 	return string(s)
 }
 
+// GenerateRandomEmail - generate random email address
 func GenerateRandomEmail() string {
 	return fmt.Sprintf("%s@email.com", randString())
 }
