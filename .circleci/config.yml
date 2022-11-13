@@ -21,6 +21,6 @@ jobs:
       #  paths:
       #    - "go/pkg/mod"
       # Run project test files
-      - run:
-        name: Run tests
-        command: go test -v ./...
+      #- run:
+      #  name: Run tests
+      #  command: go test -v ./...
