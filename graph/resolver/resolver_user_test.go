@@ -35,9 +35,6 @@ func TestMain(m *testing.M) {
 		log.Errorf("panic loading env: %v", err)
 	}
 	configuration = config.LoadConfig()
-	if err != nil {
-		log.Fatalf("Error reading Test config: %v", err)
-	}
 	store, _ = database.InitDB()
 
 	userService = services.NewUserService(store, logger, &configuration.JwtConfig)
