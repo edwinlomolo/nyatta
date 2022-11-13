@@ -1,0 +1,26 @@
+version: 2.1
+
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/go:1.15.10
+    steps:
+      - checkout
+      # Restore project dependencies from cache
+      #- restore_cache:
+      #  keys:
+      #    - go-mod-v4-{{ checksum "go.sum" }}
+      # Install project dependencies
+      - run:
+        name: Install Dependencies
+        command: go get ./...
+      # Save project dependencies in cache
+      #- save_cache:
+      #  key: go-mod-v4-{{ "go.sum" }}
+      #  paths:
+      #    - "go/pkg/mod"
+      # Run project test files
+      - run:
+        name: Run tests
+        command: go test -v ./...
