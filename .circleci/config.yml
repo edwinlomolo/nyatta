@@ -24,3 +24,9 @@ jobs:
       #- run:
       #  name: Run tests
       #  command: go test -v ./...
+# Invoke workflow
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - build
