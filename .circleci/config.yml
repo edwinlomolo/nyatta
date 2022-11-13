@@ -27,6 +27,10 @@ jobs:
           key: go-mod-v4-{{ "go.sum" }}
           paths:
           - "go/pkg/mod"
+      # Wait for postgres to be ready
+      - run:
+          name: Waiting for postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
       # Run project test files
       #- run:
       #    name: Run tests
