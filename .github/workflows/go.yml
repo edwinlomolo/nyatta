@@ -22,7 +22,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: demo1234
           POSTGRES_DB: nyatta-test
-          POSTGRES_PORT: 5432
+        ports:
+          - 5432:5432
         # Set health check to wait until postgres is up
         options: >-
           --health-cmd pg_isready
