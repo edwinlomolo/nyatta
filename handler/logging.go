@@ -8,6 +8,7 @@ import (
 
 type LoggingHandler struct{}
 
+// Logging - feed custom logger onto any request handler through context
 func (l *LoggingHandler) Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

@@ -16,18 +16,22 @@ type AuthService interface {
 	ValidateJWT(token *string) (*jwt.Token, error)
 }
 
+// AuthServices - represent authentication service
 type AuthServices struct {
 	log       *log.Logger
 	secret    *string
 	expiresIn *time.Duration
 }
 
+//_ - AuthServices{} implements AuthService
 var _ AuthService = &AuthServices{}
 
+// NewAuthService - factory for auth services
 func NewAuthService(logger *log.Logger, config *config.Jwt) *AuthServices {
 	return &AuthServices{logger, &config.JWT.Secret, &config.JWT.Expires}
 }
 
+// SignJWT - signin user and return jwt token
 func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss":        "Nyatta",
@@ -40,6 +44,7 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 	return &tokenString, err
 }
 
+// ValidateJWT - validate jwt token
 func (a *AuthServices) ValidateJWT(tokenString *string) (*jwt.Token, error) {
 	token, err := jwt.Parse(*tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

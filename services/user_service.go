@@ -18,12 +18,14 @@ type UserService interface {
 	ValidateToken(token *string) (*jwt.Token, error)
 }
 
+// UserServices - represents user service
 type UserServices struct {
 	store *gorm.DB
 	log   *log.Logger
 	auth  *AuthServices
 }
 
+// _ - UserServices{} implements UserService
 var _ UserService = &UserServices{}
 
 func NewUserService(store *gorm.DB, logger *log.Logger, config *config.Jwt) *UserServices {
@@ -31,6 +33,7 @@ func NewUserService(store *gorm.DB, logger *log.Logger, config *config.Jwt) *Use
 	return &UserServices{store, logger, authServices}
 }
 
+// CreateUser - create a new user
 func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 	// User exists
 	var existingUser *model.User
@@ -52,6 +55,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 	return newUser, nil
 }
 
+// SignIn - signin existing/returning user
 func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	// user - existing user
 	var newUser *model.User
@@ -74,6 +78,7 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	return token, nil
 }
 
+// FindById - return user given user id
 func (u *UserServices) FindById(id string) (*model.User, error) {
 	var foundUser *model.User
 	if err := u.store.Where("id = ?", id).Preload("Properties").Find(&foundUser).Error; err != nil {
@@ -82,6 +87,7 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 	return foundUser, nil
 }
 
+// FindByEmail - return user given user email
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	var foundUser *model.User
 	if err := u.store.Where("email = ?", email).Preload("Properties").Find(&foundUser).Error; err != nil {
@@ -90,11 +96,13 @@ func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	return foundUser, nil
 }
 
+// ValidateToken - validate jwt token
 func (u *UserServices) ValidateToken(tokenString *string) (*jwt.Token, error) {
 	token, err := u.auth.ValidateJWT(tokenString)
 	return token, err
 }
 
+// ServiceName - return service name
 func (u *UserServices) ServiceName() string {
 	return "UserServices"
 }
