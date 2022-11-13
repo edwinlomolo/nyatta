@@ -29,7 +29,7 @@ jobs:
       # Install project dependencies
       - run:
           name: Install Dependencies
-          command: go mod download
+          command: go get .
       # Save project dependencies in cache
       - save_cache:
           key: go-mod-v4-{{ "go.sum" }}
