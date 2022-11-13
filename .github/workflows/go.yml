@@ -25,6 +25,10 @@ jobs:
     - name: Display Go Version
       run: go version
 
+    # Install project dependencies
+    - name: Install dependencies
+      run: go get .
+
     - name: Build
       run: go build -v ./...
 
