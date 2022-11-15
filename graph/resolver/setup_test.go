@@ -49,6 +49,8 @@ func makeLoginUser() string {
 }
 
 // makeAuthedServer - return authed graphql client
+// TODO rfr to makeAuthedGqlServer since its returning authed/unauthed gql server
+// TODO rfr to makeAuthedGqlServer(authenticate bool) *client.Client {}
 func makeAuthedServer(tokenString string, ctx context.Context) *client.Client {
 	var srv *client.Client
 	if len(tokenString) == 0 {
@@ -60,3 +62,5 @@ func makeAuthedServer(tokenString string, ctx context.Context) *client.Client {
 	}
 	return srv
 }
+
+// TODO makeAuthedServer - return authed/unauthed server
