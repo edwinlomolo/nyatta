@@ -17,6 +17,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 )
 
+// makeLoginUser - return authed user
 func makeLoginUser() string {
 	var creds struct {
 		AccessToken string `json:"access_token"`
@@ -47,6 +48,7 @@ func makeLoginUser() string {
 	return creds.AccessToken
 }
 
+// makeAuthedServer - return authed graphql client
 func makeAuthedServer(tokenString string, ctx context.Context) *client.Client {
 	var srv *client.Client
 	if len(tokenString) == 0 {
