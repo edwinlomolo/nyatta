@@ -26,10 +26,12 @@ func main() {
 	logger := log.New()
 	store, _ := database.InitDB()
 	userService := services.NewUserService(store, logger, &configuration.JwtConfig)
+	propertyService := services.NewPropertyService(store, logger)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())
 	ctx = context.WithValue(ctx, "userService", userService)
+	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
