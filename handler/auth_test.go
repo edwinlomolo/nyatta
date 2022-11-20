@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/database"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
@@ -36,11 +36,9 @@ func TestMain(m *testing.M) {
 
 	// Initialize service(s)
 	ctx = context.Background()
-	dbConfig := cfg.Database.RDBMS
-	dbUri := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbConfig.Access.User, dbConfig.Access.Pass, dbConfig.Access.DbName, dbConfig.Ssl.SslMode)
-	db, err := sql.Open("postgres", dbUri)
+	db, err := database.InitDB()
 	if err != nil {
-		log.Fatalf("Error connecting to db: %v", err)
+		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}
 	queries := sqlStore.New(db)
 	userService := services.NewUserService(queries, logger, &cfg.JwtConfig)
