@@ -52,6 +52,7 @@ func server() ServerConfig {
 	env()
 
 	serverConfig.ServerPort = os.Getenv("SERVERPORT")
+	serverConfig.ServerEnv = os.Getenv("SERVERENV")
 
 	return serverConfig
 }
@@ -105,4 +106,14 @@ func jsonWebToken() Jwt {
 	jwt.JWT.Secret = os.Getenv("JWTSECRET")
 
 	return jwt
+}
+
+// IsPrototypeEnv - is environment development?
+func IsPrototypeEnv() bool {
+	// Load environment variables
+	env()
+
+	serverEnv := os.Getenv("SERVERENV")
+
+	return (serverEnv == "development" || serverEnv == "test")
 }

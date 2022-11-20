@@ -2,12 +2,14 @@ package resolver
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/database"
+	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
@@ -15,16 +17,18 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
+
+	_ "github.com/lib/pq"
 )
 
 var (
-	ctx           context.Context
-	userService   *services.UserServices
-	logger        *log.Logger
-	store         *gorm.DB
-	configuration *config.Configuration
-	err           error
+	ctx             context.Context
+	userService     *services.UserServices
+	propertyService *services.PropertyServices
+	logger          *log.Logger
+	configuration   *config.Configuration
+	err             error
+	db              *sql.DB
 )
 
 func TestMain(m *testing.M) {
@@ -35,13 +39,19 @@ func TestMain(m *testing.M) {
 		log.Errorf("panic loading env: %v", err)
 	}
 	configuration = config.LoadConfig()
-	store, _ = database.InitDB()
+	db, err = database.InitDB()
+	if err != nil {
+		log.Fatalf("%s: %v", database.DatabaseError, err)
+	}
+	queries := sqlStore.New(db)
 
-	userService = services.NewUserService(store, logger, &configuration.JwtConfig)
+	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
+	propertyService = services.NewPropertyService(queries, logger)
 
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "config", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
+	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	// exit once done
@@ -73,9 +83,13 @@ func Test_Resolver_User(t *testing.T) {
 		var getUser struct {
 			GetUser struct{ Email string }
 		}
+		var err error
 
 		email := util.GenerateRandomEmail()
-		user, _ = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email})
+		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email})
+		if err != nil {
+			t.Errorf("expected nil err got %v", err)
+		}
 		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email } }`, &getUser, client.Var("id", user.ID))
 
 		assert.Equal(t, getUser.GetUser.Email, email)

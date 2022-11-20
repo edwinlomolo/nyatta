@@ -9,11 +9,14 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 
 	"github.com/3dw1nM0535/nyatta/database"
+	"github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	log "github.com/sirupsen/logrus"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -22,11 +25,15 @@ func main() {
 	serverConfig := configuration.Server
 
 	// Initialize service(s)
+	db, err := database.InitDB()
+	if err != nil {
+		log.Fatalf("%s: %v", database.DatabaseError, err)
+	}
+	queries := store.New(db)
 	ctx := context.Background()
 	logger := log.New()
-	store, _ := database.InitDB()
-	userService := services.NewUserService(store, logger, &configuration.JwtConfig)
-	propertyService := services.NewPropertyService(store, logger)
+	userService := services.NewUserService(queries, logger, &configuration.JwtConfig)
+	propertyService := services.NewPropertyService(queries, logger)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())

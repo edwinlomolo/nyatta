@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,12 +13,14 @@ import (
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
-	"github.com/3dw1nM0535/nyatta/database"
+	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+
+	_ "github.com/lib/pq"
 )
 
 var ctx context.Context
@@ -33,11 +36,19 @@ func TestMain(m *testing.M) {
 
 	// Initialize service(s)
 	ctx = context.Background()
-	store, _ := database.InitDB()
-	userService := services.NewUserService(store, logger, &cfg.JwtConfig)
+	dbConfig := cfg.Database.RDBMS
+	dbUri := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbConfig.Access.User, dbConfig.Access.Pass, dbConfig.Access.DbName, dbConfig.Ssl.SslMode)
+	db, err := sql.Open("postgres", dbUri)
+	if err != nil {
+		log.Fatalf("Error connecting to db: %v", err)
+	}
+	queries := sqlStore.New(db)
+	userService := services.NewUserService(queries, logger, &cfg.JwtConfig)
+	propertyService := services.NewPropertyService(queries, logger)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)
+	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	// exit once done

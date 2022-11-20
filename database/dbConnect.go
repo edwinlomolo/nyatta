@@ -1,29 +1,49 @@
 package database
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/config"
-	"github.com/3dw1nM0535/nyatta/graph/model"
 	log "github.com/sirupsen/logrus"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var (
 	DatabaseError = errors.New("DatabaseError")
+	dbTables      = []string{
+		`
+CREATE TABLE IF NOT EXISTS users (
+  id BIGSERIAL PRIMARY KEY,
+  email text NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  created_at timestamp NOT NULL DEFAULT NOW(),
+  updated_at timestamp
+);`,
+		`
+CREATE TABLE IF NOT EXISTS properties (
+  id BIGSERIAL PRIMARY KEY,
+  name varchar(100) NOT NULL,
+  town varchar(50) NOT NULL,
+  postal_code varchar(20) NOT NULL,
+  created_at timestamp NOT NULL DEFAULT NOW(),
+  updated_at timestamp,
+  created_by bigint REFERENCES users ON DELETE CASCADE
+);
+		`,
+	}
 )
 
-var dbClient *gorm.DB
+var dbClient *sql.DB
 
 // InitDB - setup db and return connection instance/error
-func InitDB() (*gorm.DB, error) {
+func InitDB() (*sql.DB, error) {
 	configureDB := config.GetConfig().Database.RDBMS
 
 	host := configureDB.Env.Host
 	port := configureDB.Env.Port
+	driver := configureDB.Env.Driver
 	user := configureDB.Access.User
 	pass := configureDB.Access.Pass
 	name := configureDB.Access.DbName
@@ -31,53 +51,51 @@ func InitDB() (*gorm.DB, error) {
 
 	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, pass, name, ssl_mode)
 
-	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.LogLevel(1)),
-	})
+	db, err := sql.Open(driver, dbUri)
 	if err != nil {
 		return nil, err
 	}
-	dbClient = db
-	log.Info("Database is connected")
-	if err := dropAllTables(dbClient); err != nil {
-		return nil, err
+
+	if err := db.Ping(); err == nil {
+		dbClient = db
+		log.Info("Database is connected")
 	}
 
-	if err := startMigration(dbClient); err != nil {
-		return nil, err
+	if config.IsPrototypeEnv() {
+		if err := dropAllTables(dbClient); err != nil {
+			return nil, err
+		}
+
+		if err := startMigration(dbClient); err != nil {
+			return nil, err
+		}
 	}
+
 	return dbClient, nil
 }
 
 // GetDB - get database client
-func GetDB() *gorm.DB {
+func GetDB() *sql.DB {
 	return dbClient
 }
 
 // dropAllTables - cleanup database tables
-func dropAllTables(db *gorm.DB) error {
-	if err := db.Migrator().DropTable(
-		&model.User{},
-		&model.Property{},
-		&model.Amenity{},
-	); err != nil {
-		log.WithError(err)
-		return err
+func dropAllTables(db *sql.DB) error {
+	_, err := db.Exec("DROP TABLE IF EXISTS users, properties CASCADE")
+	if err == nil {
+		log.Infoln("Database tables deleted")
 	}
-	log.Info("Database tables deleted")
-	return nil
+	return err
 }
 
 // startMigration - setup database tables/columns and any missing indexes
-func startMigration(db *gorm.DB) error {
-	if err := db.AutoMigrate(
-		&model.User{},
-		&model.Property{},
-		&model.Amenity{},
-	); err != nil {
-		log.WithError(err)
-		return err
+func startMigration(db *sql.DB) error {
+	var err error
+	for _, table := range dbTables {
+		_, err = db.Exec(table)
 	}
-	log.Info("Database tables migrated")
-	return nil
+	if err == nil {
+		log.Infoln("Tables migrated successfully")
+	}
+	return err
 }

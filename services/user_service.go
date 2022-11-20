@@ -1,13 +1,15 @@
 package services
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	jwt "github.com/dgrijalva/jwt-go"
 	log "github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -20,41 +22,39 @@ type UserService interface {
 
 // UserServices - represents user service
 type UserServices struct {
-	store *gorm.DB
-	log   *log.Logger
-	auth  *AuthServices
+	queries *sqlStore.Queries
+	log     *log.Logger
+	auth    *AuthServices
 }
 
 // _ - UserServices{} implements UserService
 var _ UserService = &UserServices{}
 
-func NewUserService(store *gorm.DB, logger *log.Logger, config *config.Jwt) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *log.Logger, config *config.Jwt) *UserServices {
 	authServices := NewAuthService(logger, config)
-	return &UserServices{store, logger, authServices}
+	return &UserServices{queries, logger, authServices}
 }
 
 // CreateUser - create a new user
 func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
-	// User exists
-	var existingUser *model.User
-	if err := u.store.Where("email = ?", user.Email).Find(&existingUser).Error; err != nil {
-		return nil, fmt.Errorf("%s: %v", config.DatabaseError, err)
-	}
-	if existingUser.Email != "" {
-		u.log.Errorf("User with email %s already exists. Please login", user.Email)
-		return nil, config.AlreadyExists
-	}
-	newUser := &model.User{
+	ctx := context.Background()
+	insertedUser, err := u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Email:     user.Email,
-	}
-	if err := u.store.Create(&newUser).Error; err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
-	return newUser, nil
+	return &model.User{
+		ID:        strconv.FormatInt(insertedUser.ID, 10),
+		FirstName: insertedUser.FirstName,
+		LastName:  insertedUser.LastName,
+		Email:     insertedUser.Email,
+	}, nil
 }
 
+// TODO
 // SignIn - signin existing/returning user
 func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	// user - existing user
@@ -80,20 +80,27 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 
 // FindById - return user given user id
 func (u *UserServices) FindById(id string) (*model.User, error) {
-	var foundUser *model.User
-	if err := u.store.Where("id = ?", id).Preload("Properties").Find(&foundUser).Error; err != nil {
+	ctx := context.Background()
+	propertyId, err := strconv.Atoi(id)
+	if err != nil {
 		return nil, err
 	}
-	return foundUser, nil
+	foundUser, err := u.queries.GetUser(ctx, int64(propertyId))
+	if err != nil {
+		return nil, err
+	}
+	return &model.User{
+		ID:        strconv.FormatInt(foundUser.ID, 10),
+		FirstName: foundUser.FirstName,
+		LastName:  foundUser.LastName,
+		Email:     foundUser.Email,
+	}, nil
 }
 
+// TODO
 // FindByEmail - return user given user email
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
-	var foundUser *model.User
-	if err := u.store.Where("email = ?", email).Preload("Properties").Find(&foundUser).Error; err != nil {
-		return nil, err
-	}
-	return foundUser, nil
+	return nil, nil
 }
 
 // ValidateToken - validate jwt token
