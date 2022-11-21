@@ -1,11 +1,7 @@
 package model
 
 import (
-	"fmt"
 	"time"
-
-	"github.com/rs/xid"
-	"gorm.io/gorm"
 )
 
 type NewProperty struct {
@@ -16,19 +12,12 @@ type NewProperty struct {
 }
 
 type Property struct {
-	ID         string     `gorm:"primaryKey" json:"id"`
-	Name       string     `gorm:"type:varchar(100);not null" json:"name"`
-	Town       string     `gorm:"type:varchar(100);not null;index" json:"town"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Town       string     `json:"town"`
 	Amenities  []Amenity  `json:"amenities"`
 	CreatedBy  string     `json:"createdBy"`
-	PostalCode string     `gorm:"type:varchar(6);not null;index" json:"postalCode"`
+	PostalCode string     `json:"postalCode"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`
-}
-
-// Assign default random id for property during create
-func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
-	newId := fmt.Sprintf("P%v", xid.New().String())
-	tx.Statement.SetColumn("id", newId)
-	return
 }
