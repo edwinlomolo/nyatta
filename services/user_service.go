@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -86,8 +88,8 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 		return nil, err
 	}
 	foundUser, err := u.queries.GetUser(ctx, int64(propertyId))
-	if err != nil {
-		return nil, err
+	if err == sql.ErrNoRows {
+		return nil, errors.New("User not found")
 	}
 	return &model.User{
 		ID:        strconv.FormatInt(foundUser.ID, 10),

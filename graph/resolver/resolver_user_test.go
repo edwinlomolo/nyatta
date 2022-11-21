@@ -81,7 +81,10 @@ func Test_Resolver_User(t *testing.T) {
 	})
 	t.Run("resolver_should_get_user", func(t *testing.T) {
 		var getUser struct {
-			GetUser struct{ Email string }
+			GetUser struct {
+				Email      string
+				First_Name string
+			}
 		}
 		var err error
 
@@ -90,8 +93,10 @@ func Test_Resolver_User(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected nil err got %v", err)
 		}
-		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email } }`, &getUser, client.Var("id", user.ID))
+		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email, first_name } }`, &getUser, client.Var("id", user.ID))
 
+		log.Infoln(getUser.GetUser)
 		assert.Equal(t, getUser.GetUser.Email, email)
+		assert.Equal(t, getUser.GetUser.First_Name, "John")
 	})
 }
