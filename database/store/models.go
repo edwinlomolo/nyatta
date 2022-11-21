@@ -5,25 +5,24 @@
 package store
 
 import (
-	"database/sql"
 	"time"
 )
 
 type Property struct {
-	ID         int64         `json:"id"`
-	Name       string        `json:"name"`
-	Town       string        `json:"town"`
-	PostalCode string        `json:"postal_code"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  sql.NullTime  `json:"updated_at"`
-	CreatedBy  sql.NullInt64 `json:"created_by"`
+	ID         int64     `json:"id"`
+	Name       string    `json:"name"`
+	Town       string    `json:"town"`
+	PostalCode string    `json:"postal_code"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	CreatedBy  int64     `json:"created_by"`
 }
 
 type User struct {
-	ID        int64        `json:"id"`
-	Email     string       `json:"email"`
-	FirstName string       `json:"first_name"`
-	LastName  string       `json:"last_name"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

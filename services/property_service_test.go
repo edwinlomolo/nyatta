@@ -1,10 +1,9 @@
 package services
 
 import (
-	"strconv"
+	"fmt"
 	"testing"
 
-	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/util"
 	log "github.com/sirupsen/logrus"
@@ -20,7 +19,7 @@ func Test_property_service(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	var property *sqlStore.Property
+	var property *model.Property
 
 	t.Run("should_return_service_name", func(t *testing.T) {
 		assert.Equal(t, propertyService.ServiceName(), "PropertyServices")
@@ -45,10 +44,10 @@ func Test_property_service(t *testing.T) {
 	})
 
 	t.Run("should_get_existing_property", func(t *testing.T) {
-		foundProperty, err := propertyService.GetProperty(strconv.FormatInt(property.ID, 10))
+		foundProperty, err := propertyService.GetProperty(property.ID)
 
 		assert.Nil(t, err)
-		assert.Equal(t, foundProperty.ID, property.ID)
+		assert.Equal(t, fmt.Sprint(foundProperty.ID), property.ID)
 	})
 
 	t.Run("should_error_finding_nonexistent_property", func(t *testing.T) {

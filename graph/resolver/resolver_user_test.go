@@ -93,10 +93,29 @@ func Test_Resolver_User(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected nil err got %v", err)
 		}
-		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email, first_name } }`, &getUser, client.Var("id", user.ID))
+		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email, first_name  } }`, &getUser, client.Var("id", user.ID))
 
-		log.Infoln(getUser.GetUser)
 		assert.Equal(t, getUser.GetUser.Email, email)
 		assert.Equal(t, getUser.GetUser.First_Name, "John")
+	})
+
+	t.Run("resolver_should_get_properties_belonging_to_user", func(t *testing.T) {
+		var getUser struct {
+			GetUser struct {
+				Properties []struct{ Name string }
+			}
+		}
+
+		_, err = propertyService.CreateProperty(&model.NewProperty{
+			Name:       "Ngong Hills Agency",
+			PostalCode: "00208",
+			Town:       "Ngong Hills",
+			CreatedBy:  user.ID,
+		})
+		assert.Nil(t, err)
+
+		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { properties { name } } }`, &getUser, client.Var("id", user.ID))
+
+		assert.Equal(t, len(getUser.GetUser.Properties), 1)
 	})
 }

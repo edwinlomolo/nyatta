@@ -13,10 +13,11 @@ import (
 
 type PropertyService interface {
 	ServiceName() string
-	CreateProperty(*model.NewProperty) (*sqlStore.Property, error)
+	CreateProperty(*model.NewProperty) (*model.Property, error)
 	GetProperty(id string) (*sqlStore.Property, error)
 	FindByTown(town string) ([]*model.Property, error)
 	FindByPostalCode(postalCode string) ([]*model.Property, error)
+	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
 	// AddAmenity(*model.AmenityInput) (*model.Amenity, error)
 }
 
@@ -40,7 +41,7 @@ func (p PropertyServices) ServiceName() string {
 }
 
 // CreateProperty - create new property
-func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*sqlStore.Property, error) {
+func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.Property, error) {
 	ctx := context.Background()
 
 	creator, err := strconv.ParseInt(property.CreatedBy, 10, 64)
@@ -51,18 +52,18 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*sqlStor
 		Name:       property.Name,
 		Town:       property.Town,
 		PostalCode: property.PostalCode,
-		CreatedBy:  sql.NullInt64{Int64: creator, Valid: true},
+		CreatedBy:  creator,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &sqlStore.Property{
-		ID:         insertedProperty.ID,
+	return &model.Property{
+		ID:         strconv.FormatInt(insertedProperty.ID, 10),
 		Name:       insertedProperty.Name,
 		Town:       insertedProperty.Town,
 		PostalCode: insertedProperty.PostalCode,
-		CreatedBy:  insertedProperty.CreatedBy,
+		CreatedBy:  strconv.FormatInt(insertedProperty.CreatedBy, 10),
 	}, nil
 }
 
@@ -113,3 +114,33 @@ func (p *PropertyServices) AddAmenity(amenity *model.AmenityInput) (*model.Ameni
 	return newAmenity, nil
 }
 */
+
+func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Property, error) {
+	ctx := context.Background()
+	var userProperties []*model.Property
+
+	// Use int64 id
+	creator, err := strconv.ParseInt(createdBy, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	props, err := p.queries.PropertiesCreatedBy(ctx, creator)
+	if err == sql.ErrNoRows {
+		return nil, errors.New("No properties found")
+	}
+
+	for _, item := range props {
+		property := &model.Property{
+			ID:         strconv.FormatInt(item.ID, 10),
+			Name:       item.Name,
+			Town:       item.Town,
+			PostalCode: item.PostalCode,
+			CreatedAt:  &item.CreatedAt,
+			UpdatedAt:  &item.UpdatedAt,
+		}
+		userProperties = append(userProperties, property)
+	}
+
+	return userProperties, nil
+}

@@ -2,8 +2,6 @@
 
 package model
 
-import "time"
-
 type NewUser struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
@@ -12,53 +10,4 @@ type NewUser struct {
 
 type Token struct {
 	Token string `json:"token"`
-}
-
-type NewProperty struct {
-	Name       string `json:"name"`
-	Town       string `json:"town"`
-	PostalCode string `json:"postalCode"`
-	CreatedBy  string `json:"createdBy"`
-}
-
-type Property struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Town       string     `json:"town"`
-	Amenities  []Amenity  `json:"amenities"`
-	CreatedBy  string     `json:"createdBy"`
-	PostalCode string     `json:"postalCode"`
-	CreatedAt  *time.Time `json:"createdAt"`
-	UpdatedAt  *time.Time `json:"updatedAt"`
-}
-
-type AmenityInput struct {
-	Name       string `json:"name"`
-	Provider   string `json:"provider"`
-	PropertyID string `json:"property_id"`
-}
-
-type Amenity struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Provider   string     `json:"provider"`
-	PropertyID string     `json:"property_id"`
-	CreatedAt  *time.Time `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at"`
-}
-
-type User struct {
-	ID         string     `json:"id"`
-	FirstName  string     `json:"first_name"`
-	LastName   string     `json:"last_name"`
-	Email      string     `json:"email"`
-	Properties []Property `json:"properties"`
-	CreatedAt  *time.Time `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at"`
-	DeletedAt  *time.Time `json:"deleted_at"`
-}
-
-type UserCredentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
 }

@@ -7,8 +7,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
-	"time"
 )
 
 const createProperty = `-- name: CreateProperty :one
@@ -21,10 +19,10 @@ RETURNING id, name, town, postal_code, created_at, updated_at, created_by
 `
 
 type CreatePropertyParams struct {
-	Name       string        `json:"name"`
-	Town       string        `json:"town"`
-	PostalCode string        `json:"postal_code"`
-	CreatedBy  sql.NullInt64 `json:"created_by"`
+	Name       string `json:"name"`
+	Town       string `json:"town"`
+	PostalCode string `json:"postal_code"`
+	CreatedBy  int64  `json:"created_by"`
 }
 
 func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) (Property, error) {
@@ -96,31 +94,13 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 }
 
 const getProperty = `-- name: GetProperty :one
-SELECT properties.id, name, town, postal_code, properties.created_at, properties.updated_at, created_by, users.id, email, first_name, last_name, users.created_at, users.updated_at FROM properties
-JOIN users ON properties.created_by = users.id
-WHERE properties.id = $1
-LIMIT 1
+SELECT id, name, town, postal_code, created_at, updated_at, created_by FROM properties
+WHERE id = $1 LIMIT 1
 `
 
-type GetPropertyRow struct {
-	ID          int64         `json:"id"`
-	Name        string        `json:"name"`
-	Town        string        `json:"town"`
-	PostalCode  string        `json:"postal_code"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   sql.NullTime  `json:"updated_at"`
-	CreatedBy   sql.NullInt64 `json:"created_by"`
-	ID_2        int64         `json:"id_2"`
-	Email       string        `json:"email"`
-	FirstName   string        `json:"first_name"`
-	LastName    string        `json:"last_name"`
-	CreatedAt_2 time.Time     `json:"created_at_2"`
-	UpdatedAt_2 sql.NullTime  `json:"updated_at_2"`
-}
-
-func (q *Queries) GetProperty(ctx context.Context, id int64) (GetPropertyRow, error) {
+func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 	row := q.db.QueryRowContext(ctx, getProperty, id)
-	var i GetPropertyRow
+	var i Property
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
@@ -129,12 +109,6 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (GetPropertyRow, er
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
-		&i.ID_2,
-		&i.Email,
-		&i.FirstName,
-		&i.LastName,
-		&i.CreatedAt_2,
-		&i.UpdatedAt_2,
 	)
 	return i, err
 }
@@ -156,4 +130,40 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
+SELECT id, name, town, postal_code, created_at, updated_at, created_by FROM properties
+WHERE created_by = $1
+`
+
+func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]Property, error) {
+	rows, err := q.db.QueryContext(ctx, propertiesCreatedBy, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Property
+	for rows.Next() {
+		var i Property
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Town,
+			&i.PostalCode,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

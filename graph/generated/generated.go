@@ -39,6 +39,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -97,6 +98,9 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context, id string) (*model.User, error)
+}
+type UserResolver interface {
+	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
 }
 
 type executableSchema struct {
@@ -446,7 +450,7 @@ type Property {
   name: String!
   town: String!
   postalCode: String!
-  amenities: [Amenity!]!
+  amenities: [Amenity!]! # TODO: shared amenities with property units
   createdBy: ID!
   createdAt: Time
   updatedAt: Time
@@ -1834,7 +1838,7 @@ func (ec *executionContext) _User_properties(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Properties, nil
+		return ec.resolvers.User().Properties(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1846,17 +1850,17 @@ func (ec *executionContext) _User_properties(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.Property)
+	res := resTmp.([]*model.Property)
 	fc.Result = res
-	return ec.marshalNProperty2ᚕgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
+	return ec.marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_properties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -4175,36 +4179,49 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "email":
 
 			out.Values[i] = ec._User_email(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "first_name":
 
 			out.Values[i] = ec._User_first_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "last_name":
 
 			out.Values[i] = ec._User_last_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "properties":
+			field := field
 
-			out.Values[i] = ec._User_properties(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_properties(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "createdAt":
 
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
@@ -4649,7 +4666,7 @@ func (ec *executionContext) marshalNProperty2githubᚗcomᚋ3dw1nM0535ᚋnyatta�
 	return ec._Property(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProperty2ᚕgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Property) graphql.Marshaler {
+func (ec *executionContext) marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Property) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4673,7 +4690,7 @@ func (ec *executionContext) marshalNProperty2ᚕgithubᚗcomᚋ3dw1nM0535ᚋnyat
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNProperty2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐProperty(ctx, sel, v[i])
+			ret[i] = ec.marshalNProperty2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐProperty(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

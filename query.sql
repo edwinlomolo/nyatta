@@ -20,10 +20,12 @@ RETURNING *;
 
 -- name: GetProperty :one
 SELECT * FROM properties
-JOIN users ON properties.created_by = users.id
-WHERE properties.id = $1
-LIMIT 1;
+WHERE id = $1 LIMIT 1;
 
 -- name: FindByEmail :one
 SELECT * FROM users
 WHERE email = $1 LIMIT 1;
+
+-- name: PropertiesCreatedBy :many
+SELECT * FROM properties
+WHERE created_by = $1;
