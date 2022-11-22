@@ -3,19 +3,63 @@ package resolver
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"testing"
 
+	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/database"
+	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	h "github.com/3dw1nM0535/nyatta/handler"
+	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 )
+
+var (
+	ctx             context.Context
+	userService     *services.UserServices
+	propertyService *services.PropertyServices
+	logger          *log.Logger
+	configuration   *config.Configuration
+	err             error
+	db              *sql.DB
+)
+
+// setup tests
+func TestMain(m *testing.M) {
+	logger := log.New()
+	err := godotenv.Load(os.ExpandEnv("../../.env"))
+	if err != nil {
+		log.Errorf("panic loading env: %v", err)
+	}
+	configuration = config.LoadConfig()
+	db, err = database.InitDB()
+	if err != nil {
+		log.Fatalf("%s: %v", database.DatabaseError, err)
+	}
+	queries := sqlStore.New(db)
+
+	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
+	propertyService = services.NewPropertyService(queries, logger)
+
+	ctx = context.Background()
+	ctx = context.WithValue(ctx, "config", configuration)
+	ctx = context.WithValue(ctx, "userService", userService)
+	ctx = context.WithValue(ctx, "propertyService", propertyService)
+	ctx = context.WithValue(ctx, "log", logger)
+
+	os.Exit(m.Run())
+}
 
 // makeLoginUser - return authed user
 func makeLoginUser() string {
@@ -48,19 +92,18 @@ func makeLoginUser() string {
 	return creds.AccessToken
 }
 
-// makeAuthedServer - return authed graphql client
-// TODO rfr to makeAuthedGqlServer since its returning authed/unauthed gql server
-// TODO rfr to makeAuthedGqlServer(authenticate bool) *client.Client {}
-func makeAuthedServer(tokenString string, ctx context.Context) *client.Client {
+// makeAuthedGqlServer - return authenticated graphql client
+func makeAuthedGqlServer(authenticate bool, ctx context.Context) *client.Client {
 	var srv *client.Client
-	if len(tokenString) == 0 {
-		// return unauthed client
+	if !authenticate {
+		// unauthed client
 		srv = client.New(h.AddContext(ctx, h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))))
-	} else {
-		// return authed client
-		srv = client.New(h.AddContext(ctx, h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))), client.AddHeader("Authorization", fmt.Sprintf("Bearer %s", tokenString)))
+		return srv
 	}
+	// authed user
+	tokenString := makeLoginUser()
+	// authed client
+	srv = client.New(h.AddContext(ctx, h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))), client.AddHeader("Authorization", fmt.Sprintf("Bearer %s", tokenString)))
+
 	return srv
 }
-
-// TODO makeAuthedServer - return authed/unauthed server

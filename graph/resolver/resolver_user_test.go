@@ -1,62 +1,16 @@
 package resolver
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
-	"os"
 	"testing"
 
-	"github.com/3dw1nM0535/nyatta/config"
-	"github.com/3dw1nM0535/nyatta/database"
-	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/client"
-	"github.com/joho/godotenv"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	_ "github.com/lib/pq"
 )
-
-var (
-	ctx             context.Context
-	userService     *services.UserServices
-	propertyService *services.PropertyServices
-	logger          *log.Logger
-	configuration   *config.Configuration
-	err             error
-	db              *sql.DB
-)
-
-func TestMain(m *testing.M) {
-	// setup tests
-	logger := log.New()
-	err := godotenv.Load(os.ExpandEnv("../../.env"))
-	if err != nil {
-		log.Errorf("panic loading env: %v", err)
-	}
-	configuration = config.LoadConfig()
-	db, err = database.InitDB()
-	if err != nil {
-		log.Fatalf("%s: %v", database.DatabaseError, err)
-	}
-	queries := sqlStore.New(db)
-
-	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
-	propertyService = services.NewPropertyService(queries, logger)
-
-	ctx = context.Background()
-	ctx = context.WithValue(ctx, "config", configuration)
-	ctx = context.WithValue(ctx, "userService", userService)
-	ctx = context.WithValue(ctx, "propertyService", propertyService)
-	ctx = context.WithValue(ctx, "log", logger)
-
-	// exit once done
-	os.Exit(m.Run())
-}
 
 func Test_Resolver_User(t *testing.T) {
 	var signIn struct {
@@ -66,10 +20,8 @@ func Test_Resolver_User(t *testing.T) {
 	}
 	var user *model.User
 
-	// get authed test user
-	accessToken := makeLoginUser()
-
-	var srv = makeAuthedServer(accessToken, ctx)
+	// authed server
+	srv := makeAuthedGqlServer(true, ctx)
 
 	t.Run("resolver_should_sign_in_user", func(t *testing.T) {
 
