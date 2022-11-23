@@ -28,6 +28,7 @@ type Token {
 
 type Query {
   getUser(id: ID!): User!
+  getProperty(id: ID!): Property!
 }
 
 type Mutation {

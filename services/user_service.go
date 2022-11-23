@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/config"
@@ -53,6 +52,8 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 		FirstName: insertedUser.FirstName,
 		LastName:  insertedUser.LastName,
 		Email:     insertedUser.Email,
+		CreatedAt: &insertedUser.CreatedAt,
+		UpdatedAt: &insertedUser.UpdatedAt,
 	}, nil
 }
 
@@ -63,19 +64,19 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	var newUser *model.User
 	var err error
 	newUser, err = u.FindByEmail(user.Email)
-	if err != nil {
-		return nil, fmt.Errorf("Error signing in user: %v", err)
+	if err.Error() != "User not found" {
+		return nil, err
 	}
 	// user - new user
 	if newUser == nil {
 		newUser, err = u.CreateUser(user)
 		if err != nil {
-			return nil, fmt.Errorf("Error creating new user: %v", err)
+			return nil, err
 		}
 	}
 	token, err := u.auth.SignJWT(newUser)
 	if err != nil {
-		return nil, fmt.Errorf("Error signing user token: %v", err)
+		return nil, err
 	}
 	return token, nil
 }
@@ -96,13 +97,27 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 		FirstName: foundUser.FirstName,
 		LastName:  foundUser.LastName,
 		Email:     foundUser.Email,
+		CreatedAt: &foundUser.CreatedAt,
+		UpdatedAt: &foundUser.UpdatedAt,
 	}, nil
 }
 
 // TODO
 // FindByEmail - return user given user email
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
-	return nil, nil
+	ctx := context.Background()
+	foundUser, err := u.queries.FindByEmail(ctx, email)
+	if err == sql.ErrNoRows {
+		return nil, errors.New("User not found")
+	}
+	return &model.User{
+		ID:        strconv.FormatInt(foundUser.ID, 10),
+		FirstName: foundUser.FirstName,
+		LastName:  foundUser.LastName,
+		Email:     foundUser.Email,
+		CreatedAt: &foundUser.CreatedAt,
+		UpdatedAt: &foundUser.UpdatedAt,
+	}, nil
 }
 
 // ValidateToken - validate jwt token

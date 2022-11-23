@@ -14,7 +14,7 @@ import (
 type PropertyService interface {
 	ServiceName() string
 	CreateProperty(*model.NewProperty) (*model.Property, error)
-	GetProperty(id string) (*sqlStore.Property, error)
+	GetProperty(id string) (*model.Property, error)
 	FindByTown(town string) ([]*model.Property, error)
 	FindByPostalCode(postalCode string) ([]*model.Property, error)
 	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
@@ -68,7 +68,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 }
 
 // GetProperty - return existing property given property id
-func (p *PropertyServices) GetProperty(id string) (*sqlStore.Property, error) {
+func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	ctx := context.Background()
 	propertyId, err := strconv.Atoi(id)
 	if err != nil {
@@ -78,11 +78,13 @@ func (p *PropertyServices) GetProperty(id string) (*sqlStore.Property, error) {
 	if err == sql.ErrNoRows {
 		return nil, errors.New("Property does not exist")
 	}
-	return &sqlStore.Property{
-		ID:         foundProperty.ID,
+	return &model.Property{
+		ID:         strconv.FormatInt(foundProperty.ID, 10),
 		Name:       foundProperty.Name,
 		Town:       foundProperty.Town,
 		PostalCode: foundProperty.PostalCode,
+		CreatedAt:  &foundProperty.CreatedAt,
+		UpdatedAt:  &foundProperty.UpdatedAt,
 	}, nil
 }
 
