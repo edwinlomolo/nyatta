@@ -38,6 +38,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
+	Property() PropertyResolver
 	Query() QueryResolver
 	User() UserResolver
 }
@@ -67,6 +68,7 @@ type ComplexityRoot struct {
 		CreatedBy  func(childComplexity int) int
 		ID         func(childComplexity int) int
 		Name       func(childComplexity int) int
+		Owner      func(childComplexity int) int
 		PostalCode func(childComplexity int) int
 		Town       func(childComplexity int) int
 		UpdatedAt  func(childComplexity int) int
@@ -96,6 +98,9 @@ type MutationResolver interface {
 	SignIn(ctx context.Context, input model.NewUser) (*model.Token, error)
 	CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error)
 	AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error)
+}
+type PropertyResolver interface {
+	Owner(ctx context.Context, obj *model.Property) (*model.User, error)
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context, id string) (*model.User, error)
@@ -232,6 +237,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Property.Name(childComplexity), true
+
+	case "Property.owner":
+		if e.complexity.Property.Owner == nil {
+			break
+		}
+
+		return e.complexity.Property.Owner(childComplexity), true
 
 	case "Property.postalCode":
 		if e.complexity.Property.PostalCode == nil {
@@ -467,6 +479,7 @@ type Property {
   postalCode: String!
   amenities: [Amenity!]! # TODO: shared amenities with property units
   createdBy: ID!
+  owner: User!
   createdAt: Time
   updatedAt: Time
 }
@@ -983,6 +996,8 @@ func (ec *executionContext) fieldContext_Mutation_createProperty(ctx context.Con
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Property_createdAt(ctx, field)
 			case "updatedAt":
@@ -1352,6 +1367,66 @@ func (ec *executionContext) fieldContext_Property_createdBy(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Property_owner(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_owner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Property().Owner(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Property_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "properties":
+				return ec.fieldContext_User_properties(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Property_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Property_createdAt(ctx, field)
 	if err != nil {
@@ -1556,6 +1631,8 @@ func (ec *executionContext) fieldContext_Query_getProperty(ctx context.Context, 
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Property_createdAt(ctx, field)
 			case "updatedAt":
@@ -1978,6 +2055,8 @@ func (ec *executionContext) fieldContext_User_properties(ctx context.Context, fi
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Property_createdAt(ctx, field)
 			case "updatedAt":
@@ -4118,43 +4197,63 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._Property_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 
 			out.Values[i] = ec._Property_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "town":
 
 			out.Values[i] = ec._Property_town(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "postalCode":
 
 			out.Values[i] = ec._Property_postalCode(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "amenities":
 
 			out.Values[i] = ec._Property_amenities(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "createdBy":
 
 			out.Values[i] = ec._Property_createdBy(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "owner":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Property_owner(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "createdAt":
 
 			out.Values[i] = ec._Property_createdAt(ctx, field, obj)

@@ -6,6 +6,7 @@ type Property {
   postalCode: String!
   amenities: [Amenity!]! # TODO: shared amenities with property units
   createdBy: ID!
+  owner: User!
   createdAt: Time
   updatedAt: Time
 }

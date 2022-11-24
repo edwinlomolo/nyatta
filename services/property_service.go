@@ -63,7 +63,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 		Name:       insertedProperty.Name,
 		Town:       insertedProperty.Town,
 		PostalCode: insertedProperty.PostalCode,
-		CreatedBy:  strconv.FormatInt(insertedProperty.CreatedBy, 10),
+		CreatedBy:  strconv.FormatInt(creator, 10),
 	}, nil
 }
 
@@ -83,6 +83,7 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 		Name:       foundProperty.Name,
 		Town:       foundProperty.Town,
 		PostalCode: foundProperty.PostalCode,
+		CreatedBy:  strconv.FormatInt(foundProperty.CreatedBy, 10),
 		CreatedAt:  &foundProperty.CreatedAt,
 		UpdatedAt:  &foundProperty.UpdatedAt,
 	}, nil

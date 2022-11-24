@@ -67,3 +67,8 @@ models:
     fields:
       properties:
         resolver: true
+
+  Property:
+    fields:
+      owner:
+        resolver: true
