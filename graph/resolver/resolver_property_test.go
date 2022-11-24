@@ -47,14 +47,18 @@ func Test_Property_Resolver(t *testing.T) {
 			GetProperty struct {
 				Name       string
 				PostalCode string
+				Owner      struct {
+					First_Name string
+				}
 			}
 		}
 
-		query := `query ($id: ID!) { getProperty(id: $id) { name, postalCode } }`
+		query := `query ($id: ID!) { getProperty(id: $id) { name, postalCode, owner { first_name } } }`
 
 		srv.MustPost(query, &getProperty, client.Var("id", createProperty.CreateProperty.ID))
 
 		assert.Equal(t, createProperty.CreateProperty.Name, getProperty.GetProperty.Name)
 		assert.Equal(t, createProperty.CreateProperty.PostalCode, getProperty.GetProperty.PostalCode)
+		assert.Equal(t, getProperty.GetProperty.Owner.First_Name, "John")
 	})
 }
