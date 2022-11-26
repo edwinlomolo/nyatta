@@ -31,6 +31,16 @@ CREATE TABLE IF NOT EXISTS properties (
   updated_at timestamp NOT NULL DEFAULT NOW(),
   created_by bigint NOT NULL REFERENCES users ON DELETE CASCADE
 );		`,
+		`
+CREATE TABLE IF NOT EXISTS amenities (
+  id BIGSERIAL PRIMARY KEY,
+  name varchar(100) NOT NULL,
+  provider varchar(100) NOT NULL,
+  created_at timestamp NOT NULL DEFAULT NOW(),
+  updated_at timestamp NOT NULL DEFAULT NOW(),
+  property_id bigint NOT NULL REFERENCES properties ON DELETE CASCADE
+);
+`,
 	}
 )
 
@@ -80,7 +90,7 @@ func GetDB() *sql.DB {
 
 // dropAllTables - cleanup database tables
 func dropAllTables(db *sql.DB) error {
-	_, err := db.Exec("DROP TABLE IF EXISTS users, properties CASCADE")
+	_, err := db.Exec("DROP TABLE IF EXISTS users, properties, amenities CASCADE")
 	if err == nil {
 		log.Infoln("Database tables deleted")
 	}

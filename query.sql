@@ -29,3 +29,15 @@ WHERE email = $1 LIMIT 1;
 -- name: PropertiesCreatedBy :many
 SELECT * FROM properties
 WHERE created_by = $1;
+
+-- name: CreateAmenity :one
+INSERT INTO amenities (
+  name, provider, property_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
+-- name: PropertyAmenities :many
+SELECT * FROM amenities
+WHERE property_id = $1;

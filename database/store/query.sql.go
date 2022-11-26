@@ -9,6 +9,35 @@ import (
 	"context"
 )
 
+const createAmenity = `-- name: CreateAmenity :one
+INSERT INTO amenities (
+  name, provider, property_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, name, provider, created_at, updated_at, property_id
+`
+
+type CreateAmenityParams struct {
+	Name       string `json:"name"`
+	Provider   string `json:"provider"`
+	PropertyID int64  `json:"property_id"`
+}
+
+func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (Amenity, error) {
+	row := q.db.QueryRowContext(ctx, createAmenity, arg.Name, arg.Provider, arg.PropertyID)
+	var i Amenity
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Provider,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyID,
+	)
+	return i, err
+}
+
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
   name, town, postal_code, created_by
@@ -154,6 +183,41 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]P
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const propertyAmenities = `-- name: PropertyAmenities :many
+SELECT id, name, provider, created_at, updated_at, property_id FROM amenities
+WHERE property_id = $1
+`
+
+func (q *Queries) PropertyAmenities(ctx context.Context, propertyID int64) ([]Amenity, error) {
+	rows, err := q.db.QueryContext(ctx, propertyAmenities, propertyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Amenity
+	for rows.Next() {
+		var i Amenity
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Provider,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PropertyID,
 		); err != nil {
 			return nil, err
 		}

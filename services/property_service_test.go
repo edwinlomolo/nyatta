@@ -72,29 +72,29 @@ func Test_property_service(t *testing.T) {
 		assert.Equal(t, len(foundProperties), 0)
 	})
 
-	/*
-			t.Run("should_add_property_amenity", func(t *testing.T) {
-				amenity, err := propertyService.AddAmenity(&model.AmenityInput{
-					Name:       "Home Fibre",
-					Provider:   "Safaricom Home Internet Services",
-					PropertyID: strconv.FormatInt(property.ID, 10),
-				})
-
-				assert.Nil(t, err)
-				assert.Equal(t, amenity.Name, "Home Fibre")
-				assert.Equal(t, amenity.Provider, "Safaricom Home Internet Services")
-
-				// get property amenities
-				property, err := propertyService.GetProperty(strconv.FormatInt(property.ID, 10))
-
-				assert.Nil(t, err)
-				assert.Equal(t, len(property.Amenities), 1)
-			})
-
-		t.Run("should_get_properties_belonging_to_a_user", func(t *testing.T) {
-			user, err := userService.FindById(user.ID)
-			assert.Nil(t, err)
-			assert.Equal(t, len(user.Properties), 1)
+	t.Run("should_add_property_amenity", func(t *testing.T) {
+		amenity, err := propertyService.AddAmenity(&model.AmenityInput{
+			Name:       "Home Fibre",
+			Provider:   "Safaricom Home Internet Services",
+			PropertyID: property.ID,
 		})
-	*/
+
+		assert.Nil(t, err)
+		assert.Equal(t, amenity.Name, "Home Fibre")
+		assert.Equal(t, amenity.Provider, "Safaricom Home Internet Services")
+	})
+
+	t.Run("should_get_property_amenities", func(t *testing.T) {
+		amenities, err := propertyService.PropertyAmenities(property.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(amenities), 1)
+	})
+
+	t.Run("should_get_properties_belonging_to_a_user", func(t *testing.T) {
+		userProperties, err := propertyService.PropertiesCreatedBy(user.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(userProperties), 1)
+	})
 }

@@ -15,11 +15,16 @@ type PropertyService interface {
 	ServiceName() string
 	CreateProperty(*model.NewProperty) (*model.Property, error)
 	GetProperty(id string) (*model.Property, error)
+	AddAmenity(*model.AmenityInput) (*model.Amenity, error)
 	FindByTown(town string) ([]*model.Property, error)
 	FindByPostalCode(postalCode string) ([]*model.Property, error)
 	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
-	// AddAmenity(*model.AmenityInput) (*model.Amenity, error)
+	PropertyAmenities(propertyId string) ([]*model.Amenity, error)
 }
+
+var (
+	ctx context.Context = context.Background()
+)
 
 // PropertyServices - represents property service
 type PropertyServices struct {
@@ -42,8 +47,6 @@ func (p PropertyServices) ServiceName() string {
 
 // CreateProperty - create new property
 func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.Property, error) {
-	ctx := context.Background()
-
 	creator, err := strconv.ParseInt(property.CreatedBy, 10, 64)
 	if err != nil {
 		return nil, err
@@ -64,12 +67,13 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 		Town:       insertedProperty.Town,
 		PostalCode: insertedProperty.PostalCode,
 		CreatedBy:  strconv.FormatInt(creator, 10),
+		CreatedAt:  &insertedProperty.CreatedAt,
+		UpdatedAt:  &insertedProperty.UpdatedAt,
 	}, nil
 }
 
 // GetProperty - return existing property given property id
 func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
-	ctx := context.Background()
 	propertyId, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
@@ -101,25 +105,8 @@ func (p *PropertyServices) FindByPostalCode(postalCode string) ([]*model.Propert
 	return make([]*model.Property, 0), nil
 }
 
-// AddAmenity - add property amenity(s)
-/*
-func (p *PropertyServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenity, error) {
-	newAmenity := &model.Amenity{
-		Name:       amenity.Name,
-		Provider:   amenity.Provider,
-		PropertyID: amenity.PropertyID,
-	}
-	err := p.store.Create(&newAmenity).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return newAmenity, nil
-}
-*/
-
+// PropertiesCreatedBy - get property(s) created by user
 func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Property, error) {
-	ctx := context.Background()
 	var userProperties []*model.Property
 
 	// Use int64 id
@@ -146,4 +133,58 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 	}
 
 	return userProperties, nil
+}
+
+// AddAmenity - add property amenity(s)
+func (p *PropertyServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenity, error) {
+	// Property exists
+	_, err := p.GetProperty(amenity.PropertyID)
+	if err != nil && err.Error() == "Property does not exist" {
+		return nil, errors.New("Adding amenity to non-existent property")
+	}
+
+	creator, err := strconv.ParseInt(amenity.PropertyID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	insertedAmenity, err := p.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
+		Name:       amenity.Name,
+		Provider:   amenity.Provider,
+		PropertyID: creator,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Amenity{
+		ID:         strconv.FormatInt(insertedAmenity.ID, 10),
+		Name:       insertedAmenity.Name,
+		Provider:   insertedAmenity.Provider,
+		PropertyID: strconv.FormatInt(insertedAmenity.PropertyID, 10),
+		CreatedAt:  &insertedAmenity.CreatedAt,
+		UpdatedAt:  &insertedAmenity.UpdatedAt,
+	}, nil
+}
+
+// PropertyAmenities - get property amenities
+func (p *PropertyServices) PropertyAmenities(propertyId string) ([]*model.Amenity, error) {
+	var amenities []*model.Amenity
+	id, err := strconv.ParseInt(propertyId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	foundAmenities, err := p.queries.PropertyAmenities(ctx, id)
+	for _, amenity := range foundAmenities {
+		amenities = append(amenities, &model.Amenity{
+			ID:         strconv.FormatInt(amenity.ID, 10),
+			Name:       amenity.Name,
+			Provider:   amenity.Provider,
+			PropertyID: strconv.FormatInt(amenity.PropertyID, 10),
+			CreatedAt:  &amenity.CreatedAt,
+			UpdatedAt:  &amenity.UpdatedAt,
+		})
+	}
+
+	return amenities, nil
 }
