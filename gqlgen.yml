@@ -72,3 +72,5 @@ models:
     fields:
       owner:
         resolver: true
+      amenities:
+        resolver: true

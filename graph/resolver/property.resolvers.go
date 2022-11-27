@@ -13,6 +13,15 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
+// Amenities is the resolver for the amenities field.
+func (r *propertyResolver) Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error) {
+	foundAmenities, err := ctx.Value("amenityService").(*services.AmenityServices).PropertyAmenities(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return foundAmenities, nil
+}
+
 // Owner is the resolver for the owner field.
 func (r *propertyResolver) Owner(ctx context.Context, obj *model.Property) (*model.User, error) {
 	foundOwner, err := ctx.Value("userService").(*services.UserServices).FindById(obj.CreatedBy)

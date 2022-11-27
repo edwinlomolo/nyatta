@@ -29,6 +29,7 @@ var (
 	ctx             context.Context
 	userService     *services.UserServices
 	propertyService *services.PropertyServices
+	amenityService  *services.AmenityServices
 	logger          *log.Logger
 	configuration   *config.Configuration
 	err             error
@@ -51,17 +52,19 @@ func TestMain(m *testing.M) {
 
 	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
 	propertyService = services.NewPropertyService(queries, logger)
+	amenityService = services.NewAmenityService(queries, logger)
 
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "config", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
+	ctx = context.WithValue(ctx, "amenityService", amenityService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	os.Exit(m.Run())
 }
 
-// makeLoginUser - return authed user
+// makeLoginUser - return authed usej
 func makeLoginUser() string {
 	var creds struct {
 		AccessToken string `json:"access_token"`

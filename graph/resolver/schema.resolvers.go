@@ -33,7 +33,11 @@ func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewPr
 
 // AddAmenity is the resolver for the addAmenity field.
 func (r *mutationResolver) AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error) {
-	panic(fmt.Errorf("not implemented: AddAmenity - addAmenity"))
+	insertedAmenity, err := ctx.Value("amenityService").(*services.AmenityServices).AddAmenity(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return insertedAmenity, err
 }
 
 // GetUser is the resolver for the getUser field.

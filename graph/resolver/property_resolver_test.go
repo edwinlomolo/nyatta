@@ -61,4 +61,40 @@ func Test_Property_Resolver(t *testing.T) {
 		assert.Equal(t, createProperty.CreateProperty.PostalCode, getProperty.GetProperty.PostalCode)
 		assert.Equal(t, getProperty.GetProperty.Owner.First_Name, "John")
 	})
+
+	t.Run("should_add_property_amenity", func(t *testing.T) {
+		var amenity struct {
+			AddAmenity struct {
+				Name     string
+				Provider string
+			}
+		}
+
+		query := fmt.Sprintf(
+			`mutation { addAmenity(input: {name: "Home Fibre", provider: "Safaricom Home Internet", propertyId: "%s"}) { name, provider } }`,
+			createProperty.CreateProperty.ID,
+		)
+		srv.MustPost(query, &amenity)
+
+	})
+
+	t.Run("should_get_property_amenities", func(t *testing.T) {
+		var getProperty struct {
+			GetProperty struct {
+				Name      string
+				Amenities []struct {
+					Name     string
+					Provider string
+				}
+			}
+		}
+
+		query := `query ($id: ID!) { getProperty(id: $id) { name, amenities { name, provider } } }`
+
+		srv.MustPost(query, &getProperty, client.Var("id", createProperty.CreateProperty.ID))
+
+		assert.Equal(t, len(getProperty.GetProperty.Amenities), 1)
+		assert.Equal(t, getProperty.GetProperty.Amenities[0].Name, "Home Fibre")
+		assert.Equal(t, getProperty.GetProperty.Amenities[0].Provider, "Safaricom Home Internet")
+	})
 }

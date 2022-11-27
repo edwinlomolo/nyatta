@@ -100,6 +100,8 @@ type MutationResolver interface {
 	AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error)
 }
 type PropertyResolver interface {
+	Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error)
+
 	Owner(ctx context.Context, obj *model.Property) (*model.User, error)
 }
 type QueryResolver interface {
@@ -1279,7 +1281,7 @@ func (ec *executionContext) _Property_amenities(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Amenities, nil
+		return ec.resolvers.Property().Amenities(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1291,17 +1293,17 @@ func (ec *executionContext) _Property_amenities(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.Amenity)
+	res := resTmp.([]*model.Amenity)
 	fc.Result = res
-	return ec.marshalNAmenity2ᚕgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenityᚄ(ctx, field.Selections, res)
+	return ec.marshalNAmenity2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenityᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Property_amenities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Property",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -4221,12 +4223,25 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "amenities":
+			field := field
 
-			out.Values[i] = ec._Property_amenities(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Property_amenities(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "createdBy":
 
 			out.Values[i] = ec._Property_createdBy(ctx, field, obj)
@@ -4788,7 +4803,7 @@ func (ec *executionContext) marshalNAmenity2githubᚗcomᚋ3dw1nM0535ᚋnyatta�
 	return ec._Amenity(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAmenity2ᚕgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenityᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Amenity) graphql.Marshaler {
+func (ec *executionContext) marshalNAmenity2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenityᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Amenity) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4812,7 +4827,7 @@ func (ec *executionContext) marshalNAmenity2ᚕgithubᚗcomᚋ3dw1nM0535ᚋnyatt
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAmenity2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenity(ctx, sel, v[i])
+			ret[i] = ec.marshalNAmenity2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenity(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
