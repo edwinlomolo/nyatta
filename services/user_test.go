@@ -17,10 +17,12 @@ import (
 )
 
 var (
-	userService   *UserServices
-	queries       *sqlStore.Queries
-	configuration *config.Configuration
-	authService   *AuthServices
+	userService     *UserServices
+	authService     *AuthServices
+	propertyService *PropertyServices
+	amenityService  *AmenityServices
+	queries         *sqlStore.Queries
+	configuration   *config.Configuration
 )
 
 func TestMain(m *testing.M) {
@@ -38,6 +40,8 @@ func TestMain(m *testing.M) {
 	queries = sqlStore.New(db)
 	userService = NewUserService(queries, logger, &configuration.JwtConfig)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
+	amenityService = NewAmenityService(queries, logger)
+	propertyService = NewPropertyService(queries, logger)
 
 	// exit once done
 	os.Exit(m.Run())

@@ -8,19 +8,9 @@ import (
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/interfaces"
 	log "github.com/sirupsen/logrus"
 )
-
-type PropertyService interface {
-	ServiceName() string
-	CreateProperty(*model.NewProperty) (*model.Property, error)
-	GetProperty(id string) (*model.Property, error)
-	AddAmenity(*model.AmenityInput) (*model.Amenity, error)
-	FindByTown(town string) ([]*model.Property, error)
-	FindByPostalCode(postalCode string) ([]*model.Property, error)
-	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
-	PropertyAmenities(propertyId string) ([]*model.Amenity, error)
-}
 
 var (
 	ctx context.Context = context.Background()
@@ -33,7 +23,7 @@ type PropertyServices struct {
 }
 
 // _ - PropertyServices{} implements PropertyService
-var _ PropertyService = &PropertyServices{}
+var _ interfaces.PropertyService = &PropertyServices{}
 
 // NewPropertyService - factory for property services
 func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger) *PropertyServices {
@@ -133,58 +123,4 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 	}
 
 	return userProperties, nil
-}
-
-// AddAmenity - add property amenity(s)
-func (p *PropertyServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenity, error) {
-	// Property exists
-	_, err := p.GetProperty(amenity.PropertyID)
-	if err != nil && err.Error() == "Property does not exist" {
-		return nil, errors.New("Adding amenity to non-existent property")
-	}
-
-	creator, err := strconv.ParseInt(amenity.PropertyID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	insertedAmenity, err := p.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
-		Name:       amenity.Name,
-		Provider:   amenity.Provider,
-		PropertyID: creator,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.Amenity{
-		ID:         strconv.FormatInt(insertedAmenity.ID, 10),
-		Name:       insertedAmenity.Name,
-		Provider:   insertedAmenity.Provider,
-		PropertyID: strconv.FormatInt(insertedAmenity.PropertyID, 10),
-		CreatedAt:  &insertedAmenity.CreatedAt,
-		UpdatedAt:  &insertedAmenity.UpdatedAt,
-	}, nil
-}
-
-// PropertyAmenities - get property amenities
-func (p *PropertyServices) PropertyAmenities(propertyId string) ([]*model.Amenity, error) {
-	var amenities []*model.Amenity
-	id, err := strconv.ParseInt(propertyId, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	foundAmenities, err := p.queries.PropertyAmenities(ctx, id)
-	for _, amenity := range foundAmenities {
-		amenities = append(amenities, &model.Amenity{
-			ID:         strconv.FormatInt(amenity.ID, 10),
-			Name:       amenity.Name,
-			Provider:   amenity.Provider,
-			PropertyID: strconv.FormatInt(amenity.PropertyID, 10),
-			CreatedAt:  &amenity.CreatedAt,
-			UpdatedAt:  &amenity.UpdatedAt,
-		})
-	}
-
-	return amenities, nil
 }

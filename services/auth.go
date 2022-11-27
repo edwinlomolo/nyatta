@@ -7,14 +7,10 @@ import (
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/interfaces"
 	jwt "github.com/dgrijalva/jwt-go"
 	log "github.com/sirupsen/logrus"
 )
-
-type AuthService interface {
-	SignJWT(user *model.User) (*string, error)
-	ValidateJWT(token *string) (*jwt.Token, error)
-}
 
 // AuthServices - represent authentication service
 type AuthServices struct {
@@ -24,7 +20,7 @@ type AuthServices struct {
 }
 
 //_ - AuthServices{} implements AuthService
-var _ AuthService = &AuthServices{}
+var _ interfaces.AuthService = &AuthServices{}
 
 // NewAuthService - factory for auth services
 func NewAuthService(logger *log.Logger, config *config.Jwt) *AuthServices {
