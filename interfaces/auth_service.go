@@ -8,4 +8,5 @@ import (
 type AuthService interface {
 	SignJWT(user *model.User) (*string, error)
 	ValidateJWT(token *string) (*jwt.Token, error)
+	ServiceName() string
 }

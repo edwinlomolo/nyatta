@@ -11,4 +11,5 @@ type UserService interface {
 	FindByEmail(email string) (*model.User, error)
 	SignIn(user *model.NewUser) (*string, error)
 	ValidateToken(token *string) (*jwt.Token, error)
+	ServiceName() string
 }

@@ -21,6 +21,7 @@ var (
 	authService     *AuthServices
 	propertyService *PropertyServices
 	amenityService  *AmenityServices
+	unitService     *UnitServices
 	queries         *sqlStore.Queries
 	configuration   *config.Configuration
 )
@@ -42,6 +43,7 @@ func TestMain(m *testing.M) {
 	authService = NewAuthService(logger, &configuration.JwtConfig)
 	amenityService = NewAmenityService(queries, logger)
 	propertyService = NewPropertyService(queries, logger)
+	unitService = NewUnitService()
 
 	// exit once done
 	os.Exit(m.Run())

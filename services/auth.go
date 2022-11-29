@@ -54,3 +54,7 @@ func (a *AuthServices) ValidateJWT(tokenString *string) (*jwt.Token, error) {
 	}
 	return token, nil
 }
+
+func (a AuthServices) ServiceName() string {
+	return "AuthServices"
+}

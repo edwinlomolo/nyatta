@@ -120,6 +120,6 @@ func (u *UserServices) ValidateToken(tokenString *string) (*jwt.Token, error) {
 }
 
 // ServiceName - return service name
-func (u *UserServices) ServiceName() string {
+func (u UserServices) ServiceName() string {
 	return "UserServices"
 }

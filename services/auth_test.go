@@ -12,6 +12,11 @@ func Test_AuthServices(t *testing.T) {
 	var newUser *model.User
 	var err error
 	var jwt *string
+
+	t.Run("should_get_service_name", func(t *testing.T) {
+		assert.Equal(t, authService.ServiceName(), "AuthServices")
+	})
+
 	t.Run("should_create_new_fresh_jwt", func(t *testing.T) {
 		newUser, err = userService.CreateUser(&model.NewUser{
 			FirstName: "Jane",

@@ -30,6 +30,7 @@ var (
 	userService     *services.UserServices
 	propertyService *services.PropertyServices
 	amenityService  *services.AmenityServices
+	unitService     *services.UnitServices
 	logger          *log.Logger
 	configuration   *config.Configuration
 	err             error
@@ -53,12 +54,14 @@ func TestMain(m *testing.M) {
 	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
 	propertyService = services.NewPropertyService(queries, logger)
 	amenityService = services.NewAmenityService(queries, logger)
+	unitService = services.NewUnitService()
 
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "config", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "amenityService", amenityService)
+	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	os.Exit(m.Run())
@@ -100,7 +103,7 @@ func makeAuthedGqlServer(authenticate bool, ctx context.Context) *client.Client 
 	var srv *client.Client
 	if !authenticate {
 		// unauthed client
-		srv = client.New(h.AddContext(ctx, h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))))
+		srv = client.New(h.AddContext(ctx, handler.NewDefaultServer(generated.NewExecutableSchema(New()))))
 		return srv
 	}
 	// authed user
