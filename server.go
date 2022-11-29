@@ -35,12 +35,14 @@ func main() {
 	userService := services.NewUserService(queries, logger, &configuration.JwtConfig)
 	propertyService := services.NewPropertyService(queries, logger)
 	amenityService := services.NewAmenityService(queries, logger)
+	unitService := services.NewUnitService()
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "amenityService", amenityService)
+	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
