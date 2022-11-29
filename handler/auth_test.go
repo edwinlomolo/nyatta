@@ -43,8 +43,8 @@ func TestMain(m *testing.M) {
 	queries := sqlStore.New(db)
 	userService := services.NewUserService(queries, logger, &cfg.JwtConfig)
 	propertyService := services.NewPropertyService(queries, logger)
-	unitService := services.NewUnitService()
-	tenancyService := services.NewTenancyService()
+	unitService := services.NewUnitService(queries, logger)
+	tenancyService := services.NewTenancyService(queries, logger)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)

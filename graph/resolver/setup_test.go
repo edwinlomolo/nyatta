@@ -55,8 +55,8 @@ func TestMain(m *testing.M) {
 	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
 	propertyService = services.NewPropertyService(queries, logger)
 	amenityService = services.NewAmenityService(queries, logger)
-	unitService = services.NewUnitService()
-	tenancyService = services.NewTenancyService()
+	unitService = services.NewUnitService(queries, logger)
+	tenancyService = services.NewTenancyService(queries, logger)
 
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "config", configuration)

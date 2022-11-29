@@ -35,8 +35,8 @@ func main() {
 	userService := services.NewUserService(queries, logger, &configuration.JwtConfig)
 	propertyService := services.NewPropertyService(queries, logger)
 	amenityService := services.NewAmenityService(queries, logger)
-	unitService := services.NewUnitService()
-	tenancyService := services.NewTenancyService()
+	unitService := services.NewUnitService(queries, logger)
+	tenancyService := services.NewTenancyService(queries, logger)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())

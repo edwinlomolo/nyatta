@@ -44,8 +44,8 @@ func TestMain(m *testing.M) {
 	authService = NewAuthService(logger, &configuration.JwtConfig)
 	amenityService = NewAmenityService(queries, logger)
 	propertyService = NewPropertyService(queries, logger)
-	unitService = NewUnitService()
-	tenancyService = NewTenancyService()
+	unitService = NewUnitService(queries, logger)
+	tenancyService = NewTenancyService(queries, logger)
 
 	// exit once done
 	os.Exit(m.Run())
