@@ -22,6 +22,7 @@ var (
 	propertyService *PropertyServices
 	amenityService  *AmenityServices
 	unitService     *UnitServices
+	tenancyService  *TenancyServices
 	queries         *sqlStore.Queries
 	configuration   *config.Configuration
 )
@@ -44,6 +45,7 @@ func TestMain(m *testing.M) {
 	amenityService = NewAmenityService(queries, logger)
 	propertyService = NewPropertyService(queries, logger)
 	unitService = NewUnitService()
+	tenancyService = NewTenancyService()
 
 	// exit once done
 	os.Exit(m.Run())

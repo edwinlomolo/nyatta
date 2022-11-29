@@ -31,6 +31,7 @@ var (
 	propertyService *services.PropertyServices
 	amenityService  *services.AmenityServices
 	unitService     *services.UnitServices
+	tenancyService  *services.TenancyServices
 	logger          *log.Logger
 	configuration   *config.Configuration
 	err             error
@@ -55,6 +56,7 @@ func TestMain(m *testing.M) {
 	propertyService = services.NewPropertyService(queries, logger)
 	amenityService = services.NewAmenityService(queries, logger)
 	unitService = services.NewUnitService()
+	tenancyService = services.NewTenancyService()
 
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "config", configuration)
@@ -62,6 +64,7 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "amenityService", amenityService)
 	ctx = context.WithValue(ctx, "unitService", unitService)
+	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	os.Exit(m.Run())
