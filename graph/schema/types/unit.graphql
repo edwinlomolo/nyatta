@@ -1,0 +1,10 @@
+# Represent property unit
+type PropertyUnit {
+  id: ID!
+  bedrooms: [Bedroom!]! # has-many bedrooms
+  propertyId: ID!
+  bathrooms: Int!
+  tenancy: [Tenant!]! # has-many tenancy
+  createdAt: Time
+  updatedAt: Time
+}

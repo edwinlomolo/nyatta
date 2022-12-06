@@ -5,6 +5,7 @@
 package store
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -17,6 +18,16 @@ type Amenity struct {
 	PropertyID int64     `json:"property_id"`
 }
 
+type Bedroom struct {
+	ID             int64     `json:"id"`
+	BedroomNumber  int32     `json:"bedroom_number"`
+	EnSuite        bool      `json:"en_suite"`
+	Master         bool      `json:"master"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	PropertyUnitID int64     `json:"property_unit_id"`
+}
+
 type Property struct {
 	ID         int64     `json:"id"`
 	Name       string    `json:"name"`
@@ -25,6 +36,23 @@ type Property struct {
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	CreatedBy  int64     `json:"created_by"`
+}
+
+type PropertyUnit struct {
+	ID         int64     `json:"id"`
+	Bathrooms  int32     `json:"bathrooms"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	PropertyID int64     `json:"property_id"`
+}
+
+type Tenant struct {
+	ID             int64        `json:"id"`
+	StartDate      time.Time    `json:"start_date"`
+	EndDate        sql.NullTime `json:"end_date"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+	PropertyUnitID int64        `json:"property_unit_id"`
 }
 
 type User struct {

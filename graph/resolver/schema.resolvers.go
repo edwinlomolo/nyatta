@@ -40,6 +40,21 @@ func (r *mutationResolver) AddAmenity(ctx context.Context, input model.AmenityIn
 	return insertedAmenity, err
 }
 
+// AddPropertyUnit is the resolver for the addPropertyUnit field.
+func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error) {
+	panic(fmt.Errorf("not implemented: AddPropertyUnit - addPropertyUnit"))
+}
+
+// AddUnitBedrooms is the resolver for the addUnitBedrooms field.
+func (r *mutationResolver) AddUnitBedrooms(ctx context.Context, input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
+	panic(fmt.Errorf("not implemented: AddUnitBedrooms - addUnitBedrooms"))
+}
+
+// AddPropertyUnitTenant is the resolver for the addPropertyUnitTenant field.
+func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error) {
+	panic(fmt.Errorf("not implemented: AddPropertyUnitTenant - addPropertyUnitTenant"))
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)
@@ -66,3 +81,13 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) AddBedrooms(ctx context.Context, input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
+	panic(fmt.Errorf("not implemented: AddBedrooms - addBedrooms"))
+}

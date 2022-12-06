@@ -1,0 +1,9 @@
+# Represent property unit tenant
+type Tenant {
+  id: ID!
+  startDate: Time!
+  endDate: Time
+  propertyUnitId: ID! # belongs-to property unit
+  createdAt: Time
+  updatedAt: Time
+}

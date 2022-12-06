@@ -7,6 +7,8 @@ package store
 
 import (
 	"context"
+	"database/sql"
+	"time"
 )
 
 const createAmenity = `-- name: CreateAmenity :one
@@ -70,6 +72,98 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
+	)
+	return i, err
+}
+
+const createPropertyUnit = `-- name: CreatePropertyUnit :one
+INSERT INTO property_units (
+  property_id, bathrooms
+) VALUES (
+  $1, $2
+)
+RETURNING id, bathrooms, created_at, updated_at, property_id
+`
+
+type CreatePropertyUnitParams struct {
+	PropertyID int64 `json:"property_id"`
+	Bathrooms  int32 `json:"bathrooms"`
+}
+
+func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnitParams) (PropertyUnit, error) {
+	row := q.db.QueryRowContext(ctx, createPropertyUnit, arg.PropertyID, arg.Bathrooms)
+	var i PropertyUnit
+	err := row.Scan(
+		&i.ID,
+		&i.Bathrooms,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyID,
+	)
+	return i, err
+}
+
+const createTenant = `-- name: CreateTenant :one
+INSERT INTO tenants (
+  start_date, end_date, property_unit_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, start_date, end_date, created_at, updated_at, property_unit_id
+`
+
+type CreateTenantParams struct {
+	StartDate      time.Time    `json:"start_date"`
+	EndDate        sql.NullTime `json:"end_date"`
+	PropertyUnitID int64        `json:"property_unit_id"`
+}
+
+func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
+	row := q.db.QueryRowContext(ctx, createTenant, arg.StartDate, arg.EndDate, arg.PropertyUnitID)
+	var i Tenant
+	err := row.Scan(
+		&i.ID,
+		&i.StartDate,
+		&i.EndDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+	)
+	return i, err
+}
+
+const createUnitBedroom = `-- name: CreateUnitBedroom :one
+INSERT INTO bedrooms (
+  property_unit_id, bedroom_number, en_suite, master
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, bedroom_number, en_suite, master, created_at, updated_at, property_unit_id
+`
+
+type CreateUnitBedroomParams struct {
+	PropertyUnitID int64 `json:"property_unit_id"`
+	BedroomNumber  int32 `json:"bedroom_number"`
+	EnSuite        bool  `json:"en_suite"`
+	Master         bool  `json:"master"`
+}
+
+func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomParams) (Bedroom, error) {
+	row := q.db.QueryRowContext(ctx, createUnitBedroom,
+		arg.PropertyUnitID,
+		arg.BedroomNumber,
+		arg.EnSuite,
+		arg.Master,
+	)
+	var i Bedroom
+	err := row.Scan(
+		&i.ID,
+		&i.BedroomNumber,
+		&i.EnSuite,
+		&i.Master,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
 	)
 	return i, err
 }

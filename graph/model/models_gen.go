@@ -2,12 +2,63 @@
 
 package model
 
+import (
+	"time"
+)
+
+type Bedroom struct {
+	ID             string     `json:"id"`
+	PropertyUnitID string     `json:"propertyUnitId"`
+	BedroomNumber  int        `json:"bedroomNumber"`
+	EnSuite        bool       `json:"enSuite"`
+	Master         bool       `json:"master"`
+	CreatedAt      *time.Time `json:"createdAt"`
+	UpdatedAt      *time.Time `json:"updatedAt"`
+}
+
 type NewUser struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
 
+type PropertyUnit struct {
+	ID         string     `json:"id"`
+	Bedrooms   []*Bedroom `json:"bedrooms"`
+	PropertyID string     `json:"propertyId"`
+	Bathrooms  int        `json:"bathrooms"`
+	Tenancy    []*Tenant  `json:"tenancy"`
+	CreatedAt  *time.Time `json:"createdAt"`
+	UpdatedAt  *time.Time `json:"updatedAt"`
+}
+
+type PropertyUnitInput struct {
+	PropertyID string `json:"propertyId"`
+	Bathrooms  int    `json:"bathrooms"`
+}
+
+type TenancyInput struct {
+	StartDate      time.Time  `json:"startDate"`
+	EndDate        *time.Time `json:"endDate"`
+	PropertyUnitID string     `json:"propertyUnitId"`
+}
+
+type Tenant struct {
+	ID             string     `json:"id"`
+	StartDate      time.Time  `json:"startDate"`
+	EndDate        *time.Time `json:"endDate"`
+	PropertyUnitID string     `json:"propertyUnitId"`
+	CreatedAt      *time.Time `json:"createdAt"`
+	UpdatedAt      *time.Time `json:"updatedAt"`
+}
+
 type Token struct {
 	Token string `json:"token"`
+}
+
+type UnitBedroomInput struct {
+	PropertyUnitID string `json:"propertyUnitId"`
+	BedroomNumber  int    `json:"bedroomNumber"`
+	EnSuite        bool   `json:"enSuite"`
+	Master         bool   `json:"master"`
 }

@@ -2,12 +2,14 @@
 #
 # https://gqlgen.com/getting-started/
 
+# Represent new user input
 input NewUser {
   email: String!
   first_name: String!
   last_name: String!
 }
 
+# Represent new property input
 input NewProperty {
   name: String!
   town: String!
@@ -15,10 +17,32 @@ input NewProperty {
   createdBy: ID!
 }
 
+# Represent new property amenity input
 input AmenityInput {
   name: String!
   provider: String!
   propertyId: ID!
+}
+
+# Represent new property unit input
+input PropertyUnitInput {
+  propertyId: ID!
+  bathrooms: Int!
+}
+
+# Represent new property unit bedroom(s) input
+input UnitBedroomInput {
+  propertyUnitId: ID!
+  bedroomNumber: Int!
+  enSuite: Boolean!
+  master: Boolean!
+}
+
+# Represent new property unit tenancy input
+input TenancyInput {
+  startDate: Time!
+  endDate: Time
+  propertyUnitId: ID!
 }
 
 # after signin return this
@@ -35,6 +59,9 @@ type Mutation {
   signIn(input: NewUser!): Token!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!
+  addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
+  addUnitBedrooms(input: [UnitBedroomInput!]!): [Bedroom!]!
+  addPropertyUnitTenant(input: TenancyInput!): Tenant!
 }
 
 schema {

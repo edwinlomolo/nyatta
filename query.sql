@@ -41,3 +41,27 @@ RETURNING *;
 -- name: PropertyAmenities :many
 SELECT * FROM amenities
 WHERE property_id = $1;
+
+-- name: CreateTenant :one
+INSERT INTO tenants (
+  start_date, end_date, property_unit_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
+-- name: CreatePropertyUnit :one
+INSERT INTO property_units (
+  property_id, bathrooms
+) VALUES (
+  $1, $2
+)
+RETURNING *;
+
+-- name: CreateUnitBedroom :one
+INSERT INTO bedrooms (
+  property_unit_id, bedroom_number, en_suite, master
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING *;

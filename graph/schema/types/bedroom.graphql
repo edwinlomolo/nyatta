@@ -1,0 +1,10 @@
+# Represent a bedroom
+type Bedroom {
+  id: ID!
+  propertyUnitId: ID! # belongs-to property unit
+  bedroomNumber: Int!
+  enSuite: Boolean!
+  master: Boolean!
+  createdAt: Time
+  updatedAt: Time
+}
