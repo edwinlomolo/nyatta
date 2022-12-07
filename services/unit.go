@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -24,6 +25,9 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 
 // AddPropertyUnit - add property unit
 func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.PropertyUnit, error) {
+	if input.Bathrooms == 0 {
+		return nil, errors.New("Zero is not a valid value")
+	}
 	propertyId, err := strconv.ParseInt(input.PropertyID, 10, 64)
 	if err != nil {
 		return nil, err
@@ -50,6 +54,9 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 func (u *UnitServices) AddUnitBedrooms(input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
 	var insertedBedrooms []*model.Bedroom
 	for _, value := range input {
+		if value.BedroomNumber == 0 {
+			return nil, errors.New("Zero is not a valid value")
+		}
 		propertyUnitId, err := strconv.ParseInt(value.PropertyUnitID, 10, 64)
 		if err != nil {
 			return nil, err
