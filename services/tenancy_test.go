@@ -10,6 +10,7 @@ import (
 )
 
 func Test_Tenancy_Services(t *testing.T) {
+	now := time.Now()
 	user, err := userService.CreateUser(&model.NewUser{
 		FirstName: "John",
 		LastName:  "Doe",
@@ -34,8 +35,8 @@ func Test_Tenancy_Services(t *testing.T) {
 	t.Run("should_add_unit_tenant", func(t *testing.T) {
 
 		newTenant := &model.TenancyInput{
-			StartDate:      time.Now(),
-			EndDate:        &time.Time{},
+			StartDate:      now,
+			EndDate:        &now,
 			PropertyUnitID: unit.ID,
 		}
 

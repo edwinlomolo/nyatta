@@ -35,7 +35,7 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 
 	insertedUnit, err := u.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
 		PropertyID: propertyId,
-		Bathrooms:  3,
+		Bathrooms:  int32(input.Bathrooms),
 	})
 	if err != nil {
 		return nil, err

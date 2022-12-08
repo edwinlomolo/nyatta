@@ -3,6 +3,7 @@ package resolver
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/util"
@@ -17,6 +18,13 @@ func Test_Property_Resolver(t *testing.T) {
 			Town       string
 			PostalCode string
 			ID         string
+		}
+	}
+
+	var addPropertyUnit struct {
+		AddPropertyUnit struct {
+			Bathrooms int
+			ID        string
 		}
 	}
 
@@ -96,5 +104,62 @@ func Test_Property_Resolver(t *testing.T) {
 		assert.Equal(t, len(getProperty.GetProperty.Amenities), 1)
 		assert.Equal(t, getProperty.GetProperty.Amenities[0].Name, "Home Fibre")
 		assert.Equal(t, getProperty.GetProperty.Amenities[0].Provider, "Safaricom Home Internet")
+	})
+
+	t.Run("should_add_property_unit", func(t *testing.T) {
+		query := fmt.Sprintf(
+			`mutation { addPropertyUnit(input: {propertyId: %q, bathrooms: %v}) { id, bathrooms } }`,
+			createProperty.CreateProperty.ID, 3,
+		)
+
+		srv.MustPost(query, &addPropertyUnit)
+
+		assert.Equal(t, addPropertyUnit.AddPropertyUnit.Bathrooms, 3)
+	})
+
+	t.Run("should_query_property_unit(s)", func(t *testing.T) {
+	})
+
+	t.Run("should_add_unit_bedrooms", func(t *testing.T) {
+		var addUnitBedrooms struct {
+			AddUnitBedrooms []struct{ ID string }
+		}
+		query := fmt.Sprintf(
+			`mutation { addUnitBedrooms(input: [{propertyUnitId: %q, bedroomNumber: %v, enSuite: %v, master: %v}]) { id } }`,
+			addPropertyUnit.AddPropertyUnit.ID,
+			1,
+			true,
+			true,
+		)
+
+		srv.MustPost(query, &addUnitBedrooms)
+
+		assert.Equal(t, len(addUnitBedrooms.AddUnitBedrooms), 1)
+	})
+
+	t.Run("should_query_unit_bedrooms", func(t *testing.T) {
+	})
+
+	t.Run("should_add_property_unit_tenancy", func(t *testing.T) {
+		when := time.Now().Format(time.RFC3339)
+		var addPropertyUnitTenant struct {
+			AddPropertyUnitTenant struct {
+				StartDate string
+			}
+		}
+
+		query := fmt.Sprintf(
+			`mutation { addPropertyUnitTenant(input: {startDate: %q, endDate: %q, propertyUnitId: %q}) { startDate } }`,
+			when,
+			when,
+			addPropertyUnit.AddPropertyUnit.ID,
+		)
+
+		srv.MustPost(query, &addPropertyUnitTenant)
+
+		assert.NotEmpty(t, addPropertyUnitTenant.AddPropertyUnitTenant.StartDate)
+	})
+
+	t.Run("should_query_property_unit_tenancy", func(t *testing.T) {
 	})
 }

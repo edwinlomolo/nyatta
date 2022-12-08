@@ -42,17 +42,29 @@ func (r *mutationResolver) AddAmenity(ctx context.Context, input model.AmenityIn
 
 // AddPropertyUnit is the resolver for the addPropertyUnit field.
 func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error) {
-	panic(fmt.Errorf("not implemented: AddPropertyUnit - addPropertyUnit"))
+	insertedPropertyUnit, err := ctx.Value("unitService").(*services.UnitServices).AddPropertyUnit(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return insertedPropertyUnit, err
 }
 
 // AddUnitBedrooms is the resolver for the addUnitBedrooms field.
 func (r *mutationResolver) AddUnitBedrooms(ctx context.Context, input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
-	panic(fmt.Errorf("not implemented: AddUnitBedrooms - addUnitBedrooms"))
+	insertedUnitBedrooms, err := ctx.Value("unitService").(*services.UnitServices).AddUnitBedrooms(input)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return insertedUnitBedrooms, err
 }
 
 // AddPropertyUnitTenant is the resolver for the addPropertyUnitTenant field.
 func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error) {
-	panic(fmt.Errorf("not implemented: AddPropertyUnitTenant - addPropertyUnitTenant"))
+	insertedUnitTenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).AddUnitTenancy(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return insertedUnitTenancy, err
 }
 
 // GetUser is the resolver for the getUser field.

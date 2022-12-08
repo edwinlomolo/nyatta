@@ -74,3 +74,12 @@ models:
         resolver: true
       amenities:
         resolver: true
+      units:
+        resolver: true
+
+  PropertyUnit:
+    fields:
+      bedrooms:
+        resolver: true
+      tenancy:
+        resolver: true
