@@ -22,6 +22,11 @@ func (r *propertyResolver) Amenities(ctx context.Context, obj *model.Property) (
 	return foundAmenities, nil
 }
 
+// Units is the resolver for the units field.
+func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error) {
+	panic(fmt.Errorf("not implemented: Units - units"))
+}
+
 // Owner is the resolver for the owner field.
 func (r *propertyResolver) Owner(ctx context.Context, obj *model.Property) (*model.User, error) {
 	foundOwner, err := ctx.Value("userService").(*services.UserServices).FindById(obj.CreatedBy)
