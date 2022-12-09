@@ -124,3 +124,8 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 
 	return userProperties, nil
 }
+
+// GetPropertyUnits - get property units
+func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error) {
+	return []*model.PropertyUnit{}, nil
+}

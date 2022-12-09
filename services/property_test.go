@@ -79,4 +79,11 @@ func Test_property_service(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, len(userProperties), 1)
 	})
+
+	t.Run("should_find_property_units", func(t *testing.T) {
+		propertyUnits, err := propertyService.GetPropertyUnits(property.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(propertyUnits), 0)
+	})
 }
