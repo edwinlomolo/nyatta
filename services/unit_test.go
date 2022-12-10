@@ -2,6 +2,7 @@ package services
 
 import (
 	"testing"
+	"time"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/util"
@@ -9,6 +10,7 @@ import (
 )
 
 func Test_Unit_Services(t *testing.T) {
+	now := time.Now()
 	var unit *model.PropertyUnit
 	user, err := userService.CreateUser(&model.NewUser{
 		FirstName: "John",
@@ -60,6 +62,34 @@ func Test_Unit_Services(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.Equal(t, len(insertedBedroom), 2)
+	})
+
+	t.Run("should_get_unit_bedrooms", func(t *testing.T) {
+		foundBedrooms, err := unitService.GetUnitBedrooms(unit.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(foundBedrooms), 2)
+	})
+
+	t.Run("should_add_unit_tenant", func(t *testing.T) {
+		newTenant := &model.TenancyInput{
+			StartDate:      now,
+			EndDate:        &now,
+			PropertyUnitID: unit.ID,
+		}
+
+		insertedTenant, err := tenancyService.AddUnitTenancy(newTenant)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, insertedTenant.StartDate)
+		assert.NotEmpty(t, insertedTenant.EndDate)
+	})
+
+	t.Run("should_get_unit_tenancy", func(t *testing.T) {
+		foundTenancies, err := unitService.GetUnitTenancy(unit.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(foundTenancies), 1)
 	})
 
 	t.Run("should_return_service_name", func(t *testing.T) {

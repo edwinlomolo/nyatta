@@ -127,5 +127,27 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 
 // GetPropertyUnits - get property units
 func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error) {
-	return []*model.PropertyUnit{}, nil
+	var units []*model.PropertyUnit
+
+	id, err := strconv.ParseInt(propertyId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	foundUnits, err := p.queries.GetPropertyUnits(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	for _, foundUnit := range foundUnits {
+		unit := &model.PropertyUnit{
+			ID:         strconv.FormatInt(foundUnit.ID, 10),
+			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
+			CreatedAt:  &foundUnit.CreatedAt,
+			Bathrooms:  int(foundUnit.Bathrooms),
+			UpdatedAt:  &foundUnit.UpdatedAt,
+		}
+		units = append(units, unit)
+	}
+
+	return units, nil
 }

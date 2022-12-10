@@ -236,6 +236,111 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 	return i, err
 }
 
+const getPropertyUnits = `-- name: GetPropertyUnits :many
+SELECT id, bathrooms, created_at, updated_at, property_id FROM property_units
+WHERE property_id = $1
+`
+
+func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID int64) ([]PropertyUnit, error) {
+	rows, err := q.db.QueryContext(ctx, getPropertyUnits, propertyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PropertyUnit
+	for rows.Next() {
+		var i PropertyUnit
+		if err := rows.Scan(
+			&i.ID,
+			&i.Bathrooms,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PropertyID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUnitBedrooms = `-- name: GetUnitBedrooms :many
+SELECT id, bedroom_number, en_suite, master, created_at, updated_at, property_unit_id FROM bedrooms
+WHERE property_unit_id = $1
+`
+
+func (q *Queries) GetUnitBedrooms(ctx context.Context, propertyUnitID int64) ([]Bedroom, error) {
+	rows, err := q.db.QueryContext(ctx, getUnitBedrooms, propertyUnitID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Bedroom
+	for rows.Next() {
+		var i Bedroom
+		if err := rows.Scan(
+			&i.ID,
+			&i.BedroomNumber,
+			&i.EnSuite,
+			&i.Master,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PropertyUnitID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUnitTenancy = `-- name: GetUnitTenancy :many
+SELECT id, start_date, end_date, created_at, updated_at, property_unit_id FROM tenants
+WHERE property_unit_id = $1
+`
+
+func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID int64) ([]Tenant, error) {
+	rows, err := q.db.QueryContext(ctx, getUnitTenancy, propertyUnitID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tenant
+	for rows.Next() {
+		var i Tenant
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PropertyUnitID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUser = `-- name: GetUser :one
 SELECT id, email, first_name, last_name, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1

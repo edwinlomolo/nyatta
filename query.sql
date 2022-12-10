@@ -65,3 +65,15 @@ INSERT INTO bedrooms (
   $1, $2, $3, $4
 )
 RETURNING *;
+
+-- name: GetUnitBedrooms :many
+SELECT * FROM bedrooms
+WHERE property_unit_id = $1;
+
+-- name: GetUnitTenancy :many
+SELECT * FROM tenants
+WHERE property_unit_id = $1;
+
+-- name: GetPropertyUnits :many
+SELECT * FROM property_units
+WHERE property_id = $1;

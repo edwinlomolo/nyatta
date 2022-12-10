@@ -81,6 +81,52 @@ func (u *UnitServices) AddUnitBedrooms(input []*model.UnitBedroomInput) ([]*mode
 	return insertedBedrooms, nil
 }
 
+// GetUnitBedrooms - return unit bedrooms
+func (u *UnitServices) GetUnitBedrooms(unitId string) ([]*model.Bedroom, error) {
+	var bedrooms []*model.Bedroom
+	id, err := strconv.ParseInt(unitId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	foundBedrooms, err := u.queries.GetUnitBedrooms(ctx, id)
+	for _, unit := range foundBedrooms {
+		bedroom := &model.Bedroom{
+			ID:            strconv.FormatInt(unit.ID, 10),
+			BedroomNumber: int(unit.BedroomNumber),
+			EnSuite:       unit.EnSuite,
+			Master:        unit.Master,
+			CreatedAt:     &unit.CreatedAt,
+			UpdatedAt:     &unit.UpdatedAt,
+		}
+		bedrooms = append(bedrooms, bedroom)
+	}
+	return bedrooms, nil
+}
+
+// GetUnitTenancy - return unit tenancy
+func (u *UnitServices) GetUnitTenancy(unitId string) ([]*model.Tenant, error) {
+	var tenancies []*model.Tenant
+
+	id, err := strconv.ParseInt(unitId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	foundTenancies, err := u.queries.GetUnitTenancy(ctx, id)
+	for _, tenancy := range foundTenancies {
+		tenant := &model.Tenant{
+			ID:        strconv.FormatInt(tenancy.ID, 10),
+			StartDate: tenancy.StartDate,
+			EndDate:   &tenancy.EndDate.Time,
+			CreatedAt: &tenancy.CreatedAt,
+			UpdatedAt: &tenancy.UpdatedAt,
+		}
+		tenancies = append(tenancies, tenant)
+	}
+	return tenancies, nil
+}
+
 // ServiceName - return service name
 func (u UnitServices) ServiceName() string {
 	return "UnitServices"

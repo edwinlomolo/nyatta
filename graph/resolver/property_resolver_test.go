@@ -118,6 +118,21 @@ func Test_Property_Resolver(t *testing.T) {
 	})
 
 	t.Run("should_query_property_unit(s)", func(t *testing.T) {
+		var getProperty struct {
+			GetProperty struct {
+				Name  string
+				Units []struct {
+					Bathrooms int
+				}
+			}
+		}
+
+		query := `query ($id: ID!) { getProperty(id: $id) { name, units { bathrooms } } }`
+
+		srv.MustPost(query, &getProperty, client.Var("id", createProperty.CreateProperty.ID))
+
+		assert.Equal(t, len(getProperty.GetProperty.Units), 1)
+		assert.Equal(t, getProperty.GetProperty.Units[0].Bathrooms, 3)
 	})
 
 	t.Run("should_add_unit_bedrooms", func(t *testing.T) {
@@ -137,7 +152,24 @@ func Test_Property_Resolver(t *testing.T) {
 		assert.Equal(t, len(addUnitBedrooms.AddUnitBedrooms), 1)
 	})
 
-	t.Run("should_query_unit_bedrooms", func(t *testing.T) {
+	t.Run("should_query_property_unit_bedrooms", func(t *testing.T) {
+		var getProperty struct {
+			GetProperty struct {
+				Name  string
+				Units []struct {
+					Bedrooms []struct {
+						BedroomNumber int
+					}
+				}
+			}
+		}
+
+		query := `query ($id: ID!) { getProperty(id: $id) { name, units { bedrooms { bedroomNumber } } } }`
+
+		srv.MustPost(query, &getProperty, client.Var("id", createProperty.CreateProperty.ID))
+
+		assert.Equal(t, len(getProperty.GetProperty.Units[0].Bedrooms), 1)
+		assert.Equal(t, getProperty.GetProperty.Units[0].Bedrooms[0].BedroomNumber, 1)
 	})
 
 	t.Run("should_add_property_unit_tenancy", func(t *testing.T) {
@@ -161,5 +193,22 @@ func Test_Property_Resolver(t *testing.T) {
 	})
 
 	t.Run("should_query_property_unit_tenancy", func(t *testing.T) {
+		var getProperty struct {
+			GetProperty struct {
+				Name  string
+				Units []struct {
+					Tenancy []struct {
+						StartDate string
+					}
+				}
+			}
+		}
+
+		query := `query ($id: ID!) { getProperty(id: $id) { name, units { tenancy { startDate } } } }`
+
+		srv.MustPost(query, &getProperty, client.Var("id", createProperty.CreateProperty.ID))
+
+		assert.Equal(t, len(getProperty.GetProperty.Units[0].Tenancy), 1)
+		assert.NotEmpty(t, getProperty.GetProperty.Units[0].Tenancy[0].StartDate)
 	})
 }

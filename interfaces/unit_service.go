@@ -7,5 +7,7 @@ import (
 type UnitService interface {
 	AddPropertyUnit(*model.PropertyUnitInput) (*model.PropertyUnit, error)
 	AddUnitBedrooms([]*model.UnitBedroomInput) ([]*model.Bedroom, error)
+	GetUnitBedrooms(unitId string) ([]*model.Bedroom, error)
+	GetUnitTenancy(unitId string) ([]*model.Tenant, error)
 	ServiceName() string
 }

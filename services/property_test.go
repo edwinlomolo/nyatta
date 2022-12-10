@@ -81,9 +81,18 @@ func Test_property_service(t *testing.T) {
 	})
 
 	t.Run("should_find_property_units", func(t *testing.T) {
+		newUnit := &model.PropertyUnitInput{
+			PropertyID: property.ID,
+			Bathrooms:  3,
+		}
+
+		_, err := unitService.AddPropertyUnit(newUnit)
+
+		assert.Nil(t, err)
+
 		propertyUnits, err := propertyService.GetPropertyUnits(property.ID)
 
 		assert.Nil(t, err)
-		assert.Equal(t, len(propertyUnits), 0)
+		assert.Equal(t, len(propertyUnits), 1)
 	})
 }

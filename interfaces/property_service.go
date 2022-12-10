@@ -9,4 +9,5 @@ type PropertyService interface {
 	FindByTown(town string) ([]*model.Property, error)
 	FindByPostalCode(postalCode string) ([]*model.Property, error)
 	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
+	GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error)
 }
