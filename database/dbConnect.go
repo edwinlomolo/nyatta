@@ -15,7 +15,7 @@ var (
 		`
 CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL PRIMARY KEY,
-  email text NOT NULL,
+  email text NOT NULL UNIQUE,
   first_name text NOT NULL,
   last_name text NOT NULL,
   created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
