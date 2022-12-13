@@ -1,5 +1,5 @@
 init:
-	go get .
+	go get -v ./...
 	go run github.com/99designs/gqlgen init --verbose
 
 generate:
