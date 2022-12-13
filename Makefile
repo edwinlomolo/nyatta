@@ -1,5 +1,5 @@
 init:
-	go get -v ./...
+	go mod tidy
 	go run github.com/99designs/gqlgen init --verbose
 
 generate:
