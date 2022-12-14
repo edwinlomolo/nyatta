@@ -8,5 +8,4 @@
 # 	sqlc generate
 # 
 test:
-#	go clean -testcache
 	go test -v ./...
