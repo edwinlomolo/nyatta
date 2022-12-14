@@ -2,3 +2,9 @@ language: go
 
 go:
   - 1.18
+
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'CREATE DATABASE nyatta-test;' -U postgres
