@@ -7,9 +7,11 @@
 # migrate-db:
 # 	sqlc generate
 # 
-run:
-	go run server.go
-
 test:
 #	go clean -testcache
 	go test -v ./...
+
+run:
+	go run server.go
+
+
