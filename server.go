@@ -18,6 +18,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
@@ -88,8 +89,9 @@ func main() {
 	ctx = context.WithValue(ctx, "log", logger)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
+	handler := cors.Default().Handler(r)
 	server := &http.Server{
-		Handler:      r,
+		Handler:      handler,
 		Addr:         "127.0.0.1:4000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
