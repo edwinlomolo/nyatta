@@ -85,6 +85,11 @@ func (r *queryResolver) GetProperty(ctx context.Context, id string) (*model.Prop
 	return foundProperty, nil
 }
 
+// Hello is the resolver for the hello field.
+func (r *queryResolver) Hello(ctx context.Context) (string, error) {
+	return "Hello, World", nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

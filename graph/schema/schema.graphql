@@ -53,6 +53,7 @@ type Token {
 type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
+  hello: String!
 }
 
 type Mutation {
