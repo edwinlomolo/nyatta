@@ -3,8 +3,21 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const apolloClient = new ApolloClient({
+  uri: "http://localhost:4000/query",
+  cache: new InMemoryCache(),
+})
+
+apolloClient.query({
+  query: gql`query Hello { hello }`,
+})
+.then(result => console.log(result))
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
 root.render(
   <React.StrictMode>
     <App />
