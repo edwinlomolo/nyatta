@@ -53,7 +53,8 @@ func Login() http.Handler {
 func Authenticate(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var (
-			userId       string
+			userId string
+
 			isAuthorized bool
 		)
 
