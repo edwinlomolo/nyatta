@@ -1,30 +1,23 @@
-import { useEffect } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 
-import { gapi } from 'gapi-script'
+import { Login, Logout, Profile } from './components'
 
-import { Login, Logout } from './components'
 
-const { REACT_APP_GOOGLE_CLIENT_ID } = process.env
 
 function App() {
+  const { isAuthenticated, isLoading } = useAuth0()
 
-  useEffect(() => {
-    const initializeClient = () => {
-      gapi.client.init({
-        clientId: REACT_APP_GOOGLE_CLIENT_ID,
-        scope: '',
-      })
-    }
-
-    gapi.load('client:auth2', initializeClient)
-  })
+  if (isLoading) {
+    return <p>Loading ...</p>
+  }
 
   return (
-    <>
+    <div>
       <h1>Welcome to Nyatta!</h1>
-      <Login />
-      <Logout />
-    </>
+      {isAuthenticated && <Profile />}
+      {!isAuthenticated && <Login />}
+      {isAuthenticated && <Logout />}
+    </div>
   );
 }
 

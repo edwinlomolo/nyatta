@@ -3,24 +3,30 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
-const apolloClient = new ApolloClient({
-  uri: "http://localhost:4000/query",
-  cache: new InMemoryCache(),
-})
+import { Auth0Provider } from '@auth0/auth0-react'
 
-apolloClient.query({
-  query: gql`query Hello { hello }`,
-})
-.then(result => console.log(result))
+import { ApolloProvider } from './apollo'
+
+const {
+  REACT_APP_AUTH0_CLIENT_ID,
+  REACT_APP_AUTH0_DOMAIN,
+} = process.env
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <Auth0Provider
+      clientId={REACT_APP_AUTH0_CLIENT_ID!}
+      domain={REACT_APP_AUTH0_DOMAIN!}
+      redirectUri={window.location.origin}
+    >
+      <ApolloProvider>
+        <App />
+      </ApolloProvider>
+    </Auth0Provider>
   </React.StrictMode>
 );
 
