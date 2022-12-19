@@ -57,7 +57,7 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	var newUser *model.User
 	var err error
 	newUser, err = u.FindByEmail(user.Email)
-	if err.Error() != "User not found" {
+	if err != nil && err.Error() != "User not found" {
 		return nil, err
 	}
 	// user - new user

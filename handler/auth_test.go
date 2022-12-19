@@ -84,7 +84,7 @@ func Test_Auth_Handler(t *testing.T) {
 
 		json.Unmarshal(data, &creds)
 		assert.NotEmpty(t, creds.AccessToken)
-		assert.Equal(t, creds.Code, 201)
+		assert.Equal(t, creds.Code, 200)
 	})
 
 	t.Run("should_drop_any_unauthed_request_successfully", func(t *testing.T) {
