@@ -36,6 +36,7 @@ func Test_Property_Resolver(t *testing.T) {
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
+		Avatar:    "https://avatar.jpg",
 	})
 	if err != nil {
 		t.Errorf("expected nil err got: %v", err)

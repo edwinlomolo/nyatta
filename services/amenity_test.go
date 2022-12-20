@@ -13,6 +13,7 @@ func Test_Amenity_service(t *testing.T) {
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
+		Avatar:    "https://avatar.jpg",
 	})
 	property, err := propertyService.CreateProperty(&model.NewProperty{
 		Name:       "Jonsaga Properties",

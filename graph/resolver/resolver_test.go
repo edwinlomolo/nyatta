@@ -74,7 +74,7 @@ func Test_unauthed_graphql_request(t *testing.T) {
 	var srv = client.New(h.AddContext(context.Background(), h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))))
 
 	t.Run("should_not_next_unauthed_graphql_request", func(t *testing.T) {
-		query := fmt.Sprintf(`mutation { signIn (input: { first_name: "%s", last_name: "%s", email: "%s" }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail())
+		query := fmt.Sprintf(`mutation { signIn (input: { first_name: %q, last_name: %q, email: %q, avatar: %q }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail(), "https://avatar.jpg")
 
 		err := srv.Post(query, &signIn)
 		assert.NotNil(t, err)

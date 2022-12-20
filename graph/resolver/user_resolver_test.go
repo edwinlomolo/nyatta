@@ -25,7 +25,7 @@ func Test_Resolver_User(t *testing.T) {
 
 	t.Run("resolver_should_sign_in_user", func(t *testing.T) {
 
-		query := fmt.Sprintf(`mutation { signIn (input: { first_name: "%s", last_name: "%s", email: "%s" }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail())
+		query := fmt.Sprintf(`mutation { signIn (input: { first_name: %q, last_name: %q, email: %q, avatar: %q }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail(), "https://avatar.jpg")
 
 		srv.MustPost(query, &signIn)
 
@@ -41,7 +41,7 @@ func Test_Resolver_User(t *testing.T) {
 		var err error
 
 		email := util.GenerateRandomEmail()
-		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email})
+		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email, Avatar: "https://avatar.jpg"})
 		if err != nil {
 			t.Errorf("expected nil err got %v", err)
 		}

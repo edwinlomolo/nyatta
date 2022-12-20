@@ -16,6 +16,7 @@ func Test_Unit_Services(t *testing.T) {
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
+		Avatar:    "https://avatar.jpg",
 	})
 	assert.Nil(t, err)
 

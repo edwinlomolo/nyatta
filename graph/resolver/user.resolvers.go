@@ -13,6 +13,11 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
+// Avatar is the resolver for the avatar field.
+func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (string, error) {
+	panic(fmt.Errorf("not implemented: Avatar - avatar"))
+}
+
 // Properties is the resolver for the properties field.
 func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*model.Property, error) {
 	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(obj.ID)

@@ -23,7 +23,7 @@ func makeLoginUser() string {
 		AccessToken string `json:"access_token"`
 		Code        int    `json:"code"`
 	}
-	var jsonStr = []byte(fmt.Sprintf(`{"first_name": "%s", "last_name": "%s", "email": "%s"}`, "john", "doe", util.GenerateRandomEmail()))
+	var jsonStr = []byte(fmt.Sprintf(`{"first_name": %q, "last_name": %q, "email": %q, "avatar": %q}`, "john", "doe", util.GenerateRandomEmail(), "https://avatar.jpg"))
 
 	httpServer := httptest.NewServer(h.AddContext(ctx, h.Login()))
 	defer httpServer.Close()

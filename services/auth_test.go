@@ -22,6 +22,7 @@ func Test_AuthServices(t *testing.T) {
 			FirstName: "Jane",
 			LastName:  "Doe",
 			Email:     util.GenerateRandomEmail(),
+			Avatar:    "https://avatar.jpg",
 		})
 
 		assert.Nil(t, err)

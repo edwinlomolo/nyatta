@@ -7,6 +7,7 @@ input NewUser {
   email: String!
   first_name: String!
   last_name: String!
+  avatar: String!
 }
 
 # Represent new property input

@@ -170,27 +170,34 @@ func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomPa
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email, first_name, last_name
+  email, first_name, last_name, avatar
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
-RETURNING id, email, first_name, last_name, created_at, updated_at
+RETURNING id, email, first_name, last_name, avatar, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
+	Avatar    string `json:"avatar"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Email, arg.FirstName, arg.LastName)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.Avatar,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
+		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -198,7 +205,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const findByEmail = `-- name: FindByEmail :one
-SELECT id, email, first_name, last_name, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, avatar, created_at, updated_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -210,6 +217,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
+		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -342,7 +350,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID int64) ([]T
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, first_name, last_name, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, avatar, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -354,6 +362,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
+		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

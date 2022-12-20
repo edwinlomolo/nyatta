@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   email text NOT NULL,
   first_name text NOT NULL,
   last_name text NOT NULL,
+  avatar text NOT NULL,
   created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

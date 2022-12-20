@@ -36,6 +36,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Email:     user.Email,
+		Avatar:    user.Avatar,
 	})
 	if err != nil {
 		return nil, err
@@ -45,6 +46,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 		FirstName: insertedUser.FirstName,
 		LastName:  insertedUser.LastName,
 		Email:     insertedUser.Email,
+		Avatar:    insertedUser.Avatar,
 		CreatedAt: &insertedUser.CreatedAt,
 		UpdatedAt: &insertedUser.UpdatedAt,
 	}, nil
@@ -90,6 +92,7 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 		FirstName: foundUser.FirstName,
 		LastName:  foundUser.LastName,
 		Email:     foundUser.Email,
+		Avatar:    foundUser.Avatar,
 		CreatedAt: &foundUser.CreatedAt,
 		UpdatedAt: &foundUser.UpdatedAt,
 	}, nil
@@ -108,6 +111,7 @@ func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 		FirstName: foundUser.FirstName,
 		LastName:  foundUser.LastName,
 		Email:     foundUser.Email,
+		Avatar:    foundUser.Avatar,
 		CreatedAt: &foundUser.CreatedAt,
 		UpdatedAt: &foundUser.UpdatedAt,
 	}, nil

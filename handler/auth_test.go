@@ -63,7 +63,7 @@ func Test_Auth_Handler(t *testing.T) {
 		Code        int    `json:"code"`
 	}
 
-	var jsonStr = []byte(fmt.Sprintf(`{"first_name": "%s", "last_name": "%s", "email": "%s"}`, "john", "doe", util.GenerateRandomEmail()))
+	var jsonStr = []byte(fmt.Sprintf(`{"first_name": %q, "last_name": %q, "email": %q, "avatar": %q}`, "john", "doe", util.GenerateRandomEmail(), "https://avatar.jpg"))
 
 	t.Run("should_login_ok_by_login_handler", func(t *testing.T) {
 		srv := httptest.NewServer(AddContext(ctx, Login()))
