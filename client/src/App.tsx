@@ -1,5 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react'
 
+import { ChakraProvider } from '@chakra-ui/react'
+
 import { Login, Logout, Profile } from './components'
 
 
@@ -12,12 +14,12 @@ function App() {
   }
 
   return (
-    <div>
+    <ChakraProvider>
       <h1>Welcome to Nyatta!</h1>
       {isAuthenticated && <Profile />}
       {!isAuthenticated && <Login />}
       {isAuthenticated && <Logout />}
-    </div>
+    </ChakraProvider>
   );
 }
 
