@@ -1,1 +1,1 @@
-export const apiUrl = "http://localhost:4000/login"
+export const apiUrl = "http://localhost:4000/handshake"

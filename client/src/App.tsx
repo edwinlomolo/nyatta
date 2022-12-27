@@ -1,25 +1,32 @@
 import { useAuth0 } from '@auth0/auth0-react'
 
 import { ChakraProvider } from '@chakra-ui/react'
+import { CookiesProvider } from 'react-cookie'
+import { Switch } from 'react-router-dom'
 
-import { Login, Logout, Profile } from './components'
-
-
+import { UserHome } from './components'
+import { Main } from './layout'
+import { PublicRoute } from './routes'
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth0()
+  const { isLoading } = useAuth0()
 
   if (isLoading) {
     return <p>Loading ...</p>
   }
 
   return (
-    <ChakraProvider>
-      <h1>Welcome to Nyatta!</h1>
-      {isAuthenticated && <Profile />}
-      {!isAuthenticated && <Login />}
-      {isAuthenticated && <Logout />}
-    </ChakraProvider>
+    <CookiesProvider>
+      <ChakraProvider>
+        <Switch>
+          <PublicRoute
+            layout={Main}
+            component={UserHome}
+            path="/"
+          />
+        </Switch>
+      </ChakraProvider>
+    </CookiesProvider>
   );
 }
 
