@@ -100,7 +100,7 @@ func main() {
 	logHandler := h.LoggingHandler{}
 	spaHandler := spaHandler{staticPath: "client/build", indexPath: "index.html"}
 	r.Handle("/graphql", playground.Handler("GraphQL", "/query"))
-	r.Handle("/login", h.AddContext(ctx, logHandler.Logging(h.Login())))
+	r.Handle("/handshake", h.AddContext(ctx, logHandler.Logging(h.Handshake())))
 	r.Handle("/query", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	r.PathPrefix("/").Handler(spaHandler)

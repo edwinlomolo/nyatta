@@ -35,7 +35,4 @@ func Test_root_api(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, string(data), "Unauthorized")
 	})
-
-	t.Run("should_successfully_auth_any_authed_request", func(t *testing.T) {
-	})
 }

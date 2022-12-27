@@ -66,11 +66,11 @@ func Test_Auth_Handler(t *testing.T) {
 	var jsonStr = []byte(fmt.Sprintf(`{"first_name": %q, "last_name": %q, "email": %q, "avatar": %q}`, "john", "doe", util.GenerateRandomEmail(), "https://avatar.jpg"))
 
 	t.Run("should_login_ok_by_login_handler", func(t *testing.T) {
-		srv := httptest.NewServer(AddContext(ctx, Login()))
+		srv := httptest.NewServer(AddContext(ctx, Handshake()))
 
 		defer srv.Close()
 
-		url := fmt.Sprintf("%s/login", srv.URL)
+		url := fmt.Sprintf("%s/handshake", srv.URL)
 		req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))
 
 		client := srv.Client()

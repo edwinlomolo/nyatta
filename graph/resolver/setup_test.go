@@ -25,10 +25,10 @@ func makeLoginUser() string {
 	}
 	var jsonStr = []byte(fmt.Sprintf(`{"first_name": %q, "last_name": %q, "email": %q, "avatar": %q}`, "john", "doe", util.GenerateRandomEmail(), "https://avatar.jpg"))
 
-	httpServer := httptest.NewServer(h.AddContext(ctx, h.Login()))
+	httpServer := httptest.NewServer(h.AddContext(ctx, h.Handshake()))
 	defer httpServer.Close()
 
-	url := fmt.Sprintf("%s/login", httpServer.URL)
+	url := fmt.Sprintf("%s/handshake", httpServer.URL)
 	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))
 
 	c := httpServer.Client()
