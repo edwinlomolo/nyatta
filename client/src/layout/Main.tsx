@@ -7,7 +7,7 @@ import { useCookies } from 'react-cookie'
 import { Navigation } from '../components/navigation'
 
 function Main({ children }: PropsWithChildren) {
-  const { isAuthenticated, loginWithRedirect, logout } = useAuth0()
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
   // TODO: rfr to somewhere modular
   const [cookies, setCookie, removeCookie] = useCookies(['jwt'])
 
@@ -17,8 +17,8 @@ function Main({ children }: PropsWithChildren) {
   }
 
   return (
-    <Box>
-      <Navigation logout={handleLogout} login={loginWithRedirect} isAuthenticated={isAuthenticated} />
+    <Box p={2}>
+      <Navigation user={user} logout={handleLogout} login={loginWithRedirect} isAuthenticated={isAuthenticated} />
       {children}
     </Box>
   )
