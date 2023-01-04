@@ -1,4 +1,15 @@
-import { Avatar, Button, Flex, Menu, MenuButton, MenuList, MenuItem, Portal, Spacer } from '@chakra-ui/react'
+import {
+  Avatar,
+  Button,
+  Flex,
+  Heading,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Portal,
+  Spacer,
+} from '@chakra-ui/react'
 
 interface Props {
   isAuthenticated: boolean
@@ -10,7 +21,9 @@ interface Props {
 function Navigation({ user, isAuthenticated, login, logout }: Props) {
   return (
     <Flex align="center">
-      {isAuthenticated && <Flex justifyContent="start" textDecoration="underline">Become a Landlord</Flex>}
+      <Flex justifyContent="start">
+        <Heading>Nyatta</Heading>
+      </Flex>
       <Spacer />
       <Flex justifyContent="end">
       {isAuthenticated ? (
@@ -20,12 +33,12 @@ function Navigation({ user, isAuthenticated, login, logout }: Props) {
           </MenuButton>
           <Portal>
             <MenuList>
-              <MenuItem onClick={logout}>Sign Out</MenuItem>
+              <MenuItem as={Button} colorScheme="green" onClick={logout}>Sign Out</MenuItem>
             </MenuList>
           </Portal>
         </Menu>
       ) : (
-        <Button onClick={login}>Sign In</Button>
+        <Button colorScheme="green" onClick={login}>Sign In</Button>
       )}
       </Flex>
     </Flex>
