@@ -33,7 +33,7 @@ function Navigation({ user, isAuthenticated, login, logout }: Props) {
           </MenuButton>
           <Portal>
             <MenuList>
-              <MenuItem as={Button} colorScheme="green" onClick={logout}>Sign Out</MenuItem>
+              <MenuItem textDecoration="underline" onClick={logout}>Sign Out</MenuItem>
             </MenuList>
           </Portal>
         </Menu>

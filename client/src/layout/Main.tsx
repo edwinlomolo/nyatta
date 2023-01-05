@@ -1,24 +1,16 @@
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, useContext } from 'react'
 
-import { useAuth0 } from '@auth0/auth0-react'
 import { Box } from '@chakra-ui/react'
-import { useCookies } from 'react-cookie'
 
+import { AuthContext } from '../auth'
 import { Navigation } from '../components/navigation'
 
 function Main({ children }: PropsWithChildren) {
-  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
-  // TODO: rfr to somewhere modular
-  const [cookies, setCookie, removeCookie] = useCookies(['jwt'])
-
-  const handleLogout = () => {
-    removeCookie('jwt')
-    logout({ returnTo: window.location.origin })
-  }
+  const { user, login, logout, isAuthenticated } = useContext(AuthContext)
 
   return (
     <Box p={2}>
-      <Navigation user={user} logout={handleLogout} login={loginWithRedirect} isAuthenticated={isAuthenticated} />
+      <Navigation user={user} logout={logout} login={login} isAuthenticated={isAuthenticated} />
       {children}
     </Box>
   )

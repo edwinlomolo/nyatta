@@ -9,8 +9,6 @@ import reportWebVitals from './reportWebVitals';
 
 import { Auth0Provider } from '@auth0/auth0-react'
 
-import { ApolloProvider } from './apollo'
-
 const {
   REACT_APP_AUTH0_CLIENT_ID,
   REACT_APP_AUTH0_DOMAIN,
@@ -26,11 +24,9 @@ root.render(
       domain={REACT_APP_AUTH0_DOMAIN!}
       redirectUri={window.location.origin}
     >
-      <ApolloProvider>
-        <Router>
-          <App />
-        </Router>
-      </ApolloProvider>
+      <Router>
+        <App />
+      </Router>
     </Auth0Provider>
   </React.StrictMode>
 );

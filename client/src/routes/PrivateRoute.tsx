@@ -1,8 +1,16 @@
-import { Route, Redirect } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
+import React, { useContext } from 'react'
 
-function PrivateRoute({ children, ...rest }: any) {
-  const { isAuthenticated } = useAuth0()
+import { Route, Redirect } from 'react-router-dom'
+
+import { AuthContext } from '../auth'
+
+interface Props {
+  children: React.ReactElement
+  path: string
+}
+
+function PrivateRoute({ children, ...rest }: Props) {
+  const { isAuthenticated } = useContext(AuthContext)
 
   return (
     <Route
@@ -14,7 +22,7 @@ function PrivateRoute({ children, ...rest }: any) {
           <Redirect
             to={{
               pathname: "/",
-              state: { from: location }
+              state: { from: location },
             }}
           />
         )
