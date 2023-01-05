@@ -1,10 +1,10 @@
-interface Props {
-  highlight: string
-}
+import { Center, CircularProgress } from '@chakra-ui/react'
 
-function GlobalLoader({ highlight }: Props) {
+function GlobalLoader() {
   return (
-    <div>{`${highlight}...`}</div>
+    <Center>
+      <CircularProgress isIndeterminate />
+    </Center>
   )
 }
 

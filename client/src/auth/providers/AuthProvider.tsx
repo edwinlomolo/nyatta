@@ -7,6 +7,8 @@ import AuthContext from './AuthContext'
 import { Http } from '../../utils'
 import { apiUrl } from '../../helpers'
 
+import { GlobalLoader } from '../../components'
+
 interface Props {
   children: React.ReactNode
 }
@@ -45,7 +47,7 @@ function AuthProvider({ children }: Props) {
     initializeClient()
   }, [isAuthenticated, cookies, setCookie, user])
 
-  if (isLoading) return <p>Loading...</p>
+  if (isLoading) return <GlobalLoader />
 
   return (
     <AuthContext.Provider
