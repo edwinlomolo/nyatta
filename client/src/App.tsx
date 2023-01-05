@@ -8,12 +8,14 @@ import { UserHome } from './components'
 import { Main } from './layout'
 import { PrivateRoute, RouteWithLayout } from './routes'
 
+import { theme } from './theme'
+
 function App() {
   return (
     <CookiesProvider>
       <AuthProvider>
         <ApolloProvider>
-          <ChakraProvider>
+          <ChakraProvider theme={theme}>
             <Switch>
               <RouteWithLayout
                 layout={Main}
