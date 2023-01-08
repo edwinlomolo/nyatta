@@ -5,6 +5,10 @@ import { Switch } from 'react-router-dom'
 import { AuthProvider } from './auth'
 import { ApolloProvider } from './apollo'
 import { UserHome } from './components'
+import {
+  HomePage,
+  ListingsPage,
+} from './pages'
 import { Main } from './layout'
 import { PrivateRoute, RouteWithLayout } from './routes'
 
@@ -20,15 +24,15 @@ function App() {
             <Switch>
               <RouteWithLayout
                 layout={Main}
-                component={UserHome}
+                component={HomePage}
                 path="/"
               />
-              <PrivateRoute path="/">
+              <PrivateRoute>
                 <Switch>
                   <RouteWithLayout
                     layout={Main}
-                    component={UserHome}
-                    path="/"
+                    component={() => <>Onboard property</>}
+                    path="/onboard"
                   />
                 </Switch>
               </PrivateRoute>

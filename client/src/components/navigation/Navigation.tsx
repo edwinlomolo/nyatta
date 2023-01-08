@@ -3,13 +3,12 @@ import {
   Button,
   Flex,
   Heading,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Portal,
   Spacer,
 } from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { Link as ReactLink } from 'react-router-dom'
+
+import { Dropdown } from '../dropdown'
 
 interface Props {
   isAuthenticated: boolean
@@ -21,22 +20,36 @@ interface Props {
 function Navigation({ user, isAuthenticated, login, logout }: Props) {
   return (
     <Flex align="center">
-      <Flex justifyContent="start">
-        <Heading>Nyatta</Heading>
+      <Flex gap={4} justifyContent="start">
+        <Heading as={ReactLink} to="/" size="md">Nyatta</Heading>
+        <Dropdown
+          children={
+            <>
+              Partners
+              <ChevronDownIcon />
+            </>
+          }
+          options={[
+            {text: 'Become a partner'}
+          ]}
+        />
       </Flex>
       <Spacer />
       <Flex justifyContent="end">
       {isAuthenticated ? (
-        <Menu>
-          <MenuButton type="button">
-            <Avatar src={user?.picture} name={user?.name} />
-          </MenuButton>
-          <Portal>
-            <MenuList>
-              <MenuItem textDecoration="underline" onClick={logout}>Sign Out</MenuItem>
-            </MenuList>
-          </Portal>
-        </Menu>
+        <Dropdown
+          children={
+            <>
+              <Avatar src={user?.picture} name={user?.name} />
+            </>
+          }
+          options={[
+            {
+              text: 'Sign Out',
+              onClick: logout,
+            }
+          ]}
+        />
       ) : (
         <Button colorScheme="green" onClick={login}>Sign In</Button>
       )}
