@@ -4,7 +4,7 @@ import { Box } from '@chakra-ui/react'
 
 import RouteWithLayout from './RouteWithLayout'
 import PrivateRoute from './PrivateRoute'
-import { HomePage, NotFoundPage } from '../pages'
+import { LandingPage, NotFoundPage } from '../pages'
 import { Main } from '../layout'
 
 function RootRouter() {
@@ -13,7 +13,7 @@ function RootRouter() {
       <Switch>
         <RouteWithLayout
           layout={Main}
-          component={HomePage}
+          component={LandingPage}
           path="/"
           exact
         />
