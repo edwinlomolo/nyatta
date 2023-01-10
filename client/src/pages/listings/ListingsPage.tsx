@@ -1,6 +1,8 @@
+import { Box } from '@chakra-ui/react'
+
 function ListingsPage() {
   return (
-    <div>Listings page</div>
+    <Box>Property listings</Box>
   )
 }
 

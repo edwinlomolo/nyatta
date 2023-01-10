@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Box } from '@chakra-ui/react'
+
 import { Route, RouteProps } from 'react-router-dom'
 
 type Props = RouteProps & {
@@ -15,9 +17,11 @@ function RouteWithLayout(props: Props) {
       {...rest}
       location={location}
       render={matchProps => (
-        <Layout>
-          <Component {...matchProps} />
-        </Layout>
+        <Box>
+          <Layout>
+            <Component {...matchProps} />
+          </Layout>
+        </Box>
       )}
     />
   )

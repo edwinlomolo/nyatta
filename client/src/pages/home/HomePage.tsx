@@ -1,15 +1,9 @@
-import { useContext } from 'react'
-
-import { AuthContext } from '../../auth'
-import { ListingsPage } from '../../pages'
+import { Box } from '@chakra-ui/react'
 
 function HomePage() {
-  const { isAuthenticated } = useContext(AuthContext)
 
-  return isAuthenticated ? (
-    <ListingsPage />
-  ) : (
-    <div>Home page</div>
+  return (
+    <Box>Home page</Box>
   )
 }
 

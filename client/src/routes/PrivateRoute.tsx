@@ -6,11 +6,11 @@ import { AuthContext } from '../auth'
 
 interface Props {
   children: React.ReactElement
+  path: string
 }
 
 function PrivateRoute({ children, ...rest }: Props) {
   const { isAuthenticated } = useContext(AuthContext)
-  console.log(isAuthenticated)
 
   return (
     <Route
