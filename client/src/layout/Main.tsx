@@ -11,7 +11,7 @@ function Main({ children }: PropsWithChildren) {
 
   return (
     <ChakraProvider theme={theme}>
-      <Box p={2}>
+      <Box>
         <Navigation user={user} logout={logout} login={login} isAuthenticated={isAuthenticated} />
         <Flex w="100%" direction="column">
           {children}

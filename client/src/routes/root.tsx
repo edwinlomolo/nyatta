@@ -1,7 +1,5 @@
 import { Switch, Route } from 'react-router-dom'
 
-import { Box } from '@chakra-ui/react'
-
 import RouteWithLayout from './RouteWithLayout'
 import PrivateRoute from './PrivateRoute'
 import { LandingPage, NotFoundPage } from '../pages'
@@ -9,7 +7,7 @@ import { Main } from '../layout'
 
 function RootRouter() {
   return (
-    <Box>
+    <>
       <Switch>
         <RouteWithLayout
           layout={Main}
@@ -30,7 +28,7 @@ function RootRouter() {
         
         <Route path="*" component={NotFoundPage} />
       </Switch>
-    </Box>
+    </>
   )
 }
 

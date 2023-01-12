@@ -19,7 +19,7 @@ interface Props {
 
 function Navigation({ user, isAuthenticated, login, logout }: Props) {
   return (
-    <Flex align="center">
+    <Flex p={2} align="center">
       <Flex gap={4} justifyContent="start">
         <Heading as={ReactLink} to="/" size="md">Nyatta</Heading>
         <Dropdown
