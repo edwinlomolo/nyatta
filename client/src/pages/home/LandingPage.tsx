@@ -2,7 +2,8 @@ import { useContext } from 'react'
 
 import { AuthContext } from '../../auth'
 
-import HomePage from './Home'
+import HomePage from './components/Home'
+import Footer from './components/Footer'
 import ListingsPage from '../listings/ListingsPage'
 
 function LandingPage() {
@@ -11,7 +12,10 @@ function LandingPage() {
   return isAuthenticated ? (
     <ListingsPage />
   ) : (
-    <HomePage />
+    <>
+      <HomePage />
+      <Footer />
+    </>
   )
 }
 

@@ -30,7 +30,7 @@ function Navigation({ user, isAuthenticated, login, logout }: Props) {
             </>
           }
           options={[
-            {text: 'Become a partner'}
+            {text: 'Landlord'}
           ]}
         />
       </Flex>
