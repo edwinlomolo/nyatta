@@ -1,9 +1,14 @@
 import { setContext } from '@apollo/client/link/context'
 
-const authLink = (jwt?: string) => setContext((_, { headers }) => {
+const authLink = (jwt?: string) => setContext((_, previousContext) => {
+  const { headers } = previousContext
   return {
-    ...headers,
-    Authorization: jwt ? `Bearer ${jwt}` : '',
+    ...previousContext,
+    headers: {
+      ...headers,
+      'keep-alive': 'true',
+      ...(jwt && { Authorization: `Bearer ${jwt}` }),
+    }
   }
 })
 

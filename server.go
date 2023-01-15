@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	h "github.com/3dw1nM0535/nyatta/handler"
@@ -55,12 +54,6 @@ func main() {
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 	handler := cors.Default().Handler(r)
-	server := &http.Server{
-		Handler:      handler,
-		Addr:         "127.0.0.1:4000",
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/graphql", playground.Handler("GraphQL", "/query"))
@@ -68,5 +61,5 @@ func main() {
 	r.Handle("/query", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	log.Infof("connect to http://localhost:%s/graphql for GraphQL playground", serverConfig.ServerPort)
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(http.ListenAndServe(":4000", handler))
 }

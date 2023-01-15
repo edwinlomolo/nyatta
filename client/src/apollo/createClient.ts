@@ -4,7 +4,9 @@ import { RetryLink } from '@apollo/client/link/retry'
 import { authLink, errorLink, httpLink } from './links'
 
 const createClient = (jwt?: string): ApolloClient<NormalizedCacheObject> => {
+  // Caching
   const cache = new InMemoryCache({})
+  // Error retry link
   const retryLink = new RetryLink({
     delay: {
       initial: 300,
@@ -18,9 +20,12 @@ const createClient = (jwt?: string): ApolloClient<NormalizedCacheObject> => {
 
   return new ApolloClient({
     link: from([
+      // apollo authentication
       authLink(jwt),
+      // apollo error handler link
       errorLink,
       retryLink,
+      // api link
       httpLink,
     ]),
     cache,
