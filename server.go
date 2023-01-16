@@ -14,7 +14,6 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	"github.com/99designs/gqlgen/graphql/handler"
-	gqlTransport "github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
@@ -56,9 +55,6 @@ func main() {
 	ctx = context.WithValue(ctx, "log", logger)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
-	srv.AddTransport(gqlTransport.POST{})
-	srv.AddTransport(gqlTransport.GET{})
-	srv.AddTransport(gqlTransport.Options{})
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
