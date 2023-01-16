@@ -1,7 +1,7 @@
-import { createHttpLink } from '@apollo/client'
+import { HttpLink } from '@apollo/client'
 
-const httpLink = createHttpLink({
-  uri: "http://localhost:4000/query",
+const httpLink = new HttpLink({
+  uri: "http://localhost:4000/api",
 })
 
 export default httpLink
