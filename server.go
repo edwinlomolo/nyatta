@@ -56,10 +56,10 @@ func main() {
 	handler := cors.Default().Handler(r)
 
 	logHandler := h.LoggingHandler{}
-	r.Handle("/graphql", playground.Handler("GraphQL", "/query"))
+	r.Handle("/", playground.Handler("GraphQL", "/query"))
 	r.Handle("/handshake", h.AddContext(ctx, logHandler.Logging(h.Handshake())))
 	r.Handle("/query", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
-	log.Infof("connect to http://localhost:%s/graphql for GraphQL playground", serverConfig.ServerPort)
+	log.Infof("connect to http://localhost:%s/ for GraphQL playground", serverConfig.ServerPort)
 	log.Fatal(http.ListenAndServe(":4000", handler))
 }
