@@ -1,9 +1,11 @@
 import {
   Avatar,
   Button,
+  Box,
   Flex,
   Heading,
   Spacer,
+  Text,
 } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Link as ReactLink } from 'react-router-dom'
@@ -44,6 +46,14 @@ function Navigation({ user, isAuthenticated, login, logout }: Props) {
             </>
           }
           options={[
+            {
+              text: (
+                <Box>
+                  <Text as="b">{user?.name}</Text>
+                  <Text>{user?.email}</Text>
+                </Box>
+              ),
+            },
             {
               text: 'Sign Out',
               onClick: logout,

@@ -6,6 +6,7 @@ import { useCookies } from 'react-cookie'
 import AuthContext from './AuthContext'
 import { Http } from '../../utils'
 import { apiUrl } from '../../helpers'
+import { getApolloClient } from '../../apollo'
 
 import { GlobalLoader } from '../../components'
 
@@ -14,15 +15,17 @@ interface Props {
 }
 
 function AuthProvider({ children }: Props) {
+  const client = getApolloClient()
   const { isLoading, loginWithRedirect, logout, user, isAuthenticated } = useAuth0()
   const [cookies, setCookie, removeCookie] = useCookies(['jwt'])
   const login = useCallback(() => loginWithRedirect(), [loginWithRedirect])
   const handleLogout = useCallback(
     () => {
-      removeCookie('jwt')
+      client?.resetStore()
       logout({ returnTo: window.location.origin })
+      removeCookie('jwt')
     },
-    [logout, removeCookie]
+    [logout, removeCookie, client]
   )
 
   useEffect(() => {
@@ -55,6 +58,7 @@ function AuthProvider({ children }: Props) {
         user,
         login,
         isAuthenticated,
+        isAuthenticating: isLoading,
         logout: handleLogout,
         cookies,
       }}
