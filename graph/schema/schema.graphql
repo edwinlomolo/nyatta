@@ -55,6 +55,7 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
+  getListings: [Property!]!
 }
 
 type Mutation {

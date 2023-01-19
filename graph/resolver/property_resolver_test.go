@@ -212,4 +212,17 @@ func Test_Property_Resolver(t *testing.T) {
 		assert.Equal(t, len(getProperty.GetProperty.Units[0].Tenancy), 1)
 		assert.NotEmpty(t, getProperty.GetProperty.Units[0].Tenancy[0].StartDate)
 	})
+
+	t.Run("should_get_property_listings", func(t *testing.T) {
+		var getListings struct {
+			GetListings []struct {
+				ID string
+			}
+		}
+		query := `query { getListings { id } }`
+
+		srv.MustPost(query, &getListings)
+
+		assert.Equal(t, len(getListings.GetListings), 0)
+	})
 }

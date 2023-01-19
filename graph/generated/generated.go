@@ -100,6 +100,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetListings func(childComplexity int) int
 		GetProperty func(childComplexity int, id string) int
 		GetUser     func(childComplexity int, id string) int
 		Hello       func(childComplexity int) int
@@ -153,9 +154,9 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id string) (*model.User, error)
 	GetProperty(ctx context.Context, id string) (*model.Property, error)
 	Hello(ctx context.Context) (string, error)
+	GetListings(ctx context.Context) ([]*model.Property, error)
 }
 type UserResolver interface {
-	Avatar(ctx context.Context, obj *model.User) (string, error)
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
 }
 
@@ -456,6 +457,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PropertyUnit.UpdatedAt(childComplexity), true
 
+	case "Query.getListings":
+		if e.complexity.Query.GetListings == nil {
+			break
+		}
+
+		return e.complexity.Query.GetListings(childComplexity), true
+
 	case "Query.getProperty":
 		if e.complexity.Query.GetProperty == nil {
 			break
@@ -723,6 +731,7 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
+  getListings: [Property!]!
 }
 
 type Mutation {
@@ -2969,6 +2978,72 @@ func (ec *executionContext) fieldContext_Query_hello(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getListings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getListings(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetListings(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Property)
+	fc.Result = res
+	return ec.marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Property_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Property_name(ctx, field)
+			case "town":
+				return ec.fieldContext_Property_town(ctx, field)
+			case "postalCode":
+				return ec.fieldContext_Property_postalCode(ctx, field)
+			case "amenities":
+				return ec.fieldContext_Property_amenities(ctx, field)
+			case "units":
+				return ec.fieldContext_Property_units(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Property_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Property_owner(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Property_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Property_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -3587,7 +3662,7 @@ func (ec *executionContext) _User_avatar(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().Avatar(rctx, obj)
+		return obj.Avatar, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3608,8 +3683,8 @@ func (ec *executionContext) fieldContext_User_avatar(ctx context.Context, field 
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -6330,6 +6405,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getListings":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getListings(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -6474,25 +6572,12 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "avatar":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_avatar(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._User_avatar(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "properties":
 			field := field
 
