@@ -11,7 +11,7 @@ import { GlobalLoader } from '../../components'
 
 function ListingsPage() {
   const { isAuthenticated } = useContext(AuthContext)
-  const { loading } = useQuery(HELLO, { skip: !isAuthenticated })
+  const { loading } = useQuery(HELLO, { skip: !!isAuthenticated })
 
   if (loading) return <GlobalLoader />
 
