@@ -1,15 +1,15 @@
-//import { useContext } from 'react'
-
-//import { AuthContext } from '../../auth'
+import Head from 'next/head'
 
 import HomeHeader from './components/HomeHeader'
 import Footer from './components/Footer'
-//import ListingsPage from '../listings/ListingsPage'
 
 function Home() {
 
   return (
     <>
+      <Head>
+        <title>Nyatta - Find homes or apartments for rent.</title>
+      </Head>
       <HomeHeader />
       <Footer />
     </>
@@ -17,4 +17,3 @@ function Home() {
 }
 
 export default Home
-

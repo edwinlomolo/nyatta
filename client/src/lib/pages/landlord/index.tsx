@@ -1,8 +1,15 @@
+import Head from 'next/head'
+
 import { Heading } from '@chakra-ui/react'
 
 function Landlord() {
   return (
-    <Heading>Landlord</Heading>
+    <>
+      <Head>
+        <title>Manage your properties in one place</title>
+      </Head>
+      <Heading>Landlord</Heading>
+    </>
   )
 }
 

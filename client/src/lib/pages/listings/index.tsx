@@ -1,8 +1,15 @@
+import Head from 'next/head'
+
 import { Heading } from '@chakra-ui/react'
 
 function Listings() {
   return (
-    <Heading>Property listings</Heading>
+    <>
+      <Head>
+        <title>Search listings by town or postal code</title>
+      </Head>
+      <Heading>Property listings</Heading>
+    </>
   )
 }
 
