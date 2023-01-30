@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Heading, Divider } from '@chakra-ui/react'
 
-function HomePage() {
+function HomeHeader() {
   return (
     <Flex>
       <Box
@@ -13,7 +13,7 @@ function HomePage() {
         </Heading>
         <Flex gap={4} mt={10} w="100%" justifyContent="center">
           <Box>
-            <Button size="lg">
+            <Button as="a" href="/listings" size="lg">
               Find A Home
             </Button>
           </Box>
@@ -21,7 +21,7 @@ function HomePage() {
             <Divider orientation="vertical" />
           </Box>
           <Box>
-            <Button size="lg">
+            <Button as="a" href="/landlord" size="lg">
               Landlord
             </Button>
           </Box>
@@ -31,4 +31,4 @@ function HomePage() {
   )
 }
 
-export default HomePage
+export default HomeHeader

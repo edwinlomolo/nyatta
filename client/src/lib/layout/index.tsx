@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { Box, Flex } from '@chakra-ui/react'
 
-import { Navigation } from '../components/navigation'
+import Navigation from '../components/navigation'
 
 interface LayoutProps {
   children: ReactNode

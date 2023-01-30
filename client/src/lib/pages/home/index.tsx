@@ -2,7 +2,7 @@
 
 //import { AuthContext } from '../../auth'
 
-import HomePage from './components/Home'
+import HomeHeader from './components/HomeHeader'
 import Footer from './components/Footer'
 //import ListingsPage from '../listings/ListingsPage'
 
@@ -10,7 +10,7 @@ function Home() {
 
   return (
     <>
-      <HomePage />
+      <HomeHeader />
       <Footer />
     </>
   )
