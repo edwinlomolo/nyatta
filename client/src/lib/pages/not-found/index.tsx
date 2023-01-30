@@ -1,6 +1,6 @@
 import { Heading } from '@chakra-ui/react'
 
-function NotFoundPage() {
+function NotFound() {
   return (
     <Heading textAlign="center" size="3xl">
       Not found
@@ -8,4 +8,4 @@ function NotFoundPage() {
   )
 }
 
-export default NotFoundPage
+export default NotFound
