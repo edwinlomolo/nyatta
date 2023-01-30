@@ -10,20 +10,22 @@ import {
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Link as ReactLink } from 'react-router-dom'
 
+import { UserProfile } from '@auth0/nextjs-auth0/client'
+
 import { Dropdown } from '../dropdown'
 
 interface Props {
   isAuthenticated: boolean
-  user: Record<string, any> | undefined
-  login: () => void
-  logout: () => void
+  user: UserProfile | undefined
+  login?: () => void
+  logout?: () => void
 }
 
 function Navigation({ user, isAuthenticated, login, logout }: Props) {
   return (
     <Flex p={2} align="center">
       <Flex gap={4} justifyContent="start">
-        <Heading as={ReactLink} to="/" size="md">Nyatta</Heading>
+        {/*<Heading as={ReactLink} to="/" size="md">Nyatta</Heading>*/}
         <Dropdown
           children={
             <>
@@ -55,13 +57,14 @@ function Navigation({ user, isAuthenticated, login, logout }: Props) {
               ),
             },
             {
-              text: 'Sign Out',
-              onClick: logout,
+              text: (
+                <a href="/api/auth/logout">Log out</a>
+              ),
             }
           ]}
         />
       ) : (
-        <Button colorScheme="green" onClick={login}>Sign In</Button>
+        <Button as={"a"} href="/api/auth/login" colorScheme="green" onClick={login}>Sign In</Button>
       )}
       </Flex>
     </Flex>
