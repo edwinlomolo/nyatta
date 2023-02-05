@@ -54,7 +54,7 @@ function Search() {
           />
         </FormControl>
         <Flex>
-          <Button type="submit" colorScheme="green">
+          <Button w="100%" type="submit" colorScheme="green">
             Search
           </Button>
         </Flex>
