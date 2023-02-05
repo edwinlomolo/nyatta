@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-import { Heading } from '@chakra-ui/react'
+import Search from './components/Search'
 
 function Listings() {
   return (
@@ -8,7 +8,7 @@ function Listings() {
       <Head>
         <title>Search listings by town or postal code</title>
       </Head>
-      <Heading>Property listings</Heading>
+      <Search />
     </>
   )
 }
