@@ -2,7 +2,7 @@
 #
 # https://gqlgen.com/getting-started/
 
-# Represent new user input
+# Represent new user parameters
 input NewUser {
   email: String!
   first_name: String!
@@ -10,7 +10,7 @@ input NewUser {
   avatar: String!
 }
 
-# Represent new property input
+# Represent new property parameters
 input NewProperty {
   name: String!
   town: String!
@@ -18,20 +18,20 @@ input NewProperty {
   createdBy: ID!
 }
 
-# Represent new property amenity input
+# Represent new property amenity parameters
 input AmenityInput {
   name: String!
   provider: String!
   propertyId: ID!
 }
 
-# Represent new property unit input
+# Represent new property unit parameters
 input PropertyUnitInput {
   propertyId: ID!
   bathrooms: Int!
 }
 
-# Represent new property unit bedroom(s) input
+# Represent new property unit bedroom(s) parameter
 input UnitBedroomInput {
   propertyUnitId: ID!
   bedroomNumber: Int!
@@ -39,11 +39,19 @@ input UnitBedroomInput {
   master: Boolean!
 }
 
-# Represent new property unit tenancy input
+# Represent new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
   endDate: Time
   propertyUnitId: ID!
+}
+
+# Represent listings query parameters
+input ListingsInput {
+  town: String!
+  propertyType: String!
+  minPrice: Int
+  maxPrice: Int
 }
 
 # after signin return this
@@ -55,7 +63,7 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
-  getListings: [Property!]!
+  getListings(input: ListingsInput!): [Property!]!
 }
 
 type Mutation {

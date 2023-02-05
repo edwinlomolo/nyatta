@@ -100,7 +100,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetListings func(childComplexity int) int
+		GetListings func(childComplexity int, input model.ListingsInput) int
 		GetProperty func(childComplexity int, id string) int
 		GetUser     func(childComplexity int, id string) int
 		Hello       func(childComplexity int) int
@@ -154,7 +154,7 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id string) (*model.User, error)
 	GetProperty(ctx context.Context, id string) (*model.Property, error)
 	Hello(ctx context.Context) (string, error)
-	GetListings(ctx context.Context) ([]*model.Property, error)
+	GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error)
 }
 type UserResolver interface {
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
@@ -462,7 +462,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetListings(childComplexity), true
+		args, err := ec.field_Query_getListings_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetListings(childComplexity, args["input"].(model.ListingsInput)), true
 
 	case "Query.getProperty":
 		if e.complexity.Query.GetProperty == nil {
@@ -609,6 +614,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAmenityInput,
+		ec.unmarshalInputListingsInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
 		ec.unmarshalInputPropertyUnitInput,
@@ -678,7 +684,7 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
-# Represent new user input
+# Represent new user parameters
 input NewUser {
   email: String!
   first_name: String!
@@ -686,7 +692,7 @@ input NewUser {
   avatar: String!
 }
 
-# Represent new property input
+# Represent new property parameters
 input NewProperty {
   name: String!
   town: String!
@@ -694,20 +700,20 @@ input NewProperty {
   createdBy: ID!
 }
 
-# Represent new property amenity input
+# Represent new property amenity parameters
 input AmenityInput {
   name: String!
   provider: String!
   propertyId: ID!
 }
 
-# Represent new property unit input
+# Represent new property unit parameters
 input PropertyUnitInput {
   propertyId: ID!
   bathrooms: Int!
 }
 
-# Represent new property unit bedroom(s) input
+# Represent new property unit bedroom(s) parameter
 input UnitBedroomInput {
   propertyUnitId: ID!
   bedroomNumber: Int!
@@ -715,11 +721,19 @@ input UnitBedroomInput {
   master: Boolean!
 }
 
-# Represent new property unit tenancy input
+# Represent new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
   endDate: Time
   propertyUnitId: ID!
+}
+
+# Represent listings query parameters
+input ListingsInput {
+  town: String!
+  propertyType: String!
+  minPrice: Int
+  maxPrice: Int
 }
 
 # after signin return this
@@ -731,7 +745,7 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
-  getListings: [Property!]!
+  getListings(input: ListingsInput!): [Property!]!
 }
 
 type Mutation {
@@ -926,6 +940,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getListings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ListingsInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐListingsInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2992,7 +3021,7 @@ func (ec *executionContext) _Query_getListings(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetListings(rctx)
+		return ec.resolvers.Query().GetListings(rctx, fc.Args["input"].(model.ListingsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3040,6 +3069,17 @@ func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getListings_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -5657,6 +5697,58 @@ func (ec *executionContext) unmarshalInputAmenityInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputListingsInput(ctx context.Context, obj interface{}) (model.ListingsInput, error) {
+	var it model.ListingsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"town", "propertyType", "minPrice", "maxPrice"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "town":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("town"))
+			it.Town, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "propertyType":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyType"))
+			it.PropertyType, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "minPrice":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
+			it.MinPrice, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "maxPrice":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPrice"))
+			it.MaxPrice, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj interface{}) (model.NewProperty, error) {
 	var it model.NewProperty
 	asMap := map[string]interface{}{}
@@ -7097,6 +7189,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐListingsInput(ctx context.Context, v interface{}) (model.ListingsInput, error) {
+	res, err := ec.unmarshalInputListingsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewProperty2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNewProperty(ctx context.Context, v interface{}) (model.NewProperty, error) {
 	res, err := ec.unmarshalInputNewProperty(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7647,6 +7744,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

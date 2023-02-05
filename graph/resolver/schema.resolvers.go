@@ -91,7 +91,7 @@ func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 }
 
 // GetListings is the resolver for the getListings field.
-func (r *queryResolver) GetListings(ctx context.Context) ([]*model.Property, error) {
+func (r *queryResolver) GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error) {
 	return make([]*model.Property, 0), nil
 }
 
