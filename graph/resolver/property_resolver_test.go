@@ -219,7 +219,13 @@ func Test_Property_Resolver(t *testing.T) {
 				ID string
 			}
 		}
-		query := `query { getListings { id } }`
+		query := fmt.Sprintf(
+			`query { getListings(input: {town: %q, propertyType: %q, minPrice: %d, maxPrice: %d}) { id } }`,
+			"town",
+			"single",
+			0,
+			0,
+		)
 
 		srv.MustPost(query, &getListings)
 

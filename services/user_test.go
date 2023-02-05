@@ -20,6 +20,7 @@ var (
 	userService     *UserServices
 	authService     *AuthServices
 	propertyService *PropertyServices
+	listingService  *ListingServices
 	amenityService  *AmenityServices
 	unitService     *UnitServices
 	tenancyService  *TenancyServices
@@ -46,6 +47,7 @@ func TestMain(m *testing.M) {
 	propertyService = NewPropertyService(queries, logger)
 	unitService = NewUnitService(queries, logger)
 	tenancyService = NewTenancyService(queries, logger)
+	listingService = NewListingService()
 
 	// exit once done
 	os.Exit(m.Run())
