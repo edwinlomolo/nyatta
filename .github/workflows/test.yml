@@ -6,42 +6,21 @@ on:
 
 jobs:
 
-  test:
+  deploy:
     name: Test
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: demo1234
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-
-    - name: Set up Go
+      
+    # Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v3
+        
+    # Setup go
+    - name: Setup go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18
-        # Cache dependencies
-        cache: true
+        go-version: ^1.19
 
-    - name: Check out code into Go module directory
-      uses: actions/checkout@v3
-
-    # Install deps
-    - name: Install dependencies
-      run: go get .
-
-    # Postgres connection
-    - name: Connect postgres
-      env:
-        POSTGRES_HOST: localhost
-        POSTGRES_USER: postgres
-
+    - name: Go version
+      run: go version
