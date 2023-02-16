@@ -32,8 +32,8 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: go get .
-      # Test
-      - name: Test
+      # Run tests
+      - name: Running tests
         env:
           # DB - postgresql
           DBDRIVER: postgres
