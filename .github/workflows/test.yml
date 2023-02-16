@@ -26,9 +26,11 @@ jobs:
           go-version: ^1.19
           # Cache dependencies
           cache: true
+
       # Install deps
       - name: Install dependencies
         run: go get .
+
       # Postgres connection
       - name: Connect postgres
         env:
