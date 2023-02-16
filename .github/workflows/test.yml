@@ -6,7 +6,6 @@ name: test
 on: [push, pull_request]
 
 jobs:
-
   test:
     name: Test
     runs-on: ubuntu-latest
