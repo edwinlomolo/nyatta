@@ -24,22 +24,22 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
-          # Cache dependencies
-          cache: true
+    - uses: actions/checkout@v3
 
-      # Install deps
-      - name: Install dependencies
-        run: go get .
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+        # Cache dependencies
+        cache: true
 
-      # Postgres connection
-      - name: Connect postgres
-        env:
-          POSTGRES_HOST: localhost
-          POSTGRES_USER: postgres
-          POSTGRES_PORT: 5432
+    # Install deps
+    - name: Install dependencies
+      run: go get .
+
+    # Postgres connection
+    - name: Connect postgres
+      env:
+        POSTGRES_HOST: localhost
+        POSTGRES_USER: postgres
 
