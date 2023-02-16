@@ -1,6 +1,10 @@
 name: Go
 
-on: [push]
+on:
+  push:
+    branches: [ $default_branch ]
+  pull_request:
+    branches: [ $default_branch ]
 
 jobs:
   build:
@@ -16,5 +20,5 @@ jobs:
       - name: Display Go version
         run: go version
       # Install dependencies
-      #- name: Install dependencies
-      #  run: go get .
+      - name: Install dependencies
+        run: go get .
