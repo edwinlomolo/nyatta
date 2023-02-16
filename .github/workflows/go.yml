@@ -22,4 +22,4 @@ jobs:
       # Read secret env vars
       - name: Use env variables
         run: |
-          echo "server port : ${{ secretes.PORT }}"
+          echo "server port : ${{ secrets.PORT }}"
