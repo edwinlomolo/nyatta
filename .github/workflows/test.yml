@@ -24,7 +24,6 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v3
@@ -32,6 +31,9 @@ jobs:
         go-version: 1.18
         # Cache dependencies
         cache: true
+
+    - name: Check out code into Go module directory
+      uses: actions/checkout@v3
 
     # Install deps
     - name: Install dependencies
