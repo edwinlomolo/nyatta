@@ -26,10 +26,13 @@ jobs:
           go-version: ^1.19
           # Cache dependencies
           cache: true
-      # Display go version
-      - name: Display Go version
-        run: go version
-      # Install dependencies
+      # Install deps
       - name: Install dependencies
         run: go get .
+      # Postgres connection
+      - name: Connect postgres
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PORT: 5432
 
