@@ -1,4 +1,4 @@
-name: Go
+name: test
 
 on: [push, pull_request]
 
@@ -19,7 +19,3 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: go get .
-      # Read secret env vars
-      - name: Use env variables
-        run: |
-          echo "server port : ${{ secrets.PORT }}"
