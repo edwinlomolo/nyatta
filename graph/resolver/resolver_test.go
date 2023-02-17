@@ -42,7 +42,7 @@ func TestMain(m *testing.M) {
 		log.Errorf("panic loading env: %v", err)
 	}
 	configuration = config.LoadConfig()
-	db, err = database.InitDB()
+	db, err = database.InitDB("../../database/migration")
 	if err != nil {
 		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}

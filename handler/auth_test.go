@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 
 	// Initialize service(s)
 	ctx = context.Background()
-	db, err := database.InitDB()
+	db, err := database.InitDB("../database/migration")
 	if err != nil {
 		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}

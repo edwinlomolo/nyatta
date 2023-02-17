@@ -32,7 +32,7 @@ func main() {
 	serverConfig := configuration.Server
 
 	// Initialize service(s)
-	db, err := database.InitDB()
+	db, err := database.InitDB("./database/migration")
 	if err != nil {
 		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}

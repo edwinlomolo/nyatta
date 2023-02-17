@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -95,7 +94,7 @@ func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token,
 	// Grab header values from Authorization key and split into [`Bearer` and `{token}`] slice
 	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(auth) != 2 || auth[0] != "Bearer" {
-		return nil, errors.New(config.CredentialsError)
+		return nil, config.CredentialsError
 	}
 	tokenString = auth[1]
 	// Is token valid?

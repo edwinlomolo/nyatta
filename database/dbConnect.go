@@ -6,79 +6,20 @@ import (
 	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
 	DatabaseError = errors.New("DatabaseError")
-	dbTables      = []string{
-		`
-CREATE TABLE IF NOT EXISTS users (
-  id BIGSERIAL PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  avatar TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);`,
-		`
-CREATE TABLE IF NOT EXISTS properties (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  town VARCHAR(50) NOT NULL,
-  postal_code VARCHAR(20) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by BIGINT NOT NULL REFERENCES users ON DELETE CASCADE
-);		`,
-		`
-CREATE TABLE IF NOT EXISTS amenities (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  provider VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  property_id BIGINT NOT NULL REFERENCES properties ON DELETE CASCADE
-);
-`,
-		`
-CREATE TABLE IF NOT EXISTS property_units (
-  id BIGSERIAL PRIMARY KEY,
-  bathrooms INTEGER NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  property_id BIGINT NOT NULL REFERENCES properties ON DELETE CASCADE
-);
-	`,
-		`
-CREATE TABLE IF NOT EXISTS tenants (
-  id BIGSERIAL PRIMARY KEY,
-  start_date TIMESTAMP NOT NULL,
-  end_date TIMESTAMP,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  property_unit_id BIGINT NOT NULL REFERENCES property_units ON DELETE CASCADE
-);
-	`,
-		`
-CREATE TABLE IF NOT EXISTS bedrooms (
-  id BIGSERIAL PRIMARY KEY,
-  bedroom_number INTEGER NOT NULL,
-  en_suite BOOLEAN NOT NULL DEFAULT false,
-  master BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  property_unit_id BIGINT NOT NULL REFERENCES property_units ON DELETE CASCADE
-);
-	`,
-	}
 )
 
 var dbClient *sql.DB
 
 // InitDB - setup db and return connection instance/error
-func InitDB() (*sql.DB, error) {
+func InitDB(migrationUrl string) (*sql.DB, error) {
 	configureDB := config.GetConfig().Database.RDBMS
 
 	host := configureDB.Env.Host
@@ -89,10 +30,19 @@ func InitDB() (*sql.DB, error) {
 	name := configureDB.Access.DbName
 	ssl_mode := configureDB.Ssl.SslMode
 
-	dbUri := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, pass, name, ssl_mode)
+	dbUri := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		user,
+		pass,
+		host,
+		port,
+		name,
+		ssl_mode,
+	)
 
 	db, err := sql.Open(driver, dbUri)
 	if err != nil {
+		log.Errorf("%s:%s", config.DatabaseError, err.Error())
 		return nil, err
 	}
 
@@ -101,14 +51,9 @@ func InitDB() (*sql.DB, error) {
 		log.Info("Database is connected")
 	}
 
-	if config.IsPrototypeEnv() {
-		if err := dropAllTables(dbClient); err != nil {
-			return nil, err
-		}
-
-		if err := startMigration(dbClient); err != nil {
-			return nil, err
-		}
+	// Setup database schema
+	if err := runDbMigration(dbClient, migrationUrl); err == nil {
+		log.Infoln("Database migration applied")
 	}
 
 	return dbClient, nil
@@ -119,23 +64,35 @@ func GetDB() *sql.DB {
 	return dbClient
 }
 
-// dropAllTables - cleanup database tables
-func dropAllTables(db *sql.DB) error {
-	_, err := db.Exec("DROP TABLE IF EXISTS users, properties, amenities, property_units, tenants, bedrooms CASCADE")
-	if err == nil {
-		log.Infoln("Database tables deleted")
+// runDbMigration - setup database tables
+func runDbMigration(db *sql.DB, migrationUrl string) error {
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		log.Errorf("%s: %s", config.MigrationDriverErr, err)
+		return err
 	}
-	return err
-}
-
-// startMigration - setup database tables/columns and any missing indexes
-func startMigration(db *sql.DB) error {
-	var err error
-	for _, table := range dbTables {
-		_, err = db.Exec(table)
+	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s", migrationUrl), "postgres", driver)
+	if err != nil {
+		log.Errorf("%s: %s", config.MigrationInstanceErr, err)
+		return err
 	}
-	if err == nil {
-		log.Infoln("Tables migrated successfully")
+	if config.IsPrototypeEnv() {
+		// Drop everything
+		if err := m.Down(); err != nil && err != migrate.ErrNoChange {
+			log.Errorf("%s: %s", config.MigrationDownErr, err)
+			return err
+		}
+		// Apply migration(s)
+		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+			log.Errorf("%s: %s", config.MigrationUpErr, err)
+			return err
+		}
 	}
-	return err
+	if !config.IsPrototypeEnv() {
+		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+			log.Errorf("%s: %s", config.MigrationErr, err)
+			return err
+		}
+	}
+	return nil
 }
