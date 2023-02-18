@@ -15,7 +15,7 @@ func NewListingService() *ListingServices {
 }
 
 func (l ListingServices) ServiceName() string {
-	return "Listing"
+	return "ListingServices"
 }
 
 func (l ListingServices) GetListings(model.ListingsInput) ([]model.Property, error) {

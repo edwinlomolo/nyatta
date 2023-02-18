@@ -83,13 +83,11 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	}, nil
 }
 
-// TODO
 // FindByTown - find property(s) in a given town
 func (p *PropertyServices) FindByTown(town string) ([]*model.Property, error) {
 	return make([]*model.Property, 0), nil
 }
 
-// TODO
 // FindByPostalCode - find property(s) in a given postal
 func (p *PropertyServices) FindByPostalCode(postalCode string) ([]*model.Property, error) {
 	return make([]*model.Property, 0), nil

@@ -52,7 +52,6 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 	}, nil
 }
 
-// TODO
 // SignIn - signin existing/returning user
 func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	// user - existing user
@@ -98,7 +97,6 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 	}, nil
 }
 
-// TODO
 // FindByEmail - return user given user email
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	ctx := context.Background()

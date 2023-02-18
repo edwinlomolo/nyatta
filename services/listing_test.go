@@ -9,7 +9,7 @@ import (
 
 func Test_Listing_Services(t *testing.T) {
 	t.Run("should_get_service_name", func(t *testing.T) {
-		assert.Equal(t, listingService.ServiceName(), "Listing")
+		assert.Equal(t, listingService.ServiceName(), "ListingServices")
 	})
 
 	t.Run("should_get_property_listings", func(t *testing.T) {
