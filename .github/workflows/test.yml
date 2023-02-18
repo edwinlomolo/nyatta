@@ -49,7 +49,6 @@ jobs:
         DBPASS: "${{ secrets.DBPASS }}"
         DBSSLMODE: "${{ secrets.DBSSLMODE }}"
         # Server
-        PORT: "${{ secrets.PORT }}"
         SERVERENV: "${{ secrets.SERVERENV }}"
         # Jwt
         JWTEXPIRE: "${{ secrets.JWTEXPIRE }}"
