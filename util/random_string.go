@@ -2,21 +2,18 @@ package util
 
 import (
 	"fmt"
-	"math/rand"
-)
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	"github.com/rs/xid"
+)
 
 // randString - generate random string ids
 func randString() string {
-	s := make([]rune, 5)
-	for i := range s {
-		s[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(s)
+	guid := xid.New().String()
+	return guid
 }
 
 // GenerateRandomEmail - generate random email address
 func GenerateRandomEmail() string {
-	return fmt.Sprintf("%s@email.com", randString())
+	randPrefix := randString()
+	return fmt.Sprintf("%s@email.com", randPrefix)
 }
