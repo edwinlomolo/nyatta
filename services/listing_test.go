@@ -14,10 +14,11 @@ func Test_Listing_Services(t *testing.T) {
 
 	t.Run("should_get_property_listings", func(t *testing.T) {
 		minPrice := 0
-		maxPrice := 0
+		maxPrice := 1000
+		propertyType := "studio"
 		listings, err := listingService.GetListings(model.ListingsInput{
 			Town:         "Ngong Hills",
-			PropertyType: "studio",
+			PropertyType: &propertyType,
 			MinPrice:     &minPrice,
 			MaxPrice:     &maxPrice,
 		})
