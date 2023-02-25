@@ -4,6 +4,9 @@ type Property {
   name: String!
   town: String!
   postalCode: String!
+  type: String!
+  minPrice: Int!
+  maxPrice: Int!
   amenities: [Amenity!]! # TODO: shared amenities with property units
   units: [PropertyUnit!]!
   createdBy: ID!

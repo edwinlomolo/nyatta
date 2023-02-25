@@ -42,17 +42,20 @@ func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (A
 
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
-  name, town, postal_code, created_by
+  name, town, postal_code, type, min_price, max_price, created_by
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, name, town, postal_code, created_at, updated_at, created_by
+RETURNING id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by
 `
 
 type CreatePropertyParams struct {
 	Name       string `json:"name"`
 	Town       string `json:"town"`
 	PostalCode string `json:"postal_code"`
+	Type       string `json:"type"`
+	MinPrice   int32  `json:"min_price"`
+	MaxPrice   int32  `json:"max_price"`
 	CreatedBy  int64  `json:"created_by"`
 }
 
@@ -61,6 +64,9 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		arg.Name,
 		arg.Town,
 		arg.PostalCode,
+		arg.Type,
+		arg.MinPrice,
+		arg.MaxPrice,
 		arg.CreatedBy,
 	)
 	var i Property
@@ -69,6 +75,9 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		&i.Name,
 		&i.Town,
 		&i.PostalCode,
+		&i.Type,
+		&i.MinPrice,
+		&i.MaxPrice,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
@@ -225,7 +234,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 }
 
 const getProperty = `-- name: GetProperty :one
-SELECT id, name, town, postal_code, created_at, updated_at, created_by FROM properties
+SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
 WHERE id = $1 LIMIT 1
 `
 
@@ -237,6 +246,9 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 		&i.Name,
 		&i.Town,
 		&i.PostalCode,
+		&i.Type,
+		&i.MinPrice,
+		&i.MaxPrice,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
@@ -370,7 +382,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT id, name, town, postal_code, created_at, updated_at, created_by FROM properties
+SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
 WHERE created_by = $1
 `
 
@@ -388,6 +400,9 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]P
 			&i.Name,
 			&i.Town,
 			&i.PostalCode,
+			&i.Type,
+			&i.MinPrice,
+			&i.MaxPrice,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CreatedBy,

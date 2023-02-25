@@ -81,10 +81,13 @@ type ComplexityRoot struct {
 		CreatedAt  func(childComplexity int) int
 		CreatedBy  func(childComplexity int) int
 		ID         func(childComplexity int) int
+		MaxPrice   func(childComplexity int) int
+		MinPrice   func(childComplexity int) int
 		Name       func(childComplexity int) int
 		Owner      func(childComplexity int) int
 		PostalCode func(childComplexity int) int
 		Town       func(childComplexity int) int
+		Type       func(childComplexity int) int
 		Units      func(childComplexity int) int
 		UpdatedAt  func(childComplexity int) int
 	}
@@ -366,6 +369,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Property.ID(childComplexity), true
 
+	case "Property.maxPrice":
+		if e.complexity.Property.MaxPrice == nil {
+			break
+		}
+
+		return e.complexity.Property.MaxPrice(childComplexity), true
+
+	case "Property.minPrice":
+		if e.complexity.Property.MinPrice == nil {
+			break
+		}
+
+		return e.complexity.Property.MinPrice(childComplexity), true
+
 	case "Property.name":
 		if e.complexity.Property.Name == nil {
 			break
@@ -393,6 +410,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Property.Town(childComplexity), true
+
+	case "Property.type":
+		if e.complexity.Property.Type == nil {
+			break
+		}
+
+		return e.complexity.Property.Type(childComplexity), true
 
 	case "Property.units":
 		if e.complexity.Property.Units == nil {
@@ -697,6 +721,9 @@ input NewProperty {
   name: String!
   town: String!
   postalCode: String!
+  type: String!
+  minPrice: Int!
+  maxPrice: Int!
   createdBy: ID!
 }
 
@@ -789,6 +816,9 @@ type Property {
   name: String!
   town: String!
   postalCode: String!
+  type: String!
+  minPrice: Int!
+  maxPrice: Int!
   amenities: [Amenity!]! # TODO: shared amenities with property units
   units: [PropertyUnit!]!
   createdBy: ID!
@@ -1689,6 +1719,12 @@ func (ec *executionContext) fieldContext_Mutation_createProperty(ctx context.Con
 				return ec.fieldContext_Property_town(ctx, field)
 			case "postalCode":
 				return ec.fieldContext_Property_postalCode(ctx, field)
+			case "type":
+				return ec.fieldContext_Property_type(ctx, field)
+			case "minPrice":
+				return ec.fieldContext_Property_minPrice(ctx, field)
+			case "maxPrice":
+				return ec.fieldContext_Property_maxPrice(ctx, field)
 			case "amenities":
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "units":
@@ -2170,6 +2206,138 @@ func (ec *executionContext) fieldContext_Property_postalCode(ctx context.Context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Property_type(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Property_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Property_minPrice(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_minPrice(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinPrice, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Property_minPrice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Property_maxPrice(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_maxPrice(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxPrice, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Property_maxPrice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2933,6 +3101,12 @@ func (ec *executionContext) fieldContext_Query_getProperty(ctx context.Context, 
 				return ec.fieldContext_Property_town(ctx, field)
 			case "postalCode":
 				return ec.fieldContext_Property_postalCode(ctx, field)
+			case "type":
+				return ec.fieldContext_Property_type(ctx, field)
+			case "minPrice":
+				return ec.fieldContext_Property_minPrice(ctx, field)
+			case "maxPrice":
+				return ec.fieldContext_Property_maxPrice(ctx, field)
 			case "amenities":
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "units":
@@ -3054,6 +3228,12 @@ func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, 
 				return ec.fieldContext_Property_town(ctx, field)
 			case "postalCode":
 				return ec.fieldContext_Property_postalCode(ctx, field)
+			case "type":
+				return ec.fieldContext_Property_type(ctx, field)
+			case "minPrice":
+				return ec.fieldContext_Property_minPrice(ctx, field)
+			case "maxPrice":
+				return ec.fieldContext_Property_maxPrice(ctx, field)
 			case "amenities":
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "units":
@@ -3779,6 +3959,12 @@ func (ec *executionContext) fieldContext_User_properties(ctx context.Context, fi
 				return ec.fieldContext_Property_town(ctx, field)
 			case "postalCode":
 				return ec.fieldContext_Property_postalCode(ctx, field)
+			case "type":
+				return ec.fieldContext_Property_type(ctx, field)
+			case "minPrice":
+				return ec.fieldContext_Property_minPrice(ctx, field)
+			case "maxPrice":
+				return ec.fieldContext_Property_maxPrice(ctx, field)
 			case "amenities":
 				return ec.fieldContext_Property_amenities(ctx, field)
 			case "units":
@@ -5756,7 +5942,7 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "town", "postalCode", "createdBy"}
+	fieldsInOrder := [...]string{"name", "town", "postalCode", "type", "minPrice", "maxPrice", "createdBy"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5784,6 +5970,30 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postalCode"))
 			it.PostalCode, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "minPrice":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
+			it.MinPrice, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "maxPrice":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPrice"))
+			it.MaxPrice, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6229,6 +6439,27 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 		case "postalCode":
 
 			out.Values[i] = ec._Property_postalCode(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "type":
+
+			out.Values[i] = ec._Property_type(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "minPrice":
+
+			out.Values[i] = ec._Property_minPrice(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "maxPrice":
+
+			out.Values[i] = ec._Property_maxPrice(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

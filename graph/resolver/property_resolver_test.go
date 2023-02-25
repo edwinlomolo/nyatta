@@ -16,6 +16,9 @@ func Test_Property_Resolver(t *testing.T) {
 		CreateProperty struct {
 			Name       string
 			Town       string
+			Type       string
+			MinPrice   int
+			MaxPrice   int
 			PostalCode string
 			ID         string
 		}
@@ -43,11 +46,14 @@ func Test_Property_Resolver(t *testing.T) {
 	}
 
 	t.Run("should_create_property", func(t *testing.T) {
-		query := fmt.Sprintf(`mutation { createProperty(input: { name: "%s", town: "%s", postalCode: "%s", createdBy: "%s" }) { id, name, town, postalCode } }`, "Oloolua Villas", "Ngong Hills", "00208", newUser.ID)
+		query := fmt.Sprintf(`mutation { createProperty(input: { name: "%s", town: "%s", type: "%s", postalCode: "%s", minPrice: %v, maxPrice: %v, createdBy: "%s" }) { id, name, town, type, minPrice, maxPrice, postalCode } }`, "Oloolua Villas", "Ngong Hills", "Studio", "00208", 5000, 100000, newUser.ID)
 
 		srv.MustPost(query, &createProperty)
 		assert.Equal(t, createProperty.CreateProperty.Name, "Oloolua Villas")
 		assert.Equal(t, createProperty.CreateProperty.PostalCode, "00208")
+		assert.Equal(t, createProperty.CreateProperty.MinPrice, 5000)
+		assert.Equal(t, createProperty.CreateProperty.MaxPrice, 100000)
+		assert.Equal(t, createProperty.CreateProperty.Type, "Studio")
 		assert.Equal(t, createProperty.CreateProperty.Town, "Ngong Hills")
 	})
 
@@ -56,18 +62,24 @@ func Test_Property_Resolver(t *testing.T) {
 			GetProperty struct {
 				Name       string
 				PostalCode string
+				Type       string
+				MinPrice   int
+				MaxPrice   int
 				Owner      struct {
 					First_Name string
 				}
 			}
 		}
 
-		query := `query ($id: ID!) { getProperty(id: $id) { name, postalCode, owner { first_name } } }`
+		query := `query ($id: ID!) { getProperty(id: $id) { name, postalCode, minPrice, maxPrice, type, owner { first_name } } }`
 
 		srv.MustPost(query, &getProperty, client.Var("id", createProperty.CreateProperty.ID))
 
 		assert.Equal(t, createProperty.CreateProperty.Name, getProperty.GetProperty.Name)
 		assert.Equal(t, createProperty.CreateProperty.PostalCode, getProperty.GetProperty.PostalCode)
+		assert.Equal(t, createProperty.CreateProperty.MinPrice, getProperty.GetProperty.MinPrice)
+		assert.Equal(t, createProperty.CreateProperty.MaxPrice, getProperty.GetProperty.MaxPrice)
+		assert.Equal(t, createProperty.CreateProperty.Type, getProperty.GetProperty.Type)
 		assert.Equal(t, getProperty.GetProperty.Owner.First_Name, "John")
 	})
 

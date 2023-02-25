@@ -32,6 +32,9 @@ func Test_property_service(t *testing.T) {
 			Name:       "Jonsaga Properties",
 			Town:       "Upper Hill",
 			PostalCode: "00500",
+			Type:       "Studio",
+			MinPrice:   5000,
+			MaxPrice:   100000,
 			CreatedBy:  user.ID,
 		}
 		var err error
@@ -42,6 +45,9 @@ func Test_property_service(t *testing.T) {
 		assert.Equal(t, property.Name, "Jonsaga Properties")
 		assert.Equal(t, property.Town, "Upper Hill")
 		assert.Equal(t, property.PostalCode, "00500")
+		assert.Equal(t, property.MinPrice, 5000)
+		assert.Equal(t, property.MaxPrice, 100000)
+		assert.Equal(t, property.Type, "Studio")
 		assert.NotEmpty(t, property.ID)
 	})
 

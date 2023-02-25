@@ -12,9 +12,9 @@ RETURNING *;
 
 -- name: CreateProperty :one
 INSERT INTO properties (
-  name, town, postal_code, created_by
+  name, town, postal_code, type, min_price, max_price, created_by
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING *;
 

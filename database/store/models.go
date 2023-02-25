@@ -33,6 +33,9 @@ type Property struct {
 	Name       string    `json:"name"`
 	Town       string    `json:"town"`
 	PostalCode string    `json:"postal_code"`
+	Type       string    `json:"type"`
+	MinPrice   int32     `json:"min_price"`
+	MaxPrice   int32     `json:"max_price"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	CreatedBy  int64     `json:"created_by"`

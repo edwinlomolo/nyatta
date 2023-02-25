@@ -51,6 +51,9 @@ type propertyResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *propertyResolver) Type(ctx context.Context, obj *model.Property) (string, error) {
+	panic(fmt.Errorf("not implemented: Type - type"))
+}
 func (r *propertyResolver) CreatedBy(ctx context.Context, obj *model.Property) (int, error) {
 	panic(fmt.Errorf("not implemented: CreatedBy - createdBy"))
 }
