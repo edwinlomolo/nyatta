@@ -757,7 +757,7 @@ input TenancyInput {
 
 # Represent listings query parameters
 input ListingsInput {
-  town: String!
+  town: String
   propertyType: String
   minPrice: Int
   maxPrice: Int
@@ -5901,7 +5901,7 @@ func (ec *executionContext) unmarshalInputListingsInput(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("town"))
-			it.Town, err = ec.unmarshalNString2string(ctx, v)
+			it.Town, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

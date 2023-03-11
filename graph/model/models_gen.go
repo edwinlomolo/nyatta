@@ -17,7 +17,7 @@ type Bedroom struct {
 }
 
 type ListingsInput struct {
-	Town         string  `json:"town"`
+	Town         *string `json:"town"`
 	PropertyType *string `json:"propertyType"`
 	MinPrice     *int    `json:"minPrice"`
 	MaxPrice     *int    `json:"maxPrice"`

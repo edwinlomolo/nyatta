@@ -51,7 +51,7 @@ input TenancyInput {
 
 # Represent listings query parameters
 input ListingsInput {
-  town: String!
+  town: String
   propertyType: String
   minPrice: Int
   maxPrice: Int

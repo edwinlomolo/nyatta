@@ -22,6 +22,7 @@ func (l ListingServices) ServiceName() string {
 	return "ListingServices"
 }
 
-func (l ListingServices) GetListings(model.ListingsInput) ([]model.Property, error) {
-	return make([]model.Property, 0), nil
+func (l ListingServices) GetListings(input model.ListingsInput) ([]model.Property, error) {
+	foundProperties := make([]model.Property, 0)
+	return foundProperties, nil
 }
