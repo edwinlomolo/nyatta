@@ -77,3 +77,7 @@ WHERE property_unit_id = $1;
 -- name: GetPropertyUnits :many
 SELECT * FROM property_units
 WHERE property_id = $1;
+
+-- name: GetListings :many
+SELECT * FROM properties
+WHERE town = $1 AND type = $2 AND min_price >= $3 AND max_price <= $4;

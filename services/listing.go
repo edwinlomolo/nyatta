@@ -1,6 +1,10 @@
 package services
 
 import (
+	"database/sql"
+	"math"
+	"strconv"
+
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
@@ -23,6 +27,46 @@ func (l ListingServices) ServiceName() string {
 }
 
 func (l ListingServices) GetListings(input model.ListingsInput) ([]model.Property, error) {
+	sqlParams := sqlStore.GetListingsParams{
+		Town:     input.Town,
+		Type:     "",
+		MinPrice: 0,
+		MaxPrice: math.MaxInt32,
+	}
+	propertyType := *input.PropertyType
+	minPrice := *input.MinPrice
+	maxPrice := *input.MaxPrice
+
+	if len(propertyType) != 0 {
+		sqlParams.Type = propertyType
+	}
+	if minPrice > 0 {
+		sqlParams.MinPrice = int32(minPrice)
+	}
+	if maxPrice > minPrice {
+		sqlParams.MaxPrice = int32(maxPrice)
+	}
+
+	sqlResult, err := l.queries.GetListings(ctx, sqlParams)
+	// Does listing exist?
+	if err == sql.ErrNoRows {
+		return []model.Property{}, nil
+	}
+
 	foundProperties := make([]model.Property, 0)
+	for _, foundProperty := range sqlResult {
+		property := model.Property{
+			ID:         strconv.FormatInt(foundProperty.ID, 10),
+			Name:       foundProperty.Name,
+			Town:       foundProperty.Town,
+			Type:       foundProperty.Type,
+			MinPrice:   int(foundProperty.MinPrice),
+			MaxPrice:   int(foundProperty.MaxPrice),
+			PostalCode: foundProperty.PostalCode,
+			CreatedAt:  &foundProperty.CreatedAt,
+			UpdatedAt:  &foundProperty.UpdatedAt,
+		}
+		foundProperties = append(foundProperties, property)
+	}
 	return foundProperties, nil
 }

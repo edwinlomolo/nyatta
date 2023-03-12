@@ -76,6 +76,7 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	}
 	foundProperty, err := p.queries.GetProperty(ctx, int64(propertyId))
 	if err == sql.ErrNoRows {
+		// TODO just return empty property list
 		return nil, errors.New("Property does not exist")
 	}
 	return &model.Property{

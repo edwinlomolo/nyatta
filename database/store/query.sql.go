@@ -233,6 +233,57 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 	return i, err
 }
 
+const getListings = `-- name: GetListings :many
+SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
+WHERE town = $1 AND type = $2 AND min_price >= $3 AND max_price <= $4
+`
+
+type GetListingsParams struct {
+	Town     string `json:"town"`
+	Type     string `json:"type"`
+	MinPrice int32  `json:"min_price"`
+	MaxPrice int32  `json:"max_price"`
+}
+
+func (q *Queries) GetListings(ctx context.Context, arg GetListingsParams) ([]Property, error) {
+	rows, err := q.db.QueryContext(ctx, getListings,
+		arg.Town,
+		arg.Type,
+		arg.MinPrice,
+		arg.MaxPrice,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Property
+	for rows.Next() {
+		var i Property
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Town,
+			&i.PostalCode,
+			&i.Type,
+			&i.MinPrice,
+			&i.MaxPrice,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProperty = `-- name: GetProperty :one
 SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
 WHERE id = $1 LIMIT 1
