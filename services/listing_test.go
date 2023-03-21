@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/util"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,13 +14,40 @@ const (
 )
 
 func Test_Listing_Services(t *testing.T) {
+	propertyService := NewPropertyService(queries, log.New())
+	user, err := userService.CreateUser(&model.NewUser{
+		FirstName: "John",
+		LastName:  "Doe",
+		Email:     util.GenerateRandomEmail(),
+		Avatar:    "https://avatar.jpg",
+	})
+
+	assert.Nil(t, err)
+
+	var property *model.Property
 	t.Run("should_get_service_name", func(t *testing.T) {
 		assert.Equal(t, listingService.ServiceName(), "ListingServices")
 	})
 
 	t.Run("should_get_listings_with_all_correct_parameters", func(t *testing.T) {
+		newProperty := &model.NewProperty{
+			Name:       "Jonsaga Properties",
+			Town:       "Upper Hill",
+			PostalCode: "00500",
+			Type:       "Studio",
+			MinPrice:   5000,
+			MaxPrice:   100000,
+			CreatedBy:  user.ID,
+		}
+
+		var err error
+		property, err = propertyService.CreateProperty(newProperty)
+
+		assert.Nil(t, err)
+		assert.Equal(t, property.Name, "Jonsaga Properties")
+
 		minPrice := 0
-		maxPrice := 1000
+		maxPrice := 1000000
 		propertyType := "Studio"
 		listings, err := listingService.GetListings(model.ListingsInput{
 			Town:         town,
