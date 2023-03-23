@@ -38,7 +38,7 @@ func (l ListingServices) GetListings(input model.ListingsInput) ([]model.Propert
 		sqlParams.Type = *input.PropertyType
 	}
 	if *input.MinPrice > 0 {
-		sqlParams.MinPrice = int32(*input.MaxPrice)
+		sqlParams.MinPrice = int32(*input.MinPrice)
 	}
 	if *input.MaxPrice > *input.MinPrice {
 		sqlParams.MaxPrice = int32(*input.MaxPrice)

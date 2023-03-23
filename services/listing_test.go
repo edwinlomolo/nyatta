@@ -30,18 +30,31 @@ func Test_Listing_Services(t *testing.T) {
 	})
 
 	t.Run("should_get_listings_with_all_correct_parameters", func(t *testing.T) {
-		newProperty := &model.NewProperty{
-			Name:       "Jonsaga Properties",
-			Town:       "Upper Hill",
-			PostalCode: "00500",
-			Type:       "Studio",
-			MinPrice:   5000,
-			MaxPrice:   100000,
-			CreatedBy:  user.ID,
+		newProperty := []*model.NewProperty{
+			{
+				Name:       "Jonsaga Properties",
+				Town:       town,
+				PostalCode: "00500",
+				Type:       "Studio",
+				MinPrice:   5000,
+				MaxPrice:   100000,
+				CreatedBy:  user.ID,
+			},
+			{
+				Name:       "Jonsaga Properties",
+				Town:       town,
+				PostalCode: "00500",
+				Type:       "Bungalow",
+				MinPrice:   5000,
+				MaxPrice:   100000,
+				CreatedBy:  user.ID,
+			},
 		}
 
 		var err error
-		property, err = propertyService.CreateProperty(newProperty)
+		for i := 0; i < len(newProperty); i++ {
+			property, err = propertyService.CreateProperty(newProperty[i])
+		}
 
 		assert.Nil(t, err)
 		assert.Equal(t, property.Name, "Jonsaga Properties")
@@ -57,7 +70,7 @@ func Test_Listing_Services(t *testing.T) {
 		})
 
 		assert.Nil(t, err)
-		assert.Equal(t, len(listings), 0)
+		assert.Equal(t, len(listings), 1)
 	})
 
 	t.Run("should_get_listings_with_zero_pricing", func(t *testing.T) {
@@ -72,7 +85,7 @@ func Test_Listing_Services(t *testing.T) {
 		})
 
 		assert.Nil(t, err)
-		assert.Equal(t, len(listings), 0)
+		assert.Equal(t, len(listings), 1)
 	})
 
 	t.Run("should_get_listings_without_property_type_param", func(t *testing.T) {
