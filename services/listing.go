@@ -29,14 +29,10 @@ func (l ListingServices) ServiceName() string {
 func (l ListingServices) GetListings(input model.ListingsInput) ([]model.Property, error) {
 	sqlParams := sqlStore.GetListingsParams{
 		Town:     input.Town,
-		Type:     "",
 		MinPrice: 0,
 		MaxPrice: math.MaxInt32,
 	}
 
-	if len(*input.PropertyType) != 0 {
-		sqlParams.Type = *input.PropertyType
-	}
 	if *input.MinPrice > 0 {
 		sqlParams.MinPrice = int32(*input.MinPrice)
 	}

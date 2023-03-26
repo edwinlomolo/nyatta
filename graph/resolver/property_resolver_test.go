@@ -232,9 +232,8 @@ func Test_Property_Resolver(t *testing.T) {
 			}
 		}
 		query := fmt.Sprintf(
-			`query { getListings(input: {town: %q, propertyType: %q, minPrice: %d, maxPrice: %d}) { id } }`,
+			`query { getListings(input: {town: %q, minPrice: %d, maxPrice: %d}) { id } }`,
 			"Ngong Hills",
-			"Studio",
 			0,
 			0,
 		)

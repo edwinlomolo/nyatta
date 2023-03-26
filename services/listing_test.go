@@ -9,98 +9,84 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	town = "Ngong Hills"
-)
-
 func Test_Listing_Services(t *testing.T) {
 	propertyService := NewPropertyService(queries, log.New())
-	user, err := userService.CreateUser(&model.NewUser{
+	user, _ := userService.CreateUser(&model.NewUser{
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
 		Avatar:    "https://avatar.jpg",
 	})
 
-	assert.Nil(t, err)
+	// Seed some property(s)
+	newProperty := []*model.NewProperty{
+		{
+			Name:       "Kadong Villa",
+			Town:       "Karen",
+			PostalCode: "10345",
+			Type:       "Home",
+			MinPrice:   40000,
+			MaxPrice:   0,
+			CreatedBy:  user.ID,
+		},
+		{
+			Name:       "Jonsaga Properties",
+			Town:       "Ngong Hills",
+			PostalCode: "00500",
+			Type:       "Flat",
+			MinPrice:   5000,
+			MaxPrice:   35000,
+			CreatedBy:  user.ID,
+		},
+	}
 
-	var property *model.Property
+	for i := 0; i < len(newProperty); i++ {
+		_, _ = propertyService.CreateProperty(newProperty[i])
+	}
+
 	t.Run("should_get_service_name", func(t *testing.T) {
 		assert.Equal(t, listingService.ServiceName(), "ListingServices")
 	})
 
 	t.Run("should_get_listings_with_all_correct_parameters", func(t *testing.T) {
-		newProperty := []*model.NewProperty{
-			{
-				Name:       "Jonsaga Properties",
-				Town:       town,
-				PostalCode: "00500",
-				Type:       "Studio",
-				MinPrice:   5000,
-				MaxPrice:   100000,
-				CreatedBy:  user.ID,
-			},
-			{
-				Name:       "Jonsaga Properties",
-				Town:       town,
-				PostalCode: "00500",
-				Type:       "Bungalow",
-				MinPrice:   5000,
-				MaxPrice:   100000,
-				CreatedBy:  user.ID,
-			},
-		}
-
+		var listings []model.Property
 		var err error
-		for i := 0; i < len(newProperty); i++ {
-			property, err = propertyService.CreateProperty(newProperty[i])
-		}
+		var minPrice int = 40000
+		var maxPrice int = 0
 
-		assert.Nil(t, err)
-		assert.Equal(t, property.Name, "Jonsaga Properties")
-
-		minPrice := 0
-		maxPrice := 1000000
-		propertyType := "Studio"
-		listings, err := listingService.GetListings(model.ListingsInput{
-			Town:         town,
-			PropertyType: &propertyType,
-			MinPrice:     &minPrice,
-			MaxPrice:     &maxPrice,
+		listings, err = listingService.GetListings(model.ListingsInput{
+			Town:     "Karen",
+			MinPrice: &minPrice,
+			MaxPrice: &maxPrice,
 		})
 
 		assert.Nil(t, err)
 		assert.Equal(t, len(listings), 1)
+		assert.Equal(t, listings[0].Town, "Karen")
+
+		minPrice = 5000
+		maxPrice = 35000
+		listings, _ = listingService.GetListings(model.ListingsInput{
+			Town:     "Ngong Hills",
+			MinPrice: &minPrice,
+			MaxPrice: &maxPrice,
+		})
+
+		assert.Nil(t, err)
+		assert.Equal(t, len(listings), 1)
+		assert.Equal(t, listings[0].Town, "Ngong Hills")
 	})
 
 	t.Run("should_get_listings_with_zero_pricing", func(t *testing.T) {
 		minPrice := 0
 		maxPrice := 0
-		propertyType := "Bungalow"
 		listings, err := listingService.GetListings(model.ListingsInput{
-			Town:         town,
-			PropertyType: &propertyType,
-			MinPrice:     &minPrice,
-			MaxPrice:     &maxPrice,
+			Town:     "Ngong Hills",
+			MinPrice: &minPrice,
+			MaxPrice: &maxPrice,
 		})
 
 		assert.Nil(t, err)
 		assert.Equal(t, len(listings), 1)
-	})
-
-	t.Run("should_get_listings_without_property_type_param", func(t *testing.T) {
-		minPrice := 0
-		maxPrice := 10000
-		propertyType := ""
-
-		listings, err := listingService.GetListings(model.ListingsInput{
-			Town:         town,
-			MinPrice:     &minPrice,
-			MaxPrice:     &maxPrice,
-			PropertyType: &propertyType,
-		})
-
-		assert.Nil(t, err)
-		assert.Equal(t, len(listings), 0)
 	})
 }

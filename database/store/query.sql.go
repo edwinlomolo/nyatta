@@ -235,23 +235,17 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 
 const getListings = `-- name: GetListings :many
 SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
-WHERE town = $1 AND type = $2 AND min_price >= $3 AND max_price <= $4
+WHERE town = $1 AND min_price >= $2 AND max_price <= $3
 `
 
 type GetListingsParams struct {
 	Town     string `json:"town"`
-	Type     string `json:"type"`
 	MinPrice int32  `json:"min_price"`
 	MaxPrice int32  `json:"max_price"`
 }
 
 func (q *Queries) GetListings(ctx context.Context, arg GetListingsParams) ([]Property, error) {
-	rows, err := q.db.QueryContext(ctx, getListings,
-		arg.Town,
-		arg.Type,
-		arg.MinPrice,
-		arg.MaxPrice,
-	)
+	rows, err := q.db.QueryContext(ctx, getListings, arg.Town, arg.MinPrice, arg.MaxPrice)
 	if err != nil {
 		return nil, err
 	}
