@@ -26,7 +26,7 @@ func (l ListingServices) ServiceName() string {
 	return "ListingServices"
 }
 
-func (l ListingServices) GetListings(input model.ListingsInput) ([]model.Property, error) {
+func (l ListingServices) GetListings(input model.ListingsInput) ([]*model.Property, error) {
 	sqlParams := sqlStore.GetListingsParams{
 		Town:     input.Town,
 		MinPrice: 0,
@@ -43,12 +43,12 @@ func (l ListingServices) GetListings(input model.ListingsInput) ([]model.Propert
 	sqlResult, err := l.queries.GetListings(ctx, sqlParams)
 	// Does listing exist?
 	if err == sql.ErrNoRows {
-		return []model.Property{}, nil
+		return []*model.Property{}, nil
 	}
 
-	foundProperties := make([]model.Property, 0)
+	foundProperties := make([]*model.Property, 0)
 	for _, foundProperty := range sqlResult {
-		property := model.Property{
+		property := &model.Property{
 			ID:         strconv.FormatInt(foundProperty.ID, 10),
 			Name:       foundProperty.Name,
 			Town:       foundProperty.Town,

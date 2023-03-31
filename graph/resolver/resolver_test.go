@@ -28,6 +28,7 @@ var (
 	amenityService  *services.AmenityServices
 	unitService     *services.UnitServices
 	tenancyService  *services.TenancyServices
+	listingService  *services.ListingServices
 	logger          *log.Logger
 	configuration   *config.Configuration
 	err             error
@@ -36,7 +37,7 @@ var (
 
 // setup tests
 func TestMain(m *testing.M) {
-	logger := log.New()
+	logger = log.New()
 	err := godotenv.Load(os.ExpandEnv("../../.env"))
 	if err != nil {
 		log.Errorf("panic loading env: %v", err)
@@ -53,14 +54,16 @@ func TestMain(m *testing.M) {
 	amenityService = services.NewAmenityService(queries, logger)
 	unitService = services.NewUnitService(queries, logger)
 	tenancyService = services.NewTenancyService(queries, logger)
+	listingService = services.NewListingService(queries, logger)
 
 	ctx = context.Background()
-	ctx = context.WithValue(ctx, "config", configuration)
+	ctx = context.WithValue(ctx, "configuration", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "amenityService", amenityService)
 	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
+	ctx = context.WithValue(ctx, "listingService", listingService)
 	ctx = context.WithValue(ctx, "log", logger)
 
 	os.Exit(m.Run())

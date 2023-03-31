@@ -92,7 +92,11 @@ func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 
 // GetListings is the resolver for the getListings field.
 func (r *queryResolver) GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error) {
-	return make([]*model.Property, 0), nil
+	foundListings, err := ctx.Value("listingService").(*services.ListingServices).GetListings(input)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return foundListings, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

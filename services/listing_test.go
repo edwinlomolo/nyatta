@@ -49,7 +49,7 @@ func Test_Listing_Services(t *testing.T) {
 	})
 
 	t.Run("should_get_listings_with_all_correct_parameters", func(t *testing.T) {
-		var listings []model.Property
+		var listings []*model.Property
 		var err error
 		var minPrice int = 40000
 		var maxPrice int = 0

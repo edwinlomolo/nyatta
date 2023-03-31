@@ -228,11 +228,12 @@ func Test_Property_Resolver(t *testing.T) {
 	t.Run("should_get_property_listings", func(t *testing.T) {
 		var getListings struct {
 			GetListings []struct {
-				ID string
+				ID   string
+				Town string
 			}
 		}
 		query := fmt.Sprintf(
-			`query { getListings(input: {town: %q, minPrice: %d, maxPrice: %d}) { id } }`,
+			`query { getListings(input: {town: %q, minPrice: %d, maxPrice: %d}) { id, town } }`,
 			"Ngong Hills",
 			0,
 			0,
@@ -240,6 +241,7 @@ func Test_Property_Resolver(t *testing.T) {
 
 		srv.MustPost(query, &getListings)
 
-		assert.Equal(t, len(getListings.GetListings), 0)
+		assert.Equal(t, len(getListings.GetListings), 1)
+		assert.Equal(t, getListings.GetListings[0].Town, "Ngong Hills")
 	})
 }

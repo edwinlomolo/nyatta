@@ -22,6 +22,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type contextKey string
+
 func main() {
 	// Initialize router
 	r := chi.NewRouter()
@@ -44,15 +46,17 @@ func main() {
 	amenityService := services.NewAmenityService(queries, logger)
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
+	listingService := services.NewListingService(queries, logger)
 
 	// Initialize context with values
-	ctx = context.WithValue(ctx, "config", config.GetConfig())
-	ctx = context.WithValue(ctx, "userService", userService)
-	ctx = context.WithValue(ctx, "propertyService", propertyService)
-	ctx = context.WithValue(ctx, "amenityService", amenityService)
-	ctx = context.WithValue(ctx, "unitService", unitService)
-	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
-	ctx = context.WithValue(ctx, "log", logger)
+	ctx = context.WithValue(ctx, contextKey("config"), config.GetConfig())
+	ctx = context.WithValue(ctx, contextKey("userService"), userService)
+	ctx = context.WithValue(ctx, contextKey("propertyService"), propertyService)
+	ctx = context.WithValue(ctx, contextKey("amenityService"), amenityService)
+	ctx = context.WithValue(ctx, contextKey("unitService"), unitService)
+	ctx = context.WithValue(ctx, contextKey("tenancyService"), tenancyService)
+	ctx = context.WithValue(ctx, contextKey("listingService"), listingService)
+	ctx = context.WithValue(ctx, contextKey("log"), logger)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 

@@ -6,5 +6,5 @@ import (
 
 type ListingService interface {
 	ServiceName() string
-	GetListings(model.ListingsInput) ([]model.Property, error)
+	GetListings(model.ListingsInput) ([]*model.Property, error)
 }
