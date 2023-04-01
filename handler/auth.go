@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -23,29 +24,35 @@ func Handshake() http.Handler {
 		loginResponse := &model.LoginResponse{}
 		var newUser *model.NewUser
 
+		// This handler should only support POST
+		if r.Method != http.MethodPost {
+			http.Error(w, errors.New("Only POST method supported").Error(), http.StatusMethodNotAllowed)
+			return
+		}
 		// Read incoming data from body request
-		reqBody, _ := ioutil.ReadAll(r.Body)
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		json.Unmarshal(reqBody, &newUser)
 
 		// SignIn - authorize incoming user
 		token, err := ctx.Value("userService").(*services.UserServices).SignIn(newUser)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		} else {
+
 			response := &model.Response{
-				Code: http.StatusInternalServerError,
-				Err:  err.Error(),
+				Code: http.StatusOK,
 			}
 			loginResponse.Response = response
+			loginResponse.AccessToken = *token
+
 			writeResponse(w, loginResponse, loginResponse.Code)
 			return
 		}
-
-		response := &model.Response{
-			Code: http.StatusOK,
-		}
-		loginResponse.Response = response
-		loginResponse.AccessToken = *token
-
-		writeResponse(w, loginResponse, loginResponse.Code)
 	})
 }
 
@@ -69,9 +76,8 @@ func Authenticate(h http.Handler) http.Handler {
 				userId = string(userIdBytes[:])
 			}
 		} else {
-			// Failed authenticating Authorization header
-			w.WriteHeader(http.StatusUnauthorized) // 401:Unauthorized
-			w.Write([]byte("Unauthorized"))
+			// Failed
+			http.Error(w, errors.New("Unauthorized").Error(), http.StatusUnauthorized)
 			return
 		}
 

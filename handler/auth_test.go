@@ -103,10 +103,29 @@ func Test_Auth_Handler(t *testing.T) {
 		data, err := ioutil.ReadAll(res.Body)
 		assert.Nil(t, err)
 
-		assert.Equal(t, string(data), "Unauthorized")
-		assert.Equal(t, res.Status, "401 Unauthorized")
+		assert.Equal(t, string(data), "Unauthorized\n")
+		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 
 	})
+
+	t.Run("handshake_endpoint_should_only_support_POST_method", func(t *testing.T) {
+		srv := httptest.NewServer(AddContext(ctx, Handshake()))
+		defer srv.Close()
+
+		url := fmt.Sprintf("%s/handshake", srv.URL)
+		req, _ := http.NewRequest(http.MethodGet, url, bytes.NewBuffer(jsonStr))
+
+		client := srv.Client()
+		res, err := client.Do(req)
+		assert.Nil(t, err)
+
+		defer res.Body.Close()
+
+		data, _ := ioutil.ReadAll(res.Body)
+		assert.Equal(t, string(data), "Only POST method supported\n")
+		assert.Equal(t, res.StatusCode, http.StatusMethodNotAllowed)
+	})
+
 	t.Run("should_authenticate_any_authed_request_successfully", func(t *testing.T) {
 		tokenString := fmt.Sprintf("Bearer %s", creds.AccessToken)
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -122,7 +141,7 @@ func Test_Auth_Handler(t *testing.T) {
 		client := srv.Client()
 		res, err := client.Do(req)
 		assert.Nil(t, err)
-		assert.Equal(t, res.Status, "200 OK")
+		assert.Equal(t, res.StatusCode, http.StatusOK)
 
 		data, err := ioutil.ReadAll(res.Body)
 		assert.Nil(t, err)

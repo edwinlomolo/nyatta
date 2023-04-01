@@ -29,10 +29,10 @@ func Test_root_api(t *testing.T) {
 		res, err := c.Do(req)
 		assert.Nil(t, err)
 		defer res.Body.Close()
-		assert.Equal(t, res.Status, "401 Unauthorized")
+		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 
 		data, err := ioutil.ReadAll(res.Body)
 		assert.Nil(t, err)
-		assert.Equal(t, string(data), "Unauthorized")
+		assert.Equal(t, string(data), "Unauthorized\n")
 	})
 }
