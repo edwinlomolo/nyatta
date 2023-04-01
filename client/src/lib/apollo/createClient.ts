@@ -1,9 +1,10 @@
 import { ApolloClient, InMemoryCache, from, NormalizedCacheObject } from '@apollo/client'
 import { RetryLink } from '@apollo/client/link/retry'
+import { CookieValueTypes } from 'cookies-next'
 
 import { authLink, errorLink, httpLink } from './links'
 
-const createClient = (jwt?: string): ApolloClient<NormalizedCacheObject> => {
+const createClient = (jwt?: CookieValueTypes): ApolloClient<NormalizedCacheObject> => {
   // Caching
   const cache = new InMemoryCache({})
   // Error retry link

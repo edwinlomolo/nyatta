@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect } from 'react'
 
-import { useAuth0 } from '@auth0/auth0-react'
-import { useCookies } from 'react-cookie'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { setCookie, deleteCookie } from 'cookies-next'
 
 import AuthContext from './AuthContext'
 import { Http } from '../../utils'
 import { apiUrl } from '../../helpers'
 import { getApolloClient } from '../../apollo'
-
-import { GlobalLoader } from '../../components'
 
 interface Props {
   children: React.ReactNode
@@ -16,23 +14,20 @@ interface Props {
 
 function AuthProvider({ children }: Props) {
   const client = getApolloClient()
-  const { isLoading, loginWithRedirect, logout, user, isAuthenticated } = useAuth0()
-  const [cookies, setCookie, removeCookie] = useCookies(['jwt'])
-  const login = useCallback(() => loginWithRedirect(), [loginWithRedirect])
+  const { user, isLoading } = useUser()
   const handleLogout = useCallback(
     () => {
       client?.resetStore()
-      logout({ returnTo: window.location.origin })
-      removeCookie('jwt')
+      deleteCookie('jwt', { path: "/" })
     },
-    [logout, removeCookie, client]
+    [client]
   )
 
-  useEffect(() => {
+  useEffect((): void => {
     async function initializeClient() {
       const http = new Http()
       // Auth user
-      if (isAuthenticated) {
+      if (user && !isLoading) {
         const newUser = {
           first_name: user?.given_name,
           last_name: user?.family_name,
@@ -48,19 +43,17 @@ function AuthProvider({ children }: Props) {
       }
     }
     initializeClient()
-  }, [isAuthenticated, cookies, setCookie, user])
+  }, [user])
 
-  if (isLoading) return <GlobalLoader />
+  if (isLoading) return null
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        login,
-        isAuthenticated,
+        isAuthenticated: isLoading,
         isAuthenticating: isLoading,
         logout: handleLogout,
-        cookies,
       }}
     >
       {children}

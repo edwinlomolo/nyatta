@@ -1,6 +1,7 @@
 import { PropsWithChildren, useContext, useState, useCallback } from 'react'
 
 import { ApolloClient, ApolloProvider as ApolloClientProvider, NormalizedCacheObject } from '@apollo/client'
+import { CookieValueTypes, getCookie } from 'cookies-next'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 
 import { AuthContext } from '../../auth'
@@ -12,25 +13,27 @@ export const getApolloClient = (): ApolloClient<NormalizedCacheObject> | null =>
 export let resetApp = (): void => {}
 
 function ApolloProvider({ children }: PropsWithChildren) {
-  const { cookies, isAuthenticating } = useContext(AuthContext)
+  const jwt = getCookie('jwt')
+  const { isAuthenticating } = useContext(AuthContext)
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)
   const shouldCreateClient = useCallback(
-    (jwt?: string) => {
+    (jwt?: CookieValueTypes) => {
       return createClient(jwt)
     },
     []
   )
 
   useDeepCompareEffect(() => {
-    const nextClient = shouldCreateClient(cookies?.jwt)
+    const nextClient = shouldCreateClient(jwt)
     apolloClient = nextClient
     setClient(nextClient)
-  }, [cookies, shouldCreateClient])
+  }, [shouldCreateClient])
 
   if (!client || isAuthenticating) {
     return null
   }
 
+  console.log(jwt)
   return <ApolloClientProvider client={client}>{children}</ApolloClientProvider>
 }
 

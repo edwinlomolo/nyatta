@@ -1,9 +1,16 @@
-import { Center, CircularProgress } from '@chakra-ui/react'
+import { Box, Center, CircularProgress, Text } from '@chakra-ui/react'
 
-function GlobalLoader() {
+interface Props {
+  text?: string
+}
+
+function GlobalLoader({ text }: Props) {
   return (
     <Center>
-      <CircularProgress isIndeterminate />
+      <Box textAlign="center">
+        {text && <Text>{text}</Text>}
+        <CircularProgress isIndeterminate />
+      </Box>
     </Center>
   )
 }

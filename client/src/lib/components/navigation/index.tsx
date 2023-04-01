@@ -1,6 +1,5 @@
+import { useContext } from 'react'
 import Link from 'next/link'
-
-import { useUser } from '@auth0/nextjs-auth0/client'
 
 import {
   Avatar,
@@ -13,23 +12,12 @@ import {
 } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 
-import { UserProfile } from '@auth0/nextjs-auth0/client'
+import AuthContext from '../../auth/providers/AuthContext'
 
 import { Dropdown } from '../dropdown'
-import { GlobalLoader } from '../loader'
-
-interface Props {
-  user: UserProfile | undefined
-  login?: () => void
-  logout?: () => void
-}
 
 function Navigation() {
-  const { user, isLoading } = useUser()
-
-  if (isLoading) {
-    return <GlobalLoader />
-  }
+  const { user, logout } = useContext(AuthContext)
 
   return (
     <Flex p={2} align="center">
@@ -53,7 +41,7 @@ function Navigation() {
         <Dropdown
           children={
             <>
-              <Avatar src={user?.picture} name={user?.name} />
+              <Avatar src={user?.picture!} name={user?.name!} />
             </>
           }
           options={[
@@ -67,14 +55,14 @@ function Navigation() {
             },
             {
               text: (
-                <a href="/api/auth/logout">Log out</a>
+                <a onClick={logout} href="/api/auth/logout">Log out</a>
               ),
             }
           ]}
         />
       )}
       {!user && (
-        <Button as={"a"} href="/api/auth/login" colorScheme="green">Sign In</Button>
+        <Button  as={"a"} href="/api/auth/login" colorScheme="green">Sign In</Button>
       )}
       </Flex>
     </Flex>

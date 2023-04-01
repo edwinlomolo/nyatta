@@ -1,6 +1,7 @@
+import { CookieValueTypes } from 'cookies-next'
 import { setContext } from '@apollo/client/link/context'
 
-const authLink = (jwt?: string) => setContext((_, previousContext) => {
+const authLink = (jwt?: CookieValueTypes) => setContext((_, previousContext) => {
   const { headers } = previousContext
   return {
     ...previousContext,
