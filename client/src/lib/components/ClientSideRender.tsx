@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { Box } from '@chakra-ui/react'
 
-function ClientSideRender({ children, ...delegated }) {
-  const [hasMounted, setHasMounted] = useState(false)
+function ClientSideRender({ children, ...delegated }: { children: React.ReactNode }) {
+  const hasMounted = useRef(false)
 
   useEffect(() => {
-    setHasMounted(true)
+    hasMounted.current = true
   }, [])
 
-  if (!hasMounted) {
+  if (!hasMounted.current) {
     return null
   }
 
