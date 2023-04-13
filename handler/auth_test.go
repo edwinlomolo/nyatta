@@ -103,7 +103,7 @@ func Test_Auth_Handler(t *testing.T) {
 		data, err := ioutil.ReadAll(res.Body)
 		assert.Nil(t, err)
 
-		assert.Equal(t, string(data), "Unauthorized\n")
+		assert.Equal(t, string(data), "{\"Unauthorized\":true}")
 		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 
 	})

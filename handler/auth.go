@@ -77,7 +77,13 @@ func Authenticate(h http.Handler) http.Handler {
 			}
 		} else {
 			// Failed
-			http.Error(w, errors.New("Unauthorized").Error(), http.StatusUnauthorized)
+			jsonResponse, err := json.Marshal(struct{ Unauthorized bool }{Unauthorized: true})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(jsonResponse)
 			return
 		}
 

@@ -108,6 +108,6 @@ func Test_unauthed_graphql_request(t *testing.T) {
 
 		err := srv.Post(query, &signIn)
 		assert.NotNil(t, err)
-		assert.Equal(t, err.Error(), "http 401: Unauthorized\n")
+		assert.Equal(t, err.Error(), "http 401: {\"Unauthorized\":true}")
 	})
 }
