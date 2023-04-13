@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
+	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
@@ -24,6 +25,7 @@ import (
 func main() {
 	// Initialize router
 	r := chi.NewRouter()
+	r.Use(cors.AllowAll().Handler)
 
 	configuration := config.LoadConfig()
 
@@ -59,7 +61,7 @@ func main() {
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
 	r.Handle("/handshake", h.AddContext(ctx, logHandler.Logging(h.Handshake())))
-	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(srv)))
+	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%s", serverConfig.ServerPort),
