@@ -1,15 +1,11 @@
 name: test
-
 on:
   push:
     branches: "*"
-
 jobs:
-
   deploy:
     name: Test
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres
@@ -24,19 +20,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
-      
     # Checkout code
     - name: Checkout code
       uses: actions/checkout@v3
-        
     # Setup go
     - name: Setup go
       uses: actions/setup-go@v3
       with:
         go-version: ^1.19
-
     - name: Test
       # Env vars
       env:
