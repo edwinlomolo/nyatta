@@ -1,7 +1,7 @@
 import { HttpLink } from '@apollo/client'
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:4000/api",
+  uri: `${process.env.NEXT_PUBLIC_BASE_API}/api`,
 })
 
 export default httpLink
