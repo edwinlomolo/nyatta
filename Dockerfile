@@ -24,12 +24,12 @@ RUN mkdir -p go/src/app
 WORKDIR go/src/app
 
 # Copy current dir contents into the container at go/src/app
-COPY . go/src/app
-COPY go.mod go/src/app
-COPY go.sum go/src/app
+COPY . .
+
+# Install dependencies
+RUN go mod download
 
 # Build the Go app
-RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o nyatta
 
 # Expose port 4000
