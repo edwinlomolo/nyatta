@@ -16,7 +16,4 @@ type RDBMS struct {
 		User   string
 		Pass   string
 	}
-	Ssl struct {
-		SslMode string
-	}
 }

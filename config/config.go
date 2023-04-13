@@ -84,8 +84,6 @@ func databaseRDBMS() DatabaseConfig {
 	databaseConfig.RDBMS.Access.DbName = os.Getenv("DBNAME")
 	databaseConfig.RDBMS.Access.User = os.Getenv("DBUSER")
 	databaseConfig.RDBMS.Access.Pass = os.Getenv("DBPASS")
-	// SSL
-	databaseConfig.RDBMS.Ssl.SslMode = os.Getenv("DBSSLMODE")
 
 	return databaseConfig
 }

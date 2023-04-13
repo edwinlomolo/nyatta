@@ -16,6 +16,8 @@ import (
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -37,18 +39,26 @@ var (
 
 // setup tests
 func TestMain(m *testing.M) {
-	logger = log.New()
+	// Load env variables
 	err := godotenv.Load(os.ExpandEnv("../../.env"))
 	if err != nil {
 		log.Errorf("panic loading env: %v", err)
 	}
 	configuration = config.LoadConfig()
+
+	// Initialize db
 	db, err = database.InitDB("../../database/migration")
 	if err != nil {
 		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}
+
+	// Logger
+	logger = log.New()
+
+	// SQL queries
 	queries := sqlStore.New(db)
 
+	// Setup services
 	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
 	propertyService = services.NewPropertyService(queries, logger)
 	amenityService = services.NewAmenityService(queries, logger)
@@ -56,6 +66,7 @@ func TestMain(m *testing.M) {
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
 
+	// Setup context
 	ctx = context.Background()
 	ctx = context.WithValue(ctx, "configuration", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
@@ -66,7 +77,23 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "listingService", listingService)
 	ctx = context.WithValue(ctx, "log", logger)
 
-	os.Exit(m.Run())
+	// Run test
+	exitCode := m.Run()
+
+	// Teardown test
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		log.Errorf("panic loading postgres driver instance: %v", err)
+	}
+	migrator, err := migrate.NewWithDatabaseInstance("file://../../database/migration", "postgres", driver)
+	if err != nil {
+		log.Errorf("panic tearing down test: %v", err)
+	}
+	if err := migrator.Down(); err != nil && err != migrate.ErrNoChange {
+		log.Errorf("panic migrator err: %v", err)
+	}
+
+	os.Exit(exitCode)
 }
 func Test_unauthed_graphql_request(t *testing.T) {
 	var signIn struct {

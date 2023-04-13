@@ -68,6 +68,6 @@ func main() {
 		Handler: r,
 	}
 
-	log.Infof("connect to http://localhost:%s/ for GraphQL playground", serverConfig.ServerPort)
+	log.Infof("Server Info: OK")
 	log.Fatal(s.ListenAndServe())
 }
