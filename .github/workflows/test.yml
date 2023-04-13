@@ -1,4 +1,4 @@
-name: test
+name: Test
 on:
   push:
     branches: "*"
@@ -6,20 +6,20 @@ jobs:
   deploy:
     name: Test
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: demo1234
-          POSTGRES_HOST: localhost
-          POSTGRES_DB: nyatta-test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+      #services:
+      #  postgres:
+      #    image: postgres
+      #    env:
+      #      POSTGRES_PASSWORD: demo1234
+      #      POSTGRES_HOST: localhost
+      #      POSTGRES_DB: nyatta-test
+      #    ports:
+      #      - 5432:5432
+      #    options: >-
+      #      --health-cmd pg_isready
+      #      --health-interval 10s
+      #      --health-timeout 5s
+      #      --health-retries 5
     steps:
     # Checkout code
     - name: Checkout code
@@ -39,9 +39,9 @@ jobs:
         DBNAME: "${{ secrets.DBNAME }}"
         DBUSER: "${{ secrets.DBUSER }}"
         DBPASS: "${{ secrets.DBPASS }}"
-        DBSSLMODE: "${{ secrets.DBSSLMODE }}"
         # Server
         SERVERENV: "${{ secrets.SERVERENV }}"
+        SERVERPORT: "${{ secrets.SERVERPORT }}"
         # Jwt
         JWTEXPIRE: "${{ secrets.JWTEXPIRE }}"
         JWTSECRET: "${{ secrets.JWTSECRET }}"
