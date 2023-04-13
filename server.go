@@ -16,7 +16,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
@@ -25,7 +24,6 @@ import (
 func main() {
 	// Initialize router
 	r := chi.NewRouter()
-	r.Use(cors.AllowAll().Handler)
 
 	configuration := config.LoadConfig()
 
