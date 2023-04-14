@@ -1,3 +1,3 @@
-import NotFound from '../lib/pages/not-found'
+import { NotFound } from '@views'
 
 export default NotFound

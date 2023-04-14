@@ -1,7 +1,7 @@
 import Head from 'next/head'
 
 import { useQuery } from '@apollo/client'
-import {HelloDocument} from '../../../gql/graphql'
+import {HelloDocument} from '@gql'
 
 import Search from './components/Search'
 

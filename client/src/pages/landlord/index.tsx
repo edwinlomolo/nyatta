@@ -1,3 +1,3 @@
-import Landlord from '../../lib/pages/landlord'
+import { Landlord } from '@views'
 
 export default Landlord

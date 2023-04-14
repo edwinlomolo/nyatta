@@ -4,12 +4,12 @@ import { UserProvider } from '@auth0/nextjs-auth0/client'
 import { getCookie } from 'cookies-next'
 import { ChakraProvider } from '@chakra-ui/react'
 
-import { theme } from '../lib/styles/theme'
+import { theme } from '@styles'
 
 import { ApolloProvider } from '@apollo/client'
-import { AuthProvider } from '../lib/auth'
-import { createClient } from '../lib/apollo'
-import Layout from '../lib/layout'
+import { AuthProvider } from '@auth'
+import { createClient } from '@apollo'
+import Layout from '@layout'
 
 export default function App({ Component, pageProps }: AppProps) {
   const client = createClient(getCookie('jwt'))

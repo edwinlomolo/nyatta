@@ -1,3 +1,3 @@
-import Listings from '../../lib/pages/listings'
+import { Listings } from '@views'
 
 export default Listings
