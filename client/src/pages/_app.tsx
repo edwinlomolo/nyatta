@@ -2,8 +2,9 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 import { getCookie } from 'cookies-next'
+import { ChakraProvider } from '@chakra-ui/react'
 
-import { Chakra } from '../lib/components'
+import { theme } from '../lib/styles/theme'
 
 import { ApolloProvider } from '@apollo/client'
 import { AuthProvider } from '../lib/auth'
@@ -17,7 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <UserProvider>
       <AuthProvider>
         <ApolloProvider client={client}>
-          <Chakra>
+          <ChakraProvider theme={theme}>
             <Head>
               <meta
                 name="viewport"
@@ -27,7 +28,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <Layout>
               <Component {...pageProps} />
             </Layout>
-          </Chakra>
+          </ChakraProvider>
         </ApolloProvider>
       </AuthProvider>
     </UserProvider>
