@@ -95,6 +95,7 @@ func TestMain(m *testing.M) {
 
 	os.Exit(exitCode)
 }
+
 func Test_unauthed_graphql_request(t *testing.T) {
 	var signIn struct {
 		SignIn struct {
