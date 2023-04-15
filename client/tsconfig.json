@@ -22,7 +22,7 @@
     "incremental": true,
     "baseUrl": "src",
     "paths": {
-      "@gql": ["gql/graphql.ts"],
+      "@gql": ["graphql/index.ts"],
       "@apollo": ["lib/apollo/index.ts"],
       "@auth": ["lib/auth/index.ts"],
       "@styles": ["lib/styles/index.ts"],
