@@ -1,13 +1,10 @@
 import Head from 'next/head'
 
 import { useQuery } from '@apollo/client'
-import {HelloDocument} from '@gql'
 
 import Search from './components/Search'
 
 function Listings() {
-  const { data } = useQuery(HelloDocument)
-
   return (
     <>
       <Head>
