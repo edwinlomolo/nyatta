@@ -1,8 +1,12 @@
+import { useState, useEffect } from 'react'
 import { ApolloClient, InMemoryCache, from, NormalizedCacheObject } from '@apollo/client'
 import { RetryLink } from '@apollo/client/link/retry'
 import { CookieValueTypes } from 'cookies-next'
+import { UseApolloClientParams, UseApolloClient } from './types'
 
 import { authLink, errorLink, httpLink } from './links'
+
+
 
 const createClient = (jwt?: CookieValueTypes): ApolloClient<NormalizedCacheObject> => {
   // Caching
@@ -38,4 +42,17 @@ const createClient = (jwt?: CookieValueTypes): ApolloClient<NormalizedCacheObjec
   })
 }
 
-export default createClient
+let apolloClient: ApolloClient<NormalizedCacheObject> | null
+export let getApolloClient = (): ApolloClient<NormalizedCacheObject> | null => apolloClient
+
+export function useApolloClient({ jwt }: UseApolloClientParams): UseApolloClient {
+  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)
+  useEffect(() => {
+    const nextClient = createClient(jwt)
+    apolloClient = nextClient
+    setClient(nextClient)
+  }, [jwt])
+
+  return { client }
+}
+

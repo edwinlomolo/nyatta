@@ -6,18 +6,19 @@ import { ChakraProvider } from '@chakra-ui/react'
 
 import { theme } from '@styles'
 
-import { ApolloProvider } from '@apollo/client'
+import { ApolloProvider, ApolloClient } from '@apollo/client'
 import { AuthProvider } from '@auth'
-import { createClient } from '@apollo'
+import { useApolloClient } from '@apollo'
 import Layout from '@layout'
 
 export default function App({ Component, pageProps }: AppProps) {
-  const client = createClient(getCookie('jwt'))
+  const jwt = getCookie('jwt')
+  const { client } = useApolloClient({ jwt })
 
   return (
     <UserProvider>
       <AuthProvider>
-        <ApolloProvider client={client}>
+        <ApolloProvider client={client as ApolloClient<any>}>
           <ChakraProvider theme={theme}>
             <Head>
               <meta

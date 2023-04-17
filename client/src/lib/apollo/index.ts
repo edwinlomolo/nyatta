@@ -1,3 +1,2 @@
-export { default as createClient } from './createClient'
-export * from './providers'
+export { getApolloClient, useApolloClient } from './createClient'
 export * from './queries'

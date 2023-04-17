@@ -6,7 +6,7 @@ import { setCookie, deleteCookie } from 'cookies-next'
 import AuthContext from './AuthContext'
 import { Http } from '../../utils'
 import { apiUrl } from '../../helpers'
-import { getApolloClient } from '../../apollo'
+import { getApolloClient } from '@apollo'
 
 interface Props {
   children: React.ReactNode
@@ -51,7 +51,7 @@ function AuthProvider({ children }: Props) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: isLoading,
+        isAuthenticated: !isLoading && !!user,
         isAuthenticating: isLoading,
         logout: handleLogout,
       }}
