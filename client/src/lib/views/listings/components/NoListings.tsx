@@ -1,8 +1,10 @@
-import { Box } from '@chakra-ui/react'
+import { Center, Text } from '@chakra-ui/react'
 
 function NoListings() {
   return (
-    <Box>No Listings Found</Box>
+    <Center textAlign="center">
+      <Text fontSize={{ base: "3xl", md: "4xl" }}>No Listings Found</Text>
+    </Center>
   )
 }
 

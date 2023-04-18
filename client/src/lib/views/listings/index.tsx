@@ -4,11 +4,12 @@ import { useQuery } from '@apollo/client'
 
 import { getListings } from '@gql'
 
+import { GlobalLoader } from '@components'
 import Search from './components/Search'
 import NoListings from './components/NoListings'
 
 function Listings() {
-  const { data } = useQuery(getListings, {
+  const { data, loading } = useQuery(getListings, {
     variables: {
       input: {
         town: "Ngong Hills",
@@ -24,7 +25,8 @@ function Listings() {
         <title>Search listings by town or postal code</title>
       </Head>
       <Search />
-      {data?.getListings.length === 0 && <NoListings />}
+      {loading && <GlobalLoader />}
+      {data?.getListings.length === 0 && !loading && <NoListings />}
     </>
   )
 }

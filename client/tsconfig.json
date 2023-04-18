@@ -29,7 +29,8 @@
       "@utils": ["lib/utils/index.ts"],
       "@views": ["lib/views/index.tsx"],
       "@layout": ["lib/layout/index.tsx"],
-      "@helpers": ["lib/helpers/index.ts"]
+      "@helpers": ["lib/helpers/index.ts"],
+      "@components": ["lib/components/index.tsx"]
     }
   },
   "include": [
