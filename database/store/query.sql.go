@@ -235,7 +235,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 
 const getListings = `-- name: GetListings :many
 SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
-WHERE town = $1 AND min_price >= $2 AND max_price <= $3
+WHERE town ILIKE $1 AND min_price >= $2 AND max_price <= $3
 `
 
 type GetListingsParams struct {

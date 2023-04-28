@@ -80,4 +80,4 @@ WHERE property_id = $1;
 
 -- name: GetListings :many
 SELECT * FROM properties
-WHERE town = $1 AND min_price >= $2 AND max_price <= $3;
+WHERE town ILIKE $1 AND min_price >= $2 AND max_price <= $3;
