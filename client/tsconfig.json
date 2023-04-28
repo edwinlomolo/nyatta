@@ -30,6 +30,7 @@
       "@views": ["lib/views/index.tsx"],
       "@layout": ["lib/layout/index.tsx"],
       "@helpers": ["lib/helpers/index.ts"],
+      "@form": ["lib/form/types.ts"],
       "@components": ["lib/components/index.tsx"]
     }
   },

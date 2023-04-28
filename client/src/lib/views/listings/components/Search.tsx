@@ -1,11 +1,19 @@
-import { useForm } from 'react-hook-form'
-
 import { Button, Flex, FormControl, FormErrorMessage, Input, Select } from '@chakra-ui/react'
 
+import { useSearchListings } from '../hooks/search-listings'
+
 function Search() {
-  const { handleSubmit, register, formState: { errors } } = useForm()
-  const onSubmit = (data: any) => {
-    console.log(data)
+  const { getListings, handleSubmit, register, formState: { errors } } = useSearchListings()
+  const onSubmit = async (data: any) => {
+    await getListings({
+      variables: {
+        input: {
+          town: data.town,
+          minPrice: Number(data.minPrice),
+          maxPrice: Number(data.maxPrice),
+        },
+      },
+    })
   }
 
   return (
@@ -44,6 +52,7 @@ function Search() {
             {...register('minPrice')}
             type="number"
             placeholder="Min price"
+            defaultValue="0"
           />
         </FormControl>
         <FormControl>

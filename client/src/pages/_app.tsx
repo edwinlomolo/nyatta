@@ -6,6 +6,8 @@ import { ChakraProvider } from '@chakra-ui/react'
 
 import { theme } from '@styles'
 
+import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
+
 import { ApolloProvider, ApolloClient } from '@apollo/client'
 import { AuthProvider } from '@auth'
 import { useApolloClient } from '@apollo'
@@ -26,9 +28,11 @@ export default function App({ Component, pageProps }: AppProps) {
                 content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover"
               />
             </Head>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <SearchListingProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </SearchListingProvider>
           </ChakraProvider>
         </ApolloProvider>
       </AuthProvider>
