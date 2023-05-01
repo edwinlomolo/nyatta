@@ -7,6 +7,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { theme } from '@styles'
 
 import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
+import { OnboardingProvider } from '../lib/views/landlord/providers/property-onboarding'
 
 import { ApolloProvider, ApolloClient } from '@apollo/client'
 import { AuthProvider } from '@auth'
@@ -29,9 +30,11 @@ export default function App({ Component, pageProps }: AppProps) {
               />
             </Head>
             <SearchListingProvider>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
+              <OnboardingProvider>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </OnboardingProvider>
             </SearchListingProvider>
           </ChakraProvider>
         </ApolloProvider>
