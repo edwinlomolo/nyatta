@@ -1,1 +1,6 @@
-DROP TABLE IF EXISTS users, properties, amenities, property_units, tenants, bedrooms CASCADE;
+DELETE FROM users CASCADE;
+DELETE FROM properties CASCADE;
+DELETE FROM amenities CASCADE;
+DELETE FROM property_units CASCADE;
+DELETE FROM tenants CASCADE;
+DELETE FROM bedrooms CASCADE;
