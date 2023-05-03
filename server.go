@@ -55,6 +55,7 @@ func main() {
 	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
 	ctx = context.WithValue(ctx, "listingService", listingService)
 	ctx = context.WithValue(ctx, "log", logger)
+	ctx = context.WithValue(ctx, "store", db)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 

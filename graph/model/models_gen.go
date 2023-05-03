@@ -17,10 +17,9 @@ type Bedroom struct {
 }
 
 type ListingsInput struct {
-	Town         string  `json:"town"`
-	PropertyType *string `json:"propertyType"`
-	MinPrice     *int    `json:"minPrice"`
-	MaxPrice     *int    `json:"maxPrice"`
+	Town     string `json:"town"`
+	MinPrice *int   `json:"minPrice"`
+	MaxPrice *int   `json:"maxPrice"`
 }
 
 type NewUser struct {
@@ -62,6 +61,12 @@ type Tenant struct {
 
 type Token struct {
 	Token string `json:"token"`
+}
+
+type Town struct {
+	ID         string `json:"id"`
+	Town       string `json:"town"`
+	PostalCode string `json:"postalCode"`
 }
 
 type UnitBedroomInput struct {

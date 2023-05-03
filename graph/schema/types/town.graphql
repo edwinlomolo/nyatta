@@ -1,0 +1,5 @@
+type Town {
+  id: ID!
+  town: String!
+  postalCode: String!
+}

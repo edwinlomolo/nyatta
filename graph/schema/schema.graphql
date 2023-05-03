@@ -66,6 +66,7 @@ type Query {
   getProperty(id: ID!): Property!
   hello: String!
   getListings(input: ListingsInput!): [Property!]!
+  searchTown(town: String!): [Town!]!
 }
 
 type Mutation {
