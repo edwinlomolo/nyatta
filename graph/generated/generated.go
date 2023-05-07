@@ -105,6 +105,7 @@ type ComplexityRoot struct {
 	Query struct {
 		GetListings func(childComplexity int, input model.ListingsInput) int
 		GetProperty func(childComplexity int, id string) int
+		GetTowns    func(childComplexity int) int
 		GetUser     func(childComplexity int, id string) int
 		Hello       func(childComplexity int) int
 		SearchTown  func(childComplexity int, town string) int
@@ -166,6 +167,7 @@ type QueryResolver interface {
 	Hello(ctx context.Context) (string, error)
 	GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error)
 	SearchTown(ctx context.Context, town string) ([]*model.Town, error)
+	GetTowns(ctx context.Context) ([]*model.Town, error)
 }
 type UserResolver interface {
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
@@ -513,6 +515,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetProperty(childComplexity, args["id"].(string)), true
 
+	case "Query.getTowns":
+		if e.complexity.Query.GetTowns == nil {
+			break
+		}
+
+		return e.complexity.Query.GetTowns(childComplexity), true
+
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
 			break
@@ -814,6 +823,7 @@ type Query {
   hello: String!
   getListings(input: ListingsInput!): [Property!]!
   searchTown(town: String!): [Town!]!
+  getTowns: [Town!]!
 }
 
 type Mutation {
@@ -3385,6 +3395,58 @@ func (ec *executionContext) fieldContext_Query_searchTown(ctx context.Context, f
 	if fc.Args, err = ec.field_Query_searchTown_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getTowns(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getTowns(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetTowns(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Town)
+	fc.Result = res
+	return ec.marshalNTown2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTownᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getTowns(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Town_id(ctx, field)
+			case "town":
+				return ec.fieldContext_Town_town(ctx, field)
+			case "postalCode":
+				return ec.fieldContext_Town_postalCode(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Town", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -7010,6 +7072,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_searchTown(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getTowns":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getTowns(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
