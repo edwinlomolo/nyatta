@@ -10,7 +10,7 @@ function Description() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FormControl mb={5} isInvalid={!!errors.name}>
+      <FormControl mb={5} isInvalid={Boolean(errors.name)}>
         <FormLabel>Name</FormLabel>
         <Input
           {...register('name', {
@@ -23,7 +23,7 @@ function Description() {
         />
         {errors.name && <FormErrorMessage>{`${errors.name.message}`}</FormErrorMessage>}
       </FormControl>
-      <FormControl mb={5} isInvalid={!!errors.propertyType}>
+      <FormControl mb={5} isInvalid={Boolean(errors.propertyType)}>
         <FormLabel>Property Type</FormLabel>
         <Select {...register('propertyType', { required: 'Property type is required' })} placeholder="Select property type">
           {propertyOptions.map((item, index) => <option key={index} value={item}>{item}</option>)}
