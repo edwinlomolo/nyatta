@@ -7,21 +7,9 @@ import { HStack, Spacer } from '@chakra-ui/react'
 
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
 
-import { LocationOption } from '../types'
-
 function Location() {
   const { control, towns, setValue, getValues, handleSubmit, register, formState: { errors }, setStep } = usePropertyOnboarding()
   const onSubmit = (data: any) => { console.log(data) }
-  const filterOptions = (inputValue: string) => {
-    setValue("postalCode", towns.find(item => item.label.toLowerCase() === inputValue.toLowerCase())?.postalCode)
-    return towns.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()))
-  }
-  const loadOptions = (inputValue: string, callback: (options: LocationOption[]) => void) => {
-    setTimeout(() => {
-      callback(filterOptions(inputValue))
-    }, 1000)
-  }
-
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -42,7 +30,6 @@ function Location() {
             />
           )}
         />
-        
         {errors.town && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
       </FormControl>
       <FormControl mb={5}>
