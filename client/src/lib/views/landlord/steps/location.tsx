@@ -27,6 +27,7 @@ function Location() {
               options={towns}
               onChange={(newV, _) => { setValue("town", newV); setValue("postalCode", newV?.postalCode) }}
               value={getValues()?.town}
+              placeholder="Select town"
             />
           )}
         />

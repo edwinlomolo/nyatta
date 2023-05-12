@@ -12,16 +12,18 @@ import { SearchListingForm } from '@form'
 
 export const SearchListingProvider = ({ children }: PropsWithChildren) => {
   const [getListings, { loading, data }] = useLazyQuery(GET_LISTINGS)
-  const { handleSubmit, register, formState, getValues } = useForm<SearchListingForm>({
+  const { handleSubmit, control, register, formState, getValues, setValue } = useForm<SearchListingForm>({
     defaultValues: { town: '', minPrice: 0, maxPrice: 0 },
   })
 
   return (
     <SearchListingContext.Provider
       value={{
+        control,
         getListings,
         handleSubmit,
         register,
+        setValue,
         formState,
         listingsLoading: loading,
         listingsData: data,

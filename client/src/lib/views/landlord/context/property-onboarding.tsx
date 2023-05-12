@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, createContext } from 'react'
 
 import { FormState, Control, UseFormRegister, UseFormGetValues, UseFormReset, UseFormSetValue, UseFormHandleSubmit, FieldValues } from 'react-hook-form'
 
-import { OnboardingSteps, LocationOption } from '../types'
+import { OnboardingSteps } from '../types'
 
 interface OnboardingContext {
   step: OnboardingSteps
@@ -10,7 +10,7 @@ interface OnboardingContext {
   handleSubmit: UseFormHandleSubmit<FieldValues>
   register: UseFormRegister<FieldValues>
   formState: FormState<FieldValues>
-  towns: LocationOption[]
+  towns: any[]
   control: Control<FieldValues>
   setValue: UseFormSetValue<FieldValues>
   getValues: UseFormGetValues<FieldValues>
@@ -23,7 +23,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   handleSubmit: {} as UseFormHandleSubmit<FieldValues>,
   formState: {} as FormState<FieldValues>,
   register: {} as UseFormRegister<FieldValues>,
-  towns: [] as LocationOption[],
+  towns: [],
   control: {} as Control<FieldValues>,
   setValue: {} as UseFormSetValue<FieldValues>,
   getValues: {} as UseFormGetValues<FieldValues>,

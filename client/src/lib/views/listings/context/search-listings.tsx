@@ -2,7 +2,7 @@ import { createContext } from 'react'
 
 import { LazyQueryResult, LazyQueryHookOptions, OperationVariables } from '@apollo/client'
 
-import { UseFormRegister, FieldValues, FormState, UseFormHandleSubmit } from 'react-hook-form'
+import { UseFormRegister, FieldValues, FormState, Control, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form'
 
 import { SearchListingForm } from '@form'
 
@@ -17,7 +17,9 @@ interface ISearchListings {
   getListings: GetListingsFunction
   listingsLoading: boolean
   listingsData: any
+  control: Control<SearchListingForm>
   formValues: any
+  setValue: UseFormSetValue<SearchListingForm>
 }
 
 export const SearchListingContext = createContext<ISearchListings>({
@@ -25,7 +27,9 @@ export const SearchListingContext = createContext<ISearchListings>({
   handleSubmit: {} as UseFormHandleSubmit<FieldValues>,
   formState: {} as FormState<FieldValues>,
   getListings: {} as GetListingsFunction,
+  setValue: {} as UseFormSetValue<SearchListingForm>,
   listingsLoading: false,
   listingsData: {},
+  control: {} as Control<SearchListingForm>,
   formValues: {},
 })
