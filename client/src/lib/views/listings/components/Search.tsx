@@ -2,8 +2,8 @@ import { Controller } from 'react-hook-form'
 import { Button, Flex, FormControl, FormErrorMessage, Input, Select as ChakraSelect } from '@chakra-ui/react'
 import Select from 'react-select'
 
-import { usePropertyOnboarding } from '../../landlord/hooks/property-onboarding'
-import { useSearchListings } from '../hooks/search-listings'
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { useSearchListings } from '@usePropertySearch'
 
 function Search() {
   const { towns } = usePropertyOnboarding()

@@ -2,7 +2,7 @@ import Head from 'next/head'
 
 import { Flex } from '@chakra-ui/react'
 
-import { usePropertyOnboarding } from './hooks/property-onboarding'
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { Description, Location } from './steps'
 
 function Landlord() {

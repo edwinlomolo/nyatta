@@ -5,7 +5,7 @@ import { GlobalLoader } from '@components'
 import Search from './components/Search'
 import NoListings from './components/NoListings'
 
-import { useSearchListings } from './hooks/search-listings'
+import { useSearchListings } from '@usePropertySearch'
 
 function Listings() {
   const { listingsData, listingsLoading } = useSearchListings()

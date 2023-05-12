@@ -31,7 +31,9 @@
       "@layout": ["lib/layout/index.tsx"],
       "@helpers": ["lib/helpers/index.ts"],
       "@form": ["lib/form/types.ts"],
-      "@components": ["lib/components/index.tsx"]
+      "@components": ["lib/components/index.tsx"],
+      "@usePropertyOnboarding": ["lib/views/landlord/hooks/property-onboarding.tsx"],
+      "@usePropertySearch": ["lib/views/listings/hooks/search-listings.tsx"]
     }
   },
   "include": [
