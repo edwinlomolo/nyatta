@@ -2,7 +2,7 @@ import { Button, FormControl, FormLabel, Input, Select, FormErrorMessage } from 
 
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
 
-const propertyOptions = ['Condo', 'Apartment', 'Bungalow', 'Keja']
+const propertyOptions = ['Apartment', 'Bungalow', 'Condominium', 'Keja']
 
 function Description() {
   const { handleSubmit, register, formState: { errors }, setStep } = usePropertyOnboarding()
