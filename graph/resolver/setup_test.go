@@ -17,7 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// makeLoginUser - return authed usej
+// makeLoginUser - return authed user
 func makeLoginUser() string {
 	var creds struct {
 		AccessToken string `json:"access_token"`
