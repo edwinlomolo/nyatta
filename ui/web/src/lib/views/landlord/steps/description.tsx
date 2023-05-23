@@ -12,7 +12,7 @@ function Description() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <SimpleGrid columns={2} spacing={10}>
+      <SimpleGrid columns={2} spacing={{ base: 4, md: 14 }}>
         <VStack>
           <FormControl mb={5} isInvalid={Boolean(errors.name)}>
             <FormLabel>Name</FormLabel>
@@ -37,7 +37,6 @@ function Description() {
             {errors.propertyType && <FormErrorMessage>{`${errors.propertyType.message}`}</FormErrorMessage>}
           </FormControl>
         </VStack>
-        {/* Town */}
         <VStack>
           <FormControl mb={5}>
             <FormLabel>Town</FormLabel>
@@ -59,7 +58,6 @@ function Description() {
             />
             {errors.town && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
           </FormControl>
-          {/* Postal Code autofilled with Town select */}
           <FormControl mb={5}>
             <FormLabel>Postal Code</FormLabel>
             <Input
@@ -68,7 +66,6 @@ function Description() {
             />
           </FormControl>
         </VStack>
-        {/* Min Price/Max Price/Uni Price - depending on property type(made up of units/single home) */}
         <VStack>
           <FormControl mb={5}>
             <FormLabel>Min Price</FormLabel>
