@@ -12,9 +12,9 @@ function Description() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 14 }}>
-        <VStack>
-          <FormControl mb={5} isInvalid={Boolean(errors.name)}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 8 }}>
+        <VStack spacing={{ base: 4, md: 6 }}>
+          <FormControl isInvalid={Boolean(errors.name)}>
             <FormLabel>Name</FormLabel>
             <Input
               {...register('name', {
@@ -28,7 +28,7 @@ function Description() {
             <FormHelperText>This is the name of your property</FormHelperText>
             {errors.name && <FormErrorMessage>{`${errors.name.message}`}</FormErrorMessage>}
           </FormControl>
-          <FormControl mb={5} isInvalid={Boolean(errors.propertyType)}>
+          <FormControl>
             <FormLabel>Property Type</FormLabel>
             <ChakraSelect {...register('propertyType', { required: 'Property type is required' })} placeholder="Select property type">
               {propertyOptions.map((item, index) => <option key={index} value={item}>{item}</option>)}
@@ -36,7 +36,7 @@ function Description() {
             <FormHelperText>This is your property type</FormHelperText>
             {errors.propertyType && <FormErrorMessage>{`${errors.propertyType.message}`}</FormErrorMessage>}
           </FormControl>
-          <FormControl mb={5}>
+          <FormControl>
             <FormLabel>Town</FormLabel>
             <Controller
               name="town"
@@ -57,23 +57,23 @@ function Description() {
             {errors.town && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
           </FormControl>
         </VStack>
-        <VStack>
-          <FormControl mb={5}>
+        <VStack spacing={{ base: 4, md: 6 }}>
+          <FormControl>
             <FormLabel>Postal Code</FormLabel>
             <Input
               disabled
               {...register("postalCode")}
             />
           </FormControl>
-          <FormControl mb={5}>
-            <FormLabel>Min Price</FormLabel>
+          <FormControl>
+            <FormLabel>Minimum Price</FormLabel>
             <Input
               type="number"
             />
             <FormHelperText>This is the lowest priced unit</FormHelperText>
           </FormControl>
-          <FormControl mb={5}>
-            <FormLabel mb={5}>Max Price</FormLabel>
+          <FormControl>
+            <FormLabel>Maximum Price</FormLabel>
             <Input
               type="number"
             />
