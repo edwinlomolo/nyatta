@@ -1,36 +1,91 @@
-import { Button, FormControl, FormLabel, Input, Select, FormErrorMessage } from '@chakra-ui/react'
+import { FormControl, FormLabel, Input, Select as ChakraSelect, FormErrorMessage, FormHelperText, SimpleGrid, VStack } from '@chakra-ui/react'
+import Select from 'react-select'
+import { Controller } from 'react-hook-form'
 
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
 
-const propertyOptions = ['Apartment', 'Bungalow', 'Condominium', 'Keja']
+const propertyOptions = ['Apartment', 'Bungalow', 'Condominium']
 
 function Description() {
-  const { handleSubmit, register, formState: { errors }, setStep } = usePropertyOnboarding()
+  const { control, towns, setValue, getValues, handleSubmit, register, formState: { errors }, setStep } = usePropertyOnboarding()
   const onSubmit = () => setStep('location')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FormControl mb={5} isInvalid={Boolean(errors.name)}>
-        <FormLabel>Name</FormLabel>
-        <Input
-          {...register('name', {
-            required: 'Property name is required',
-            pattern: {
-              value: /^[A-Za-z ]+$/i,
-              message: 'Should be a string value',
-            }
-          })}
-        />
-        {errors.name && <FormErrorMessage>{`${errors.name.message}`}</FormErrorMessage>}
-      </FormControl>
-      <FormControl mb={5} isInvalid={Boolean(errors.propertyType)}>
-        <FormLabel>Property Type</FormLabel>
-        <Select {...register('propertyType', { required: 'Property type is required' })} placeholder="Select property type">
-          {propertyOptions.map((item, index) => <option key={index} value={item}>{item}</option>)}
-        </Select>
-        {errors.propertyType && <FormErrorMessage>{`${errors.propertyType.message}`}</FormErrorMessage>}
-      </FormControl>
-      <Button colorScheme="green" type="submit">Next</Button>
+      <SimpleGrid columns={2} spacing={10}>
+        <VStack>
+          <FormControl mb={5} isInvalid={Boolean(errors.name)}>
+            <FormLabel>Name</FormLabel>
+            <Input
+              {...register('name', {
+                required: 'Property name is required',
+                pattern: {
+                  value: /^[A-Za-z ]+$/i,
+                  message: 'Should be a string value',
+                }
+              })}
+            />
+            <FormHelperText>This is the name of your property</FormHelperText>
+            {errors.name && <FormErrorMessage>{`${errors.name.message}`}</FormErrorMessage>}
+          </FormControl>
+          <FormControl mb={5} isInvalid={Boolean(errors.propertyType)}>
+            <FormLabel>Property Type</FormLabel>
+            <ChakraSelect {...register('propertyType', { required: 'Property type is required' })} placeholder="Select property type">
+              {propertyOptions.map((item, index) => <option key={index} value={item}>{item}</option>)}
+            </ChakraSelect>
+            <FormHelperText>This is your property type</FormHelperText>
+            {errors.propertyType && <FormErrorMessage>{`${errors.propertyType.message}`}</FormErrorMessage>}
+          </FormControl>
+        </VStack>
+        {/* Town */}
+        <VStack>
+          <FormControl mb={5}>
+            <FormLabel>Town</FormLabel>
+            <Controller
+              name="town"
+              control={control}
+              rules={{ required: { value: true, message: "This is required" } }}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  isClearable
+                  isSearchable
+                  options={towns}
+                  onChange={(newV, _) => { setValue("town", newV); setValue("postalCode", newV?.postalCode) }}
+                  value={getValues()?.town}
+                  placeholder="Select town"
+                />
+              )}
+            />
+            {errors.town && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
+          </FormControl>
+          {/* Postal Code autofilled with Town select */}
+          <FormControl mb={5}>
+            <FormLabel>Postal Code</FormLabel>
+            <Input
+              disabled
+              {...register("postalCode")}
+            />
+          </FormControl>
+        </VStack>
+        {/* Min Price/Max Price/Uni Price - depending on property type(made up of units/single home) */}
+        <VStack>
+          <FormControl mb={5}>
+            <FormLabel>Min Price</FormLabel>
+            <Input
+              type="number"
+            />
+            <FormHelperText>This is the lowest priced unit</FormHelperText>
+          </FormControl>
+          <FormControl mb={5}>
+            <FormLabel mb={5}>Max Price</FormLabel>
+            <Input
+              type="number"
+            />
+            <FormHelperText>This is the highest priced unit</FormHelperText>
+          </FormControl>
+        </VStack>
+      </SimpleGrid>
    </form>
   )
 }
