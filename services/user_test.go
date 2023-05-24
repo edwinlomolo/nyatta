@@ -26,6 +26,7 @@ var (
 	tenancyService  *TenancyServices
 	queries         *sqlStore.Queries
 	configuration   *config.Configuration
+	postaService    *PostaServices
 )
 
 func TestMain(m *testing.M) {
@@ -48,6 +49,7 @@ func TestMain(m *testing.M) {
 	unitService = NewUnitService(queries, logger)
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)
+	postaService = NewPostaService()
 
 	// exit once done
 	os.Exit(m.Run())

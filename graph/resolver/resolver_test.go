@@ -35,6 +35,7 @@ var (
 	configuration   *config.Configuration
 	err             error
 	db              *sql.DB
+	postaService    *services.PostaServices
 )
 
 // setup tests
@@ -65,6 +66,7 @@ func TestMain(m *testing.M) {
 	unitService = services.NewUnitService(queries, logger)
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
+	postaService = services.NewPostaService()
 
 	// Setup context
 	ctx = context.Background()
@@ -77,6 +79,7 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "listingService", listingService)
 	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "store", db)
+	ctx = context.WithValue(ctx, "postaService", postaService)
 
 	// Run test
 	exitCode := m.Run()

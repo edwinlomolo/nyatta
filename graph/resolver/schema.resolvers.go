@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/config"
@@ -103,31 +102,9 @@ func (r *queryResolver) GetListings(ctx context.Context, input model.ListingsInp
 // SearchTown is the resolver for the searchTown field.
 func (r *queryResolver) SearchTown(ctx context.Context, town string) ([]*model.Town, error) {
 	var towns []*model.Town
-	store := ctx.Value("store").(*sql.DB)
-
-	query := `SELECT id, town, postal_code FROM postal_towns WHERE town ~* $1`
-	rows, err := store.Query(query, town)
+	towns, err := ctx.Value("postaService").(*services.PostaServices).SearchTown(town)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		// Scan row into variables
-		var id string
-		var town string
-		var postalCode string
-
-		err = rows.Scan(&id, &town, &postalCode)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-		}
-		towns = append(towns, &model.Town{ID: id, Town: town, PostalCode: postalCode})
-	}
-
-	// Rows.Err will report last error encountered by Rows.Scan
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
 	}
 
 	return towns, nil
@@ -136,30 +113,10 @@ func (r *queryResolver) SearchTown(ctx context.Context, town string) ([]*model.T
 // GetTowns is the resolver for the getTowns field.
 func (r *queryResolver) GetTowns(ctx context.Context) ([]*model.Town, error) {
 	var towns []*model.Town
-	store := ctx.Value("store").(*sql.DB)
+	towns, err := ctx.Value("postaService").(*services.PostaServices).GetTowns()
 
-	query := `SELECT id, town, postal_code FROM postal_towns ORDER BY town;`
-	rows, err := store.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var id string
-		var town string
-		var postalCode string
-
-		err = rows.Scan(&id, &town, &postalCode)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-		}
-		towns = append(towns, &model.Town{ID: id, Town: town, PostalCode: postalCode})
-	}
-
-	// Rows.Err will report last error encountered by Rows.Scan
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
 	}
 
 	return towns, nil

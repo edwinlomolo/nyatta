@@ -45,6 +45,7 @@ func main() {
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
 	listingService := services.NewListingService(queries, logger)
+	postaService := services.NewPostaService()
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())
@@ -56,6 +57,7 @@ func main() {
 	ctx = context.WithValue(ctx, "listingService", listingService)
 	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "store", db)
+	ctx = context.WithValue(ctx, "postaService", postaService)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 
