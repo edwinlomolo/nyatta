@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 
 import { getTowns as GET_TOWNS } from '@gql'
 import { OnboardingContext } from '../context/property-onboarding'
-import { OnboardingSteps } from '../types'
+import { OnboardingStep } from '../types'
 
 export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   // For default towns select input
@@ -18,7 +18,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
     postalCode: item.postalCode,
   }))
 
-  const [step, setStep] = useState<OnboardingSteps>('units')
+  const [step, setStep] = useState<OnboardingStep>('units')
   const { control, getValues, reset, setValue, handleSubmit, formState, register } = useForm()
 
   return (

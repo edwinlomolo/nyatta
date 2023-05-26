@@ -7,6 +7,13 @@ const colorConfig: ThemeConfig = {
 
 export const theme = extendTheme({
   config: colorConfig,
+  components: {
+    FormLabel: {
+      baseStyle: {
+        fontWeight: "bold",
+      },
+    },
+  },
   //fonts,
   styles: {
     global: (props: StyleFunctionProps) => ({})

@@ -2,11 +2,11 @@ import { Dispatch, SetStateAction, createContext } from 'react'
 
 import { FormState, Control, UseFormRegister, UseFormGetValues, UseFormReset, UseFormSetValue, UseFormHandleSubmit, FieldValues } from 'react-hook-form'
 
-import { OnboardingSteps } from '../types'
+import { OnboardingStep } from '../types'
 
 interface OnboardingContext {
-  step: OnboardingSteps
-  setStep: Dispatch<SetStateAction<OnboardingSteps>>
+  step: OnboardingStep
+  setStep: Dispatch<SetStateAction<OnboardingStep>>
   handleSubmit: UseFormHandleSubmit<FieldValues>
   register: UseFormRegister<FieldValues>
   formState: FormState<FieldValues>

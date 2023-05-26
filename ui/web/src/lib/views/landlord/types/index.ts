@@ -1,4 +1,4 @@
-export type OnboardingSteps = 'description' | 'location' | 'amenities' | 'pricing' | 'caretaker' | 'units'
+export type OnboardingStep = 'description' | 'location' | 'amenities' | 'pricing' | 'caretaker' | 'units'
 
 export type LocationOption = {
   readonly label: string
