@@ -8,17 +8,8 @@ const colorConfig: ThemeConfig = {
 export const theme = extendTheme({
   config: colorConfig,
   //fonts,
-  /*
-  components: {
-    Button,
-  },
-  */
   styles: {
-    global: (props: StyleFunctionProps) => ({
-      body: {
-        bg: "#ffff",
-      },
-    })
+    global: (props: StyleFunctionProps) => ({})
   },
 })
 

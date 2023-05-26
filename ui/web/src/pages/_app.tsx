@@ -22,7 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <UserProvider>
       <AuthProvider>
         <ApolloProvider client={client as ApolloClient<any>}>
-          <ChakraProvider theme={theme}>
+          <ChakraProvider theme={theme} cssVarsRoot="body">
             <Head>
               <meta
                 name="viewport"

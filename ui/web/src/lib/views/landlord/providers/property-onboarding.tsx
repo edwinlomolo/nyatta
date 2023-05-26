@@ -9,6 +9,7 @@ import { OnboardingContext } from '../context/property-onboarding'
 import { OnboardingSteps } from '../types'
 
 export const OnboardingProvider = ({ children }: PropsWithChildren) => {
+  // For default towns select input
   const { data } = useQuery(GET_TOWNS)
   const locations = data?.getTowns.map((item: any) => ({
     id: item.id,
@@ -17,7 +18,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
     postalCode: item.postalCode,
   }))
 
-  const [step, setStep] = useState<OnboardingSteps>('description')
+  const [step, setStep] = useState<OnboardingSteps>('units')
   const { control, getValues, reset, setValue, handleSubmit, formState, register } = useForm()
 
   return (
