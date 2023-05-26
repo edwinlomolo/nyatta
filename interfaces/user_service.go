@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 )
 
 type UserService interface {

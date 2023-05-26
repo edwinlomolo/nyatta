@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.17.16
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.7

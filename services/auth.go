@@ -8,7 +8,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,7 +19,7 @@ type AuthServices struct {
 	expiresIn *time.Duration
 }
 
-//_ - AuthServices{} implements AuthService
+// _ - AuthServices{} implements AuthService
 var _ interfaces.AuthService = &AuthServices{}
 
 // NewAuthService - factory for auth services
@@ -44,13 +44,13 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 func (a *AuthServices) ValidateJWT(tokenString *string) (*jwt.Token, error) {
 	token, err := jwt.Parse(*tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
 		return []byte(*a.secret), nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("unexpected error while parsing token: %v", err)
+		return nil, fmt.Errorf("Unexpected error while parsing token: %v", err)
 	}
 	return token, nil
 }

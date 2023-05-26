@@ -10,7 +10,7 @@ import (
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 )
 
