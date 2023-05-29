@@ -1,5 +1,5 @@
 # Nyatta
 
-[![CircleCI](https://circleci.com/gh/3dw1nM0535/nyatta.svg?style=svg&circle-token=a45e9a30a017b70062a96038f94663599b43541e)](https://app.circleci.com/pipelines/github/3dw1nM0535)
+![Test](https://github.com/3dw1nM0535/nyatta/actions/workflows/test.yml/badge.svg) ![Deploy](https://github.com/3dw1nM0535/nyatta/actions/workflows/deploy.yml/badge.svg)
 
 Find apartments for longer stays in your local town
