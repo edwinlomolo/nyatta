@@ -12,6 +12,8 @@ jobs:
         # Provide credentials for postgres
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -30,11 +32,11 @@ jobs:
       env:
         # DB
         DBDRIVER: "${{ secrets.DBDRIVER }}"
-        DBHOST: localhost
-        DBPORT: 5432
-        DBNAME: postgres
-        DBUSER: postgres
-        DBPASS: postgres
+        DBHOST: "${{ secrets.DBHOST }}"
+        DBPORT: "${{ secrets.DBPORT }}"
+        DBNAME: "${{ secrets.DBNAME }}"
+        DBUSER: "${{ secrets.DBUSER }}"
+        DBPASS: "${{ secrets.DBPASS }}"
         # Server
         SERVERENV: "${{ secrets.SERVERENV }}"
         SERVERPORT: "${{ secrets.SERVERPORT }}"
