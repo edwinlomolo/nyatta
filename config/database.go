@@ -6,6 +6,7 @@ type DatabaseConfig struct {
 
 // RDBMS - relational databases variables
 type RDBMS struct {
+	Uri string
 	Env struct {
 		Driver  string
 		Host    string

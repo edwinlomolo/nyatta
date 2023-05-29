@@ -77,6 +77,7 @@ func databaseRDBMS() DatabaseConfig {
 	env()
 
 	// Env
+	databaseConfig.RDBMS.Uri = os.Getenv("DATABASE_URI")
 	databaseConfig.RDBMS.Env.Driver = os.Getenv("DBDRIVER")
 	databaseConfig.RDBMS.Env.Host = os.Getenv("DBHOST")
 	databaseConfig.RDBMS.Env.Port = os.Getenv("DBPORT")
