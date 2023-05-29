@@ -80,6 +80,7 @@ func databaseRDBMS() DatabaseConfig {
 	databaseConfig.RDBMS.Env.Driver = os.Getenv("DBDRIVER")
 	databaseConfig.RDBMS.Env.Host = os.Getenv("DBHOST")
 	databaseConfig.RDBMS.Env.Port = os.Getenv("DBPORT")
+	databaseConfig.RDBMS.Env.SslMode = os.Getenv("SSL_MODE")
 	// Access
 	databaseConfig.RDBMS.Access.DbName = os.Getenv("DBNAME")
 	databaseConfig.RDBMS.Access.User = os.Getenv("DBUSER")
