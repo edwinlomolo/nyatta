@@ -6,6 +6,16 @@ jobs:
   deploy:
     name: Test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        # Provide credentials for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
     steps:
     # Checkout code
     - name: Checkout code
@@ -20,11 +30,11 @@ jobs:
       env:
         # DB
         DBDRIVER: "${{ secrets.DBDRIVER }}"
-        DBHOST: "${{ secrets.DBHOST }}"
-        DBPORT: "${{ secrets.DBPORT }}"
-        DBNAME: "${{ secrets.DBNAME }}"
-        DBUSER: "${{ secrets.DBUSER }}"
-        DBPASS: "${{ secrets.DBPASS }}"
+        DBHOST: localhost
+        DBPORT: 5432
+        DBNAME: postgres
+        DBUSER: postgres
+        DBPASS: postgres
         # Server
         SERVERENV: "${{ secrets.SERVERENV }}"
         SERVERPORT: "${{ secrets.SERVERPORT }}"
