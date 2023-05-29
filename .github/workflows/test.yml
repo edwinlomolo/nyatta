@@ -6,6 +6,20 @@ jobs:
   deploy:
     name: Test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        # Provide credentials for postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
     steps:
     # Checkout code
     - name: Checkout code
@@ -15,16 +29,19 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ^1.19
+    - name: Set up PostgreSQL
+      run: |
+        sudo apt-get -yqq install postgresql-client
+        psql --version
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'DROP DATABASE IF EXISTS test_db;'
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE test_db;'
     - name: Test
       # Env vars
       env:
         # DB
+        POSTAL_DATABASE_URI: "${{ secrets.POSTAL_DATABASE_URI }}"
+        DATABASE_URI: "${{ secrets.DATABASE_URI }}"
         DBDRIVER: "${{ secrets.DBDRIVER }}"
-        DBHOST: "${{ secrets.DBHOST }}"
-        DBPORT: "${{ secrets.DBPORT }}"
-        DBNAME: "${{ secrets.DBNAME }}"
-        DBUSER: "${{ secrets.DBUSER }}"
-        DBPASS: "${{ secrets.DBPASS }}"
         # Server
         SERVERENV: "${{ secrets.SERVERENV }}"
         SERVERPORT: "${{ secrets.SERVERPORT }}"

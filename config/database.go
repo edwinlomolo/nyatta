@@ -6,14 +6,11 @@ type DatabaseConfig struct {
 
 // RDBMS - relational databases variables
 type RDBMS struct {
+	Uri    string
+	Postal struct {
+		Uri string
+	}
 	Env struct {
 		Driver string
-		Host   string
-		Port   string
-	}
-	Access struct {
-		DbName string
-		User   string
-		Pass   string
 	}
 }
