@@ -7,9 +7,10 @@ type DatabaseConfig struct {
 // RDBMS - relational databases variables
 type RDBMS struct {
 	Env struct {
-		Driver string
-		Host   string
-		Port   string
+		Driver  string
+		Host    string
+		Port    string
+		SslMode string
 	}
 	Access struct {
 		DbName string
