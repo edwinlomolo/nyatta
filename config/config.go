@@ -77,6 +77,7 @@ func databaseRDBMS() DatabaseConfig {
 	env()
 
 	// Env
+	databaseConfig.RDBMS.Postal.Uri = os.Getenv("POSTAL_DATABASE_URI")
 	databaseConfig.RDBMS.Uri = os.Getenv("DATABASE_URI")
 	databaseConfig.RDBMS.Env.Driver = os.Getenv("DBDRIVER")
 	databaseConfig.RDBMS.Env.Host = os.Getenv("DBHOST")

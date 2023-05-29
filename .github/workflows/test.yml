@@ -39,6 +39,7 @@ jobs:
       # Env vars
       env:
         # DB
+        POSTAL_DATABASE_URI: "${{ secrets.POSTAL_DATABASE_URI }}"
         DATABASE_URI: "${{ secrets.DATABASE_URI }}"
         DBDRIVER: "${{ secrets.DBDRIVER }}"
         DBHOST: "${{ secrets.DBHOST }}"

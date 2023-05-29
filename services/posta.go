@@ -35,7 +35,7 @@ func newPostalStorage() (*sql.DB, error) {
 	//dbUri := fmt.Sprintf("postgres://%s:%s@%s:%s/local", dbConfig.Access.User, dbConfig.Access.Pass, dbConfig.Env.Host, dbConfig.Env.Port)
 
 	// get database instance
-	db, err := sql.Open(dbConfig.Env.Driver, dbConfig.Uri)
+	db, err := sql.Open(dbConfig.Env.Driver, dbConfig.Postal.Uri)
 	if err != nil {
 		log.Errorf("%s:%s", config.DatabaseError, err.Error())
 	}
