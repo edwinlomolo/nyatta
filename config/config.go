@@ -80,13 +80,6 @@ func databaseRDBMS() DatabaseConfig {
 	databaseConfig.RDBMS.Postal.Uri = os.Getenv("POSTAL_DATABASE_URI")
 	databaseConfig.RDBMS.Uri = os.Getenv("DATABASE_URI")
 	databaseConfig.RDBMS.Env.Driver = os.Getenv("DBDRIVER")
-	databaseConfig.RDBMS.Env.Host = os.Getenv("DBHOST")
-	databaseConfig.RDBMS.Env.Port = os.Getenv("DBPORT")
-	databaseConfig.RDBMS.Env.SslMode = os.Getenv("SSL_MODE")
-	// Access
-	databaseConfig.RDBMS.Access.DbName = os.Getenv("DBNAME")
-	databaseConfig.RDBMS.Access.User = os.Getenv("DBUSER")
-	databaseConfig.RDBMS.Access.Pass = os.Getenv("DBPASS")
 
 	return databaseConfig
 }

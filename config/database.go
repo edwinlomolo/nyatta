@@ -11,14 +11,6 @@ type RDBMS struct {
 		Uri string
 	}
 	Env struct {
-		Driver  string
-		Host    string
-		Port    string
-		SslMode string
-	}
-	Access struct {
-		DbName string
-		User   string
-		Pass   string
+		Driver string
 	}
 }

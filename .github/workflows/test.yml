@@ -42,11 +42,6 @@ jobs:
         POSTAL_DATABASE_URI: "${{ secrets.POSTAL_DATABASE_URI }}"
         DATABASE_URI: "${{ secrets.DATABASE_URI }}"
         DBDRIVER: "${{ secrets.DBDRIVER }}"
-        DBHOST: "${{ secrets.DBHOST }}"
-        DBPORT: "${{ secrets.DBPORT }}"
-        DBNAME: "${{ secrets.DBNAME }}"
-        DBUSER: "${{ secrets.DBUSER }}"
-        DBPASS: "${{ secrets.DBPASS }}"
         # Server
         SERVERENV: "${{ secrets.SERVERENV }}"
         SERVERPORT: "${{ secrets.SERVERPORT }}"
