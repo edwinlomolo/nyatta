@@ -29,7 +29,7 @@ func InitDB(migrationUrl string) (*sql.DB, error) {
 	pass := configureDB.Access.Pass
 	name := configureDB.Access.DbName
 
-	dbUri := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", user, pass, host, port, name)
+	dbUri := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, pass, host, port, name)
 
 	db, err := sql.Open(driver, dbUri)
 	if err != nil {
