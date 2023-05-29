@@ -37,10 +37,17 @@ func InitDB(migrationUrl string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	if err := db.Ping(); err == nil {
-		dbClient = db
-		log.Info("Database is connected")
+	status := "up"
+	if err := db.Ping(); err != nil {
+		status = "down"
+		log.Errorf("%s:%s", config.DatabaseError, err.Error())
 	}
+
+	dbClient = db
+	if dbClient == nil {
+		log.Errorf("%s:%s", config.DatabaseError, "nil db instance")
+	}
+	log.Infof("Database is %s", status)
 
 	// Setup database schema
 	if err := runDbMigration(dbClient, migrationUrl); err == nil {
