@@ -22,7 +22,7 @@ function HomeHeader() {
           </Box>
           <Box>
             <Button as="a" href="/landlord" size="lg">
-              Landlord
+              Home Owner
             </Button>
           </Box>
         </Flex>

@@ -31,7 +31,7 @@ function Navigation() {
             </>
           }
           options={[
-            {text: <Link href="/landlord">Landlord</Link>}
+            {text: <Link href="/landlord">Home Owner</Link>}
           ]}
         />
       </Flex>
