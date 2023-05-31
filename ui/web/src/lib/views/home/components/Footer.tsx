@@ -13,7 +13,7 @@ function Footer() {
         </Text>
         <Text
           as="a"
-          href="mailto:info@nyatta.app"
+          href="mailto:edwinmoses535@gmail.com"
           _hover={{
             cursor: "pointer",
           }}

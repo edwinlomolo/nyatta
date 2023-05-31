@@ -5,7 +5,6 @@ function HomeHeader() {
     <Flex>
       <Box
         w="100%"
-        h="50vh"
         mb="80px"
       >
         <Heading size="3xl" mt="80px" textAlign="center">
