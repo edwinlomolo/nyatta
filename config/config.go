@@ -22,6 +22,7 @@ type Configuration struct {
 	Database  DatabaseConfig
 	JwtConfig Jwt
 	Server    ServerConfig
+	Aws       AwsConfig
 }
 
 var configAll *Configuration
@@ -33,6 +34,7 @@ func LoadConfig() *Configuration {
 	configuration.Database = database()
 	configuration.JwtConfig = jsonWebToken()
 	configuration.Server = server()
+	configuration.Aws = awsConfig()
 
 	configAll = &configuration
 
@@ -110,4 +112,17 @@ func IsPrototypeEnv() bool {
 	serverEnv := os.Getenv("SERVERENV")
 
 	return (serverEnv == "development" || serverEnv == "test")
+}
+
+// awsConfig - setup aws config
+func awsConfig() AwsConfig {
+	var aws AwsConfig
+
+	// Load env variables
+	env()
+
+	aws.AccessKey = os.Getenv("ACCESS_KEY")
+	aws.SecretAccessKey = os.Getenv("SECRET_ACCESS_KEY")
+
+	return aws
 }
