@@ -22,14 +22,14 @@ function Units() {
       <VStack overflowY="auto" h="20vh" spacing={{ base: 4, md: 6 }}>
         {fields.map((unit, unitIndex) => (
           <Box w="100%" gap={4} key={unitIndex} >
-          <FormControl isInvalid={Boolean(errors?.unitName)}>
+          <FormControl isInvalid={Boolean(errors?.units)}>
             <FormLabel>Unit name</FormLabel>
             <Input
               size="sm"
-              {...register("unitName", { required: "Unit name is required" })}
+              {...register("units", { required: "Unit name is required" })}
               placeholder="Name/ID"
             />
-            {errors?.unitName && <FormErrorMessage>{`${errors?.unitName.message}`}</FormErrorMessage>}
+            {errors?.units && <FormErrorMessage>{`${errors?.units.message}`}</FormErrorMessage>}
             <FormHelperText>How do you name your units?</FormHelperText>
           </FormControl>
           </Box>
