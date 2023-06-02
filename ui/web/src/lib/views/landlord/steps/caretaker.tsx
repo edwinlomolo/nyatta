@@ -88,7 +88,7 @@ function Caretaker() {
           >
             <Icon as={FaUpload} />
           </Textarea>
-          <input id="badgeImageURL" {...register('badgeImageURL')} {...getInputProps()} />
+          <input {...register('idVerification')} {...getInputProps()} />
           {errors?.idVerification && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}
           <FormHelperText>Government issued document</FormHelperText>
         </FormControl>
