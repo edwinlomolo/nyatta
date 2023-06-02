@@ -1,6 +1,8 @@
-import { Button, HStack, FormControl, FormErrorMessage, FormLabel, Input, Spacer, VStack } from '@chakra-ui/react'
+import { Box, Center, Button, HStack, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useDropzone } from 'react-dropzone'
+import { FaUpload } from 'react-icons/fa'
 
 import { useForm, SubmitHandler } from 'react-hook-form'
 
@@ -10,30 +12,87 @@ import { caretakerSchema } from '../validations'
 import { CaretakerForm } from '../types'
 
 function Caretaker() {
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
-  const { register, handleSubmit, formState: { errors } } = useForm<CaretakerForm>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CaretakerForm>({
     defaultValues: caretakerForm,
     resolver: yupResolver(caretakerSchema),
   })
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      "image/*": ['.jpeg', '.jpg', '.png', '.gif'],
+    },
+    multiple: false,
+    onDrop: acceptedFiles => {
+      // TODO upload to s3
+      setValue("caretakerForm.idVerification", "idVerification")
+    },
+  })
 
+  // TODO caretaker phone verification flow
   const onSubmit: SubmitHandler<CaretakerForm> = data => {
     setCaretakerForm(data)
-    setStep("units")
+    // TODO Send verification code to phone
+    onOpen()
+    // TODO proceed
   }
   const goBack = () => setStep("pricing")
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <VStack spacing={{ base: 4, md: 6 }}>
-        <FormControl isInvalid={Boolean(errors?.firstName)}>
-          <FormLabel>First Name</FormLabel>
-          <Input
-            {...register("firstName")}
-          />
-          {errors?.firstName && <FormErrorMessage>{errors?.firstName.message}</FormErrorMessage>}
+      <Stack align="center" direction={{ base: "column", md: "row" }} spacing={{ base: 4, md: 6 }}>
+        <Modal isCentered isOpen={isOpen} onClose={onClose}>
+          <ModalContent>
+            <ModalHeader>Verify Phone</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              Phone Verification
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+        <Box w="100%">
+          <FormControl isInvalid={Boolean(errors?.firstName)}>
+            <FormLabel>First Name</FormLabel>
+            <Input
+              {...register("firstName")}
+            />
+            {errors?.firstName && <FormErrorMessage>{errors?.firstName.message}</FormErrorMessage>}
+          </FormControl>
+          <FormControl isInvalid={Boolean(errors?.lastName)}>
+            <FormLabel>Last Name</FormLabel>
+            <Input
+              {...register("lastName")}
+            />
+            {errors?.lastName && <FormErrorMessage>{errors?.lastName.message}</FormErrorMessage>}
+          </FormControl>
+          <FormControl isInvalid={Boolean(errors?.phoneNumber)}>
+            <FormLabel>Phone Number</FormLabel>
+            <Input
+              {...register("phoneNumber")}
+            />
+            {errors?.phoneNumber && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
+          </FormControl>
+        </Box>
+        <FormControl isInvalid={Boolean(errors?.idVerification)}>
+          <Textarea
+            as={Center}
+            {...getRootProps({ className: 'dropzone' })}
+            p={4}
+            minH={{ base: '80px', md: '100px' }}
+            cursor="pointer"
+            borderRadius="md"
+            border="2px dashed"
+            borderColor="chakra-border-color"
+            spacing={4}
+          >
+            <Icon as={FaUpload} />
+          </Textarea>
+          <input id="badgeImageURL" {...register('badgeImageURL')} {...getInputProps()} />
+          {errors?.idVerification && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}
+          <FormHelperText>Government issued document</FormHelperText>
         </FormControl>
-      </VStack>
-      <HStack>
+      </Stack>
+      <HStack mt={{ base: 4, md: 6 }}>
         <Button colorScheme="green" leftIcon={<ArrowBackIcon />} onClick={goBack}>Go back</Button>
         <Spacer />
         <Button type="submit" colorScheme="green" rightIcon={<ArrowForwardIcon />}>Next</Button>
