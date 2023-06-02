@@ -5,15 +5,14 @@ import { Controller, useForm, SubmitHandler } from 'react-hook-form'
 
 
 import { LocationForm } from '../types'
-import { defaultLocationForm  } from '../constants'
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
 
 function Location() {
+  const { locationForm, setLocationForm, towns, setStep, } = usePropertyOnboarding()
   const { control, handleSubmit, register, setValue, getValues, formState: { errors } } = useForm<LocationForm>({
-    defaultValues: defaultLocationForm,
+    defaultValues: locationForm,
     mode: 'onChange',
   })
-  const { setLocationForm, towns, setStep, } = usePropertyOnboarding()
 
   const onSubmit: SubmitHandler<LocationForm> = data => {
     setLocationForm(data)

@@ -6,18 +6,17 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 import { descriptionSchema } from '../validations'
-import { defaultDescriptionForm } from '../constants'
 import { DescriptionForm } from '../types'
 
 const propertyOptions = ['Apartment', 'Bungalow', 'Condominium']
 
 function Description() {
+  const { setStep, descriptionForm, setDescriptionForm } = usePropertyOnboarding()
   const { register, formState: { errors }, handleSubmit } = useForm<DescriptionForm>({
-    defaultValues: defaultDescriptionForm,
+    defaultValues: descriptionForm,
     resolver: yupResolver(descriptionSchema),
     mode: 'onChange',
   })
-  const { setStep, setDescriptionForm } = usePropertyOnboarding()
 
   const onSubmit: SubmitHandler<DescriptionForm> = values => {
     setDescriptionForm(values)

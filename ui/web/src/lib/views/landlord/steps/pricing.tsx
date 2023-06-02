@@ -6,15 +6,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 import { PriceForm } from '../types'
-import { defaultPriceForm } from '../constants'
 import { priceSchema } from '../validations'
 
 function Pricing() {
+  const { priceForm, setPriceForm, setStep } = usePropertyOnboarding()
   const { register, handleSubmit, formState: { errors } } = useForm<PriceForm>({
-    defaultValues: defaultPriceForm,
+    defaultValues: priceForm,
     resolver: yupResolver(priceSchema),
   })
-  const { setPriceForm, setStep } = usePropertyOnboarding()
 
   const onSubmit: SubmitHandler<PriceForm> = data => {
     setPriceForm(data)
