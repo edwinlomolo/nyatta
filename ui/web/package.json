@@ -10,6 +10,7 @@
     "@chakra-ui/react": "2.4.4",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@hookform/resolvers": "^3.1.0",
     "@next/font": "^13.1.6",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -30,7 +31,8 @@
     "react-hook-form": "^7.43.0",
     "react-router-dom": "^5.3.4",
     "use-deep-compare-effect": "^1.8.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yup": "^1.2.0"
   },
   "scripts": {
     "dev": "next dev",

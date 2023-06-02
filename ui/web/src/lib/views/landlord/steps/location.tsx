@@ -1,24 +1,34 @@
 import { Button, FormControl, FormLabel, FormErrorMessage, FormHelperText, Input, VStack, HStack, Spacer } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import Select from 'react-select'
-import { Controller } from 'react-hook-form'
+import { Controller, useForm, SubmitHandler } from 'react-hook-form'
 
 
+import { LocationForm } from '../types'
+import { defaultLocationForm  } from '../constants'
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
 
 function Location() {
-  const { control, towns, setStep, setValue, getValues, handleSubmit, register, formState: { errors } } = usePropertyOnboarding()
-  const onSubmit = () => setStep("pricing")
+  const { control, handleSubmit, register, setValue, getValues, formState: { errors } } = useForm<LocationForm>({
+    defaultValues: defaultLocationForm,
+    mode: 'onChange',
+  })
+  const { setLocationForm, towns, setStep, } = usePropertyOnboarding()
+
+  const onSubmit: SubmitHandler<LocationForm> = data => {
+    setLocationForm(data)
+    setStep("pricing")
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <VStack spacing={{ base: 4, md: 10 }}>
+      <VStack spacing={{ base: 4, md: 6 }}>
         <FormControl isInvalid={Boolean(errors?.town)}>
           <FormLabel>Town</FormLabel>
           <Controller
             name="town"
             control={control}
-            rules={{ required: { value: true, message: "This is required" } }}
+            rules={{ required: { value: true, message: "Town is required" } }}
             render={({ field }) => (
               <Select
                 {...field}
@@ -31,8 +41,8 @@ function Location() {
               />
             )}
           />
-          <FormHelperText>Which town makes your home?</FormHelperText>
           {errors.town && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
+          <FormHelperText>Which town makes your home?</FormHelperText>
         </FormControl>
         <FormControl>
           <FormLabel>Postal Code</FormLabel>

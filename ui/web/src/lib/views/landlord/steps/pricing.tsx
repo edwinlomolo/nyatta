@@ -1,21 +1,34 @@
 import { Button, FormControl, FormErrorMessage, FormLabel, FormHelperText, Input, HStack, Spacer, VStack } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
+import { useForm, SubmitHandler } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
-function Pricing() {
-  const { register, setStep, handleSubmit, formState: { errors } } = usePropertyOnboarding()
+import { PriceForm } from '../types'
+import { defaultPriceForm } from '../constants'
+import { priceSchema } from '../validations'
 
-  const onSubmit = () => setStep("caretaker")
+function Pricing() {
+  const { register, handleSubmit, formState: { errors } } = useForm<PriceForm>({
+    defaultValues: defaultPriceForm,
+    resolver: yupResolver(priceSchema),
+  })
+  const { setPriceForm, setStep } = usePropertyOnboarding()
+
+  const onSubmit: SubmitHandler<PriceForm> = data => {
+    setPriceForm(data)
+    setStep("caretaker")
+  }
   const goBack = () => setStep("location")
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <VStack spacing={{ base: 4, md: 10 }}>
+      <VStack spacing={{ base: 4, md: 6 }}>
         <FormControl isInvalid={Boolean(errors?.minPrice)}>
           <FormLabel>Minimum Price</FormLabel>
           <Input
-            {...register("minPrice", { required: "Invalid minimum unit price" })}
+            {...register("minPrice")}
             type="number"
           />
           {errors?.minPrice && <FormErrorMessage>{`${errors?.minPrice.message}`}</FormErrorMessage>}
@@ -24,7 +37,7 @@ function Pricing() {
         <FormControl isInvalid={Boolean(errors?.maxPrice)}>
           <FormLabel>Maximum Price</FormLabel>
           <Input
-            {...register("maxPrice", { required: "Invalid minimum unit price" })}
+            {...register("maxPrice")}
             type="number"
           />
           {errors?.maxPrice && <FormErrorMessage>{`${errors?.maxPrice.message}`}</FormErrorMessage>}
