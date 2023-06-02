@@ -123,6 +123,7 @@ func awsConfig() AwsConfig {
 
 	aws.AccessKey = os.Getenv("ACCESS_KEY")
 	aws.SecretAccessKey = os.Getenv("SECRET_ACCESS_KEY")
+	aws.S3.Buckets.Caretaker = os.Getenv("S3_CARETAKER_BUCKET")
 
 	return aws
 }
