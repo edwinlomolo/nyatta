@@ -25,6 +25,7 @@ function Caretaker() {
     multiple: false,
     onDrop: acceptedFiles => {
       // TODO upload to s3
+      // @ts-ignore
       setValue("caretakerForm.idVerification", "idVerification")
     },
   })
