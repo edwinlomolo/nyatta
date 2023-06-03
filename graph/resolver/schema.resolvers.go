@@ -11,6 +11,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
+	"github.com/99designs/gqlgen/graphql"
 )
 
 // SignIn is the resolver for the signIn field.
@@ -65,6 +66,15 @@ func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input mode
 		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
 	}
 	return insertedUnitTenancy, err
+}
+
+// UploadImage is the resolver for the uploadImage field.
+func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload) (string, error) {
+	fileLocation, err := ctx.Value("awsService").(*services.AwsServices).UploadFile(file)
+	if err != nil {
+		return "", fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return fileLocation, nil
 }
 
 // GetUser is the resolver for the getUser field.

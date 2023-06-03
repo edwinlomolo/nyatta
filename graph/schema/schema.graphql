@@ -1,6 +1,7 @@
 # GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
+scalar Upload
 
 # Represent new user parameters
 input NewUser {
@@ -77,6 +78,7 @@ type Mutation {
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
   addUnitBedrooms(input: [UnitBedroomInput!]!): [Bedroom!]!
   addPropertyUnitTenant(input: TenancyInput!): Tenant!
+  uploadImage(file: Upload!): String!
 }
 
 schema {

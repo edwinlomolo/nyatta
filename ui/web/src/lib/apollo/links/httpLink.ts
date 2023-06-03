@@ -1,6 +1,6 @@
-import { HttpLink } from '@apollo/client'
+import { createUploadLink } from 'apollo-upload-client'
 
-const httpLink = new HttpLink({
+const httpLink = createUploadLink({
   uri: `${process.env.NEXT_PUBLIC_BASE_API}/api`,
 })
 

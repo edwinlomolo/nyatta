@@ -1,4 +1,6 @@
-import { Box, Center, Button, HStack, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure } from '@chakra-ui/react'
+import { useMutation } from '@apollo/client'
+
+import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
@@ -6,12 +8,14 @@ import { FaUpload } from 'react-icons/fa'
 
 import { useForm, SubmitHandler } from 'react-hook-form'
 
+import { uploadImage as UPLOAD_IMAGE } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 import { caretakerSchema } from '../validations'
 import { CaretakerForm } from '../types'
 
 function Caretaker() {
+  const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<CaretakerForm>({
@@ -23,10 +27,16 @@ function Caretaker() {
       "image/*": ['.jpeg', '.jpg', '.png', '.gif'],
     },
     multiple: false,
-    onDrop: acceptedFiles => {
+    disabled: uploadingImage,
+    onDrop: async acceptedFiles => {
       // TODO upload to s3
+      const res = await uploadImage({
+        variables: {
+          file: acceptedFiles[0],
+        },
+      })
       // @ts-ignore
-      setValue("caretakerForm.idVerification", "idVerification")
+      setValue("caretakerForm.idVerification", res?.data.uploadImage)
     },
   })
 
@@ -86,7 +96,11 @@ function Caretaker() {
             borderColor="chakra-border-color"
             spacing={4}
           >
-            <Icon as={FaUpload} />
+            {caretakerForm.idVerification && <Image
+              src={caretakerForm.idVerification}
+            />}
+            {!uploadingImage && <Icon as={FaUpload} />}
+            {uploadingImage && <Spinner size="lg" />}
           </Textarea>
           <input {...register('idVerification')} {...getInputProps()} />
           {errors?.idVerification && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}

@@ -11,12 +11,12 @@ import { OnboardingProvider } from '../lib/views/landlord/providers/property-onb
 
 import { ApolloProvider, ApolloClient } from '@apollo/client'
 import { AuthProvider } from '@auth'
-import { useApolloClient } from '@apollo'
+import { createClient } from '../lib/apollo/createClient'
 import Layout from '@layout'
 
 export default function App({ Component, pageProps }: AppProps) {
   const jwt = getCookie('jwt')
-  const { client } = useApolloClient({ jwt })
+  const client = createClient(jwt)
 
   return (
     <UserProvider>

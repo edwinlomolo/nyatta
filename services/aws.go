@@ -5,6 +5,8 @@ import (
 
 	cfg "github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/interfaces"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -19,8 +21,9 @@ type AwsServices struct {
 	Config cfg.AwsConfig
 }
 
-func NewAwsServices(cfg cfg.AwsConfig) *AwsServices {
+func NewAwsService(cfg cfg.AwsConfig) *AwsServices {
 	config, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretAccessKey, "")),
 	)
 	if err != nil {
@@ -30,14 +33,16 @@ func NewAwsServices(cfg cfg.AwsConfig) *AwsServices {
 	// Create S3 client
 	s3Client := manager.NewUploader(s3.NewFromConfig(config))
 
-	return &AwsServices{S3: s3Client}
+	return &AwsServices{S3: s3Client, Config: cfg}
 }
 
 // UploadFile - upload file to s3
-func (a *AwsServices) UploadFile() (string, error) { // TODO figure to input buffer file from js to here
+func (a *AwsServices) UploadFile(file graphql.Upload) (string, error) {
 	// Upload input params
 	params := &s3.PutObjectInput{
-		Bucket: &a.Config.S3.Buckets.Caretaker,
+		Bucket: aws.String(a.Config.S3.Buckets.Caretaker),
+		Key:    aws.String(file.Filename),
+		Body:   file.File,
 	}
 
 	// Do upload
