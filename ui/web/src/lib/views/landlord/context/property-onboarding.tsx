@@ -1,8 +1,8 @@
-import { Dispatch, SetStateAction, createContext } from 'react'
+import { type Dispatch, type SetStateAction, createContext } from 'react'
 
-import { FormState, Control, UseFormRegister, UseFormGetValues, UseFormReset, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form'
+import { type FormState, type Control, type UseFormRegister, type UseFormGetValues, type UseFormReset, type UseFormSetValue, type UseFormHandleSubmit } from 'react-hook-form'
 
-import { OnboardingStep, FormValues, DescriptionForm, PriceForm, LocationForm, CaretakerForm, UnitsForm } from '../types'
+import { type OnboardingStep, type FormValues, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm } from '../types'
 
 interface OnboardingContext {
   step: OnboardingStep
@@ -47,5 +47,5 @@ export const OnboardingContext = createContext<OnboardingContext>({
   unitsForm: {} as UnitsForm,
   setUnitsForm: () => {},
   caretakerForm: {} as CaretakerForm,
-  setCaretakerForm: () => {},
+  setCaretakerForm: () => {}
 })

@@ -4,7 +4,7 @@ interface Props {
   text?: string
 }
 
-function GlobalLoader({ text }: Props) {
+function GlobalLoader ({ text }: Props) {
   return (
     <Center>
       <Box textAlign="center">

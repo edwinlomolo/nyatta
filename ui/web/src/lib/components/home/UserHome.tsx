@@ -1,7 +1,6 @@
 import { Text } from '@chakra-ui/react'
 
-function UserHome() {
-
+function UserHome () {
   return (
     <Text>Home page</Text>
   )

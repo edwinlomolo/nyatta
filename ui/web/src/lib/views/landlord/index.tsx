@@ -7,7 +7,7 @@ import { Description, Location, Pricing, Units, Caretaker } from './steps'
 import { Title } from './components'
 import { FormSteps } from './constants'
 
-function Landlord() {
+function Landlord () {
   const { step } = usePropertyOnboarding()
 
   return (
@@ -19,7 +19,7 @@ function Landlord() {
         <Title />
         <Show above="md">
           <Spacer />
-          <Text fontSize="4xl">{`${FormSteps.indexOf(step)+1}/${FormSteps.length}`}</Text>
+          <Text fontSize="4xl">{`${FormSteps.indexOf(step) + 1}/${FormSteps.length}`}</Text>
         </Show>
       </HStack>
       {step === 'description' && <Description />}

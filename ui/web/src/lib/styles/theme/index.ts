@@ -1,8 +1,8 @@
-import { extendTheme, StyleFunctionProps, ThemeConfig } from '@chakra-ui/react'
+import { extendTheme, type StyleFunctionProps, type ThemeConfig } from '@chakra-ui/react'
 
 const colorConfig: ThemeConfig = {
   initialColorMode: 'light',
-  useSystemColorMode: false,
+  useSystemColorMode: false
 }
 
 export const theme = extendTheme({
@@ -10,13 +10,12 @@ export const theme = extendTheme({
   components: {
     FormLabel: {
       baseStyle: {
-        fontWeight: "bold",
-      },
-    },
+        fontWeight: 'bold'
+      }
+    }
   },
-  //fonts,
+  // fonts,
   styles: {
     global: (props: StyleFunctionProps) => ({})
-  },
+  }
 })
-

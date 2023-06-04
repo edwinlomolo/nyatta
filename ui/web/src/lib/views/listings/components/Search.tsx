@@ -5,7 +5,7 @@ import Select from 'react-select'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useSearchListings } from '@usePropertySearch'
 
-function Search() {
+function Search () {
   const { towns } = usePropertyOnboarding()
   const { control, getListings, handleSubmit, register, formState: { errors } } = useSearchListings()
   const onSubmit = async (data: any) => {
@@ -14,9 +14,9 @@ function Search() {
         input: {
           town: data.town.label,
           minPrice: Number(data.minPrice),
-          maxPrice: Number(data.maxPrice),
-        },
-      },
+          maxPrice: Number(data.maxPrice)
+        }
+      }
     })
   }
 
@@ -25,12 +25,12 @@ function Search() {
       <Flex
         p={5}
         gap={4}
-        flexDirection={{ md: "row", base: "column" }}
+        flexDirection={{ md: 'row', base: 'column' }}
       >
-        <FormControl isInvalid={!!errors.town}>
+        <FormControl isInvalid={!(errors.town == null)}>
           <Controller
             name="town"
-            rules={{ required: { value: true, message: "This is required" } }}
+            rules={{ required: { value: true, message: 'This is required' } }}
             control={control}
             render={({ field }) => (
               <Select
@@ -42,9 +42,9 @@ function Search() {
               />
             )}
           />
-          {errors.town && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
+          {(errors.town != null) && <FormErrorMessage>{`${errors.town.message}`}</FormErrorMessage>}
         </FormControl>
-        <FormControl isInvalid={!!errors.propertyType}>
+        <FormControl isInvalid={!(errors.propertyType == null)}>
           <ChakraSelect {...register('propertyType', { required: 'Select property type' })} placeholder="Property type">
             <option value="single">Single room</option>
             <option value="studio">Studio</option>
@@ -53,7 +53,7 @@ function Search() {
             <option value="3">3 bedrooms</option>
             <option value="4">4 bedrooms</option>
           </ChakraSelect>
-          {errors.propertyType && <FormErrorMessage>{`${errors.propertyType.message}`}</FormErrorMessage>}
+          {(errors.propertyType != null) && <FormErrorMessage>{`${errors.propertyType.message}`}</FormErrorMessage>}
         </FormControl>
         <FormControl>
           <Input

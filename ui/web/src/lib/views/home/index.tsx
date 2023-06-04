@@ -3,7 +3,7 @@ import Head from 'next/head'
 import HomeHeader from './components/HomeHeader'
 import Footer from './components/Footer'
 
-function Home() {
+function Home () {
   return (
     <>
       <Head>

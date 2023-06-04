@@ -1,6 +1,6 @@
-export type SearchListingForm = {
-  town: string,
-  minPrice: number,
-  maxPrice: number,
-  propertyType: string,
+export interface SearchListingForm {
+  town: string
+  minPrice: number
+  maxPrice: number
+  propertyType: string
 }

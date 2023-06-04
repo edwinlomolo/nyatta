@@ -1,6 +1,6 @@
-import { ApolloClient, InMemoryCache, from, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, InMemoryCache, from, type NormalizedCacheObject } from '@apollo/client'
 import { RetryLink } from '@apollo/client/link/retry'
-import { CookieValueTypes } from 'cookies-next'
+import { type CookieValueTypes } from 'cookies-next'
 
 import { authLink, errorLink, httpLink } from './links'
 
@@ -11,12 +11,12 @@ export const createClient = (jwt?: CookieValueTypes): ApolloClient<NormalizedCac
   const retryLink = new RetryLink({
     delay: {
       initial: 300,
-      jitter: true,
+      jitter: true
     },
     attempts: {
       max: 2,
       retryIf: error => !!error
-    },
+    }
   })
 
   return new ApolloClient({
@@ -27,17 +27,16 @@ export const createClient = (jwt?: CookieValueTypes): ApolloClient<NormalizedCac
       errorLink,
       retryLink,
       // api link
-      httpLink,
+      httpLink
     ]),
     cache,
     defaultOptions: {
       watchQuery: {
-        fetchPolicy: 'cache-and-network' as const,
-      },
-    },
+        fetchPolicy: 'cache-and-network' as const
+      }
+    }
   })
 }
 
 let apolloClient: ApolloClient<NormalizedCacheObject> | null
-export let getApolloClient = (): ApolloClient<NormalizedCacheObject> | null => apolloClient
-
+export const getApolloClient = (): ApolloClient<NormalizedCacheObject> | null => apolloClient

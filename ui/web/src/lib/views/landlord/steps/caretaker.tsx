@@ -1,3 +1,5 @@
+import React, { type Dispatch, type SetStateAction } from 'react'
+
 import { useMutation } from '@apollo/client'
 
 import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
@@ -6,40 +8,41 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 import { FaUpload } from 'react-icons/fa'
 
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 
 import { uploadImage as UPLOAD_IMAGE } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 import { caretakerSchema } from '../validations'
-import { CaretakerForm } from '../types'
+import { type CaretakerForm, type OnboardingStep } from '../types'
 
-function Caretaker() {
+function Caretaker (): React.Node {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CaretakerForm>({
+  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<CaretakerForm>({
     defaultValues: caretakerForm,
-    resolver: yupResolver(caretakerSchema),
+    resolver: yupResolver(caretakerSchema)
   })
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      "image/*": ['.jpeg', '.jpg', '.png', '.gif'],
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif']
     },
     multiple: false,
     disabled: uploadingImage,
-    onDrop: async acceptedFiles => {
+    onDrop: async (acceptedFiles) => {
       // TODO upload to s3
       const res = await uploadImage({
         variables: {
-          file: acceptedFiles[0],
-        },
+          file: acceptedFiles[0]
+        }
       })
-      // @ts-ignore
-      setValue("caretakerForm.idVerification", res?.data.uploadImage)
-    },
+      // @ts-expect-error
+      setValue('caretakerForm.idVerification', res?.data.uploadImage)
+    }
   })
 
+  const idImg = watch('caretaker.idVerification')
   // TODO caretaker phone verification flow
   const onSubmit: SubmitHandler<CaretakerForm> = data => {
     setCaretakerForm(data)
@@ -47,11 +50,13 @@ function Caretaker() {
     onOpen()
     // TODO proceed
   }
-  const goBack = () => setStep("pricing")
+  const goBack = (): Dispatch<SetStateAction<OnboardingStep>> => {
+    setStep('pricing')
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack align="center" direction={{ base: "column", md: "row" }} spacing={{ base: 4, md: 6 }}>
+    <form onSubmit={() => handleSubmit(onSubmit)}>
+      <Stack align="center" direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, md: 6 }}>
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           <ModalContent>
             <ModalHeader>Verify Phone</ModalHeader>
@@ -65,23 +70,24 @@ function Caretaker() {
           <FormControl isInvalid={Boolean(errors?.firstName)}>
             <FormLabel>First Name</FormLabel>
             <Input
-              {...register("firstName")}
+              {...register('firstName')}
             />
-            {errors?.firstName && <FormErrorMessage>{errors?.firstName.message}</FormErrorMessage>}
+            {(errors.firstName != null) && <FormErrorMessage>{errors?.firstName.message}</FormErrorMessage>}
           </FormControl>
           <FormControl isInvalid={Boolean(errors?.lastName)}>
             <FormLabel>Last Name</FormLabel>
             <Input
-              {...register("lastName")}
+              {...register('lastName')}
             />
-            {errors?.lastName && <FormErrorMessage>{errors?.lastName.message}</FormErrorMessage>}
+            {((errors?.lastName) != null) && <FormErrorMessage>{errors?.lastName.message}</FormErrorMessage>}
           </FormControl>
           <FormControl isInvalid={Boolean(errors?.phoneNumber)}>
             <FormLabel>Phone Number</FormLabel>
             <Input
-              {...register("phoneNumber")}
+              {...register('phoneNumber')}
+              type="number"
             />
-            {errors?.phoneNumber && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
+            {((errors?.phoneNumber) != null) && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
           </FormControl>
         </Box>
         <FormControl isInvalid={Boolean(errors?.idVerification)}>
@@ -96,14 +102,15 @@ function Caretaker() {
             borderColor="chakra-border-color"
             spacing={4}
           >
-            {caretakerForm.idVerification && <Image
-              src={caretakerForm.idVerification}
+            {idImg && <Image
+              src={idImg}
+              loading="eager"
             />}
             {!uploadingImage && <Icon as={FaUpload} />}
             {uploadingImage && <Spinner size="lg" />}
           </Textarea>
           <input {...register('idVerification')} {...getInputProps()} />
-          {errors?.idVerification && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}
+          {((errors?.idVerification) != null) && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}
           <FormHelperText>Government issued document</FormHelperText>
         </FormControl>
       </Stack>

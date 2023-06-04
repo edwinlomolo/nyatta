@@ -1,46 +1,46 @@
 export type OnboardingStep = 'description' | 'location' | 'amenities' | 'pricing' | 'caretaker' | 'units'
 
-export type LocationOption = {
+export interface LocationOption {
   readonly label: string
   readonly value: string
   readonly postalCode: string
   readonly id: string
 }
 
-type PropertyType = "Apartment" | "Condominium" | "Bungalow"
+type PropertyType = 'Apartment' | 'Condominium' | 'Bungalow'
 
-export type FormValues = {
+export interface FormValues {
   name: string
   propertyType: PropertyType | undefined
   minPrice: string
   maxPrice: string
   town: LocationOption
   postalCode: string
-  units: Record<string,any>[]
+  units: Array<Record<string, any>>
 }
 
-export type DescriptionForm = {
+export interface DescriptionForm {
   name: string
   propertyType: PropertyType | undefined
 }
 
-export type LocationForm = {
+export interface LocationForm {
   town: LocationOption | null
   postalCode: string | undefined
 }
 
-export type PriceForm = {
+export interface PriceForm {
   minPrice: number
   maxPrice: number
 }
 
-export type CaretakerForm = {
+export interface CaretakerForm {
   firstName: string
   lastName: string
   phoneNumber: string
   idVerification: string
 }
 
-export type UnitsForm = {
-  units: Record<string,any>[]
+export interface UnitsForm {
+  units: Array<Record<string, any>>
 }

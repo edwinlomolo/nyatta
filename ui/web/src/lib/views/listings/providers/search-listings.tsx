@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react'
+import { type PropsWithChildren } from 'react'
 
 import { useLazyQuery } from '@apollo/client'
 
@@ -8,12 +8,12 @@ import { getListings as GET_LISTINGS } from '@gql'
 
 import { SearchListingContext } from '../context/search-listings'
 
-import { SearchListingForm } from '@form'
+import { type SearchListingForm } from '@form'
 
 export const SearchListingProvider = ({ children }: PropsWithChildren) => {
   const [getListings, { loading, data }] = useLazyQuery(GET_LISTINGS)
   const { handleSubmit, control, register, formState, getValues, setValue } = useForm<SearchListingForm>({
-    defaultValues: { town: '', minPrice: 0, maxPrice: 0 },
+    defaultValues: { town: '', minPrice: 0, maxPrice: 0 }
   })
 
   return (
@@ -27,7 +27,7 @@ export const SearchListingProvider = ({ children }: PropsWithChildren) => {
         formState,
         listingsLoading: loading,
         listingsData: data,
-        formValues: getValues(),
+        formValues: getValues()
       }}
     >
       {children}

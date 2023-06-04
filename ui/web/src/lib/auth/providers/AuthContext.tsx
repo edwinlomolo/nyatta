@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { UserProfile } from '@auth0/nextjs-auth0/client'
+import { type UserProfile } from '@auth0/nextjs-auth0/client'
 interface AuthContext {
   user: UserProfile | undefined
   isAuthenticated: boolean
@@ -12,5 +12,5 @@ export default React.createContext<AuthContext>({
   user: undefined,
   isAuthenticated: false,
   isAuthenticating: false,
-  logout: () => {},
+  logout: () => {}
 })

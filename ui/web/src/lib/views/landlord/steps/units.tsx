@@ -5,16 +5,16 @@ import { Controller, useFieldArray } from 'react-hook-form'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
-function Units() {
+function Units () {
   const { control, register, setStep, formState: { errors }, handleSubmit } = usePropertyOnboarding()
   const { fields, append } = useFieldArray({
     control,
-    name: "units",
+    name: 'units'
   })
-  const onSubmit = (data: any) => console.log(data)
-  const goBack = () => setStep("pricing")
+  const onSubmit = (data: any) => { console.log(data) }
+  const goBack = () => { setStep('pricing') }
   const appendUnit = () => {
-    append({ name: "Harambe" })
+    append({ name: 'Harambe' })
   }
 
   return (
@@ -26,10 +26,10 @@ function Units() {
             <FormLabel>Unit name</FormLabel>
             <Input
               size="sm"
-              {...register("units", { required: "Unit name is required" })}
+              {...register('units', { required: 'Unit name is required' })}
               placeholder="Name/ID"
             />
-            {errors?.units && <FormErrorMessage>{`${errors?.units.message}`}</FormErrorMessage>}
+            {((errors?.units) != null) && <FormErrorMessage>{`${errors?.units.message}`}</FormErrorMessage>}
             <FormHelperText>How do you name your units?</FormHelperText>
           </FormControl>
           </Box>

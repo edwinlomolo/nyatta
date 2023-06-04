@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Heading, Divider, VStack } from '@chakra-ui/react'
 
-function HomeHeader() {
+function HomeHeader () {
   return (
     <Flex>
       <VStack

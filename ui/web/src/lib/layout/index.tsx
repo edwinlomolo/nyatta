@@ -8,7 +8,7 @@ interface LayoutProps {
   children: ReactNode
 }
 
-function Layout({ children }: LayoutProps) {
+function Layout ({ children }: LayoutProps) {
   return (
     <Box>
       <Navigation />

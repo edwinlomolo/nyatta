@@ -4,6 +4,6 @@ const HELLO = gql`
   query Hello {
     hello
   }
-`;
+`
 
 export default HELLO

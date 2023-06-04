@@ -12,22 +12,22 @@ interface Props {
   children: React.ReactNode
 }
 
-function AuthProvider({ children }: Props) {
+function AuthProvider ({ children }: Props) {
   const client = getApolloClient()
   const { user, isLoading } = useUser()
   const handleLogout = useCallback(
     () => {
       client?.resetStore()
-      deleteCookie('jwt', { path: "/" })
+      deleteCookie('jwt', { path: '/' })
     },
     [client]
   )
 
   useEffect((): void => {
-    async function initializeClient() {
+    async function initializeClient () {
       const http = new Http()
       // Auth user
-      if (user && !isLoading) {
+      if ((user != null) && !isLoading) {
         const newUser = {
           first_name: user?.given_name,
           last_name: user?.family_name,
@@ -51,9 +51,9 @@ function AuthProvider({ children }: Props) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !isLoading && !!user,
+        isAuthenticated: !isLoading && !(user == null),
         isAuthenticating: isLoading,
-        logout: handleLogout,
+        logout: handleLogout
       }}
     >
       {children}

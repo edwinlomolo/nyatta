@@ -9,12 +9,12 @@ import { theme } from '@styles'
 import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
 import { OnboardingProvider } from '../lib/views/landlord/providers/property-onboarding'
 
-import { ApolloProvider, ApolloClient } from '@apollo/client'
+import { ApolloProvider, type ApolloClient } from '@apollo/client'
 import { AuthProvider } from '@auth'
 import { createClient } from '../lib/apollo/createClient'
 import Layout from '@layout'
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App ({ Component, pageProps }: AppProps) {
   const jwt = getCookie('jwt')
   const client = createClient(jwt)
 

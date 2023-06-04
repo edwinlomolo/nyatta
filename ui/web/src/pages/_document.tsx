@@ -5,11 +5,11 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { theme } from '@styles'
 
 class MyDocument extends Document {
-  static getInitialProps(ctx: DocumentContext) {
-    return Document.getInitialProps(ctx)
+  static async getInitialProps (ctx: DocumentContext) {
+    return await Document.getInitialProps(ctx)
   }
 
-  render() {
+  render () {
     return (
       <Html lang="en">
         <Head>

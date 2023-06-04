@@ -1,6 +1,6 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { type ApolloClient, type NormalizedCacheObject } from '@apollo/client'
 
-import { CookieValueTypes } from 'cookies-next'
+import { type CookieValueTypes } from 'cookies-next'
 
 export interface UseApolloClientParams {
   jwt?: CookieValueTypes

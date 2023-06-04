@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 
-function Footer() {
+function Footer () {
   return (
     <Box
       textAlign="center"
@@ -15,7 +15,7 @@ function Footer() {
           as="a"
           href="mailto:edwinmoses535@gmail.com"
           _hover={{
-            cursor: "pointer",
+            cursor: 'pointer'
           }}
           textDecoration="underline"
         >

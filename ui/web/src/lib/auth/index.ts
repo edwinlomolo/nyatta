@@ -1,4 +1,4 @@
 export {
   AuthContext,
-  AuthProvider,
+  AuthProvider
 } from './providers'

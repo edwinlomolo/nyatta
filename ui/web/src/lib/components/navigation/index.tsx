@@ -8,7 +8,7 @@ import {
   Flex,
   Heading,
   Spacer,
-  Text,
+  Text
 } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 
@@ -16,7 +16,7 @@ import AuthContext from '../../auth/providers/AuthContext'
 
 import { Dropdown } from '../dropdown'
 
-function Navigation() {
+function Navigation () {
   const { user, logout } = useContext(AuthContext)
 
   return (
@@ -31,13 +31,13 @@ function Navigation() {
             </>
           }
           options={[
-            {text: <Link href="/landlord">Home Owner</Link>}
+            { text: <Link href="/landlord">Home Owner</Link> }
           ]}
         />
       </Flex>
       <Spacer />
       <Flex justifyContent="end">
-      {user && (
+      {(user != null) && (
         <Dropdown
           children={
             <>
@@ -51,18 +51,18 @@ function Navigation() {
                   <Text as="b">{user?.name}</Text>
                   <Text>{user?.email}</Text>
                 </Box>
-              ),
+              )
             },
             {
               text: (
                 <a onClick={logout} href="/api/auth/logout">Log out</a>
-              ),
+              )
             }
           ]}
         />
       )}
-      {!user && (
-        <Button  as={"a"} href="/api/auth/login" colorScheme="green">Sign In</Button>
+      {(user == null) && (
+        <Button as={'a'} href="/api/auth/login" colorScheme="green">Sign In</Button>
       )}
       </Flex>
     </Flex>
