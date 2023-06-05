@@ -16,7 +16,7 @@ import { AuthProvider } from '@auth'
 import Layout from '@layout'
 import { theme } from '@styles'
 
-export default function App ({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps): JSX.Element => {
   const jwt = getCookie('jwt')
   const client = createClient(jwt)
 
@@ -44,3 +44,5 @@ export default function App ({ Component, pageProps }: AppProps) {
     </UserProvider>
   )
 }
+
+export default App

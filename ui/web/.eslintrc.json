@@ -16,6 +16,7 @@
     "arrow-body-style": ["error", "as-needed"],
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-debugger": ["warn"],
+    "no-empty-function": "off",
     "no-unused-vars": ["off"],
     "no-extra-semi": "off",
     "no-fallthrough": "off",
@@ -41,7 +42,7 @@
             "position": "before"
           },
           {
-            "pattern": "@myco*",
+            "pattern": "@nyatta*",
             "group": "unknown",
             "patternOptions": { "matchBase": true },
             "position": "after"

@@ -24,26 +24,18 @@ const Navigation = () => {
       <Flex gap={4} justifyContent="start">
         <Heading as={Link} href="/" size="md">Nyatta</Heading>
         <Dropdown
-          children={
-            <>
-              Partners
-              <ChevronDownIcon />
-            </>
-          }
           options={[
             { text: <Link href="/landlord">Home Owner</Link> }
           ]}
-        />
+        >
+          Partners
+          <ChevronDownIcon />
+        </Dropdown>
       </Flex>
       <Spacer />
       <Flex justifyContent="end">
       {(user != null) && (
         <Dropdown
-          children={
-            <>
-              <Avatar src={user?.picture!} name={user?.name!} />
-            </>
-          }
           options={[
             {
               text: (
@@ -55,11 +47,13 @@ const Navigation = () => {
             },
             {
               text: (
-                <a onClick={logout} href="/api/auth/logout">Log out</a>
+                <Link onClick={logout} href="/api/auth/logout">Log out</Link>
               )
             }
           ]}
-        />
+        >
+          <Avatar src={user.picture} name={user?.name} />
+        </Dropdown>
       )}
       {(user == null) && (
         <Button as={'a'} href="/api/auth/login" colorScheme="green">Sign In</Button>

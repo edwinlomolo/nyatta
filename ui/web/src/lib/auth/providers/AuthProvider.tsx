@@ -45,7 +45,7 @@ const AuthProvider = ({ children }: Props) => {
       }
     }
     initializeClient()
-  }, [user])
+  }, [user, isLoading])
 
   if (isLoading) return null
 
