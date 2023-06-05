@@ -1,6 +1,6 @@
 import { Button, Flex, FormControl, FormErrorMessage, Input, Select as ChakraSelect } from '@chakra-ui/react'
-import { Controller } from 'react-hook-form'
-import Select from 'react-select'
+import { Controller, type SubmitHandler } from 'react-hook-form'
+import Select, { type GroupBase } from 'react-select'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useSearchListings } from '@usePropertySearch'
@@ -8,7 +8,7 @@ import { useSearchListings } from '@usePropertySearch'
 const Search = () => {
   const { towns } = usePropertyOnboarding()
   const { control, getListings, handleSubmit, register, formState: { errors } } = useSearchListings()
-  const onSubmit = async (data: any) => {
+  const onSubmit: SubmitHandler<any> = async data => {
     await getListings({
       variables: {
         input: {
@@ -37,7 +37,7 @@ const Search = () => {
                 {...field}
                 isClearable
                 isSearchable
-                options={towns}
+                options={(towns as unknown) as GroupBase<string>[]}
                 placeholder="Town"
               />
             )}

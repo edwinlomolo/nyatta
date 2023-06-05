@@ -1,13 +1,9 @@
 import React from 'react'
 
-interface User {
-  name: string
-  picture: string
-  email: string
-}
+import { type UserProfile } from '@auth0/nextjs-auth0/client'
 
 interface AuthContext {
-  user: User | undefined
+  user: UserProfile | undefined
   isAuthenticated: boolean
   isAuthenticating: boolean
   logout: () => void
@@ -17,6 +13,5 @@ export default React.createContext<AuthContext>({
   user: undefined,
   isAuthenticated: false,
   isAuthenticating: false,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  logout: () => {},
+  logout: () => {}
 })

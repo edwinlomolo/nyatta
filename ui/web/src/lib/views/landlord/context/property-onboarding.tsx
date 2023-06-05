@@ -1,8 +1,9 @@
 import { type Dispatch, type SetStateAction, createContext } from 'react'
 
 import { type FormState, type Control, type UseFormRegister, type UseFormGetValues, type UseFormReset, type UseFormSetValue, type UseFormHandleSubmit } from 'react-hook-form'
+import { type GroupBase } from 'react-select'
 
-import { type OnboardingStep, type FormValues, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm } from '../types'
+import { type OnboardingStep, type FormValues, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm, type LocationOption } from '../types'
 
 interface OnboardingContext {
   step: OnboardingStep
@@ -10,7 +11,7 @@ interface OnboardingContext {
   handleSubmit: UseFormHandleSubmit<FormValues>
   register: UseFormRegister<FormValues>
   formState: FormState<FormValues>
-  towns: any[]
+  towns: GroupBase<LocationOption>[]
   control: Control<FormValues>
   setValue: UseFormSetValue<FormValues>
   getValues: UseFormGetValues<FormValues>

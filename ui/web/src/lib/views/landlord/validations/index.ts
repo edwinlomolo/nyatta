@@ -31,6 +31,6 @@ export const unitsSchema = object().shape({
 export const caretakerSchema = object().shape({
   firstName: string().matches(/^[a-zA-Z ]+$/i, { message: 'First name should be alphabetic', excludeEmptyString: true }).required('First name required'),
   lastName: string().matches(/^[a-zA-Z ]+$/i, { message: 'Last name should be alphabetic', excludeEmptyString: true }).required('Last name required'),
-  phoneNumber: string().matches(/^[0-9]+$/i, { message: 'Expect phone number', excludeEmptyString: true }).test('valid-phone', 'You region is not supported yet', value => isValidPhoneNumber(value, 'KE')).required('Phone number required'),
+  phoneNumber: string().matches(/^[0-9]+$/i, { message: 'Expect phone number', excludeEmptyString: true }).test('valid-phone', 'You region is not supported yet', value => isValidPhoneNumber(value!, 'KE')).required('Phone number required'),
   idVerification: string().required('ID verification required')
 })

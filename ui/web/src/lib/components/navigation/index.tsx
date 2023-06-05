@@ -52,7 +52,7 @@ const Navigation = () => {
             }
           ]}
         >
-          <Avatar src={user.picture} name={user?.name} />
+          <Avatar src={user.picture!} name={user.name!} />
         </Dropdown>
       )}
       {(user == null) && (
