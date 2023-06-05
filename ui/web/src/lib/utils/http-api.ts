@@ -3,11 +3,11 @@ import axios from 'axios'
 interface HttpRequest {
   method: 'get' | 'post'
   url: string
-  data: Record<string, any>
+  data: Record<string, string>
 }
 
 class Http {
-  async post (url: string, data: any) {
+  async post (url: string, data: Record<string,string>) {
     try {
       return await this.request({ method: 'post', url, data })
     } catch (error) {
@@ -15,7 +15,7 @@ class Http {
     }
   }
 
-  async get (url: string, data: any) {
+  async get (url: string, data: Record<string,string>) {
     try {
       return await this.request({ method: 'get', url, data })
     } catch (error) {
