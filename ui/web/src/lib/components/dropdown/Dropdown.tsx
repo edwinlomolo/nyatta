@@ -1,4 +1,5 @@
 import { type MouseEventHandler } from 'react'
+
 import { Menu, MenuList, MenuButton, Portal, MenuItem } from '@chakra-ui/react'
 
 interface Option {
@@ -11,8 +12,7 @@ interface Props {
   options: Option[]
 }
 
-function Dropdown ({ children, options }: Props) {
-  return (
+const Dropdown = ({ children, options }: Props) => (
     <Menu isLazy>
      <MenuButton type="button">
        {children}
@@ -31,6 +31,5 @@ function Dropdown ({ children, options }: Props) {
      </Portal>
     </Menu>
   )
-}
 
 export default Dropdown

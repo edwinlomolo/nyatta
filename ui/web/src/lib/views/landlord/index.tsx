@@ -1,13 +1,14 @@
-import Head from 'next/head'
 
 import { Container, HStack, Spacer, Show, Text } from '@chakra-ui/react'
+import Head from 'next/head'
 
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
-import { Description, Location, Pricing, Units, Caretaker } from './steps'
 import { Title } from './components'
 import { FormSteps } from './constants'
+import { Description, Location, Pricing, Units, Caretaker } from './steps'
 
-function Landlord () {
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
+
+const Landlord = () => {
   const { step } = usePropertyOnboarding()
 
   return (

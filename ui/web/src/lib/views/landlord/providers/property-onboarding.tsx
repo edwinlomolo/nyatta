@@ -1,15 +1,15 @@
 import { useState, type PropsWithChildren } from 'react'
 
 import { useQuery } from '@apollo/client'
-
-import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
 import { array, object, string } from 'yup'
 
-import { getTowns as GET_TOWNS } from '@gql'
+import { defaultDescriptionForm, defaultLocationForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
 import { OnboardingContext } from '../context/property-onboarding'
 import { type OnboardingStep, type FormValues, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm } from '../types'
-import { defaultDescriptionForm, defaultLocationForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
+
+import { getTowns as GET_TOWNS } from '@gql'
 
 const validationSchema = object().shape({
   name: string().required('Property name required'),

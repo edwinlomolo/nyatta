@@ -4,8 +4,7 @@ interface Props {
   text?: string
 }
 
-function GlobalLoader ({ text }: Props) {
-  return (
+const GlobalLoader = ({ text }: Props) => (
     <Center>
       <Box textAlign="center">
         {text && <Text>{text}</Text>}
@@ -13,6 +12,5 @@ function GlobalLoader ({ text }: Props) {
       </Box>
     </Center>
   )
-}
 
 export default GlobalLoader

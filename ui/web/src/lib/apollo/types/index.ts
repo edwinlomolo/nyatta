@@ -1,5 +1,4 @@
 import { type ApolloClient, type NormalizedCacheObject } from '@apollo/client'
-
 import { type CookieValueTypes } from 'cookies-next'
 
 export interface UseApolloClientParams {

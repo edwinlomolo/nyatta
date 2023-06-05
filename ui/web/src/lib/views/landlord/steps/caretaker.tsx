@@ -1,22 +1,18 @@
-import React, { type Dispatch, type SetStateAction } from 'react'
-
 import { useMutation } from '@apollo/client'
-
-import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
+import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FaUpload } from 'react-icons/fa'
 
-import { useForm, type SubmitHandler } from 'react-hook-form'
+import { type CaretakerForm } from '../types'
+import { caretakerSchema } from '../validations'
 
 import { uploadImage as UPLOAD_IMAGE } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
-import { caretakerSchema } from '../validations'
-import { type CaretakerForm, type OnboardingStep } from '../types'
-
-function Caretaker (): JSX.Element {
+const Caretaker = (): JSX.Element => {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
@@ -24,38 +20,38 @@ function Caretaker (): JSX.Element {
     defaultValues: caretakerForm,
     resolver: yupResolver(caretakerSchema)
   })
+  const handleDrop = async (acceptedFiles: File[]) => {
+    const res = await uploadImage({
+      variables: {
+        file: acceptedFiles[0]
+      }
+    })
+
+    setValue('idVerification', res?.data.uploadImage)
+  }
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.gif']
     },
     multiple: false,
     disabled: uploadingImage,
-    onDrop: async (acceptedFiles) => {
-      // TODO upload to s3
-      const res = await uploadImage({
-        variables: {
-          file: acceptedFiles[0]
-        }
-      })
-      // @ts-expect-error
-      setValue('caretakerForm.idVerification', res?.data.uploadImage)
-    }
+    onDrop: handleDrop,
   })
 
-  const idImg = watch('caretaker.idVerification')
+  const idImg = watch('idVerification')
   // TODO caretaker phone verification flow
-  const onSubmit: SubmitHandler<CaretakerForm> = data => {
+  const onSubmit: SubmitHandler<CaretakerForm> = async data => {
     setCaretakerForm(data)
     // TODO Send verification code to phone
     onOpen()
     // TODO proceed
   }
-  const goBack = (): Dispatch<SetStateAction<OnboardingStep>> => {
+  const goBack = (): void => {
     setStep('pricing')
   }
 
   return (
-    <form onSubmit={() => handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Stack align="center" direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, md: 6 }}>
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           <ModalContent>

@@ -1,0 +1,55 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "import",
+    "unused-imports"
+  ],
+  "rules": {
+    "react/function-component-definition": [
+      2,
+      { "namedComponents": "arrow-function" }
+    ],
+    "arrow-body-style": ["error", "as-needed"],
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-debugger": ["warn"],
+    "no-unused-vars": ["off"],
+    "no-extra-semi": "off",
+    "no-fallthrough": "off",
+    "no-useless-escape": "off",
+    "array-callback-return": "off",
+    "unused-imports/no-unused-imports": "warn",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
+    ],
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        },
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@myco*",
+            "group": "unknown",
+            "patternOptions": { "matchBase": true },
+            "position": "after"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"]
+      }
+    ]
+
+  }
+}

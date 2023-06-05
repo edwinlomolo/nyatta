@@ -3,16 +3,18 @@ import React, { useCallback, useEffect } from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { setCookie, deleteCookie } from 'cookies-next'
 
-import AuthContext from './AuthContext'
-import { Http } from '../../utils'
 import { apiUrl } from '../../helpers'
+import { Http } from '../../utils'
+
+import AuthContext from './AuthContext'
+
 import { getApolloClient } from '@apollo'
 
 interface Props {
   children: React.ReactNode
 }
 
-function AuthProvider ({ children }: Props) {
+const AuthProvider = ({ children }: Props) => {
   const client = getApolloClient()
   const { user, isLoading } = useUser()
   const handleLogout = useCallback(

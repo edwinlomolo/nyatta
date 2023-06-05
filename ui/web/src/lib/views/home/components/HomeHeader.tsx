@@ -1,7 +1,6 @@
 import { Box, Button, Flex, Heading, Divider, VStack } from '@chakra-ui/react'
 
-function HomeHeader () {
-  return (
+const HomeHeader = () => (
     <Flex>
       <VStack
         w="100%"
@@ -25,6 +24,5 @@ function HomeHeader () {
       </VStack>
     </Flex>
   )
-}
 
 export default HomeHeader

@@ -1,6 +1,6 @@
 import { useContext } from 'react'
-import Link from 'next/link'
 
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Avatar,
   Button,
@@ -10,13 +10,13 @@ import {
   Spacer,
   Text
 } from '@chakra-ui/react'
-import { ChevronDownIcon } from '@chakra-ui/icons'
+import Link from 'next/link'
+
 
 import AuthContext from '../../auth/providers/AuthContext'
-
 import { Dropdown } from '../dropdown'
 
-function Navigation () {
+const Navigation = () => {
   const { user, logout } = useContext(AuthContext)
 
   return (

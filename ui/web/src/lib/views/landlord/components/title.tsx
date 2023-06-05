@@ -1,10 +1,11 @@
 import { Text } from '@chakra-ui/react'
 
+import { FormStepTitle } from '../constants'
+
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
-import { FormSteps, FormStepTitle } from '../constants'
 
-function Title () {
+const Title = () => {
   const { step, getValues } = usePropertyOnboarding()
   const { units } = getValues()
 

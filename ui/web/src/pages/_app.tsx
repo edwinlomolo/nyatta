@@ -1,18 +1,20 @@
+import { ApolloProvider, type ApolloClient } from '@apollo/client'
+import { UserProvider } from '@auth0/nextjs-auth0/client'
+import { ChakraProvider } from '@chakra-ui/react'
+import { getCookie } from 'cookies-next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-import { UserProvider } from '@auth0/nextjs-auth0/client'
-import { getCookie } from 'cookies-next'
-import { ChakraProvider } from '@chakra-ui/react'
 
-import { theme } from '@styles'
-
-import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
-import { OnboardingProvider } from '../lib/views/landlord/providers/property-onboarding'
-
-import { ApolloProvider, type ApolloClient } from '@apollo/client'
-import { AuthProvider } from '@auth'
 import { createClient } from '../lib/apollo/createClient'
+import { OnboardingProvider } from '../lib/views/landlord/providers/property-onboarding'
+import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
+
+
+
+
+import { AuthProvider } from '@auth'
 import Layout from '@layout'
+import { theme } from '@styles'
 
 export default function App ({ Component, pageProps }: AppProps) {
   const jwt = getCookie('jwt')

@@ -1,7 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 
-function Footer () {
-  return (
+const Footer = () => (
     <Box
       textAlign="center"
       mx="auto"
@@ -24,6 +23,5 @@ function Footer () {
       </Flex>
     </Box>
   )
-}
 
 export default Footer

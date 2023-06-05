@@ -1,14 +1,13 @@
 import { type PropsWithChildren } from 'react'
 
 import { useLazyQuery } from '@apollo/client'
-
 import { useForm } from 'react-hook-form'
 
-import { getListings as GET_LISTINGS } from '@gql'
 
 import { SearchListingContext } from '../context/search-listings'
 
 import { type SearchListingForm } from '@form'
+import { getListings as GET_LISTINGS } from '@gql'
 
 export const SearchListingProvider = ({ children }: PropsWithChildren) => {
   const [getListings, { loading, data }] = useLazyQuery(GET_LISTINGS)

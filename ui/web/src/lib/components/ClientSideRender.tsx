@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { Box } from '@chakra-ui/react'
 
-function ClientSideRender ({ children, ...delegated }: { children: React.ReactNode }) {
+const ClientSideRender = ({ children, ...delegated }: { children: React.ReactNode }) => {
   const hasMounted = useRef(false)
 
   useEffect(() => {

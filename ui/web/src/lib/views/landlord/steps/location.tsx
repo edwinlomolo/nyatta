@@ -1,12 +1,12 @@
-import { Button, FormControl, FormLabel, FormErrorMessage, FormHelperText, Input, VStack, HStack, Spacer } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import Select from 'react-select'
+import { Button, FormControl, FormLabel, FormErrorMessage, FormHelperText, Input, VStack, HStack, Spacer } from '@chakra-ui/react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
+import Select from 'react-select'
 
-import { type LocationForm } from '../types'
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
+import { type LocationForm } from '../types'
 
-function Location () {
+const Location = () => {
   const { locationForm, setLocationForm, towns, setStep } = usePropertyOnboarding()
   const { control, handleSubmit, register, setValue, getValues, formState: { errors } } = useForm<LocationForm>({
     defaultValues: locationForm,

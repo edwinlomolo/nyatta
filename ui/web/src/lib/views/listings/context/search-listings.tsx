@@ -1,7 +1,6 @@
 import { createContext } from 'react'
 
 import { type LazyQueryResult, type LazyQueryHookOptions, type OperationVariables } from '@apollo/client'
-
 import { type UseFormRegister, type FieldValues, type FormState, type Control, type UseFormSetValue, type UseFormHandleSubmit } from 'react-hook-form'
 
 import { type SearchListingForm } from '@form'

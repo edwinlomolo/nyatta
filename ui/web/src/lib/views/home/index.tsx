@@ -1,10 +1,9 @@
 import Head from 'next/head'
 
-import HomeHeader from './components/HomeHeader'
 import Footer from './components/Footer'
+import HomeHeader from './components/HomeHeader'
 
-function Home () {
-  return (
+const Home = () => (
     <>
       <Head>
         <title>Nyatta - Find homes or apartments for rent.</title>
@@ -13,6 +12,5 @@ function Home () {
       <Footer />
     </>
   )
-}
 
 export default Home

@@ -1,12 +1,12 @@
 import Head from 'next/head'
 
-import { GlobalLoader } from '@components'
-import Search from './components/Search'
 import NoListings from './components/NoListings'
+import Search from './components/Search'
 
+import { GlobalLoader } from '@components'
 import { useSearchListings } from '@usePropertySearch'
 
-function Listings () {
+const Listings = () => {
   const { listingsData, listingsLoading } = useSearchListings()
 
   return (

@@ -1,11 +1,11 @@
-import { Controller } from 'react-hook-form'
 import { Button, Flex, FormControl, FormErrorMessage, Input, Select as ChakraSelect } from '@chakra-ui/react'
+import { Controller } from 'react-hook-form'
 import Select from 'react-select'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useSearchListings } from '@usePropertySearch'
 
-function Search () {
+const Search = () => {
   const { towns } = usePropertyOnboarding()
   const { control, getListings, handleSubmit, register, formState: { errors } } = useSearchListings()
   const onSubmit = async (data: any) => {

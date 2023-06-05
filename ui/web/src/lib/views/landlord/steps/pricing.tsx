@@ -1,14 +1,15 @@
-import { Button, FormControl, FormErrorMessage, FormLabel, FormHelperText, Input, HStack, Spacer, VStack } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { useForm, type SubmitHandler } from 'react-hook-form'
+import { Button, FormControl, FormErrorMessage, FormLabel, FormHelperText, Input, HStack, Spacer, VStack } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 import { type PriceForm } from '../types'
 import { priceSchema } from '../validations'
 
-function Pricing () {
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
+
+const Pricing = () => {
   const { priceForm, setPriceForm, setStep } = usePropertyOnboarding()
   const { register, handleSubmit, formState: { errors } } = useForm<PriceForm>({
     defaultValues: priceForm,

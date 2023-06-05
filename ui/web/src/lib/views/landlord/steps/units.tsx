@@ -1,11 +1,10 @@
-import { Box, Button, FormControl, FormErrorMessage, FormLabel, HStack, Input, FormHelperText, VStack, Spacer } from '@chakra-ui/react'
-import { ArrowForwardIcon, ArrowBackIcon } from '@chakra-ui/icons'
-
-import { Controller, useFieldArray } from 'react-hook-form'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, HStack, Input, FormHelperText, VStack } from '@chakra-ui/react'
+import { useFieldArray } from 'react-hook-form'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
-function Units () {
+const Units = () => {
   const { control, register, setStep, formState: { errors }, handleSubmit } = usePropertyOnboarding()
   const { fields, append } = useFieldArray({
     control,

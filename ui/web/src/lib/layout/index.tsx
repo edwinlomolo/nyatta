@@ -8,8 +8,7 @@ interface LayoutProps {
   children: ReactNode
 }
 
-function Layout ({ children }: LayoutProps) {
-  return (
+const Layout = ({ children }: LayoutProps) => (
     <Box>
       <Navigation />
       <Flex w="100%" direction="column">
@@ -17,6 +16,5 @@ function Layout ({ children }: LayoutProps) {
       </Flex>
     </Box>
   )
-}
 
 export default Layout
