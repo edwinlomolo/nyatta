@@ -16,7 +16,7 @@ import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { caretakerSchema } from '../validations'
 import { type CaretakerForm, type OnboardingStep } from '../types'
 
-function Caretaker (): React.Node {
+function Caretaker (): React.FC {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
