@@ -9,11 +9,13 @@ import { FaUpload } from 'react-icons/fa'
 import { type CaretakerForm } from '../types'
 import { caretakerSchema } from '../validations'
 
-import { uploadImage as UPLOAD_IMAGE } from '@gql'
+import { uploadImage as UPLOAD_IMAGE, sendVerificationCode as SEND_VERIFICATION_CODE, verifyVerificationCode as VERIFY_VERIFICATION_CODE } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Caretaker = (): JSX.Element => {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
+  const [sendVerification, { loading: sendingVerification }] = useMutation(SEND_VERIFICATION_CODE)
+  const [verifyCode, { loading: verifyingCode }] = useMutation(VERIFY_VERIFICATION_CODE)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<CaretakerForm>({
@@ -43,11 +45,23 @@ const Caretaker = (): JSX.Element => {
   const onSubmit: SubmitHandler<CaretakerForm> = async data => {
     setCaretakerForm(data)
     // TODO Send verification code to phone
+    await sendVerification({
+      variables: {
+        input: {
+          phone: caretakerForm.phoneNumber,
+          countryCode: "KE",
+        },
+      },
+    })
     onOpen()
     // TODO proceed
   }
   const goBack = (): void => {
     setStep('pricing')
+  }
+
+  const finishCaretakerStep = () => {
+    onClose()
   }
 
   return (
@@ -58,7 +72,15 @@ const Caretaker = (): JSX.Element => {
             <ModalHeader>Verify Phone</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              Phone Verification
+              <FormControl>
+                <FormLabel>Verification Code</FormLabel>
+                <Input
+                />
+                <FormHelperText>Enter 6-digit code sent to your phone</FormHelperText>
+              </FormControl>
+              <Center mt={5}>
+                <Button onClick={finishCaretakerStep} colorScheme="green">Verify</Button>
+              </Center>
             </ModalBody>
           </ModalContent>
         </Modal>
@@ -87,22 +109,30 @@ const Caretaker = (): JSX.Element => {
           </FormControl>
         </Box>
         <FormControl isInvalid={Boolean(errors?.idVerification)}>
+        <FormLabel> Identification Document</FormLabel>
           <Textarea
             as={Center}
             {...getRootProps({ className: 'dropzone' })}
             p={4}
             minH={{ base: '80px', md: '100px' }}
             cursor="pointer"
+            h="auto"
+            justify={idImg ? "start" : "center"}
             borderRadius="md"
             border="2px dashed"
             borderColor="chakra-border-color"
             spacing={4}
           >
-            {idImg && <Image
+            {idImg && !uploadingImage && <Image
               src={idImg}
               loading="eager"
+              maxW={{
+                base: "100px",
+                md: "200px"
+              }}
+              alt="ID Verification"
             />}
-            {!uploadingImage && <Icon as={FaUpload} />}
+            {!idImg && !uploadingImage && <Icon as={FaUpload} />}
             {uploadingImage && <Spinner size="lg" />}
           </Textarea>
           <input {...register('idVerification')} {...getInputProps()} />

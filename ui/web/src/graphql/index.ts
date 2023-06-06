@@ -4,3 +4,5 @@ export * from './queries/getTowns'
 export * from './queries/hello'
 // Mutations
 export * from './mutations/uploadFile'
+export * from './mutations/sendVerificationCode'
+export * from './mutations/verifyVerificationCode'

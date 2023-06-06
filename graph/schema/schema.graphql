@@ -57,9 +57,24 @@ input ListingsInput {
   maxPrice: Int
 }
 
+# Represents supported country codes
+enum CountryCode { KE }
+
+# Represent send verification parameters
+input VerificationInput {
+  phone: String!
+  countryCode: CountryCode!
+  verifyCode: String
+}
+
 # after signin return this
 type Token {
   token: String!
+}
+
+# State after an operation
+type Status {
+  success: String!
 }
 
 type Query {
@@ -79,6 +94,8 @@ type Mutation {
   addUnitBedrooms(input: [UnitBedroomInput!]!): [Bedroom!]!
   addPropertyUnitTenant(input: TenancyInput!): Tenant!
   uploadImage(file: Upload!): String!
+  sendVerificationCode(input: VerificationInput!): Status!
+  verifyVerificationCode(input: VerificationInput!): Status!
 }
 
 schema {

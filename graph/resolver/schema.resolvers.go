@@ -77,6 +77,24 @@ func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload)
 	return fileLocation, nil
 }
 
+// SendVerificationCode is the resolver for the sendVerificationCode field.
+func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
+	status, err := ctx.Value("twilioService").(*services.TwilioServices).SendVerification(input.Phone, input.CountryCode)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return &model.Status{Success: status}, nil
+}
+
+// VerifyVerificationCode is the resolver for the verifyVerificationCode field.
+func (r *mutationResolver) VerifyVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
+	status, err := ctx.Value("twilioService").(*services.TwilioServices).VerifyCode(input.Phone, *input.VerifyCode, input.CountryCode)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return &model.Status{Success: status}, nil
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)

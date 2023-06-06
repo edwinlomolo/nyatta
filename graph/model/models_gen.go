@@ -3,6 +3,9 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 )
 
@@ -44,6 +47,10 @@ type PropertyUnitInput struct {
 	Bathrooms  int    `json:"bathrooms"`
 }
 
+type Status struct {
+	Success string `json:"success"`
+}
+
 type TenancyInput struct {
 	StartDate      time.Time  `json:"startDate"`
 	EndDate        *time.Time `json:"endDate"`
@@ -74,4 +81,49 @@ type UnitBedroomInput struct {
 	BedroomNumber  int    `json:"bedroomNumber"`
 	EnSuite        bool   `json:"enSuite"`
 	Master         bool   `json:"master"`
+}
+
+type VerificationInput struct {
+	Phone       string      `json:"phone"`
+	CountryCode CountryCode `json:"countryCode"`
+	VerifyCode  *string     `json:"verifyCode"`
+}
+
+type CountryCode string
+
+const (
+	CountryCodeKe CountryCode = "KE"
+)
+
+var AllCountryCode = []CountryCode{
+	CountryCodeKe,
+}
+
+func (e CountryCode) IsValid() bool {
+	switch e {
+	case CountryCodeKe:
+		return true
+	}
+	return false
+}
+
+func (e CountryCode) String() string {
+	return string(e)
+}
+
+func (e *CountryCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CountryCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CountryCode", str)
+	}
+	return nil
+}
+
+func (e CountryCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
