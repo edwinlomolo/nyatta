@@ -1,24 +1,29 @@
 import { useMutation } from '@apollo/client'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Modal, ModalCloseButton, ModalHeader, ModalContent, ModalBody, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
+import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FaUpload } from 'react-icons/fa'
 
+import { VerificationModal } from '../components'
 import { type CaretakerForm } from '../types'
 import { caretakerSchema } from '../validations'
 
-import { uploadImage as UPLOAD_IMAGE, sendVerificationCode as SEND_VERIFICATION_CODE, verifyVerificationCode as VERIFY_VERIFICATION_CODE } from '@gql'
+import { uploadImage as UPLOAD_IMAGE, sendVerificationCode as SEND_VERIFICATION_CODE, } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Caretaker = (): JSX.Element => {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
-  const [sendVerification, { loading: sendingVerification }] = useMutation(SEND_VERIFICATION_CODE)
-  const [verifyCode, { loading: verifyingCode }] = useMutation(VERIFY_VERIFICATION_CODE)
+  const [sendVerification, { loading: sendingVerification }] = useMutation(SEND_VERIFICATION_CODE, {
+    onCompleted: () => {
+      onOpen()
+    },
+  })
+  
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
-  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<CaretakerForm>({
+  const { register, handleSubmit, setValue, formState: { errors }, trigger, watch } = useForm<CaretakerForm>({
     defaultValues: caretakerForm,
     resolver: yupResolver(caretakerSchema)
   })
@@ -30,6 +35,7 @@ const Caretaker = (): JSX.Element => {
     })
 
     setValue('idVerification', res?.data.uploadImage)
+    trigger("idVerification")
   }
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -41,49 +47,37 @@ const Caretaker = (): JSX.Element => {
   })
 
   const idImg = watch('idVerification')
-  // TODO caretaker phone verification flow
+
   const onSubmit: SubmitHandler<CaretakerForm> = async data => {
     setCaretakerForm(data)
-    // TODO Send verification code to phone
+    // Send verification code to phone
     await sendVerification({
       variables: {
         input: {
-          phone: caretakerForm.phoneNumber,
+          phone: data.phoneNumber,
           countryCode: "KE",
         },
       },
+      onCompleted: data => {
+        const status = data?.sendVerificationCode.status
+        if (status === "pending") {
+          onOpen()
+        }
+      },
     })
-    onOpen()
-    // TODO proceed
   }
+   
   const goBack = (): void => {
     setStep('pricing')
-  }
-
-  const finishCaretakerStep = () => {
-    onClose()
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack align="center" direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, md: 6 }}>
-        <Modal isCentered isOpen={isOpen} onClose={onClose}>
-          <ModalContent>
-            <ModalHeader>Verify Phone</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <FormControl>
-                <FormLabel>Verification Code</FormLabel>
-                <Input
-                />
-                <FormHelperText>Enter 6-digit code sent to your phone</FormHelperText>
-              </FormControl>
-              <Center mt={5}>
-                <Button onClick={finishCaretakerStep} colorScheme="green">Verify</Button>
-              </Center>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+        <VerificationModal
+          onClose={onClose}
+          isOpen={isOpen}
+        />
         <Box w="100%">
           <FormControl isInvalid={Boolean(errors?.firstName)}>
             <FormLabel>First Name</FormLabel>
@@ -141,9 +135,9 @@ const Caretaker = (): JSX.Element => {
         </FormControl>
       </Stack>
       <HStack mt={{ base: 4, md: 6 }}>
-        <Button colorScheme="green" leftIcon={<ArrowBackIcon />} onClick={goBack}>Go back</Button>
+        <Button colorScheme="green" disabled={sendingVerification} leftIcon={<ArrowBackIcon />} onClick={goBack}>Go back</Button>
         <Spacer />
-        <Button type="submit" colorScheme="green" rightIcon={<ArrowForwardIcon />}>Next</Button>
+        <Button type="submit" colorScheme="green" disabled={sendingVerification} isLoading={sendingVerification} rightIcon={<ArrowForwardIcon />}>Next</Button>
       </HStack>
     </form>
   )
