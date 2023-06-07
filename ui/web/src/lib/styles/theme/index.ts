@@ -14,7 +14,6 @@ export const theme = extendTheme({
       }
     }
   },
-  // fonts,
   styles: {
     global: () => ({})
   }
