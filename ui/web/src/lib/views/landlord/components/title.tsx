@@ -12,7 +12,7 @@ const Title = () => {
   return (
     <Text fontSize={{ base: '2xl', md: '3xl' }}>
       {FormStepTitle[step]} {' '}
-      {units?.length > 0 && <span>({units?.length})</span>}
+      {step === 'units' && units?.length > 0 && <span>({units?.length})</span>}
     </Text>
   )
 }
