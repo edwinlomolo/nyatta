@@ -24,7 +24,7 @@ const VerificationModal = ({ isOpen, onClose }: Props): JSX.Element => {
     await verifyCode({
       variables: {
         input: {
-          phone: caretakerForm.phoneNumber,
+          phone: `${caretakerForm.countryCode}${caretakerForm.phoneNumber}`,
           countryCode: "KE",
           verifyCode: data.verificationCode,
         },
@@ -51,6 +51,7 @@ const VerificationModal = ({ isOpen, onClose }: Props): JSX.Element => {
               <Stack direction="row">
                 <Input
                   {...register("verificationCode", { required: { value: true, message: "Invalid code" } })}
+                  type="number"
                 />
                 <Button type="submit" isLoading={verifyingCode} disabled={verifyingCode} colorScheme="green">Verify</Button>
               </Stack>

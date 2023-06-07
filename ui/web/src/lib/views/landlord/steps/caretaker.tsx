@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client'
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Spacer, Stack, Textarea, useDisclosure, Spinner } from '@chakra-ui/react'
+import { Box, Center, Button, HStack, Image, FormControl, FormErrorMessage, FormHelperText, FormLabel, Icon, Input, Spacer, Stack, Textarea, useDisclosure, Spinner, Select } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 import { useForm, type SubmitHandler } from 'react-hook-form'
@@ -50,13 +50,13 @@ const Caretaker = (): JSX.Element => {
     await sendVerification({
       variables: {
         input: {
-          phone: data.phoneNumber,
+          phone: `${caretakerForm.countryCode}${data.phoneNumber}`,
           countryCode: "KE",
         },
       },
       // Proceed to next step once successfull
       onCompleted: data => {
-        const status = data?.sendVerificationCode.status
+        const status = data?.sendVerificationCode.success
         if (status === "pending") {
           onOpen()
         }
@@ -90,12 +90,17 @@ const Caretaker = (): JSX.Element => {
             />
             {((errors?.lastName) != null) && <FormErrorMessage>{errors?.lastName.message}</FormErrorMessage>}
           </FormControl>
-          <FormControl isInvalid={Boolean(errors?.phoneNumber)}>
+          <FormControl isInvalid={Boolean(errors?.phoneNumber || errors?.countryCode)}>
             <FormLabel>Phone Number</FormLabel>
-            <Input
-              {...register('phoneNumber')}
-              type="number"
-            />
+            <HStack>
+              <Select {...register("countryCode")}>
+                <option value="+254">+254</option>
+              </Select>
+              <Input
+                {...register('phoneNumber')}
+                type="number"
+              />
+            </HStack>
             {((errors?.phoneNumber) != null) && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
           </FormControl>
         </Box>

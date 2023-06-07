@@ -39,6 +39,7 @@ export interface CaretakerForm {
   lastName: string
   phoneNumber: string
   idVerification: string
+  countryCode: string
 }
 
 export interface UnitsForm {

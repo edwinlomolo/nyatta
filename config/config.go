@@ -23,6 +23,7 @@ type Configuration struct {
 	JwtConfig Jwt
 	Server    ServerConfig
 	Aws       AwsConfig
+	Twilio    TwilioConfig
 }
 
 var configAll *Configuration
@@ -35,6 +36,7 @@ func LoadConfig() *Configuration {
 	configuration.JwtConfig = jsonWebToken()
 	configuration.Server = server()
 	configuration.Aws = awsConfig()
+	configuration.Twilio = twilioConfig()
 
 	configAll = &configuration
 
@@ -126,4 +128,18 @@ func awsConfig() AwsConfig {
 	aws.S3.Buckets.Caretaker = os.Getenv("S3_CARETAKER_BUCKET")
 
 	return aws
+}
+
+// twilioConfig - setup twilio config
+func twilioConfig() TwilioConfig {
+	var twilio TwilioConfig
+
+	// Load env variables
+	env()
+
+	twilio.Sid = os.Getenv("TWILIO_ACCOUNT_SID")
+	twilio.AuthToken = os.Getenv("TWILIO_AUTH_TOKEN")
+	twilio.VerifySid = os.Getenv("TWILIO_VERIFICATION_SID")
+
+	return twilio
 }
