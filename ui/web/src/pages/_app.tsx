@@ -10,7 +10,7 @@ import { createClient } from '../lib/apollo/createClient'
 import { OnboardingProvider } from '../lib/views/landlord/providers/property-onboarding'
 import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
 
-const mabroFont = localFont({ src: '../lib/styles/assets/font/MabryPro-Regular.ttf' })
+const mabryFont = localFont({ src: '../lib/styles/assets/font/MabryPro-Regular.ttf' })
 
 import { AuthProvider } from '@auth'
 import Layout from '@layout'
@@ -21,7 +21,14 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
   const client = createClient(jwt)
 
   return (
-    <main className={mabroFont.className}>
+    <main>
+      <style jsx global>
+        {`
+          :root {
+            --font-mabry: ${mabryFont.style.fontFamily};
+          }
+        `}
+      </style>
       <Head>
         <meta
           name="viewport"

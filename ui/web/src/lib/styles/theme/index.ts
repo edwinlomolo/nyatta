@@ -14,6 +14,10 @@ export const theme = extendTheme({
       }
     }
   },
+  fonts: {
+    heading: 'var(--font-mabry)',
+    body: 'var(--font-mabry)',
+  },
   styles: {
     global: () => ({})
   }
