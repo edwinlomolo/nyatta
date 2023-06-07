@@ -1,4 +1,4 @@
-import { ApolloProvider, type ApolloClient, type NormalizedObject } from '@apollo/client'
+import { ApolloProvider, type ApolloClient, type NormalizedCacheObject } from '@apollo/client'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 import { ChakraProvider } from '@chakra-ui/react'
 import localFont from '@next/font/local'
@@ -30,7 +30,7 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
       </Head>
       <UserProvider>
         <AuthProvider>
-          <ApolloProvider client={client as ApolloClient<NormalizedObject>}>
+          <ApolloProvider client={client as ApolloClient<NormalizedCacheObject>}>
             <ChakraProvider theme={theme} cssVarsRoot="body">
               <SearchListingProvider>
                 <OnboardingProvider>
