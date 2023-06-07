@@ -15,12 +15,7 @@ import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Caretaker = (): JSX.Element => {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
-  const [sendVerification, { loading: sendingVerification }] = useMutation(SEND_VERIFICATION_CODE, {
-    onCompleted: () => {
-      onOpen()
-    },
-  })
-  
+  const [sendVerification, { loading: sendingVerification }] = useMutation(SEND_VERIFICATION_CODE)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
   const { register, handleSubmit, setValue, formState: { errors }, trigger, watch } = useForm<CaretakerForm>({
@@ -33,7 +28,6 @@ const Caretaker = (): JSX.Element => {
         file: acceptedFiles[0]
       }
     })
-
     setValue('idVerification', res?.data.uploadImage)
     trigger("idVerification")
   }
@@ -46,8 +40,10 @@ const Caretaker = (): JSX.Element => {
     onDrop: handleDrop,
   })
 
+  // Watch verification img changes
   const idImg = watch('idVerification')
 
+  // Start caretaker verification flow
   const onSubmit: SubmitHandler<CaretakerForm> = async data => {
     setCaretakerForm(data)
     // Send verification code to phone
@@ -58,6 +54,7 @@ const Caretaker = (): JSX.Element => {
           countryCode: "KE",
         },
       },
+      // Proceed to next step once successfull
       onCompleted: data => {
         const status = data?.sendVerificationCode.status
         if (status === "pending") {

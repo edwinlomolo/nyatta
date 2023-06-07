@@ -16,13 +16,10 @@ interface Props {
 
 const VerificationModal = ({ isOpen, onClose }: Props): JSX.Element => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>()
-  const [verifyCode, { loading: verifyingCode }] = useMutation(VERIFY_VERIFICATION_CODE, {
-    onCompleted: () => {
-      onClose()
-    },
-  })
+  const [verifyCode, { loading: verifyingCode }] = useMutation(VERIFY_VERIFICATION_CODE)
   const { setStep, caretakerForm } = usePropertyOnboarding()
   
+  // Verify phone
   const onSubmit: SubmitHandler<FormValues> = async data => {
     await verifyCode({
       variables: {
@@ -32,6 +29,7 @@ const VerificationModal = ({ isOpen, onClose }: Props): JSX.Element => {
           verifyCode: data.verificationCode,
         },
       },
+      // Proceed next step if successfull
       onCompleted: data => {
         const status = data?.verifyVerificationCode.success
         if (status === "approved") {
