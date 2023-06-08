@@ -1,17 +1,24 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, FormControl, FormErrorMessage, FormLabel, HStack, Input, FormHelperText, VStack } from '@chakra-ui/react'
-import { useFieldArray } from 'react-hook-form'
+import { useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
+
+import { defaultUnitsForm } from '../constants'
+import { UnitsForm } from '../types'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Units = () => {
-  const { control, register, setStep, formState: { errors }, handleSubmit } = usePropertyOnboarding()
+  const { register, control, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
+    defaultValues: { ...defaultUnitsForm },
+    mode: "onChange"
+  })
+  const { setStep } = usePropertyOnboarding()
   const { fields, append } = useFieldArray({
     control,
     name: 'units'
   })
-  const onSubmit = (data: any) => { console.log(data) }
-  const goBack = () => { setStep('pricing') }
+  const onSubmit: SubmitHandler<UnitsForm> = data => console.log(data)
+  const goBack = () => { setStep('caretaker') }
   const appendUnit = () => {
     append({ name: 'Harambe' })
   }
@@ -19,13 +26,13 @@ const Units = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <VStack overflowY="auto" h="20vh" spacing={{ base: 4, md: 6 }}>
-        {fields.map((unit, unitIndex) => (
+        {fields.map((_, unitIndex) => (
           <Box w="100%" gap={4} key={unitIndex} >
           <FormControl isInvalid={Boolean(errors?.units)}>
             <FormLabel>Unit name</FormLabel>
             <Input
               size="sm"
-              {...register('units', { required: 'Unit name is required' })}
+              {...register(`units.${unitIndex}.name`)}
               placeholder="Name/ID"
             />
             {((errors?.units) != null) && <FormErrorMessage>{`${errors?.units.message}`}</FormErrorMessage>}

@@ -30,7 +30,8 @@ export const defaultCaretakerForm: CaretakerForm = {
   firstName: '',
   lastName: '',
   phoneNumber: '',
-  idVerification: ''
+  idVerification: '',
+  countryCode: ''
 }
 
 export const defaultUnitsForm: UnitsForm = {

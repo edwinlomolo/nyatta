@@ -47,7 +47,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
     postalCode: item.postalCode
   }))
 
-  const [step, setStep] = useState<OnboardingStep>('caretaker')
+  const [step, setStep] = useState<OnboardingStep>('units')
   const { control, getValues, reset, setValue, handleSubmit, formState, register } = useForm<FormValues>({
     mode: 'onChange',
     resolver: yupResolver(validationSchema)
