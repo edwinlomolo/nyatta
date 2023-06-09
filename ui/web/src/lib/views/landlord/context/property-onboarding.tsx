@@ -26,6 +26,8 @@ interface OnboardingContext {
   setUnitsForm: Dispatch<SetStateAction<UnitsForm>>
   caretakerForm: CaretakerForm
   setCaretakerForm: Dispatch<SetStateAction<CaretakerForm>>
+  unitsCount: number
+  setUnitsCount: Dispatch<SetStateAction<number>>
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
@@ -48,5 +50,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   unitsForm: {} as UnitsForm,
   setUnitsForm: () => {},
   caretakerForm: {} as CaretakerForm,
-  setCaretakerForm: () => {}
+  setCaretakerForm: () => {},
+  unitsCount: 0,
+  setUnitsCount: () => {}
 })

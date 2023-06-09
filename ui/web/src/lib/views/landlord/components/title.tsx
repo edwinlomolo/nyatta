@@ -6,13 +6,12 @@ import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 
 const Title = () => {
-  const { step, getValues } = usePropertyOnboarding()
-  const { units } = getValues()
+  const { step, unitsCount } = usePropertyOnboarding()
 
   return (
     <Text fontSize={{ base: '2xl', md: '3xl' }}>
       {FormStepTitle[step]} {' '}
-      {step === 'units' && units?.length > 0 && <span>({units?.length})</span>}
+      {step === 'units' && unitsCount > 0 && <span>({unitsCount})</span>}
     </Text>
   )
 }

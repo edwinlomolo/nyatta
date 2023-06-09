@@ -1,5 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, FormControl, FormErrorMessage, FormLabel, HStack, Input, FormHelperText, VStack } from '@chakra-ui/react'
+import { Button, FormControl, FormErrorMessage, FormLabel, HStack, Input, FormHelperText, VStack } from '@chakra-ui/react'
 import { useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
 
 import { defaultUnitsForm } from '../constants'
@@ -8,11 +8,11 @@ import { UnitsForm } from '../types'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Units = () => {
-  const { register, control, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
+  const { register, control, getValues, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
     defaultValues: { ...defaultUnitsForm },
     mode: "onChange"
   })
-  const { setStep } = usePropertyOnboarding()
+  const { setStep, setUnitsCount } = usePropertyOnboarding()
   const { fields, append } = useFieldArray({
     control,
     name: 'units'
@@ -21,13 +21,14 @@ const Units = () => {
   const goBack = () => { setStep('caretaker') }
   const appendUnit = () => {
     append({ name: 'Harambe' })
+    setUnitsCount(getValues()?.units.length)
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <VStack overflowY="auto" h="20vh" spacing={{ base: 4, md: 6 }}>
         {fields.map((_, unitIndex) => (
-          <Box w="100%" gap={4} key={unitIndex} >
+          <VStack w="100%" gap={4} key={unitIndex} >
             <FormControl isInvalid={Boolean(errors?.units)}>
               <FormLabel>Unit name</FormLabel>
               <Input
@@ -38,7 +39,7 @@ const Units = () => {
               {((errors?.units) != null) && <FormErrorMessage>{`${errors?.units.message}`}</FormErrorMessage>}
               <FormHelperText>How do you name your units?</FormHelperText>
             </FormControl>
-          </Box>
+          </VStack>
         ))}
       </VStack>
       <HStack mt={{ base: 4, md: 6 }}>

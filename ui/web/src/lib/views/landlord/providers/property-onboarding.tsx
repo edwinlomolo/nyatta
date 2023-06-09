@@ -38,6 +38,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [priceForm, setPriceForm] = useState<PriceForm>(defaultPriceForm)
   const [caretakerForm, setCaretakerForm] = useState<CaretakerForm>(defaultCaretakerForm)
   const [unitsForm, setUnitsForm] = useState<UnitsForm>(defaultUnitsForm)
+  const [unitsCount, setUnitsCount] = useState<number>(0)
   // For default towns select input
   const { data } = useQuery(GET_TOWNS)
   const locations = data?.getTowns.map((item: any) => ({
@@ -75,7 +76,9 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
         control,
         setValue,
         reset,
-        getValues
+        getValues,
+        unitsCount,
+        setUnitsCount,
       }}
     >
       {children}
