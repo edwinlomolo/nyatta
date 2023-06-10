@@ -38,6 +38,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [locationForm, setLocationForm] = useState<LocationForm>(defaultLocationForm)
   const [priceForm, setPriceForm] = useState<PriceForm>(defaultPriceForm)
   const [caretakerForm, setCaretakerForm] = useState<CaretakerForm>(defaultCaretakerForm)
+  const [caretakerVerified, setCaretakerVerified] = useState<boolean>(false)
   const [unitsForm, setUnitsForm] = useState<UnitsForm>(defaultUnitsForm)
   const [unitsCount, setUnitsCount] = useState<number>(0)
   // For default towns select input
@@ -64,6 +65,8 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
         setDescriptionForm,
         caretakerForm,
         setCaretakerForm,
+        caretakerVerified,
+        setCaretakerVerified,
         unitsForm,
         setUnitsForm,
         locationForm,

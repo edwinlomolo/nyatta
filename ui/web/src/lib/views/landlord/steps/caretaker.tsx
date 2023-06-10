@@ -17,7 +17,7 @@ const Caretaker = (): JSX.Element => {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)
   const [sendVerification, { loading: sendingVerification }] = useMutation(SEND_VERIFICATION_CODE)
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { setStep, caretakerForm, setCaretakerForm } = usePropertyOnboarding()
+  const { setStep, caretakerForm, setCaretakerForm, caretakerVerified } = usePropertyOnboarding()
   const { register, handleSubmit, setValue, formState: { errors }, trigger, watch } = useForm<CaretakerForm>({
     defaultValues: caretakerForm,
     resolver: yupResolver(caretakerSchema)
@@ -47,21 +47,23 @@ const Caretaker = (): JSX.Element => {
   const onSubmit: SubmitHandler<CaretakerForm> = async data => {
     setCaretakerForm(data)
     // Send verification code to phone
-    await sendVerification({
-      variables: {
-        input: {
-          phone: `${caretakerForm.countryCode}${data.phoneNumber}`,
-          countryCode: "KE",
+    if (!caretakerVerified || (data.phoneNumber != caretakerForm.phoneNumber)) {
+      await sendVerification({
+        variables: {
+          input: {
+            phone: `${caretakerForm.countryCode}${data.phoneNumber}`,
+            countryCode: "KE",
+          },
         },
-      },
-      // Proceed to next step once successfull
-      onCompleted: data => {
-        const status = data?.sendVerificationCode.success
-        if (status === "pending") {
-          onOpen()
-        }
-      },
-    })
+        // Proceed to next step once successfull
+        onCompleted: data => {
+          const status = data?.sendVerificationCode.success
+          if (status === "pending") {
+            onOpen()
+          }
+        },
+      })
+    }
   }
    
   const goBack = (): void => {

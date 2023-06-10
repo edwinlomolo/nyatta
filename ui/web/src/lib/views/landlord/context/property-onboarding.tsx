@@ -30,6 +30,8 @@ interface OnboardingContext {
   setUnitsCount: Dispatch<SetStateAction<number>>
   amenitiesForm: AmenitiesForm
   setAmenitiesForm: Dispatch<SetStateAction<AmenitiesForm>>
+  caretakerVerified: boolean
+  setCaretakerVerified: Dispatch<SetStateAction<boolean>>
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
@@ -56,5 +58,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   unitsCount: 0,
   setUnitsCount: () => {},
   amenitiesForm: {} as AmenitiesForm,
-  setAmenitiesForm: () => {}
+  setAmenitiesForm: () => {},
+  caretakerVerified: false,
+  setCaretakerVerified: () => false
 })

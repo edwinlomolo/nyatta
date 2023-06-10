@@ -20,7 +20,7 @@ const Pricing = () => {
     setPriceForm(data)
     setStep('caretaker')
   }
-  const goBack = () => { setStep('location') }
+  const goBack = () => { setStep('amenities') }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

@@ -4,20 +4,20 @@ import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import Select from 'react-select'
 
 import data from '../../../data/amenities.json'
-import { defaultAmenitiesForm } from '../constants'
 import { type AmenitiesForm } from '../types'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Amenities = (): JSX.Element => {
-  const { setStep, setAmenitiesForm } = usePropertyOnboarding()
+  const { setStep, amenitiesForm, setAmenitiesForm } = usePropertyOnboarding()
   const { control, handleSubmit, formState: { errors } } = useForm<AmenitiesForm>({
-    defaultValues: { ...defaultAmenitiesForm }
+    defaultValues: amenitiesForm,
   })
 
   const goBack = () => setStep('location')
   const onSubmit: SubmitHandler<AmenitiesForm> = data => {
     setAmenitiesForm(data)
+    setStep('pricing')
   }
 
   const { amenities } = data
