@@ -3,7 +3,7 @@ import { type Dispatch, type SetStateAction, createContext } from 'react'
 import { type FormState, type Control, type UseFormRegister, type UseFormGetValues, type UseFormReset, type UseFormSetValue, type UseFormHandleSubmit } from 'react-hook-form'
 import { type GroupBase } from 'react-select'
 
-import { type OnboardingStep, type FormValues, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm, type LocationOption } from '../types'
+import { type OnboardingStep, type FormValues, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm, type LocationOption, type AmenitiesForm } from '../types'
 
 interface OnboardingContext {
   step: OnboardingStep
@@ -28,6 +28,8 @@ interface OnboardingContext {
   setCaretakerForm: Dispatch<SetStateAction<CaretakerForm>>
   unitsCount: number
   setUnitsCount: Dispatch<SetStateAction<number>>
+  amenitiesForm: AmenitiesForm
+  setAmenitiesForm: Dispatch<SetStateAction<AmenitiesForm>>
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
@@ -52,5 +54,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   caretakerForm: {} as CaretakerForm,
   setCaretakerForm: () => {},
   unitsCount: 0,
-  setUnitsCount: () => {}
+  setUnitsCount: () => {},
+  amenitiesForm: {} as AmenitiesForm,
+  setAmenitiesForm: () => {}
 })

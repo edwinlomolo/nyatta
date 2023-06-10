@@ -1,0 +1,88 @@
+{
+  "amenities": [
+    {
+      "id": 1,
+      "value": "hot water",
+      "label": "Hot water(Bathroom)",
+      "category": "Bathroom"
+    },
+    {
+      "id": 2,
+      "value": "closet/dresser",
+      "label": "Closet/Dresser",
+      "category": "Bedroom"
+    },
+    {
+      "id": 3,
+      "value": "kitchen",
+      "label": "Kitchen",
+      "category": "Kitchen"
+    },
+    {
+      "id": 4,
+      "value": "open kitchen plan",
+      "label": "Open kitchen plan",
+      "category": "Kitchen"
+    },
+    {
+      "id": 5,
+      "value": "hot water",
+      "label": "Hot tap water(Kitchen)",
+      "category": "Kitchen"
+    },
+    {
+      "id": 6,
+      "value": "dining area",
+      "label": "Dining Area/Space",
+      "category": "Dining"
+    },
+    {
+      "id": 7,
+      "value": "bedroom locks",
+      "label": "Bedroom locks",
+      "category": "Bedroom"
+    },
+    {
+      "id": 8,
+      "value": "balcony",
+      "label": "Balcony",
+      "category": "Outdoor"
+    },
+    {
+      "id": 9,
+      "value": "zuku internet",
+      "label": "Zuku Home Fibre",
+      "category": "Internet"
+    },
+    {
+      "id": 10,
+      "value": "safaricom internet",
+      "label": "Safaricom Home Fibre",
+      "category": "Internet"
+    },
+    {
+      "id": 11,
+      "value": "premises parking",
+      "label": "Free premises parking",
+      "category": "Parking"
+    },
+    {
+      "id": 12,
+      "value": "cctv security",
+      "label": "CCTV camera",
+      "category": "Security"
+    },
+    {
+      "id": 13,
+      "value": "tv cable",
+      "label": "TV cable",
+      "category": "Television"
+    },
+    {
+      "id": 14,
+      "value": "smoke alarm",
+      "label": "Smoke alarm",
+      "category": "Safety"
+    }
+  ]
+}

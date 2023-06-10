@@ -5,9 +5,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { array, object, string } from 'yup'
 
-import { defaultDescriptionForm, defaultLocationForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
+import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
 import { OnboardingContext } from '../context/property-onboarding'
-import { type OnboardingStep, type FormValues, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm } from '../types'
+import { type OnboardingStep, type FormValues, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm } from '../types'
 
 import { getTowns as GET_TOWNS } from '@gql'
 
@@ -34,6 +34,7 @@ const validationSchema = object().shape({
 
 export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [descriptionForm, setDescriptionForm] = useState<DescriptionForm>(defaultDescriptionForm)
+  const [amenitiesForm, setAmenitiesForm] = useState<AmenitiesForm>(defaultAmenitiesForm)
   const [locationForm, setLocationForm] = useState<LocationForm>(defaultLocationForm)
   const [priceForm, setPriceForm] = useState<PriceForm>(defaultPriceForm)
   const [caretakerForm, setCaretakerForm] = useState<CaretakerForm>(defaultCaretakerForm)
@@ -48,7 +49,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
     postalCode: item.postalCode
   }))
 
-  const [step, setStep] = useState<OnboardingStep>('units')
+  const [step, setStep] = useState<OnboardingStep>('amenities')
   const { control, getValues, reset, setValue, handleSubmit, formState, register } = useForm<FormValues>({
     mode: 'onChange',
     resolver: yupResolver(validationSchema)
@@ -67,6 +68,8 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
         setUnitsForm,
         locationForm,
         setLocationForm,
+        amenitiesForm,
+        setAmenitiesForm,
         step,
         handleSubmit,
         register,

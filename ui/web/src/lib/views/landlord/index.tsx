@@ -4,7 +4,7 @@ import Head from 'next/head'
 
 import { Title } from './components'
 import { FormSteps } from './constants'
-import { Description, Location, Pricing, Units, Caretaker } from './steps'
+import { Description, Location, Pricing, Units, Caretaker, Amenities } from './steps'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
@@ -25,6 +25,7 @@ const Landlord = () => {
       </HStack>
       {step === 'description' && <Description />}
       {step === 'location' && <Location />}
+      {step === 'amenities' && <Amenities />}
       {step === 'pricing' && <Pricing />}
       {step === 'units' && <Units />}
       {step === 'caretaker' && <Caretaker />}

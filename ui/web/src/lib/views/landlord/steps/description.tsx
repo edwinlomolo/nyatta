@@ -15,8 +15,7 @@ const Description = () => {
   const { setStep, descriptionForm, setDescriptionForm } = usePropertyOnboarding()
   const { register, formState: { errors }, handleSubmit } = useForm<DescriptionForm>({
     defaultValues: descriptionForm,
-    resolver: yupResolver(descriptionSchema),
-    mode: 'onChange'
+    resolver: yupResolver(descriptionSchema)
   })
 
   const onSubmit: SubmitHandler<DescriptionForm> = values => {

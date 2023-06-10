@@ -10,12 +10,11 @@ const Location = () => {
   const { locationForm, setLocationForm, towns, setStep } = usePropertyOnboarding()
   const { control, handleSubmit, register, setValue, getValues, formState: { errors } } = useForm<LocationForm>({
     defaultValues: locationForm,
-    mode: 'onChange'
   })
 
   const onSubmit: SubmitHandler<LocationForm> = data => {
     setLocationForm(data)
-    setStep('pricing')
+    setStep('amenities')
   }
 
   return (

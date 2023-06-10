@@ -1,11 +1,11 @@
-import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type UnitsForm, type PriceForm } from '../types'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type UnitsForm, type PriceForm, type AmenitiesForm } from '../types'
 
-export const FormSteps: OnboardingStep[] = ['description', 'location', 'pricing', 'caretaker', 'units']
+export const FormSteps: OnboardingStep[] = ['description', 'location', 'amenities', 'pricing', 'caretaker', 'units']
 
 export const FormStepTitle: Record<OnboardingStep, string> = {
   description: 'Describe your property?',
   location: 'Property location',
-  amenities: 'What does your property offer?',
+  amenities: 'Shared amenities',
   pricing: 'How do you price your units?',
   caretaker: 'Who is the caretaker?',
   units: 'Add property units'
@@ -35,5 +35,9 @@ export const defaultCaretakerForm: CaretakerForm = {
 }
 
 export const defaultUnitsForm: UnitsForm = {
-  units: []
+  units: [{ name: '', type: '', amenities: [] }]
+}
+
+export const defaultAmenitiesForm: AmenitiesForm = {
+  amenities: []
 }

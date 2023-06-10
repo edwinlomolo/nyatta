@@ -16,7 +16,7 @@ export interface FormValues {
   maxPrice: string
   town: LocationOption
   postalCode: string
-  units: Array<Record<string, any>>
+  units: Array<Unit>
 }
 
 export interface DescriptionForm {
@@ -42,6 +42,21 @@ export interface CaretakerForm {
   countryCode: string
 }
 
-export interface UnitsForm {
-  units: Array<Record<string, any>>
+interface Amenity {
+  id: number
+  value: string
+  label: string
+  category: string
 }
+
+interface Unit {
+  amenities: Amenity[]
+  name: string
+  type: string
+}
+
+export interface UnitsForm {
+  units: Unit[]
+}
+
+export interface AmenitiesForm { amenities: Amenity[] }
