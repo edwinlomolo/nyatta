@@ -1,13 +1,10 @@
 import { useState, type PropsWithChildren } from 'react'
 
 import { useQuery } from '@apollo/client'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm } from 'react-hook-form'
 
 import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
 import { OnboardingContext } from '../context/property-onboarding'
-import { type OnboardingStep, type FormValues, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm } from '../types'
-import { validationSchema } from '../validations'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm } from '../types'
 
 import { getTowns as GET_TOWNS } from '@gql'
 
@@ -30,10 +27,6 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   }))
 
   const [step, setStep] = useState<OnboardingStep>('amenities')
-  const { control, getValues, reset, setValue, handleSubmit, formState, register } = useForm<FormValues>({
-    mode: 'onChange',
-    resolver: yupResolver(validationSchema)
-  })
 
   return (
     <OnboardingContext.Provider
@@ -53,15 +46,8 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
         amenitiesForm,
         setAmenitiesForm,
         step,
-        handleSubmit,
-        register,
-        formState,
         setStep,
         towns: locations,
-        control,
-        setValue,
-        reset,
-        getValues,
         unitsCount,
         setUnitsCount,
       }}
