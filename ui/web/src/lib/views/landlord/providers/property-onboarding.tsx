@@ -3,34 +3,13 @@ import { useState, type PropsWithChildren } from 'react'
 import { useQuery } from '@apollo/client'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import { array, object, string } from 'yup'
 
 import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
 import { OnboardingContext } from '../context/property-onboarding'
 import { type OnboardingStep, type FormValues, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm } from '../types'
+import { validationSchema } from '../validations'
 
 import { getTowns as GET_TOWNS } from '@gql'
-
-const validationSchema = object().shape({
-  name: string().required('Property name required'),
-  propertyType: string().required('What is your property type?'),
-  minPrice: string().required('Minimum price required'),
-  maxPrice: string().required('Maximum price required'),
-  town: object().shape({
-    label: string().required(),
-    value: string().required(),
-    postalCode: string().required(),
-    id: string().required()
-  }).required('Town is required'),
-  postalCode: string().required(),
-  units: array()
-    .of(
-      object().shape({
-        text: string().required('Unit name required')
-      })
-    )
-    .required('If you got here, then your flat has unit(s) to be registered')
-})
 
 export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [descriptionForm, setDescriptionForm] = useState<DescriptionForm>(defaultDescriptionForm)
