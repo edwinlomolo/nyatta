@@ -37,7 +37,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Amenity() AmenityResolver
 	Mutation() MutationResolver
 	Property() PropertyResolver
 	PropertyUnit() PropertyUnitResolver
@@ -151,9 +150,6 @@ type ComplexityRoot struct {
 	}
 }
 
-type AmenityResolver interface {
-	Category(ctx context.Context, obj *model.Amenity) (*string, error)
-}
 type MutationResolver interface {
 	SignIn(ctx context.Context, input model.NewUser) (*model.Token, error)
 	CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error)
@@ -848,6 +844,7 @@ input NewProperty {
 input AmenityInput {
   name: String!
   provider: String!
+  category: String
   propertyId: ID!
 }
 
@@ -1402,7 +1399,7 @@ func (ec *executionContext) _Amenity_category(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Amenity().Category(rctx, obj)
+		return obj.Category, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1411,17 +1408,17 @@ func (ec *executionContext) _Amenity_category(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Amenity_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Amenity",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -6558,7 +6555,7 @@ func (ec *executionContext) unmarshalInputAmenityInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "provider", "propertyId"}
+	fieldsInOrder := [...]string{"name", "provider", "category", "propertyId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6578,6 +6575,14 @@ func (ec *executionContext) unmarshalInputAmenityInput(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("provider"))
 			it.Provider, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "category":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+			it.Category, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6966,42 +6971,29 @@ func (ec *executionContext) _Amenity(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Amenity_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "name":
 
 			out.Values[i] = ec._Amenity_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "provider":
 
 			out.Values[i] = ec._Amenity_provider(ctx, field, obj)
 
 		case "category":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Amenity_category(ctx, field, obj)
-				return res
-			}
+			out.Values[i] = ec._Amenity_category(ctx, field, obj)
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "propertyId":
 
 			out.Values[i] = ec._Amenity_propertyId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "createdAt":
 

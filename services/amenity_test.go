@@ -27,13 +27,15 @@ func Test_Amenity_service(t *testing.T) {
 	t.Run("should_add_property_amenity", func(t *testing.T) {
 		amenity, err := amenityService.AddAmenity(&model.AmenityInput{
 			Name:       "Home Fibre",
-			Provider:   "Safaricom Home Internet Services",
+			Provider:   "Safaricom Home Fibre",
+			Category:   "Internet",
 			PropertyID: property.ID,
 		})
 
 		assert.Nil(t, err)
 		assert.Equal(t, amenity.Name, "Home Fibre")
-		assert.Equal(t, amenity.Provider, "Safaricom Home Internet Services")
+		assert.Equal(t, amenity.Provider, "Safaricom Home Fibre")
+		assert.Equal(t, amenity.Category, "Internet")
 	})
 
 	t.Run("should_get_property_amenities", func(t *testing.T) {

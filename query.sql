@@ -32,9 +32,9 @@ WHERE created_by = $1;
 
 -- name: CreateAmenity :one
 INSERT INTO amenities (
-  name, provider, property_id
+  name, provider, category, property_id
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
 RETURNING *;
 

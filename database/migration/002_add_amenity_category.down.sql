@@ -1,0 +1,2 @@
+ALTER TABLE amenities
+DROP COLUMN category CASCADE;

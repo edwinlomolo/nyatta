@@ -40,6 +40,7 @@ func (a *AmenityServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenit
 	insertedAmenity, err := a.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
 		Name:       amenity.Name,
 		Provider:   amenity.Provider,
+		Category:   amenity.Category,
 		PropertyID: creator,
 	})
 	if err != nil {
@@ -50,6 +51,7 @@ func (a *AmenityServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenit
 		ID:         strconv.FormatInt(insertedAmenity.ID, 10),
 		Name:       insertedAmenity.Name,
 		Provider:   insertedAmenity.Provider,
+		Category:   insertedAmenity.Category,
 		PropertyID: strconv.FormatInt(insertedAmenity.PropertyID, 10),
 		CreatedAt:  &insertedAmenity.CreatedAt,
 		UpdatedAt:  &insertedAmenity.UpdatedAt,
@@ -70,6 +72,7 @@ func (a *AmenityServices) PropertyAmenities(propertyId string) ([]*model.Amenity
 			ID:         strconv.FormatInt(amenity.ID, 10),
 			Name:       amenity.Name,
 			Provider:   amenity.Provider,
+			Category:   amenity.Category,
 			PropertyID: strconv.FormatInt(amenity.PropertyID, 10),
 			CreatedAt:  &amenity.CreatedAt,
 			UpdatedAt:  &amenity.UpdatedAt,
