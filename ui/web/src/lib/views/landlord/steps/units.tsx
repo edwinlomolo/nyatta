@@ -1,6 +1,7 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, Center, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Stack, Select as ChakraSelect } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Select as ChakraSelect } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
 import Select from 'react-select'
 
@@ -9,11 +10,9 @@ import { defaultUnitsForm } from '../constants'
 import { type UnitsForm } from '../types'
 import { unitsSchema } from '../validations'
 
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
-
 const Units = () => {
-  const { register, control, getValues, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
-    defaultValues: { ...defaultUnitsForm },
+  const { register, control, clearErrors, getValues, setError, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
+    defaultValues: defaultUnitsForm,
     resolver: yupResolver(unitsSchema)
   })
   const { setStep, setUnitsCount } = usePropertyOnboarding()
@@ -23,7 +22,24 @@ const Units = () => {
   })
 
   const { amenities } = data
-  const onSubmit: SubmitHandler<UnitsForm> = data => console.log(data)
+  const onSubmit: SubmitHandler<UnitsForm> = data => {
+    // Get unit name
+    const unitNames = data.units.map(unit => unit.name)
+    // Duplicates
+    const duplicateNames = unitNames.filter((unit, unitIndex) => unitNames.indexOf(unit) !== unitIndex)
+    if (duplicateNames.length > 0) {
+      duplicateNames.forEach(name => {
+        const dupIndex = unitNames.lastIndexOf(name)
+        setError(`units.${dupIndex}.name`, {
+          type: "manual",
+          message: "Unit name already taken"
+        })
+      })
+    } else {
+      clearErrors()
+      console.log(data)
+    }
+  }
   const goBack = () => { setStep('caretaker') }
   const appendUnit = () => {
     append({ name: '', type: '', baths: 0, amenities: [] })
@@ -36,13 +52,14 @@ const Units = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack h="100%" mx={2}>
+      <Box h="100%">
         {fields.map((_, unitIndex) => (
-          <Stack direction={{ base: "column", md: "row" }} key={unitIndex}>
+          <Box mb={4} gap={2} display="flex" flexDirection={{ base: "column", md: "row" }} key={unitIndex}>
             <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { name: object })?.name)}>
               <FormLabel>Name</FormLabel>
               <Input
-                {...register(`units.${unitIndex}.name`)}
+                {...register(`units.${unitIndex}.name`, {
+                })}
                 placeholder="Name/ID"
               />
               {(((errors.units?.[unitIndex] as { name: object })?.name) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { name: Partial<{ message: string }> })?.name?.message}</FormErrorMessage>}
@@ -68,6 +85,7 @@ const Units = () => {
                 placeholder="Bathrooms"
               />
               {(((errors.units?.[unitIndex] as { baths: object })?.baths) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { baths: Partial<{ message: string }> })?.baths?.message}</FormErrorMessage>}
+              <FormHelperText>Total baths</FormHelperText>
             </FormControl>
             <FormControl>
               <FormLabel>Amenities</FormLabel>
@@ -88,15 +106,15 @@ const Units = () => {
               />
               <FormHelperText>Amenities offered by this unit</FormHelperText>
             </FormControl>
-            <Center>
-              <Button onClick={() => removeUnit(unitIndex)} colorScheme="red" size="sm">Delete</Button>
-            </Center>
-          </Stack>
+            <Box mt={{ md: 8 }}>
+              <Button onClick={() => removeUnit(unitIndex)} colorScheme="red">Delete</Button>
+            </Box>
+          </Box>
         ))}
         <Box mt={5}>
           <Button onClick={appendUnit} colorScheme="green">Add Unit</Button>
         </Box>
-      </Stack>
+      </Box>
       <Box zIndex={1} py={4} display="flex" bg="#ffff" justifyContent="space-between" w="100%" position="sticky" bottom="0" mt={{ base: 4, md: 6 }}>
         <Box>
           <Button onClick={goBack} colorScheme="green" leftIcon={<ArrowBackIcon />}>Go back</Button>

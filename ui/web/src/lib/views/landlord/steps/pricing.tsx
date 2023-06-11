@@ -1,13 +1,12 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, FormControl, FormErrorMessage, FormLabel, FormHelperText, Input, HStack, Spacer, VStack } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 
 
 import { type PriceForm } from '../types'
 import { priceSchema } from '../validations'
-
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Pricing = () => {
   const { priceForm, setPriceForm, setStep } = usePropertyOnboarding()
@@ -28,7 +27,9 @@ const Pricing = () => {
         <FormControl isInvalid={Boolean(errors?.minPrice)}>
           <FormLabel>Minimum Price</FormLabel>
           <Input
-            {...register('minPrice')}
+            {...register('minPrice', {
+              setValueAs: v => Number(v)
+            })}
             type="number"
           />
           {((errors?.minPrice) != null) && <FormErrorMessage>{`${errors?.minPrice.message}`}</FormErrorMessage>}
@@ -37,7 +38,9 @@ const Pricing = () => {
         <FormControl isInvalid={Boolean(errors?.maxPrice)}>
           <FormLabel>Maximum Price</FormLabel>
           <Input
-            {...register('maxPrice')}
+            {...register('maxPrice', {
+              setValueAs: v => Number(v)
+            })}
             type="number"
           />
           {((errors?.maxPrice) != null) && <FormErrorMessage>{`${errors?.maxPrice.message}`}</FormErrorMessage>}

@@ -83,6 +83,12 @@
       "value": "smoke alarm",
       "label": "Smoke alarm",
       "category": "Safety"
+    },
+    {
+      "id": 15,
+      "value": "piped water",
+      "label": "Piped water",
+      "category": "Water"
     }
   ]
 }

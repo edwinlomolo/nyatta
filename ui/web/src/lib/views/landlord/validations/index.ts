@@ -1,27 +1,6 @@
 import { isValidPhoneNumber } from 'libphonenumber-js'
 import { array, object, number, string } from 'yup'
 
-export const validationSchema = object().shape({
-  name: string().required('Property name required'),
-  propertyType: string().required('What is your property type?'),
-  minPrice: string().required('Minimum price required'),
-  maxPrice: string().required('Maximum price required'),
-  town: object().shape({
-    label: string().required(),
-    value: string().required(),
-    postalCode: string().required(),
-    id: string().required()
-  }).required('Town is required'),
-  postalCode: string().required(),
-  units: array()
-    .of(
-      object().shape({
-        text: string().required('Unit name required')
-      })
-    )
-    .required('If you got here, then your flat has unit(s) to be registered')
-})
-
 export const descriptionSchema = object().shape({
   name: string().trim().matches(/^[A-Za-z ]+$/i, { message: 'Property name should be alphabetic only', excludeEmptyString: true }).required('Property name is required'),
   propertyType: string().required('What is your property type?')
@@ -37,8 +16,8 @@ export const locationSchema = object().shape({
 })
 
 export const priceSchema = object().shape({
-  minPrice: number().required('Minimum price is required'),
-  maxPrice: number().required('Maximum price is required')
+  minPrice: number().min(1, "Zero is not valid").required('Minimum price is required'),
+  maxPrice: number().min(1, "Zero is not valid").required('Maximum price is required')
 })
 
 export const unitsSchema = object().shape({
@@ -46,7 +25,7 @@ export const unitsSchema = object().shape({
     object().shape({
       name: string().trim().matches(/^[a-zA-Z0-9 ]+$/i, { message: 'Unit name should be alphabetic', excludeEmptyString: true }).required('Unit name required'),
       type: string().required("Type is required"),
-      baths: number().required("Number of baths required")
+      baths: number().min(1, "Zero is not valid").required("Number of baths required")
     })
   ).required('If you got here, your property units need to be registered')
 })
