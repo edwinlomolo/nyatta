@@ -35,7 +35,7 @@ export const defaultCaretakerForm: CaretakerForm = {
 }
 
 export const defaultUnitsForm: UnitsForm = {
-  units: [{ name: '', type: '', amenities: [] }]
+  units: [{ name: '', type: '', baths: 0, amenities: [] }]
 }
 
 export const defaultAmenitiesForm: AmenitiesForm = {

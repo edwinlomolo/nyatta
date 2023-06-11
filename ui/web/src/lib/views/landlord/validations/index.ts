@@ -45,7 +45,8 @@ export const unitsSchema = object().shape({
   units: array().of(
     object().shape({
       name: string().trim().matches(/^[a-zA-Z0-9 ]+$/i, { message: 'Unit name should be alphabetic', excludeEmptyString: true }).required('Unit name required'),
-      type: string().required("Type is required")
+      type: string().required("Type is required"),
+      baths: number().required("Number of baths required")
     })
   ).required('If you got here, your property units need to be registered')
 })

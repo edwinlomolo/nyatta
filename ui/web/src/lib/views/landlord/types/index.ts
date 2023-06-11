@@ -53,6 +53,7 @@ interface Unit {
   amenities: Amenity[]
   name: string
   type: string
+  baths: number
 }
 
 export interface UnitsForm {

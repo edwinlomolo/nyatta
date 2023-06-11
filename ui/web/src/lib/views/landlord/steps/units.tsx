@@ -26,7 +26,7 @@ const Units = () => {
   const onSubmit: SubmitHandler<UnitsForm> = data => console.log(data)
   const goBack = () => { setStep('caretaker') }
   const appendUnit = () => {
-    append({ name: '', type: '', amenities: [] })
+    append({ name: '', type: '', baths: 0, amenities: [] })
     setUnitsCount(getValues().units.length)
   }
   const removeUnit = (unitIndex: number) => {
@@ -59,6 +59,15 @@ const Units = () => {
               </ChakraSelect>
               {((errors.units?.[unitIndex]?.type) != null) && <FormErrorMessage>{(errors.units?.[unitIndex]?.type as Partial<{ message: string }>)?.message}</FormErrorMessage>}
               <FormHelperText>Unit type</FormHelperText>
+            </FormControl>
+            <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { baths: object })?.baths)}>
+              <FormLabel>Bathrooms</FormLabel>
+              <Input
+                {...register(`units.${unitIndex}.baths`)}
+                type="number"
+                placeholder="Bathrooms"
+              />
+              {(((errors.units?.[unitIndex] as { baths: object })?.baths) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { baths: Partial<{ message: string }> })?.baths?.message}</FormErrorMessage>}
             </FormControl>
             <FormControl>
               <FormLabel>Amenities</FormLabel>
