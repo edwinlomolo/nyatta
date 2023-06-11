@@ -63,6 +63,8 @@ const Caretaker = (): JSX.Element => {
           }
         },
       })
+    } else {
+      setStep('units')
     }
   }
    
@@ -71,79 +73,81 @@ const Caretaker = (): JSX.Element => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack align="center" direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, md: 6 }}>
-        <VerificationModal
-          onClose={onClose}
-          isOpen={isOpen}
-        />
-        <Box w="100%">
-          <FormControl isInvalid={Boolean(errors?.firstName)}>
-            <FormLabel>First Name</FormLabel>
-            <Input
-              {...register('firstName')}
-            />
-            {(errors.firstName != null) && <FormErrorMessage>{errors?.firstName.message}</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={Boolean(errors?.lastName)}>
-            <FormLabel>Last Name</FormLabel>
-            <Input
-              {...register('lastName')}
-            />
-            {((errors?.lastName) != null) && <FormErrorMessage>{errors?.lastName.message}</FormErrorMessage>}
-          </FormControl>
-          <FormControl isInvalid={Boolean(errors?.phoneNumber || errors?.countryCode)}>
-            <FormLabel>Phone Number</FormLabel>
-            <HStack>
-              <Select {...register("countryCode")}>
-                <option value="+254">+254</option>
-              </Select>
+    <>
+      <VerificationModal
+        onClose={onClose}
+        isOpen={isOpen}
+      />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack align="center" direction={{ base: 'column', md: 'row' }} spacing={{ base: 4, md: 6 }}>
+          <Box w="100%">
+            <FormControl isInvalid={Boolean(errors?.firstName)}>
+              <FormLabel>First Name</FormLabel>
               <Input
-                {...register('phoneNumber')}
-                type="number"
+                {...register('firstName')}
               />
-            </HStack>
-            {((errors?.phoneNumber) != null) && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
+              {(errors.firstName != null) && <FormErrorMessage>{errors?.firstName.message}</FormErrorMessage>}
+            </FormControl>
+            <FormControl isInvalid={Boolean(errors?.lastName)}>
+              <FormLabel>Last Name</FormLabel>
+              <Input
+                {...register('lastName')}
+              />
+              {((errors?.lastName) != null) && <FormErrorMessage>{errors?.lastName.message}</FormErrorMessage>}
+            </FormControl>
+            <FormControl isInvalid={Boolean(errors?.phoneNumber || errors?.countryCode)}>
+              <FormLabel>Phone Number</FormLabel>
+              <HStack>
+                <Select {...register("countryCode")}>
+                  <option value="+254">+254</option>
+                </Select>
+                <Input
+                  {...register('phoneNumber')}
+                  type="number"
+                />
+              </HStack>
+              {((errors?.phoneNumber) != null) && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
+            </FormControl>
+          </Box>
+          <FormControl isInvalid={Boolean(errors?.idVerification)}>
+          <FormLabel> Identification Document</FormLabel>
+            <Textarea
+              as={Center}
+              {...getRootProps({ className: 'dropzone' })}
+              p={4}
+              minH={{ base: '80px', md: '100px' }}
+              cursor="pointer"
+              h="auto"
+              justify={idImg ? "start" : "center"}
+              borderRadius="md"
+              border="2px dashed"
+              borderColor="chakra-border-color"
+              spacing={4}
+            >
+              {idImg && !uploadingImage && <Image
+                src={idImg}
+                loading="eager"
+                maxW={{
+                  base: "100px",
+                  md: "200px"
+                }}
+                alt="ID Verification"
+              />}
+              {!idImg && !uploadingImage && <Icon as={FaUpload} />}
+              {uploadingImage && <Spinner size="lg" />}
+            </Textarea>
+            <input {...register('idVerification')} {...getInputProps()} />
+            {((errors?.idVerification) != null) && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}
+            <FormHelperText>Government issued document</FormHelperText>
           </FormControl>
-        </Box>
-        <FormControl isInvalid={Boolean(errors?.idVerification)}>
-        <FormLabel> Identification Document</FormLabel>
-          <Textarea
-            as={Center}
-            {...getRootProps({ className: 'dropzone' })}
-            p={4}
-            minH={{ base: '80px', md: '100px' }}
-            cursor="pointer"
-            h="auto"
-            justify={idImg ? "start" : "center"}
-            borderRadius="md"
-            border="2px dashed"
-            borderColor="chakra-border-color"
-            spacing={4}
-          >
-            {idImg && !uploadingImage && <Image
-              src={idImg}
-              loading="eager"
-              maxW={{
-                base: "100px",
-                md: "200px"
-              }}
-              alt="ID Verification"
-            />}
-            {!idImg && !uploadingImage && <Icon as={FaUpload} />}
-            {uploadingImage && <Spinner size="lg" />}
-          </Textarea>
-          <input {...register('idVerification')} {...getInputProps()} />
-          {((errors?.idVerification) != null) && <FormErrorMessage>{errors?.idVerification.message}</FormErrorMessage>}
-          <FormHelperText>Government issued document</FormHelperText>
-        </FormControl>
-      </Stack>
-      <HStack mt={{ base: 4, md: 6 }}>
-        <Button colorScheme="green" disabled={sendingVerification} leftIcon={<ArrowBackIcon />} onClick={goBack}>Go back</Button>
-        <Spacer />
-        <Button type="submit" colorScheme="green" disabled={sendingVerification} isLoading={sendingVerification} rightIcon={<ArrowForwardIcon />}>Next</Button>
-      </HStack>
-    </form>
+        </Stack>
+        <HStack mt={{ base: 4, md: 6 }}>
+          <Button colorScheme="green" disabled={sendingVerification} leftIcon={<ArrowBackIcon />} onClick={goBack}>Go back</Button>
+          <Spacer />
+          <Button type="submit" colorScheme="green" disabled={sendingVerification} isLoading={sendingVerification} rightIcon={<ArrowForwardIcon />}>Next</Button>
+        </HStack>
+      </form>
+    </>
   )
 }
 
