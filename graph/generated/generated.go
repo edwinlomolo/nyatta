@@ -37,6 +37,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Amenity() AmenityResolver
 	Mutation() MutationResolver
 	Property() PropertyResolver
 	PropertyUnit() PropertyUnitResolver
@@ -49,6 +50,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Amenity struct {
+		Category   func(childComplexity int) int
 		CreatedAt  func(childComplexity int) int
 		ID         func(childComplexity int) int
 		Name       func(childComplexity int) int
@@ -149,6 +151,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type AmenityResolver interface {
+	Category(ctx context.Context, obj *model.Amenity) (*string, error)
+}
 type MutationResolver interface {
 	SignIn(ctx context.Context, input model.NewUser) (*model.Token, error)
 	CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error)
@@ -197,6 +202,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Amenity.category":
+		if e.complexity.Amenity.Category == nil {
+			break
+		}
+
+		return e.complexity.Amenity.Category(childComplexity), true
 
 	case "Amenity.createdAt":
 		if e.complexity.Amenity.CreatedAt == nil {
@@ -918,6 +930,7 @@ type Amenity {
   id: ID!
   name: String!
   provider: String
+  category: String
   propertyId: ID!
   createdAt: Time
   updatedAt: Time
@@ -1368,6 +1381,47 @@ func (ec *executionContext) fieldContext_Amenity_provider(ctx context.Context, f
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Amenity_category(ctx context.Context, field graphql.CollectedField, obj *model.Amenity) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Amenity_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Amenity().Category(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Amenity_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Amenity",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -1990,6 +2044,8 @@ func (ec *executionContext) fieldContext_Mutation_addAmenity(ctx context.Context
 				return ec.fieldContext_Amenity_name(ctx, field)
 			case "provider":
 				return ec.fieldContext_Amenity_provider(ctx, field)
+			case "category":
+				return ec.fieldContext_Amenity_category(ctx, field)
 			case "propertyId":
 				return ec.fieldContext_Amenity_propertyId(ctx, field)
 			case "createdAt":
@@ -2751,6 +2807,8 @@ func (ec *executionContext) fieldContext_Property_amenities(ctx context.Context,
 				return ec.fieldContext_Amenity_name(ctx, field)
 			case "provider":
 				return ec.fieldContext_Amenity_provider(ctx, field)
+			case "category":
+				return ec.fieldContext_Amenity_category(ctx, field)
 			case "propertyId":
 				return ec.fieldContext_Amenity_propertyId(ctx, field)
 			case "createdAt":
@@ -6908,25 +6966,42 @@ func (ec *executionContext) _Amenity(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Amenity_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 
 			out.Values[i] = ec._Amenity_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "provider":
 
 			out.Values[i] = ec._Amenity_provider(ctx, field, obj)
 
+		case "category":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Amenity_category(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "propertyId":
 
 			out.Values[i] = ec._Amenity_propertyId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "createdAt":
 
