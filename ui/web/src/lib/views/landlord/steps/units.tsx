@@ -1,7 +1,6 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Select as ChakraSelect } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
 import Select from 'react-select'
 
@@ -9,6 +8,8 @@ import data from '../../../data/amenities.json'
 import { defaultUnitsForm } from '../constants'
 import { type UnitsForm } from '../types'
 import { unitsSchema } from '../validations'
+
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Units = () => {
   const { register, control, clearErrors, getValues, setError, formState: { errors }, handleSubmit } = useForm<UnitsForm>({

@@ -1,12 +1,12 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, FormControl, FormErrorMessage, FormLabel, FormHelperText, Input, HStack, Spacer, VStack } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-
 
 import { type PriceForm } from '../types'
 import { priceSchema } from '../validations'
+
+import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Pricing = () => {
   const { priceForm, setPriceForm, setStep } = usePropertyOnboarding()
