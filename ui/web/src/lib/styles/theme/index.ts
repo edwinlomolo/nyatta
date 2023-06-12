@@ -22,3 +22,5 @@ export const theme = extendTheme({
     global: () => ({})
   }
 })
+
+export { chakraStylesConfig } from './chakra-select'

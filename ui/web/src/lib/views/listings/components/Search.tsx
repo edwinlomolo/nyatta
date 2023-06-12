@@ -1,6 +1,6 @@
 import { Button, Flex, FormControl, FormErrorMessage, Input, Select as ChakraSelect } from '@chakra-ui/react'
+import { Select, type GroupBase } from 'chakra-react-select'
 import { Controller, type SubmitHandler } from 'react-hook-form'
-import Select, { type GroupBase } from 'react-select'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useSearchListings } from '@usePropertySearch'

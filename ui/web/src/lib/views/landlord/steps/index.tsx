@@ -1,6 +1,5 @@
 export { default as Description } from './description'
 export { default as Location } from './location'
-export { default as Pricing } from './pricing'
 export { default as Units } from './units'
 export { default as Caretaker } from './caretaker'
-export { default as Amenities } from './amenities'
+export { default as PropertyType } from './property-type'

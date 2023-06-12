@@ -1,4 +1,4 @@
-export type OnboardingStep = 'description' | 'location' | 'amenities' | 'pricing' | 'caretaker' | 'units'
+export type OnboardingStep = 'description' | 'location' | 'caretaker' | 'units' | 'bedrooms' | 'shoot' | 'type'
 
 export interface LocationOption {
   readonly label: string
@@ -7,7 +7,7 @@ export interface LocationOption {
   readonly id: string
 }
 
-type PropertyType = 'Apartment' | 'Condominium' | 'Bungalow'
+export type PropertyType = 'apartment' | 'condo' | 'bungalow'
 
 export interface FormValues {
   name: string
@@ -54,6 +54,7 @@ interface Unit {
   name: string
   type: string
   baths: number
+  price: number
 }
 
 export interface UnitsForm {
@@ -61,3 +62,7 @@ export interface UnitsForm {
 }
 
 export interface AmenitiesForm { amenities: Amenity[] }
+
+export interface PropertyTypeForm {
+  propertyType: PropertyType | undefined
+}

@@ -1,10 +1,12 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, FormControl, FormLabel, FormErrorMessage, FormHelperText, Input, VStack, HStack, Spacer } from '@chakra-ui/react'
+import { Select } from 'chakra-react-select'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
-import Select from 'react-select'
 
 import { usePropertyOnboarding } from '../hooks/property-onboarding'
 import { type LocationForm } from '../types'
+
+import { chakraStylesConfig } from '@styles'
 
 const Location = () => {
   const { locationForm, setLocationForm, towns, setStep } = usePropertyOnboarding()
@@ -12,9 +14,10 @@ const Location = () => {
     defaultValues: locationForm,
   })
 
+  const goBack = () => setStep('type')
   const onSubmit: SubmitHandler<LocationForm> = data => {
     setLocationForm(data)
-    setStep('amenities')
+    setStep('caretaker')
   }
 
   return (
@@ -29,6 +32,7 @@ const Location = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                chakraStyles={chakraStylesConfig}
                 isClearable
                 isSearchable
                 options={towns}
@@ -50,7 +54,7 @@ const Location = () => {
         </FormControl>
       </VStack>
       <HStack mt={{ base: 4, md: 6 }}>
-        <Button onClick={() => { setStep('description') }} colorScheme="green" leftIcon={<ArrowBackIcon />}>Go back</Button>
+        <Button onClick={goBack} colorScheme="green" leftIcon={<ArrowBackIcon />}>Go back</Button>
         <Spacer />
         <Button type="submit" colorScheme="green" rightIcon={<ArrowForwardIcon />}>Next</Button>
       </HStack>

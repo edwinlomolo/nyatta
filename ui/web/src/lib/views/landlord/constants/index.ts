@@ -1,14 +1,15 @@
-import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type UnitsForm, type PriceForm, type AmenitiesForm } from '../types'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type UnitsForm, type PriceForm, type AmenitiesForm, type PropertyTypeForm} from '../types'
 
-export const FormSteps: OnboardingStep[] = ['description', 'location', 'amenities', 'pricing', 'caretaker', 'units']
+export const FormSteps: OnboardingStep[] = ['description', 'type', 'location', 'caretaker', 'units', 'bedrooms', 'shoot']
 
 export const FormStepTitle: Record<OnboardingStep, string> = {
-  description: 'Describe your property?',
-  location: 'Property location',
-  amenities: 'Shared amenities',
-  pricing: 'How do you price your units?',
-  caretaker: 'Who is the caretaker?',
-  units: 'Add property units'
+  description: 'How can you name this property?',
+  location: 'Describe your property by locality.',
+  caretaker: 'We will schedule a professional shoot for your property so there has to be someone who will give us access to your property and guide us through the property. Additionally, this will be the immediate and authenticated goto person for any queries from users when your listing goes live.',
+  units: "You've come this far! How best can you describe your units?",
+  type: 'How best can you define this unit?',
+  bedrooms: 'Provide as much info about your units bedroom and bathrooms. People are interested in this information when considering your unit so be truthfull and provide up-to-date with what you are offering with your units.',
+  shoot: 'Schedule a professional shoot.',
 }
 
 export const defaultDescriptionForm: DescriptionForm = {
@@ -35,9 +36,13 @@ export const defaultCaretakerForm: CaretakerForm = {
 }
 
 export const defaultUnitsForm: UnitsForm = {
-  units: [{ name: '', type: '', baths: 0, amenities: [] }]
+  units: [{ name: '', type: '', baths: 0, amenities: [], price: 0 }]
 }
 
 export const defaultAmenitiesForm: AmenitiesForm = {
   amenities: []
+}
+
+export const defaultPropertyType: PropertyTypeForm = {
+  propertyType: undefined
 }

@@ -2,9 +2,9 @@ import { useState, type PropsWithChildren } from 'react'
 
 import { useQuery } from '@apollo/client'
 
-import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm } from '../constants'
+import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm, defaultPropertyType } from '../constants'
 import { OnboardingContext } from '../context/property-onboarding'
-import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm } from '../types'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm, type PropertyTypeForm } from '../types'
 
 import { getTowns as GET_TOWNS } from '@gql'
 
@@ -17,6 +17,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [caretakerVerified, setCaretakerVerified] = useState<boolean>(false)
   const [unitsForm, setUnitsForm] = useState<UnitsForm>(defaultUnitsForm)
   const [unitsCount, setUnitsCount] = useState<number>(0)
+  const [propertyType, setPropertyType] = useState<PropertyTypeForm>(defaultPropertyType)
   // For default towns select input
   const { data } = useQuery(GET_TOWNS)
   const locations = data?.getTowns.map((item: any) => ({
@@ -50,6 +51,8 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
         towns: locations,
         unitsCount,
         setUnitsCount,
+        propertyType,
+        setPropertyType,
       }}
     >
       {children}

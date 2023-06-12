@@ -1,9 +1,8 @@
-import { Container, HStack, Spacer, Show, Text } from '@chakra-ui/react'
+import { Container, HStack } from '@chakra-ui/react'
 import Head from 'next/head'
 
 import { Title } from './components'
-import { FormSteps } from './constants'
-import { Description, Location, Pricing, Units, Caretaker, Amenities } from './steps'
+import { Description, Location, Units, Caretaker, PropertyType } from './steps'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
@@ -18,17 +17,12 @@ const Landlord = () => {
       </Head>
       <HStack my={{ base: 4, md: 6 }}>
         <Title />
-        <Show above="md">
-          <Spacer />
-          <Text fontSize="4xl">{`${FormSteps.indexOf(step) + 1}/${FormSteps.length}`}</Text>
-        </Show>
       </HStack>
       {step === 'description' && <Description />}
       {step === 'location' && <Location />}
-      {step === 'amenities' && <Amenities />}
-      {step === 'pricing' && <Pricing />}
       {step === 'units' && <Units />}
       {step === 'caretaker' && <Caretaker />}
+      {step === 'type' && <PropertyType />}
     </Container>
   )
 }

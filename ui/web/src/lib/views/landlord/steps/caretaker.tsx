@@ -69,7 +69,7 @@ const Caretaker = (): JSX.Element => {
   }
    
   const goBack = (): void => {
-    setStep('pricing')
+    setStep('location')
   }
 
   return (
