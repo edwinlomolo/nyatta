@@ -25,7 +25,7 @@ interface OnboardingContext {
   caretakerVerified: boolean
   setCaretakerVerified: Dispatch<SetStateAction<boolean>>
   propertyType: PropertyTypeForm
-  setPropertyType: Dispatch<SetStateAction<PropertyType>>
+  setPropertyType: Dispatch<SetStateAction<PropertyTypeForm>>
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
