@@ -1,9 +1,10 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, HStack, Spacer } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { FieldValues, SubmitHandler, useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 
 import data from '../../../data/data.json'
+import { PropertyTypeForm } from '../types'
 import { PropertyTypeSchema } from '../validations'
 
 import { FormRadio } from '@components'
@@ -11,13 +12,13 @@ import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const PropertyType = (): JSX.Element => {
   const { setStep, propertyType, setPropertyType } = usePropertyOnboarding()
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit } = useForm<PropertyTypeForm>({
     defaultValues: propertyType,
     resolver: yupResolver(PropertyTypeSchema),
   })
 
   const goBack = () => setStep("description")
-  const onSubmit: SubmitHandler<FieldValues> = data => {
+  const onSubmit: SubmitHandler<PropertyTypeForm> = data => {
     setPropertyType(data)
     setStep('location')
   }
