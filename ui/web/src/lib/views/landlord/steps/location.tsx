@@ -36,7 +36,7 @@ const Location = () => {
                 isClearable
                 isSearchable
                 options={towns}
-                onChange={(newV, _) => { setValue('town', newV); setValue('postalCode', newV?.postalCode) }}
+                onChange={(newV: any, _) => { setValue('town', newV); setValue('postalCode', newV?.postalCode) }}
                 value={getValues()?.town}
                 placeholder="Select town"
               />
