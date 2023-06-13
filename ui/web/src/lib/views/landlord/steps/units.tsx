@@ -13,7 +13,7 @@ import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Units = () => {
   const { setStep, setUnitsCount, unitsForm } = usePropertyOnboarding()
-  const { register, control, clearErrors, getValues, setError, reset, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
+  const { register, control, clearErrors, getValues, setError, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
     defaultValues: unitsForm,
     resolver: yupResolver(unitsSchema)
   })
