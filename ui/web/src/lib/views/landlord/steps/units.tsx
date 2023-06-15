@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
+
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Center, Button, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Select as ChakraSelect } from '@chakra-ui/react'
+import { Accordion, AccordionButton, AccordionPanel, AccordionItem, HStack, Box, Button, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Select as ChakraSelect, Text } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Select } from 'chakra-react-select'
 import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
@@ -12,8 +14,8 @@ import { chakraStylesConfig } from '@styles'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const Units = () => {
-  const { setStep, setUnitsCount, unitsForm } = usePropertyOnboarding()
-  const { register, control, clearErrors, getValues, setError, formState: { errors }, handleSubmit } = useForm<UnitsForm>({
+  const { setStep, setUnitsCount, unitsForm, setUnitsForm } = usePropertyOnboarding()
+  const { register, control, clearErrors, getValues, setError, formState: { errors }, handleSubmit, watch } = useForm<UnitsForm>({
     defaultValues: unitsForm,
     resolver: yupResolver(unitsSchema)
   })
@@ -36,14 +38,15 @@ const Units = () => {
           message: "Unit name already taken"
         })
       })
-    } else {
+      } else {
       clearErrors()
+      setUnitsForm(data)
       console.log(data)
     }
   }
   const goBack = () => { setStep('caretaker') }
   const appendUnit = () => {
-    append({ name: '', type: '', baths: 0, amenities: [], price: 0 })
+    append({ name: '', type: '', baths: 0, amenities: [], price: 0, bedrooms: [] })
     setUnitsCount(getValues().units.length)
   }
   const removeUnit = (unitIndex: number) => {
@@ -51,93 +54,154 @@ const Units = () => {
     setUnitsCount(getValues().units.length)
   }
 
+  const RenderBedrooms = ({ unitIndex, type }) => {
+    const { fields, append, remove } = useFieldArray({ control, name: `units.${unitIndex}.bedrooms` })
+
+    useEffect(() => {
+      const totalBedrooms = Number(type)
+      if (totalBedrooms > fields.length) {
+        for (let i = fields.length; i < totalBedrooms; i++) {
+          append({ bedroomNumber: i+1, enSuite: "no", master: "no" })
+        }
+      } else if (totalBedrooms < fields.length) {
+        for (let i = fields.length-1; i >= totalBedrooms; i--) {
+          remove(i)
+        }
+      }
+    }, [type, append, remove, fields.length])
+
+    return (
+      <Box mt={5}>
+        <Text>{`Bedrooms(${type})`}</Text>
+        {fields.map((field, itemIndex) => (
+          <HStack align="center" key={field.id}>
+           <FormControl>
+             <FormLabel>Bedroom Number</FormLabel>
+             <Input
+               {...register(`units.${unitIndex}.bedrooms.${itemIndex}.bedroomNumber`)}
+               size="sm"
+               disabled
+               type="number"
+               defaultValue={field.bedroomNumber}
+             />
+           </FormControl>
+           <FormControl>
+             <FormLabel>en-Suite</FormLabel>
+             <ChakraSelect size="sm" {...register(`units.${unitIndex}.bedrooms.${itemIndex}.enSuite`)}>
+               <option value="no">Yes</option>
+               <option value="no">No</option>
+             </ChakraSelect>
+           </FormControl>
+           <FormControl>
+             <FormLabel>Master</FormLabel>
+             <ChakraSelect size="sm" {...register(`units.${unitIndex}.bedrooms.${itemIndex}.master`)}>
+               <option value="no">Yes</option>
+               <option value="no">No</option>
+             </ChakraSelect>
+           </FormControl>
+          </HStack>
+        ))}
+      </Box>
+    )
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Box h="100%">
-        {fields.map((unit, unitIndex) => (
-          <Box w="100%" mb={4} gap={2} key={unit.id}>
-            <Box display="flex" flexDirection={{ base: "column", md: "row" }} gap={2}>
-              <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { name: object })?.name)}>
-                <FormLabel>Name</FormLabel>
-                <Input
-                  size="xs"
-                  {...register(`units.${unitIndex}.name`, {
-                  })}
-                  placeholder="Name/ID"
-                />
-                {(((errors.units?.[unitIndex] as { name: object })?.name) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { name: Partial<{ message: string }> })?.name?.message}</FormErrorMessage>}
-                <FormHelperText>How you name your units</FormHelperText>
-              </FormControl>
-              <FormControl isInvalid={Boolean(errors?.units?.[unitIndex]?.type)}>
-                <FormLabel>Type</FormLabel>
-                <ChakraSelect size="xs" {...register(`units.${unitIndex}.type`)} placeholder="Unit type">
-                  <option value="single room">Single room</option>
-                  <option value="studio">Studio</option>
-                  <option value="1">1 bedroom</option>
-                  <option value="2">2 bedroom</option>
-                  <option value="3">3 bedroom</option>
-                </ChakraSelect>
-                {((errors.units?.[unitIndex]?.type) != null) && <FormErrorMessage>{(errors.units?.[unitIndex]?.type as Partial<{ message: string }>)?.message}</FormErrorMessage>}
-                <FormHelperText>Unit type</FormHelperText>
-              </FormControl>
-              <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { baths: object })?.baths)}>
-                <FormLabel>Bathrooms</FormLabel>
-                <Input
-                  {...register(`units.${unitIndex}.baths`)}
-                  type="number"
-                  size="xs"
-                  placeholder="Bathrooms"
-                />
-                {(((errors.units?.[unitIndex] as { baths: object })?.baths) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { baths: Partial<{ message: string }> })?.baths?.message}</FormErrorMessage>}
-                <FormHelperText>Total baths</FormHelperText>
-              </FormControl>
-            </Box>
-            <Box display="flex" mt={4} gap={2}>
-              <FormControl>
-                <FormLabel>Amenities</FormLabel>
-                <Controller
-                  name={`units.${unitIndex}.amenities`}
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      size="sm"
-                      placeholder="Amenities"
-                      options={amenities}
-                      isSearchable
-                      isMulti
-                      closeMenuOnSelect={false}
-                      menuPortalTarget={document.body}
-                      styles={{ menuPortal: base => ({ ...base, zIndex: 1 }) }}
-                      chakraStyles={chakraStylesConfig}
-                    />
-                  )}
-                />
-                <FormHelperText>Amenities offered by this unit</FormHelperText>
-              </FormControl>
-              <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { price: object })?.price)}>
-                <FormLabel>Price</FormLabel>
-                <Input
-                  {...register(`units.${unitIndex}.price`, {
-                    setValueAs: v => Number(v),
-                  })}
-                  placeholder="Monthly charge"
-                  type="number"
-                  size="xs"
-                />
-                {(((errors.units?.[unitIndex] as { price: object })?.price) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { price: Partial<{ message: string }> })?.price?.message}</FormErrorMessage>}
-                <FormHelperText>How much will you charge monthly?</FormHelperText>
-              </FormControl>
-              <Center mt={2}>
-                <Button size="sm" onClick={() => removeUnit(unitIndex)} colorScheme="red">Delete</Button>
-              </Center>
-            </Box>
-          </Box>
-        ))}
+      <Accordion allowToggle h="100%">
+        {fields.map((unit, unitIndex: number) => {
+          const type = watch(`units.${unitIndex}.type`)
+
+          return (
+          <AccordionItem w="100%" mb={4} gap={2} key={unit.id}>
+            <AccordionButton>
+              <Box as="span" flex="1" textAlign="left">
+                Unit {`${unitIndex+1}`}
+              </Box>
+              <Text onClick={() => removeUnit(unitIndex)} textDecoration="underline" color="red">Delete</Text>
+            </AccordionButton>
+            <AccordionPanel>
+              <Box display="flex" flexDirection={{ base: "column", md: "row" }} gap={2}>
+                <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { name: object })?.name)}>
+                  <FormLabel>Name</FormLabel>
+                  <Input
+                    size="xs"
+                    {...register(`units.${unitIndex}.name`, {
+                    })}
+                    placeholder="Name/ID"
+                  />
+                  {(((errors.units?.[unitIndex] as { name: object })?.name) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { name: Partial<{ message: string }> })?.name?.message}</FormErrorMessage>}
+                  <FormHelperText>How you name your units</FormHelperText>
+                </FormControl>
+                <FormControl isInvalid={Boolean(errors?.units?.[unitIndex]?.type)}>
+                  <FormLabel>Type</FormLabel>
+                  <ChakraSelect size="xs" {...register(`units.${unitIndex}.type`)} placeholder="Unit type">
+                    <option value="single room">Single room</option>
+                    <option value="studio">Studio</option>
+                    <option value="1">1 bedroom</option>
+                    <option value="2">2 bedroom</option>
+                    <option value="3">3 bedroom</option>
+                  </ChakraSelect>
+                  {((errors.units?.[unitIndex]?.type) != null) && <FormErrorMessage>{(errors.units?.[unitIndex]?.type as Partial<{ message: string }>)?.message}</FormErrorMessage>}
+                  <FormHelperText>Unit type</FormHelperText>
+                </FormControl>
+                <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { baths: object })?.baths)}>
+                  <FormLabel>Bathrooms</FormLabel>
+                  <Input
+                    {...register(`units.${unitIndex}.baths`)}
+                    type="number"
+                    size="xs"
+                    placeholder="Bathrooms"
+                  />
+                  {(((errors.units?.[unitIndex] as { baths: object })?.baths) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { baths: Partial<{ message: string }> })?.baths?.message}</FormErrorMessage>}
+                  <FormHelperText>Total baths</FormHelperText>
+                </FormControl>
+              </Box>
+              <Box display="flex" flexDirection={{ base: "column", md: "row" }} mt={4} gap={2}>
+                <FormControl>
+                  <FormLabel>Amenities</FormLabel>
+                  <Controller
+                    name={`units.${unitIndex}.amenities`}
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        size="sm"
+                        placeholder="Amenities"
+                        options={amenities}
+                        isSearchable
+                        isMulti
+                        closeMenuOnSelect={false}
+                        menuPortalTarget={document.body}
+                        styles={{ menuPortal: base => ({ ...base, zIndex: 1 }) }}
+                        chakraStyles={chakraStylesConfig}
+                      />
+                    )}
+                  />
+                  <FormHelperText>Amenities offered by this unit</FormHelperText>
+                </FormControl>
+                <FormControl isInvalid={Boolean((errors?.units?.[unitIndex] as { price: object })?.price)}>
+                  <FormLabel>Price</FormLabel>
+                  <Input
+                    {...register(`units.${unitIndex}.price`, {
+                      setValueAs: v => Number(v),
+                    })}
+                    placeholder="Monthly charge"
+                    type="number"
+                    size="xs"
+                  />
+                  {(((errors.units?.[unitIndex] as { price: object })?.price) != null) && <FormErrorMessage>{(errors.units?.[unitIndex] as { price: Partial<{ message: string }> })?.price?.message}</FormErrorMessage>}
+                  <FormHelperText>How much will you charge monthly?</FormHelperText>
+                </FormControl>
+                
+              </Box>
+              {!!type && type !== 'studio' && type !== 'single room' && <RenderBedrooms type={type} unitIndex={unitIndex} />}
+            </AccordionPanel>
+          </AccordionItem>
+        )})}
         <Box mt={5}>
           <Button size="sm" onClick={appendUnit} colorScheme="green">Add Unit</Button>
         </Box>
-      </Box>
+      </Accordion>
       <Box zIndex={1} py={4} display="flex" bg="#ffff" justifyContent="space-between" w="100%" position="sticky" bottom="0" mt={{ base: 4, md: 6 }}>
         <Box>
           <Button onClick={goBack} colorScheme="green" leftIcon={<ArrowBackIcon />}>Go back</Button>

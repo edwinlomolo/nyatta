@@ -16,7 +16,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [caretakerForm, setCaretakerForm] = useState<CaretakerForm>(defaultCaretakerForm)
   const [caretakerVerified, setCaretakerVerified] = useState<boolean>(false)
   const [unitsForm, setUnitsForm] = useState<UnitsForm>(defaultUnitsForm)
-  const [unitsCount, setUnitsCount] = useState<number>(0)
+  const [unitsCount, setUnitsCount] = useState<number>(1)
   const [propertyType, setPropertyType] = useState<PropertyTypeForm>(defaultPropertyType)
   // For default towns select input
   const { data } = useQuery(GET_TOWNS)
