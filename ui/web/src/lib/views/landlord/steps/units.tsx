@@ -54,7 +54,7 @@ const Units = () => {
     setUnitsCount(getValues().units.length)
   }
 
-  const RenderBedrooms = ({ unitIndex, type }) => {
+  const RenderBedrooms = ({ unitIndex, type }: any) => {
     const { fields, append, remove } = useFieldArray({ control, name: `units.${unitIndex}.bedrooms` })
 
     useEffect(() => {
