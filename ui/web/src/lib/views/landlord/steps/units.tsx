@@ -41,7 +41,7 @@ const Units = () => {
       } else {
       clearErrors()
       setUnitsForm(data)
-      console.log(data)
+      setStep('shoot')
     }
   }
   const goBack = () => { setStep('caretaker') }
@@ -76,8 +76,8 @@ const Units = () => {
 
     return (
       <Box mt={5}>
-        {!!type && type !== 'studio' && type !== 'single room' &&<Text>{`Bedrooms(${type})`}</Text>}
-        {fields.map((field, itemIndex) => (
+        {!!type && type !== 'studio' && type !== 'single room' && fields.length > 0 &&<Text>{`Bedrooms(${type})`}</Text>}
+        {fields.length > 0 && fields.map((field, itemIndex) => (
           <HStack align="center" key={field.id}>
            <FormControl>
              <FormLabel>Bedroom Number</FormLabel>
@@ -112,7 +112,7 @@ const Units = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Accordion allowToggle h="100%">
-        {fields.map((unit, unitIndex: number) => {
+        {fields.length > 0 && fields.map((unit, unitIndex: number) => {
           const type = watch(`units.${unitIndex}.type`)
 
           return (
