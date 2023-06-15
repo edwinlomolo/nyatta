@@ -103,7 +103,7 @@ const Caretaker = (): JSX.Element => {
                 </Select>
                 <Input
                   {...register('phoneNumber')}
-                  type="number"
+                  type="tel"
                 />
               </HStack>
               {((errors?.phoneNumber) != null) && <FormErrorMessage>{errors?.phoneNumber.message}</FormErrorMessage>}
