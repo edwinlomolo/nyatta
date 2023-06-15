@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Accordion, AccordionButton, AccordionPanel, AccordionItem, HStack, Box, Button, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Select as ChakraSelect, Text } from '@chakra-ui/react'
+import { Accordion, AccordionButton, AccordionPanel, AccordionItem, HStack, Box, Button, FormControl, FormErrorMessage, FormLabel, Input, FormHelperText, Select as ChakraSelect, Text, Tag } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Select } from 'chakra-react-select'
 import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
@@ -59,7 +59,11 @@ const Units = () => {
 
     useEffect(() => {
       const totalBedrooms = Number(type)
-      if (totalBedrooms > fields.length) {
+      if (isNaN(totalBedrooms) && fields.length > 0) {
+        for (let i = fields.length-1; i >= 0; i--) {
+          remove(i)
+        }
+      } else if (totalBedrooms > fields.length) {
         for (let i = fields.length; i < totalBedrooms; i++) {
           append({ bedroomNumber: i+1, enSuite: "no", master: "no" })
         }
@@ -72,7 +76,7 @@ const Units = () => {
 
     return (
       <Box mt={5}>
-        <Text>{`Bedrooms(${type})`}</Text>
+        {!!type && type !== 'studio' && type !== 'single room' &&<Text>{`Bedrooms(${type})`}</Text>}
         {fields.map((field, itemIndex) => (
           <HStack align="center" key={field.id}>
            <FormControl>
@@ -88,14 +92,14 @@ const Units = () => {
            <FormControl>
              <FormLabel>en-Suite</FormLabel>
              <ChakraSelect size="sm" {...register(`units.${unitIndex}.bedrooms.${itemIndex}.enSuite`)}>
-               <option value="no">Yes</option>
+               <option value="yes">Yes</option>
                <option value="no">No</option>
              </ChakraSelect>
            </FormControl>
            <FormControl>
              <FormLabel>Master</FormLabel>
              <ChakraSelect size="sm" {...register(`units.${unitIndex}.bedrooms.${itemIndex}.master`)}>
-               <option value="no">Yes</option>
+               <option value="yes">Yes</option>
                <option value="no">No</option>
              </ChakraSelect>
            </FormControl>
@@ -116,6 +120,7 @@ const Units = () => {
             <AccordionButton>
               <Box as="span" flex="1" textAlign="left">
                 Unit {`${unitIndex+1}`}
+                {Boolean(errors?.units?.[unitIndex]) && <Tag colorScheme="red" mx={2}>Error</Tag>}
               </Box>
               <Text onClick={() => removeUnit(unitIndex)} textDecoration="underline" color="red">Delete</Text>
             </AccordionButton>
@@ -194,7 +199,7 @@ const Units = () => {
                 </FormControl>
                 
               </Box>
-              {!!type && type !== 'studio' && type !== 'single room' && <RenderBedrooms type={type} unitIndex={unitIndex} />}
+              <RenderBedrooms type={type} unitIndex={unitIndex} />
             </AccordionPanel>
           </AccordionItem>
         )})}
