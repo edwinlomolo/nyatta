@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - production
+      - master
 jobs:
   deploy:
     name: Deploy app
