@@ -1,4 +1,4 @@
-import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type UnitsForm, type PriceForm, type AmenitiesForm, type PropertyTypeForm } from '../types'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type UnitsForm, type PriceForm, type AmenitiesForm, type PropertyTypeForm, type ContactPersonForm } from '../types'
 
 export const FormSteps: OnboardingStep[] = ['description', 'type', 'location', 'caretaker', 'units', 'shoot']
 
@@ -46,3 +46,7 @@ export const defaultPropertyType: PropertyTypeForm = {
   propertyType: undefined
 }
 
+export const defaultContactPerson: ContactPersonForm = {
+  contactPerson: undefined,
+  shootDate: undefined
+}

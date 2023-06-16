@@ -23,13 +23,15 @@ const Caretaker = (): JSX.Element => {
     resolver: yupResolver(caretakerSchema)
   })
   const handleDrop = async (acceptedFiles: File[]) => {
-    const res = await uploadImage({
+    await uploadImage({
       variables: {
         file: acceptedFiles[0]
+      },
+      onCompleted: data => {
+        setValue('idVerification', data.uploadImage)
+        trigger('idVerification')
       }
     })
-    setValue('idVerification', res?.data.uploadImage)
-    trigger("idVerification")
   }
   const { getRootProps, getInputProps } = useDropzone({
     accept: {

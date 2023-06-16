@@ -2,7 +2,7 @@ import { type Dispatch, type SetStateAction, createContext } from 'react'
 
 import { type GroupBase } from 'react-select'
 
-import { type OnboardingStep, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm, type LocationOption, type AmenitiesForm, type PropertyTypeForm } from '../types'
+import { type OnboardingStep, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm, type LocationOption, type AmenitiesForm, type PropertyTypeForm, type ContactPersonForm } from '../types'
 
 interface OnboardingContext {
   step: OnboardingStep
@@ -26,6 +26,8 @@ interface OnboardingContext {
   setCaretakerVerified: Dispatch<SetStateAction<boolean>>
   propertyType: PropertyTypeForm
   setPropertyType: Dispatch<SetStateAction<PropertyTypeForm>>
+  contactPersonForm: ContactPersonForm
+  setContactPersonForm: Dispatch<SetStateAction<ContactPersonForm>>
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
@@ -50,4 +52,6 @@ export const OnboardingContext = createContext<OnboardingContext>({
   setCaretakerVerified: () => false,
   propertyType: {} as PropertyTypeForm,
   setPropertyType: () => {},
+  contactPersonForm: {} as ContactPersonForm,
+  setContactPersonForm: () => {}
 })

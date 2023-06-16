@@ -2,9 +2,9 @@ import { useState, type PropsWithChildren } from 'react'
 
 import { useQuery } from '@apollo/client'
 
-import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm, defaultPropertyType } from '../constants'
+import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm, defaultPropertyType, defaultContactPerson } from '../constants'
 import { OnboardingContext } from '../context/property-onboarding'
-import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm, type PropertyTypeForm } from '../types'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm, type PropertyTypeForm, type ContactPersonForm } from '../types'
 
 import { getTowns as GET_TOWNS } from '@gql'
 
@@ -18,6 +18,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [unitsForm, setUnitsForm] = useState<UnitsForm>(defaultUnitsForm)
   const [unitsCount, setUnitsCount] = useState<number>(1)
   const [propertyType, setPropertyType] = useState<PropertyTypeForm>(defaultPropertyType)
+  const [contactPersonForm, setContactPersonForm] = useState<ContactPersonForm>(defaultContactPerson)
   // For default towns select input
   const { data } = useQuery(GET_TOWNS)
   const locations = data?.getTowns.map((item: any) => ({
@@ -27,7 +28,7 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
     postalCode: item.postalCode
   }))
 
-  const [step, setStep] = useState<OnboardingStep>('units')
+  const [step, setStep] = useState<OnboardingStep>('description')
 
   return (
     <OnboardingContext.Provider
@@ -53,6 +54,8 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
         setUnitsCount,
         propertyType,
         setPropertyType,
+        contactPersonForm,
+        setContactPersonForm,
       }}
     >
       {children}

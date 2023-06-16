@@ -74,3 +74,7 @@ export interface PropertyTypeForm {
   propertyType: PropertyType | undefined
 }
 
+export interface ContactPersonForm {
+  contactPerson: string | undefined
+  shootDate: string | undefined
+}

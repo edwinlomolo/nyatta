@@ -41,3 +41,8 @@ export const caretakerSchema = object().shape({
 export const PropertyTypeSchema = object().shape({
   propertyType: string().required("Type is required")
 })
+
+export const ContactPersonSchema = object().shape({
+  contactPerson: string().required("Required"),
+  shootDate: string().required("Required"),
+})

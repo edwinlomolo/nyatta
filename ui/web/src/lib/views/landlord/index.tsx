@@ -2,7 +2,7 @@ import { Container, HStack } from '@chakra-ui/react'
 import Head from 'next/head'
 
 import { Title } from './components'
-import { Description, Location, Units, Caretaker, PropertyType } from './steps'
+import { Description, Location, Units, Caretaker, PropertyType, Shoot } from './steps'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
@@ -23,6 +23,7 @@ const Landlord = () => {
       {step === 'units' && <Units />}
       {step === 'caretaker' && <Caretaker />}
       {step === 'type' && <PropertyType />}
+      {step === 'shoot' && <Shoot />}
     </Container>
   )
 }
