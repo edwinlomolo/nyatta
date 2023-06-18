@@ -2,8 +2,10 @@ import { Button, Flex, FormControl, FormErrorMessage, Input, Select as ChakraSel
 import { Select, type GroupBase } from 'chakra-react-select'
 import { Controller, type SubmitHandler } from 'react-hook-form'
 
+import { chakraStylesConfig } from '@styles'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 import { useSearchListings } from '@usePropertySearch'
+
 
 const Search = () => {
   const { towns } = usePropertyOnboarding()
@@ -22,6 +24,7 @@ const Search = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {/* TODO accordion collapse for mobile view */}
       <Flex
         p={5}
         gap={4}
@@ -35,6 +38,7 @@ const Search = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                chakraStyles={chakraStylesConfig}
                 isClearable
                 isSearchable
                 options={(towns as unknown) as GroupBase<string>[]}

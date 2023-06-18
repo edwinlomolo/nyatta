@@ -2,7 +2,7 @@ import { Box, Container, SimpleGrid } from '@chakra-ui/react'
 import Link from 'next/link'
 
 const PrivacyPolicy = (): JSX.Element => (
-  <Container mt={10} align="center">
+  <Container mt={10} textAlign="center">
     <SimpleGrid columns={{sm: 1, md: 2}} spacingY={10}>
       <Box>
         <Box
