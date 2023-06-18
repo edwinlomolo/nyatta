@@ -1,19 +1,20 @@
 import type { ReactNode } from 'react'
 
-import { Box, Flex } from '@chakra-ui/react'
-
-import Navigation from '../components/navigation'
+import { Box } from '@chakra-ui/react'
 
 interface LayoutProps {
   children: ReactNode
 }
 
 const Layout = ({ children }: LayoutProps) => (
-    <Box>
-      <Navigation />
-      <Flex w="100%" direction="column">
+    <Box
+      minH="100vh"
+      bg="gray.100"
+    >
+      {/* TODO Header */}
+      <Box ml={{base: 0, md: 60 }}>
         {children}
-      </Flex>
+      </Box>
     </Box>
   )
 
