@@ -3,11 +3,11 @@ import { Button, HStack, Spacer } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
+import FormRadio from '../../../components/form-radio'
 import data from '../../../data/data.json'
 import { PropertyTypeForm } from '../types'
 import { PropertyTypeSchema } from '../validations'
 
-import { FormRadio } from '@components'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
 const PropertyType = (): JSX.Element => {

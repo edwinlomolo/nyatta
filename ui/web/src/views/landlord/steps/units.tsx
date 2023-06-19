@@ -8,7 +8,7 @@ import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-ho
 
 import data from '../../../data/data.json'
 import { type UnitsForm } from '../types'
-import { unitsSchema } from '../validations'
+import { UnitsSchema } from '../validations'
 
 import { chakraStylesConfig } from '@styles'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
@@ -17,7 +17,7 @@ const Units = () => {
   const { setStep, setUnitsCount, unitsForm, setUnitsForm } = usePropertyOnboarding()
   const { register, control, clearErrors, getValues, setError, formState: { errors }, handleSubmit, watch } = useForm<UnitsForm>({
     defaultValues: unitsForm,
-    resolver: yupResolver(unitsSchema)
+    resolver: yupResolver(UnitsSchema)
   })
   const { fields, append, remove } = useFieldArray({
     control,

@@ -1,5 +1,7 @@
 import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
 
+import { Button } from './button'
+
 const colorConfig: ThemeConfig = {
   initialColorMode: 'light',
   useSystemColorMode: false
@@ -8,6 +10,7 @@ const colorConfig: ThemeConfig = {
 export const theme = extendTheme({
   config: colorConfig,
   components: {
+    Button,
     FormLabel: {
       baseStyle: {
         fontWeight: 'bold'

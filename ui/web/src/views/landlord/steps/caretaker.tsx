@@ -8,7 +8,7 @@ import { FaUpload } from 'react-icons/fa'
 
 import { VerificationModal } from '../components'
 import { type CaretakerForm } from '../types'
-import { caretakerSchema } from '../validations'
+import { CaretakerSchema } from '../validations'
 
 import { uploadImage as UPLOAD_IMAGE, sendVerificationCode as SEND_VERIFICATION_CODE, } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
@@ -20,7 +20,7 @@ const Caretaker = (): JSX.Element => {
   const { setStep, caretakerForm, setCaretakerForm, caretakerVerified } = usePropertyOnboarding()
   const { register, handleSubmit, setValue, formState: { errors }, trigger, watch } = useForm<CaretakerForm>({
     defaultValues: caretakerForm,
-    resolver: yupResolver(caretakerSchema)
+    resolver: yupResolver(CaretakerSchema)
   })
   const handleDrop = async (acceptedFiles: File[]) => {
     await uploadImage({

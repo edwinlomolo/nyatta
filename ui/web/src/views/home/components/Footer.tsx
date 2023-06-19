@@ -3,8 +3,6 @@ import { Box, Flex, Text } from '@chakra-ui/react'
 const Footer = () => (
     <Box
       textAlign="center"
-      mx="auto"
-      mt="100px"
     >
       <Flex gap={4}>
         <Text>

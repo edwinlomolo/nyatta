@@ -1,11 +1,11 @@
 import { isValidPhoneNumber } from 'libphonenumber-js'
 import { array, object, number, string } from 'yup'
 
-export const descriptionSchema = object().shape({
+export const DescriptionSchema = object().shape({
   name: string().trim().matches(/^[A-Za-z ]+$/i, { message: 'Property name should be alphabetic only', excludeEmptyString: true }).required('Property name is required'),
 })
 
-export const locationSchema = object().shape({
+export const LocationSchema = object().shape({
   town: object().shape({
     id: string(),
     label: string(),
@@ -14,12 +14,12 @@ export const locationSchema = object().shape({
   }).required('Town is required')
 })
 
-export const priceSchema = object().shape({
+export const PriceSchema = object().shape({
   minPrice: number().min(1, "Zero is not valid").required('Minimum price is required'),
   maxPrice: number().min(1, "Zero is not valid").required('Maximum price is required')
 })
 
-export const unitsSchema = object().shape({
+export const UnitsSchema = object().shape({
   units: array().of(
     object().shape({
       name: string().trim().matches(/^[a-zA-Z0-9 ]+$/i, { message: 'Unit name should be alphabetic', excludeEmptyString: true }).required('Unit name required'),
@@ -30,7 +30,7 @@ export const unitsSchema = object().shape({
   ).required('If you got here, your property units need to be registered')
 })
 
-export const caretakerSchema = object().shape({
+export const CaretakerSchema = object().shape({
   firstName: string().matches(/^[a-zA-Z ]+$/i, { message: 'First name should be alphabetic', excludeEmptyString: true }).required('First name required'),
   lastName: string().matches(/^[a-zA-Z ]+$/i, { message: 'Last name should be alphabetic', excludeEmptyString: true }).required('Last name required'),
   phoneNumber: string().matches(/^[0-9]+$/i, { message: 'Expect phone number', excludeEmptyString: true }).test('valid-phone', 'You region is not supported yet', value => isValidPhoneNumber(value!, 'KE')).required('Phone number required'),

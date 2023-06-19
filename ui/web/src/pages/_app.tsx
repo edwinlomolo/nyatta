@@ -1,20 +1,18 @@
 import { ApolloProvider, type ApolloClient, type NormalizedCacheObject } from '@apollo/client'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 import { ChakraProvider } from '@chakra-ui/react'
+import Layout from '@layout'
 import localFont from '@next/font/local'
+import { theme } from '@styles'
 import { getCookie } from 'cookies-next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 
-import { createClient } from '../lib/apollo/createClient'
-import { OnboardingProvider } from '../lib/views/landlord/providers/property-onboarding'
-import { SearchListingProvider } from '../lib/views/listings/providers/search-listings'
+import { createClient } from '../apollo/createClient'
+import { OnboardingProvider } from '../views/landlord/providers/property-onboarding'
+import { SearchListingProvider } from '../views/listings/providers/search-listings'
 
-const mabryFont = localFont({ src: '../lib/styles/assets/font/MabryPro-Regular.ttf' })
-
-import { AuthProvider } from '@auth'
-import Layout from '@layout'
-import { theme } from '@styles'
+const mabryFont = localFont({ src: '../styles/assets/font/MabryPro-Regular.ttf' })
 
 const App = ({ Component, pageProps }: AppProps): JSX.Element => {
   const jwt = getCookie('jwt')
@@ -36,7 +34,6 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
         />
       </Head>
       <UserProvider>
-        <AuthProvider>
           <ApolloProvider client={client as ApolloClient<NormalizedCacheObject>}>
             <ChakraProvider theme={theme} cssVarsRoot="body">
               <SearchListingProvider>
@@ -48,7 +45,6 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
               </SearchListingProvider>
             </ChakraProvider>
           </ApolloProvider>
-        </AuthProvider>
       </UserProvider>
     </main>
   )

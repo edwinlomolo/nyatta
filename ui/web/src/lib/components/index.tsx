@@ -1,5 +1,0 @@
-export * from './home'
-export * from './loader'
-export * from './Chakra'
-export * from './dropdown'
-export { default as FormRadio } from './forms/form-radio'

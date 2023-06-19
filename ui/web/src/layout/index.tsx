@@ -2,6 +2,9 @@ import type { ReactNode } from 'react'
 
 import { Box } from '@chakra-ui/react'
 
+import Brand from '../components/brand'
+import Header from '../components/header'
+
 interface LayoutProps {
   children: ReactNode
 }
@@ -9,10 +12,11 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => (
     <Box
       minH="100vh"
-      bg="gray.100"
+      bg="white"
     >
-      {/* TODO Header */}
-      <Box ml={{base: 0, md: 60 }}>
+      <Brand display={{ base: "none", md: "block" }} />
+      <Header />
+      <Box p={4}>
         {children}
       </Box>
     </Box>

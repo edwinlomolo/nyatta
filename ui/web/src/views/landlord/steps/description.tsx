@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 
 import { type DescriptionForm } from '../types'
-import { descriptionSchema } from '../validations'
+import { DescriptionSchema } from '../validations'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 
@@ -12,7 +12,7 @@ const Description = () => {
   const { setStep, descriptionForm, setDescriptionForm } = usePropertyOnboarding()
   const { register, formState: { errors }, handleSubmit } = useForm<DescriptionForm>({
     defaultValues: descriptionForm,
-    resolver: yupResolver(descriptionSchema)
+    resolver: yupResolver(DescriptionSchema)
   })
 
   const onSubmit: SubmitHandler<DescriptionForm> = values => {
