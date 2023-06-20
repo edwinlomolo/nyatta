@@ -1,21 +1,22 @@
+'use client'
+
 import { ApolloProvider, type ApolloClient, type NormalizedCacheObject } from '@apollo/client'
-import { UserProvider } from '@auth0/nextjs-auth0/client'
+import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider } from '@chakra-ui/react'
-import localFont from '@next/font/local'
 import { getCookie } from 'cookies-next'
-import type { AppProps } from 'next/app'
+import localFont from 'next/font/local'
 import Head from 'next/head'
 
 import { createClient } from '../apollo/createClient'
 import { OnboardingProvider } from '../views/landlord/providers/property-onboarding'
 import { SearchListingProvider } from '../views/listings/providers/search-listings'
 
-import Layout from '@layout'
 import { theme } from '@styles'
+import SignInProvider from 'providers/sign-in'
 
 const mabryFont = localFont({ src: '../styles/assets/font/MabryPro-Regular.ttf' })
 
-const App = ({ Component, pageProps }: AppProps): JSX.Element => {
+const Providers = ({ children }: Props) => {
   const jwt = getCookie('jwt')
   const client = createClient(jwt)
 
@@ -34,21 +35,21 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
           content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover"
         />
       </Head>
-      <UserProvider>
-          <ApolloProvider client={client as ApolloClient<NormalizedCacheObject>}>
-            <ChakraProvider theme={theme} cssVarsRoot="body">
-              <SearchListingProvider>
-                <OnboardingProvider>
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                </OnboardingProvider>
-              </SearchListingProvider>
-            </ChakraProvider>
-          </ApolloProvider>
-      </UserProvider>
+      <ApolloProvider client={client as ApolloClient<NormalizedCacheObject>}>
+        <CacheProvider>
+          <ChakraProvider theme={theme} cssVarsRoot="body">
+            <SearchListingProvider>
+              <OnboardingProvider>
+                <SignInProvider>
+                  {children}
+                </SignInProvider>
+              </OnboardingProvider>
+            </SearchListingProvider>
+          </ChakraProvider>
+        </CacheProvider>
+        </ApolloProvider>
     </main>
   )
 }
 
-export default App
+export default Providers

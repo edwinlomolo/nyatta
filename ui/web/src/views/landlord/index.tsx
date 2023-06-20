@@ -1,3 +1,5 @@
+'use client'
+
 import { Container, HStack } from '@chakra-ui/react'
 import Head from 'next/head'
 

@@ -7,7 +7,7 @@ export const FormStepTitle: Record<OnboardingStep, string> = {
   location: 'Describe your property by locality.',
   caretaker: 'We will schedule a professional shoot for your property so there has to be someone who will give us access to your property and guide us through the property. Additionally, this will be the immediate and authenticated goto person for any queries from users when your listing goes live.',
   units: "You've come this far! How best can you describe your units?",
-  type: 'How best can you define this unit?',
+  type: 'How best can you define your property?',
   shoot: 'Schedule a professional shoot.',
 }
 

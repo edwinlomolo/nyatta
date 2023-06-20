@@ -6,7 +6,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import FormRadio from '../../../components/form-radio'
 import data from '../../../data/data.json'
 import { PropertyTypeForm } from '../types'
-import { PropertyTypeSchema } from '../validations'
+import { PropertyTypeSchema } from '../../../form/validations'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 

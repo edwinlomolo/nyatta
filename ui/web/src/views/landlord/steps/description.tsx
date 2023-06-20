@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 
 import { type DescriptionForm } from '../types'
-import { DescriptionSchema } from '../validations'
+import { DescriptionSchema } from '../../../form/validations'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
 

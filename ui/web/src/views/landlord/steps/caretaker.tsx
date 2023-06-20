@@ -8,7 +8,7 @@ import { FaUpload } from 'react-icons/fa'
 
 import { VerificationModal } from '../components'
 import { type CaretakerForm } from '../types'
-import { CaretakerSchema } from '../validations'
+import { CaretakerSchema } from '../../../form/validations'
 
 import { uploadImage as UPLOAD_IMAGE, sendVerificationCode as SEND_VERIFICATION_CODE, } from '@gql'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'

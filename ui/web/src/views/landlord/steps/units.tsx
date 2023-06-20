@@ -8,7 +8,7 @@ import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-ho
 
 import data from '../../../data/data.json'
 import { type UnitsForm } from '../types'
-import { UnitsSchema } from '../validations'
+import { UnitsSchema } from '../../../form/validations'
 
 import { chakraStylesConfig } from '@styles'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'

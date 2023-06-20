@@ -22,22 +22,73 @@
     "incremental": true,
     "baseUrl": "./src",
     "paths": {
-      "@gql": ["graphql/index.ts"],
-      "@apollo": ["apollo/index.ts"],
-      "@auth": ["lib/auth/index.ts"],
-      "@styles": ["styles/index.ts"],
-      "@utils": ["utils/index.ts"],
-      "@views": ["views/index.tsx"],
-      "@layout": ["layout/index.tsx"],
-      "@helpers": ["helpers/index.ts"],
-      "@form": ["form/types.ts"],
-      "@components": ["components/*"],
-      "@usePropertyOnboarding": ["views/landlord/hooks/property-onboarding.tsx"],
-      "@usePropertySearch": ["views/listings/hooks/search-listings.tsx"]
-    }
+      "@gql": [
+        "graphql/index.ts"
+      ],
+      "@apollo": [
+        "apollo/index.ts"
+      ],
+      "@hooks": [
+        "hooks/index.tsx"
+      ],
+      "@context": [
+        "contexts/*"
+      ],
+      "@types": [
+        "types/index.ts"
+      ],
+      "@providers": [
+        "providers/*"
+      ],
+      "@constants": [
+        "constants/index.ts"
+      ],
+      "@forms": [
+        "forms/*"
+      ],
+      "@auth": [
+        "lib/auth/index.ts"
+      ],
+      "@styles": [
+        "styles/index.ts"
+      ],
+      "@utils": [
+        "utils/index.ts"
+      ],
+      "@views": [
+        "views/index.tsx"
+      ],
+      "@pages": [
+        "pages/*"
+      ],
+      "@layout": [
+        "layout/index.tsx"
+      ],
+      "@helpers": [
+        "helpers/index.ts"
+      ],
+      "@form": [
+        "form/types.ts"
+      ],
+      "@components": [
+        "components/*"
+      ],
+      "@usePropertyOnboarding": [
+        "views/landlord/hooks/property-onboarding.tsx"
+      ],
+      "@usePropertySearch": [
+        "views/listings/hooks/search-listings.tsx"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
-    "src"
+    "src",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -33,7 +33,7 @@ export const UnitsSchema = object().shape({
 export const CaretakerSchema = object().shape({
   firstName: string().matches(/^[a-zA-Z ]+$/i, { message: 'First name should be alphabetic', excludeEmptyString: true }).required('First name required'),
   lastName: string().matches(/^[a-zA-Z ]+$/i, { message: 'Last name should be alphabetic', excludeEmptyString: true }).required('Last name required'),
-  phoneNumber: string().matches(/^[0-9]+$/i, { message: 'Expect phone number', excludeEmptyString: true }).test('valid-phone', 'You region is not supported yet', value => isValidPhoneNumber(value!, 'KE')).required('Phone number required'),
+  phoneNumber: string().required('Phone number required').matches(/^[0-9]+$/i, { message: 'Expects phone number', excludeEmptyString: true }).test('valid-phone', 'You region is not supported yet', value => isValidPhoneNumber(value!, 'KE')),
   idVerification: string().required('ID verification required'),
   countryCode: string().required("Country code required")
 })
@@ -45,4 +45,13 @@ export const PropertyTypeSchema = object().shape({
 export const ContactPersonSchema = object().shape({
   contactPerson: string().required("Required"),
   shootDate: string().required("Required"),
+})
+
+export const SignInSchema = object().shape({
+  countryCode: string().required("Required"),
+  phone: string().required('Phone number required').matches(/^[0-9]+$/i, { message: 'Expects phone number', excludeEmptyString: true }).test('valid-phone', 'You region is not supported yet', value => isValidPhoneNumber(value!, 'KE'))
+})
+
+export const VerifySignInSchema = object().shape({
+  code: string().required('Phone number required').matches(/^[0-9]+$/i, { message: 'Expects phone number', excludeEmptyString: true }).length(6, "Enter 6-digit code"),
 })
