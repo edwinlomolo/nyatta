@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction, createContext } from 'react'
-
 import { type GroupBase } from 'react-select'
+
 import { type OnboardingStep, type DescriptionForm, type PriceForm, type LocationForm, type CaretakerForm, type UnitsForm, type LocationOption, type AmenitiesForm, type PropertyTypeForm, type ContactPersonForm } from '@types'
 
 interface OnboardingContext {
