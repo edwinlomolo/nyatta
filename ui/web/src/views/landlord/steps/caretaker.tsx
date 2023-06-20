@@ -6,12 +6,12 @@ import { useDropzone } from 'react-dropzone'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { FaUpload } from 'react-icons/fa'
 
+import { CaretakerSchema } from '../../../form/validations'
 import { VerificationModal } from '../components'
-import { type CaretakerForm } from '../types'
-import { CaretakerSchema } from '../validations'
 
 import { uploadImage as UPLOAD_IMAGE, sendVerificationCode as SEND_VERIFICATION_CODE, } from '@gql'
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { usePropertyOnboarding } from '@hooks'
+import { type CaretakerForm } from '@types'
 
 const Caretaker = (): JSX.Element => {
   const [uploadImage, { loading: uploadingImage }] = useMutation(UPLOAD_IMAGE)

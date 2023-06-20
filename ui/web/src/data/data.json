@@ -96,16 +96,6 @@
       "value": "apartment",
       "label": "Apartment",
       "description": "A building containing several individual apartments"
-    },
-    {
-      "value": "bungalow",
-      "label": "Bungalow",
-      "description": "Small cottage-type, stand-alone home with inviting front porches"
-    },
-    {
-      "value": "condo",
-      "label": "Condo",
-      "description": "This is individual owned unit in a building complex"
     }
   ]
 }

@@ -1,8 +1,9 @@
-import { Button, HStack, Text } from '@chakra-ui/react'
+import { Button, HStack } from '@chakra-ui/react'
+import Link from 'next/link'
 
 const UserMenu = (): JSX.Element => (
   <HStack spacing={4}>
-    <Button>Sign In</Button>
+    <Button as={Link} href="/login/user">Sign In</Button>
   </HStack>
 )
 

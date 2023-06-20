@@ -17,7 +17,7 @@ const HomeHeader = () => (
           <Box>
             <Divider orientation="vertical" />
           </Box>
-            <Button as="a" href="/landlord" size="lg">
+            <Button as="a" href="/landlord/setup" size="lg">
               Home Owner
             </Button>
         </Flex>

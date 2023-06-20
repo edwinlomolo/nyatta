@@ -3,7 +3,7 @@ import { Button, FormControl, FormLabel, FormHelperText, FormErrorMessage, Stack
 import { useForm, type SubmitHandler } from 'react-hook-form'
 
 import { verifyVerificationCode as VERIFY_VERIFICATION_CODE } from '@gql'
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { usePropertyOnboarding } from '@hooks'
 
 interface FormValues {
   verificationCode: string
