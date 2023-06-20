@@ -42,9 +42,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "check-types": "tsc --noEmit",
-    "lint": "yarn check-types && next lint"
+    "start": "next start"
   },
   "eslintConfig": {
     "extends": [
