@@ -4,13 +4,13 @@ import { useMutation } from '@apollo/client'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, FormControl, FormLabel, FormErrorMessage, Select, Input, HStack } from '@chakra-ui/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useSignIn } from '@hooks'
-import { SignInForm } from '@types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
 import { SignInSchema } from './validations'
 
 import { sendVerificationCode as SEND_VERIFICATION } from '@gql'
+import { useSignIn } from '@hooks'
+import { SignInForm } from '@types'
 
 const SignInForm = (): JSX.Element => {
 	const { setStatus, signInForm, setSignInForm } = useSignIn()

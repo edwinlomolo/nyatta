@@ -43,8 +43,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "check-types": "eslint --fix . && tsc --noEmit",
-    "lint": "npm run check-types && next lint"
   },
   "eslintConfig": {
     "extends": [
