@@ -2,10 +2,8 @@ import { Button, Flex, FormControl, FormErrorMessage, Input, Select as ChakraSel
 import { Select, type GroupBase } from 'chakra-react-select'
 import { Controller, type SubmitHandler } from 'react-hook-form'
 
+import { usePropertyOnboarding, useSearchListings } from '@hooks'
 import { chakraStylesConfig } from '@styles'
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
-import { useSearchListings } from '@usePropertySearch'
-
 
 const Search = () => {
   const { towns } = usePropertyOnboarding()

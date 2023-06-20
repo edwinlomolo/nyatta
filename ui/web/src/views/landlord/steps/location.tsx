@@ -3,10 +3,9 @@ import { Button, FormControl, FormLabel, FormErrorMessage, FormHelperText, Input
 import { Select } from 'chakra-react-select'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 
-import { usePropertyOnboarding } from '../hooks/property-onboarding'
-import { type LocationForm } from '../types'
-
+import { usePropertyOnboarding } from '@hooks'
 import { chakraStylesConfig } from '@styles'
+import { type LocationForm } from '@types'
 
 const Location = () => {
   const { locationForm, setLocationForm, towns, setStep } = usePropertyOnboarding()

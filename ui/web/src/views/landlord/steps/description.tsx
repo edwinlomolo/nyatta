@@ -3,9 +3,8 @@ import { Button, FormControl, Input, FormErrorMessage, FormHelperText, VStack } 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 
-import { type DescriptionForm } from '../types'
-
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { usePropertyOnboarding } from '@hooks'
+import { type DescriptionForm } from '@types'
 import { DescriptionSchema } from 'form/validations'
 
 const Description = () => {

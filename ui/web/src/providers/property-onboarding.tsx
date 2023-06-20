@@ -2,11 +2,10 @@ import { useState, type PropsWithChildren } from 'react'
 
 import { useQuery } from '@apollo/client'
 
-import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm, defaultPropertyType, defaultContactPerson } from '../constants'
-import { OnboardingContext } from '../context/property-onboarding'
-import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm, type PropertyTypeForm, type ContactPersonForm } from '../types'
-
+import { defaultDescriptionForm, defaultLocationForm, defaultAmenitiesForm, defaultPriceForm, defaultUnitsForm, defaultCaretakerForm, defaultPropertyType, defaultContactPerson } from '@constants'
 import { getTowns as GET_TOWNS } from '@gql'
+import { type OnboardingStep, type DescriptionForm, type LocationForm, type CaretakerForm, type PriceForm, type UnitsForm, type AmenitiesForm, type PropertyTypeForm, type ContactPersonForm } from '@types'
+import { OnboardingContext } from 'contexts/property-onboarding'
 
 export const OnboardingProvider = ({ children }: PropsWithChildren) => {
   const [descriptionForm, setDescriptionForm] = useState<DescriptionForm>(defaultDescriptionForm)

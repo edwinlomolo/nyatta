@@ -4,7 +4,7 @@ import { useLazyQuery } from '@apollo/client'
 import { useForm } from 'react-hook-form'
 
 
-import { SearchListingContext } from '../context/search-listings'
+import { SearchListingContext } from '../contexts/search-listings'
 
 import { type SearchListingForm } from '@form'
 import { getListings as GET_LISTINGS } from '@gql'

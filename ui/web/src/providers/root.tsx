@@ -10,8 +10,9 @@ import localFont from 'next/font/local'
 import Head from 'next/head'
 
 import { createClient } from '../apollo/createClient'
-import { OnboardingProvider } from '../views/landlord/providers/property-onboarding'
-import { SearchListingProvider } from '../views/listings/providers/search-listings'
+
+import { OnboardingProvider } from './property-onboarding'
+import { SearchListingProvider } from './search-listings'
 
 import { theme } from '@styles'
 import SignInProvider from 'providers/sign-in'

@@ -6,10 +6,9 @@ import { useDropzone } from 'react-dropzone'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { FaUpload } from 'react-icons/fa'
 
-import { type ContactPersonForm } from '../types'
-
 import { uploadImage as UPLOAD_IMAGE } from '@gql'
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { usePropertyOnboarding } from '@hooks'
+import { type ContactPersonForm } from '@types'
 import { ContactPersonSchema } from 'form/validations'
 
 const Shoot = (): JSX.Element => {

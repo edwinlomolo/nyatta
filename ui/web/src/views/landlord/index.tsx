@@ -6,7 +6,7 @@ import Head from 'next/head'
 import { Title } from './components'
 import { Description, Location, Units, Caretaker, PropertyType, Shoot } from './steps'
 
-import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { usePropertyOnboarding } from '@hooks'
 
 
 const Landlord = () => {
