@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { Metadata } from 'next'
-import Layout from '@layout'
 
+import Layout from '@layout'
 import Providers from 'providers/root'
 
 interface Props {
