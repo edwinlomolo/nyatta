@@ -1,4 +1,4 @@
-import Login from 'pages/login'
+import Login from 'views/login'
 
 // `/login/user`
 export default Login
