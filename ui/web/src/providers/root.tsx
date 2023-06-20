@@ -1,5 +1,7 @@
 'use client'
 
+import { ReactNode } from 'react'
+
 import { ApolloProvider, type ApolloClient, type NormalizedCacheObject } from '@apollo/client'
 import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider } from '@chakra-ui/react'
@@ -15,6 +17,10 @@ import { theme } from '@styles'
 import SignInProvider from 'providers/sign-in'
 
 const mabryFont = localFont({ src: '../styles/assets/font/MabryPro-Regular.ttf' })
+
+interface Props {
+  children: ReactNode
+}
 
 const Providers = ({ children }: Props) => {
   const jwt = getCookie('jwt')
