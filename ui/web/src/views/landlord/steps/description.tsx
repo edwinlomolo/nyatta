@@ -4,9 +4,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 
 import { type DescriptionForm } from '../types'
-import { DescriptionSchema } from '../../../form/validations'
 
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import { DescriptionSchema } from 'form/validations'
 
 const Description = () => {
   const { setStep, descriptionForm, setDescriptionForm } = usePropertyOnboarding()

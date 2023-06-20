@@ -6,12 +6,12 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Select } from 'chakra-react-select'
 import { Controller, useForm, type SubmitHandler, useFieldArray } from 'react-hook-form'
 
-import data from '../../../data/data.json'
 import { type UnitsForm } from '../types'
-import { UnitsSchema } from '../../../form/validations'
 
 import { chakraStylesConfig } from '@styles'
 import { usePropertyOnboarding } from '@usePropertyOnboarding'
+import data from 'data/data.json'
+import { UnitsSchema } from 'form/validations'
 
 const Units = () => {
   const { setStep, setUnitsCount, unitsForm, setUnitsForm } = usePropertyOnboarding()

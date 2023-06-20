@@ -61,6 +61,9 @@
       "@pages": [
         "pages/*"
       ],
+      "@data": [
+        "data/*"
+      ],
       "@layout": [
         "layout/index.tsx"
       ],
