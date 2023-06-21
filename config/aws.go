@@ -5,7 +5,7 @@ type AwsConfig struct {
 	SecretAccessKey string
 	S3              struct {
 		Buckets struct {
-			Caretaker string
+			Media string
 		}
 	}
 }

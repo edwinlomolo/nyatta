@@ -6,6 +6,8 @@ type User struct {
 	ID         string      `json:"id"`
 	FirstName  string      `json:"first_name"`
 	LastName   string      `json:"last_name"`
+	Phone      string      `json:"phone"`
+	Onboarding bool        `json:"onboarding"`
 	Email      string      `json:"email"`
 	Avatar     string      `json:"avatar"`
 	Properties []*Property `json:"properties"`

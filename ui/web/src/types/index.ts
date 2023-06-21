@@ -88,3 +88,9 @@ export interface ContactPersonForm {
   contactPerson: string | undefined
   shootDate: string | undefined
 }
+
+export interface UserOnboardingForm {
+  avatar: string
+  firstName: string
+  lastName: string
+}

@@ -68,6 +68,21 @@ input VerificationInput {
   verifyCode: String
 }
 
+# Represent user handshake input
+input HandshakeInput {
+  phone: String!
+}
+
+# Represent user update input
+input UpdateUserInput {
+  id: String!
+  first_name: String!
+  last_name: String!
+  avatar: String!
+  email: String!
+  onboarding: Boolean!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -97,6 +112,8 @@ type Mutation {
   uploadImage(file: Upload!): String!
   sendVerificationCode(input: VerificationInput!): Status!
   verifyVerificationCode(input: VerificationInput!): Status!
+  handshake(input: HandshakeInput!): User!
+  updateUser(input: UpdateUserInput!): User!
 }
 
 schema {

@@ -33,6 +33,12 @@ type userResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *userResolver) Phone(ctx context.Context, obj *model.User) (string, error) {
+	panic(fmt.Errorf("not implemented: Phone - phone"))
+}
+func (r *userResolver) Onboarding(ctx context.Context, obj *model.User) (bool, error) {
+	panic(fmt.Errorf("not implemented: Onboarding - onboarding"))
+}
 func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (string, error) {
 	panic(fmt.Errorf("not implemented: Avatar - avatar"))
 }

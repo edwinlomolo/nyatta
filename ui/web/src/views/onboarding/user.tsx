@@ -1,9 +1,16 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, Container, Text } from '@chakra-ui/react'
+
+import UserOnboarding from 'form/user-onboarding'
 
 const Page = (): JSX.Element => (
-  <Box>User onboarding</Box>
-)
+    <Container>
+      <Text fontSize={{base: "2xl", md: "3xl"}}>Finish onboarding your profile</Text>
+      <Box>
+        <UserOnboarding />
+      </Box>
+    </Container>
+  )
 
 export default Page

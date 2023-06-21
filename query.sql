@@ -4,9 +4,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreateUser :one
 INSERT INTO users (
-  email, first_name, last_name, avatar
+  email, first_name, last_name, avatar, phone
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 
@@ -81,3 +81,12 @@ WHERE property_id = $1;
 -- name: GetListings :many
 SELECT * FROM properties
 WHERE town ILIKE $1 AND min_price >= $2 AND max_price <= $3;
+
+-- name: UpdateUser :one
+UPDATE users SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4, email = $5
+WHERE id = $6
+RETURNING *;
+
+-- name: FindUserByPhone :one
+SELECT * FROM users
+WHERE phone = $1;

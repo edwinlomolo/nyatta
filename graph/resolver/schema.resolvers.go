@@ -95,6 +95,24 @@ func (r *mutationResolver) VerifyVerificationCode(ctx context.Context, input mod
 	return &model.Status{Success: status}, nil
 }
 
+// Handshake is the resolver for the handshake field.
+func (r *mutationResolver) Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error) {
+	foundUser, err := ctx.Value("userService").(*services.UserServices).FindUserByPhone(input.Phone)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+	}
+	return foundUser, nil
+}
+
+// UpdateUser is the resolver for the updateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
+	user, err := ctx.Value("userService").(*services.UserServices).UpdateUser(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+	}
+	return user, nil
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)
@@ -158,3 +176,17 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	_, err := ctx.Value("userService").(*services.UserServices).CreateUser(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+	}
+	return &model.User{}, nil
+}

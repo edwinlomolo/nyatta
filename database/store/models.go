@@ -13,8 +13,8 @@ type Amenity struct {
 	ID         int64     `json:"id"`
 	Name       string    `json:"name"`
 	Provider   string    `json:"provider"`
-	Category   string    `json:"category"`
 	CreatedAt  time.Time `json:"created_at"`
+	Category   string    `json:"category"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	PropertyID int64     `json:"property_id"`
 }
@@ -60,11 +60,13 @@ type Tenant struct {
 }
 
 type User struct {
-	ID        int64     `json:"id"`
-	Email     string    `json:"email"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Avatar    string    `json:"avatar"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         int64          `json:"id"`
+	Email      sql.NullString `json:"email"`
+	FirstName  sql.NullString `json:"first_name"`
+	LastName   sql.NullString `json:"last_name"`
+	Phone      sql.NullString `json:"phone"`
+	Onboarding sql.NullBool   `json:"onboarding"`
+	Avatar     sql.NullString `json:"avatar"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
 }

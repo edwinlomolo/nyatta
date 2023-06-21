@@ -40,7 +40,7 @@ func NewAwsService(cfg cfg.AwsConfig) *AwsServices {
 func (a *AwsServices) UploadFile(file graphql.Upload) (string, error) {
 	// Upload input params
 	params := &s3.PutObjectInput{
-		Bucket: aws.String(a.Config.S3.Buckets.Caretaker),
+		Bucket: aws.String(a.Config.S3.Buckets.Media),
 		Key:    aws.String(file.Filename),
 		Body:   file.File,
 	}

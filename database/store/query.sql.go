@@ -17,7 +17,7 @@ INSERT INTO amenities (
 ) VALUES (
   $1, $2, $3, $4
 )
-RETURNING id, name, provider, category, created_at, updated_at, property_id
+RETURNING id, name, provider, created_at, category, updated_at, property_id
 `
 
 type CreateAmenityParams struct {
@@ -39,8 +39,8 @@ func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (A
 		&i.ID,
 		&i.Name,
 		&i.Provider,
-		&i.Category,
 		&i.CreatedAt,
+		&i.Category,
 		&i.UpdatedAt,
 		&i.PropertyID,
 	)
@@ -186,18 +186,19 @@ func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomPa
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email, first_name, last_name, avatar
+  email, first_name, last_name, avatar, phone
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5
 )
-RETURNING id, email, first_name, last_name, avatar, created_at, updated_at
+RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Avatar    string `json:"avatar"`
+	Email     sql.NullString `json:"email"`
+	FirstName sql.NullString `json:"first_name"`
+	LastName  sql.NullString `json:"last_name"`
+	Avatar    sql.NullString `json:"avatar"`
+	Phone     sql.NullString `json:"phone"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -206,6 +207,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.FirstName,
 		arg.LastName,
 		arg.Avatar,
+		arg.Phone,
 	)
 	var i User
 	err := row.Scan(
@@ -213,6 +215,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -221,11 +225,11 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const findByEmail = `-- name: FindByEmail :one
-SELECT id, email, first_name, last_name, avatar, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
-func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
+func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, error) {
 	row := q.db.QueryRowContext(ctx, findByEmail, email)
 	var i User
 	err := row.Scan(
@@ -233,6 +237,30 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
+		&i.Avatar,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const findUserByPhone = `-- name: FindUserByPhone :one
+SELECT id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at FROM users
+WHERE phone = $1
+`
+
+func (q *Queries) FindUserByPhone(ctx context.Context, phone sql.NullString) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByPhone, phone)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -414,7 +442,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID int64) ([]T
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, first_name, last_name, avatar, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -426,6 +454,8 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -473,7 +503,7 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]P
 }
 
 const propertyAmenities = `-- name: PropertyAmenities :many
-SELECT id, name, provider, category, created_at, updated_at, property_id FROM amenities
+SELECT id, name, provider, created_at, category, updated_at, property_id FROM amenities
 WHERE property_id = $1
 `
 
@@ -490,8 +520,8 @@ func (q *Queries) PropertyAmenities(ctx context.Context, propertyID int64) ([]Am
 			&i.ID,
 			&i.Name,
 			&i.Provider,
-			&i.Category,
 			&i.CreatedAt,
+			&i.Category,
 			&i.UpdatedAt,
 			&i.PropertyID,
 		); err != nil {
@@ -506,4 +536,43 @@ func (q *Queries) PropertyAmenities(ctx context.Context, propertyID int64) ([]Am
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4, email = $5
+WHERE id = $6
+RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	Avatar     sql.NullString `json:"avatar"`
+	FirstName  sql.NullString `json:"first_name"`
+	LastName   sql.NullString `json:"last_name"`
+	Onboarding sql.NullBool   `json:"onboarding"`
+	Email      sql.NullString `json:"email"`
+	ID         int64          `json:"id"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser,
+		arg.Avatar,
+		arg.FirstName,
+		arg.LastName,
+		arg.Onboarding,
+		arg.Email,
+		arg.ID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
+		&i.Avatar,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

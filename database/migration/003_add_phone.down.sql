@@ -1,0 +1,3 @@
+ALTER TABLE users
+DROP COLUMN onboarding CASCADE,
+DROP COLUMN phone CASCADE;
