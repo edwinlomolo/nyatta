@@ -18,8 +18,8 @@ export const theme = extendTheme({
     }
   },
   fonts: {
-    heading: 'var(--font-mabry)',
-    body: 'var(--font-mabry)',
+    heading: 'var(--font-ibm-plex-mono)',
+    body: 'var(--font-ibm-plex-mono)',
   },
   styles: {
     global: () => ({})

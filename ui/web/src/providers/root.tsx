@@ -6,8 +6,8 @@ import { ApolloProvider, type ApolloClient, type NormalizedCacheObject } from '@
 import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider } from '@chakra-ui/react'
 import { getCookie } from 'cookies-next'
-import localFont from 'next/font/local'
 import Head from 'next/head'
+import { SessionProvider } from 'next-auth/react'
 
 import { createClient } from '../apollo/createClient'
 
@@ -16,8 +16,6 @@ import { SearchListingProvider } from './search-listings'
 
 import { theme } from '@styles'
 import SignInProvider from 'providers/sign-in'
-
-const mabryFont = localFont({ src: '../styles/assets/font/MabryPro-Regular.ttf' })
 
 interface Props {
   children: ReactNode
@@ -28,14 +26,7 @@ const Providers = ({ children }: Props) => {
   const client = createClient(jwt)
 
   return (
-    <main>
-      <style jsx global>
-        {`
-          :root {
-            --font-mabry: ${mabryFont.style.fontFamily};
-          }
-        `}
-      </style>
+    <>
       <Head>
         <meta
           name="viewport"
@@ -44,18 +35,20 @@ const Providers = ({ children }: Props) => {
       </Head>
       <ApolloProvider client={client as ApolloClient<NormalizedCacheObject>}>
         <CacheProvider>
-          <ChakraProvider theme={theme} cssVarsRoot="body">
-            <SearchListingProvider>
-              <OnboardingProvider>
-                <SignInProvider>
-                  {children}
-                </SignInProvider>
-              </OnboardingProvider>
-            </SearchListingProvider>
+          <ChakraProvider theme={theme}>
+            <SessionProvider>
+              <SearchListingProvider>
+                <OnboardingProvider>
+                  <SignInProvider>
+                    {children}
+                  </SignInProvider>
+                </OnboardingProvider>
+              </SearchListingProvider>
+            </SessionProvider>
           </ChakraProvider>
         </CacheProvider>
-        </ApolloProvider>
-    </main>
+      </ApolloProvider>
+    </>
   )
 }
 
