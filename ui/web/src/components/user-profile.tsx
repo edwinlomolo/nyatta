@@ -17,9 +17,8 @@ const UserMenu = (): JSX.Element => {
             <MenuButton>
               <HStack>
                 <Avatar
-                  src={session?.user?.image}
+                  src={`${session?.user?.image}`}
                   loading="eager"
-                  alt={session?.user?.name}
                 />
                 <Box display={{ base: "none", md: "flex" }}>
                   <Icon as={FaAngleDown} />
