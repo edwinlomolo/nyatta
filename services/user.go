@@ -33,10 +33,10 @@ func NewUserService(queries *sqlStore.Queries, logger *log.Logger, config *confi
 func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 	ctx := context.Background()
 	insertedUser, err := u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
-		FirstName: sql.NullString{String: user.FirstName},
-		LastName:  sql.NullString{String: user.LastName},
-		Email:     sql.NullString{String: user.Email},
-		Avatar:    sql.NullString{String: user.Avatar},
+		FirstName: sql.NullString{String: user.FirstName, Valid: true},
+		LastName:  sql.NullString{String: user.LastName, Valid: true},
+		Email:     sql.NullString{String: user.Email, Valid: true},
+		Avatar:    sql.NullString{String: user.Avatar, Valid: true},
 	})
 	if err != nil {
 		return nil, err
