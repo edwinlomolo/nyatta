@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+
 import Landlord from 'views/landlord'
 
 export const metadata: Metadata = {

@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+
 import Listings from 'views/listings'
 
 export const metadata: Metadata = {
