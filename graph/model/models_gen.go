@@ -19,6 +19,10 @@ type Bedroom struct {
 	UpdatedAt      *time.Time `json:"updatedAt"`
 }
 
+type HandshakeInput struct {
+	Phone string `json:"phone"`
+}
+
 type ListingsInput struct {
 	Town     string `json:"town"`
 	MinPrice *int   `json:"minPrice"`
@@ -81,6 +85,15 @@ type UnitBedroomInput struct {
 	BedroomNumber  int    `json:"bedroomNumber"`
 	EnSuite        bool   `json:"enSuite"`
 	Master         bool   `json:"master"`
+}
+
+type UpdateUserInput struct {
+	ID         string `json:"id"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Avatar     string `json:"avatar"`
+	Email      string `json:"email"`
+	Onboarding bool   `json:"onboarding"`
 }
 
 type VerificationInput struct {

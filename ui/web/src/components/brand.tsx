@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 
-const Brand = ({ ...rest }: any): JSX.Element => (
+const Brand = ({ ...rest }): JSX.Element => (
   <Box
     {...rest}
     borderRight="1px"

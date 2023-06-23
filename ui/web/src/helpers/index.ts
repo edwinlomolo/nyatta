@@ -1,1 +1,1 @@
-export const apiUrl = `${process.env.NEXT_PUBLIC_BASE_API}/handshake`
+export const apiUrl = `${process.env.NEXT_PUBLIC_API}/handshake`

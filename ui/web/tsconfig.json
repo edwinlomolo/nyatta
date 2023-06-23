@@ -37,6 +37,9 @@
       "@types": [
         "types/index.ts"
       ],
+      "@lib": [
+        "lib/*"
+      ],
       "@providers": [
         "providers/*"
       ],

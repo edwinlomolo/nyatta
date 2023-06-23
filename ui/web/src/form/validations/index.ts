@@ -55,3 +55,9 @@ export const SignInSchema = object().shape({
 export const VerifySignInSchema = object().shape({
   code: string().required('Phone number required').matches(/^[0-9]+$/i, { message: 'Expects phone number', excludeEmptyString: true }).length(6, "Enter 6-digit code"),
 })
+
+export const UserOnboardingSchema = object().shape({
+  avatar: string().required("Required"),
+  firstName: string().required("First name required").matches(/^[a-zA-Z0-9 ]+$/i, { message: 'First name should be alphabetic', excludeEmptyString: true }),
+  lastName: string().required("Last name required").matches(/^[a-zA-Z0-9 ]+$/i, { message: 'First name should be alphabetic', excludeEmptyString: true }),
+})
