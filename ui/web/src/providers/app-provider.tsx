@@ -12,6 +12,7 @@ interface Props {
 const AppProvider = ({ children }: Props) => {
   const { status } = useSession()
 
+  // wait for auth
   return status === 'loading' ? <Center><Spinner thickness="10px" color="green.700" size="xl" /></Center> : <>{children}</>
 }
 

@@ -2,11 +2,11 @@ import { Box, Button, HStack, Icon, Flex, Avatar, Menu, MenuButton, MenuList, Me
 import { useSession, signOut, signIn } from 'next-auth/react'
 import { FaAngleDown } from 'react-icons/fa'
 
-const UserMenu = (): JSX.Element => {
+const UserMenu = ({ ...rest }): JSX.Element => {
   const { data: session, status } = useSession()
 
   return (
-    <HStack spacing={4}>
+    <HStack spacing={4} {...rest}>
       {status === 'loading' && <Spinner />}
       {status !== 'loading' && status !== 'authenticated' && (
         <Button onClick={() => signIn('google')}>Sign In</Button>

@@ -2,9 +2,8 @@
 
 import type { ReactNode } from 'react'
 
-import { Box } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 
-import Brand from '../components/brand'
 import Header from '../components/header'
 
 interface LayoutProps {
@@ -16,10 +15,21 @@ const Layout = ({ children }: LayoutProps) => (
     minH="100vh"
     bg="white"
   >
-    <Brand display={{ base: "none", md: "block" }} />
     <Header />
     <Box p={4}>
       {children}
+    </Box>
+    <Box bottom="0" left="0" w="100%" textAlign="center" position="fixed">
+      <Text
+        as="a"
+        href="mailto:edwinmoses535@gmail.com"
+        _hover={{
+          cursor: 'pointer'
+        }}
+        textDecoration="underline"
+      >
+        Contact Us
+      </Text>
     </Box>
   </Box>
 )
