@@ -94,3 +94,10 @@ export interface UserOnboardingForm {
   firstName: string
   lastName: string
 }
+
+export interface SearchListingsForm {
+  town: string
+  minPrice: number
+  maxPrice: number
+  propertyType: PropertyType | undefined
+}

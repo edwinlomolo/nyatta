@@ -97,5 +97,32 @@
       "label": "Apartment",
       "description": "A building containing several individual apartments"
     }
+  ],
+  "propertyTypes": [
+    {
+      "value": "single room",
+      "label": "Single Room",
+      "description": "A single room"
+    },
+    {
+      "value": "studio",
+      "label": "Studio",
+      "description": "A studio apartment"
+    },
+    {
+      "value": "1",
+      "label": "1 Bedroom",
+      "description": "1 bedroom"
+    },
+    {
+      "value": "2",
+      "label": "2 Bedroom",
+      "description": "2 bedroom"
+    },
+    {
+      "value": "3",
+      "label": "3 Bedroom",
+      "description": "3 bedroom"
+    }
   ]
 }
