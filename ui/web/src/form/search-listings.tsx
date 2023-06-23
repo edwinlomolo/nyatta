@@ -1,8 +1,10 @@
 import { Button, FormControl, Flex, FormHelperText, IconButton, Input, VStack, Modal, ModalBody, ModalCloseButton, ModalHeader, ModalContent, useDisclosure } from '@chakra-ui/react'
 import { Select } from 'chakra-react-select'
-import data from 'data/data.json'
+
 import { Controller, useForm } from 'react-hook-form'
 import { BsFilterSquareFill } from 'react-icons/bs'
+
+import data from 'data/data.json'
 import { SearchListingsForm } from 'types'
 
 const SearchForm = (): JSX.Element => {
