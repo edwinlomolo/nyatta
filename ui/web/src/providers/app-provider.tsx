@@ -13,7 +13,14 @@ const AppProvider = ({ children }: Props) => {
   const { status } = useSession()
 
   // wait for auth
-  return status === 'loading' ? <Center><Spinner thickness="10px" color="green.700" size="xl" /></Center> : <>{children}</>
+  if (status === 'loading') {
+    return (
+      <Center>
+        <Spinner thickness="8px" color="green.700" size="xl" />
+      </Center>
+    )
+  }
+  return <>{children}</>
 }
 
 export default AppProvider

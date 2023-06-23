@@ -19,7 +19,7 @@ const Layout = ({ children }: LayoutProps) => (
     <Box p={4}>
       {children}
     </Box>
-    <Box bottom="0" left="0" w="100%" textAlign="center" position="fixed">
+    <Box bottom="5" left="0" w="100%" textAlign="center" position="fixed">
       <Text
         as="a"
         href="mailto:edwinmoses535@gmail.com"

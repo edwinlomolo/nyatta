@@ -55,3 +55,8 @@ export const defaultContactPerson: ContactPersonForm = {
   contactPerson: undefined,
   shootDate: undefined
 }
+
+export const privateRoutes = [
+  '/landlord/setup',
+  '/onboarding/user',
+]

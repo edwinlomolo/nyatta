@@ -1,17 +1,20 @@
 'use client'
 
-import { Box, Text } from '@chakra-ui/react'
-import Head from 'next/head'
+import { Box, Flex, Text } from '@chakra-ui/react'
+
+import SearchForm from 'form/search-listings'
 
 const Listings = () => (
-  <>
-    <Head>
-      <title>Search listings by town or postal code</title>
-    </Head>
+  <Flex
+    flexDirection="column"
+  >
     <Box>
-      <Text>Listings page</Text>
+      <SearchForm />
     </Box>
-  </>
+    <Flex alignSelf="center">
+      <Text fontSize={{base: "3xl", md: "4xl"}}>No Listings Found</Text>
+    </Flex>
+  </Flex>
 )
 
 export default Listings
