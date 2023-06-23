@@ -12,8 +12,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: 'Nyatta',
-  description: 'Find local rental homes',
+  title: 'Nyatta - Find local rental homes',
 }
 
 const ibm = Space_Grotesk({
@@ -27,9 +26,9 @@ const AppLayout = ({ children }: Props) => (
     <body>
       <Providers>
         <AppProvider>
-        <Layout>
-          {children}
-        </Layout>
+          <Layout>
+            {children}
+          </Layout>
         </AppProvider>
       </Providers>
     </body>

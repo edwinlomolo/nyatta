@@ -1,7 +1,8 @@
+import { Metadata } from 'next'
 import Listings from 'views/listings'
 
-export const metadata = {
-  description: 'Find local rental homes'
+export const metadata: Metadata = {
+  title: 'Nyatta - Find local rental homes'
 }
 
 // `/listings`
