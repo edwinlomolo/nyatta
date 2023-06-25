@@ -83,8 +83,9 @@ SELECT * FROM properties
 WHERE town ILIKE $1 AND min_price >= $2 AND max_price <= $3;
 
 -- name: UpdateUser :one
-UPDATE users SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4, email = $5
-WHERE id = $6
+UPDATE users
+SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4
+WHERE email = $5
 RETURNING *;
 
 -- name: FindUserByPhone :one

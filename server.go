@@ -47,7 +47,7 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService()
 	awsService := services.NewAwsService(configuration.Aws)
-	twilioService := services.NewTwilioService(configuration.Twilio)
+	twilioService := services.NewTwilioService(configuration.Twilio, userService)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())

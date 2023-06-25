@@ -12,22 +12,23 @@ import (
 )
 
 type TwilioServices struct {
-	Client *twilio.RestClient
-	Sid    string // Verify service id
+	Client      *twilio.RestClient
+	Sid         string // Verify service id
+	userService *UserServices
 }
 
 // TwilioServices implements Twilio
 var _ interfaces.Twilio = &TwilioServices{}
 
 // NewTwilioService - create new instance of Twilio services
-func NewTwilioService(cfg config.TwilioConfig) *TwilioServices {
+func NewTwilioService(cfg config.TwilioConfig, userServices *UserServices) *TwilioServices {
 	// Create twilio client
 	twilio := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: cfg.Sid,
 		Password: cfg.AuthToken,
 	})
 
-	return &TwilioServices{Client: twilio, Sid: cfg.VerifySid}
+	return &TwilioServices{Client: twilio, Sid: cfg.VerifySid, userService: userServices}
 }
 
 // SendVerification - sends verification code
@@ -70,6 +71,12 @@ func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.C
 		return "", err
 	} else {
 		if res.Status != nil {
+			if *res.Status == "approved" {
+				_, err := t.userService.CreateUser(&model.NewUser{Phone: phone})
+				if err != nil {
+					return "", err
+				}
+			}
 			return *res.Status, nil
 		}
 		return "", errors.New("nil response from twilio")
