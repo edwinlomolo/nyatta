@@ -539,8 +539,9 @@ func (q *Queries) PropertyAmenities(ctx context.Context, propertyID int64) ([]Am
 }
 
 const updateUser = `-- name: UpdateUser :one
-UPDATE users SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4, email = $5
-WHERE id = $6
+UPDATE users
+SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4
+WHERE email = $5
 RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
 `
 
@@ -550,7 +551,6 @@ type UpdateUserParams struct {
 	LastName   sql.NullString `json:"last_name"`
 	Onboarding sql.NullBool   `json:"onboarding"`
 	Email      sql.NullString `json:"email"`
-	ID         int64          `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -560,7 +560,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.LastName,
 		arg.Onboarding,
 		arg.Email,
-		arg.ID,
 	)
 	var i User
 	err := row.Scan(

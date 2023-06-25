@@ -34,6 +34,7 @@ type NewUser struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Avatar    string `json:"avatar"`
+	Phone     string `json:"phone"`
 }
 
 type PropertyUnit struct {
@@ -88,11 +89,11 @@ type UnitBedroomInput struct {
 }
 
 type UpdateUserInput struct {
-	ID         string `json:"id"`
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
 	Avatar     string `json:"avatar"`
 	Email      string `json:"email"`
+	Phone      string `json:"phone"`
 	Onboarding bool   `json:"onboarding"`
 }
 

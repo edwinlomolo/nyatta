@@ -9,6 +9,7 @@ input NewUser {
   first_name: String!
   last_name: String!
   avatar: String!
+  phone: String!
 }
 
 # Represent new property parameters
@@ -75,11 +76,11 @@ input HandshakeInput {
 
 # Represent user update input
 input UpdateUserInput {
-  id: String!
   first_name: String!
   last_name: String!
   avatar: String!
   email: String!
+  phone: String!
   onboarding: Boolean!
 }
 
@@ -104,6 +105,7 @@ type Query {
 
 type Mutation {
   signIn(input: NewUser!): Token!
+  createUser(input: NewUser!): User!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!

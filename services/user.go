@@ -37,6 +37,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 		LastName:  sql.NullString{String: user.LastName, Valid: true},
 		Email:     sql.NullString{String: user.Email, Valid: true},
 		Avatar:    sql.NullString{String: user.Avatar, Valid: true},
+		Phone:     sql.NullString{String: user.Phone, Valid: true},
 	})
 	if err != nil {
 		return nil, err
@@ -63,17 +64,25 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 		return nil, err
 	}
 	// user - new user
-	if newUser == nil {
+	if err != nil && err.Error() == "User not found" {
 		newUser, err = u.CreateUser(user)
 		if err != nil {
 			return nil, err
 		}
 	}
-	token, err := u.auth.SignJWT(newUser)
-	if err != nil {
-		return nil, err
+	var onboarding string
+	if newUser.Onboarding {
+		onboarding = "true"
+		return &onboarding, nil
+	} else {
+		onboarding = "false"
+		return &onboarding, nil
 	}
-	return token, nil
+	//token, err := u.auth.SignJWT(newUser)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return token, nil
 }
 
 // FindById - return user given user id
@@ -101,45 +110,42 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 // FindByEmail - return user given user email
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	ctx := context.Background()
-	foundUser, err := u.queries.FindByEmail(ctx, sql.NullString{String: email})
+	foundUser, err := u.queries.FindByEmail(ctx, sql.NullString{String: email, Valid: true})
 	if err == sql.ErrNoRows {
 		return nil, errors.New("User not found")
 	}
 	return &model.User{
-		ID:        strconv.FormatInt(foundUser.ID, 10),
-		FirstName: foundUser.FirstName.String,
-		LastName:  foundUser.LastName.String,
-		Email:     foundUser.Email.String,
-		Avatar:    foundUser.Avatar.String,
-		CreatedAt: &foundUser.CreatedAt,
-		UpdatedAt: &foundUser.UpdatedAt,
+		ID:         strconv.FormatInt(foundUser.ID, 10),
+		FirstName:  foundUser.FirstName.String,
+		LastName:   foundUser.LastName.String,
+		Email:      foundUser.Email.String,
+		Avatar:     foundUser.Avatar.String,
+		Onboarding: foundUser.Onboarding.Bool,
+		CreatedAt:  &foundUser.CreatedAt,
+		UpdatedAt:  &foundUser.UpdatedAt,
 	}, nil
 }
 
 // UpdateUser - update user details
 func (u *UserServices) UpdateUser(input *model.UpdateUserInput) (*model.User, error) {
-	userId, err := strconv.ParseInt(input.ID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
 	// TODO any other way around casting to NullString?
 	updatedUser, err := u.queries.UpdateUser(ctx, sqlStore.UpdateUserParams{
-		ID:         userId,
 		FirstName:  sql.NullString{String: input.FirstName, Valid: true},
 		LastName:   sql.NullString{String: input.LastName, Valid: true},
 		Avatar:     sql.NullString{String: input.Avatar, Valid: true},
 		Onboarding: sql.NullBool{Bool: input.Onboarding, Valid: true},
+		Email:      sql.NullString{String: input.Email, Valid: true},
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Println(updatedUser.Onboarding.Bool)
 	return &model.User{
 		ID:         strconv.FormatInt(updatedUser.ID, 10),
 		FirstName:  updatedUser.FirstName.String,
 		LastName:   updatedUser.LastName.String,
 		Email:      updatedUser.Email.String,
 		Onboarding: updatedUser.Onboarding.Bool,
+		Phone:      updatedUser.Phone.String,
 		Avatar:     updatedUser.Avatar.String,
 		CreatedAt:  &updatedUser.CreatedAt,
 		UpdatedAt:  &updatedUser.UpdatedAt,
