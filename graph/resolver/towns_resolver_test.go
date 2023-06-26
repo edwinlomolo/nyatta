@@ -8,7 +8,7 @@ import (
 )
 
 func Test_Postal_Resolver(t *testing.T) {
-	srv := makeAuthedGqlServer(true, ctx)
+	srv := makeAuthedGqlServer(false, ctx)
 
 	t.Run("should_query_town_details", func(t *testing.T) {
 		var searchTown struct {

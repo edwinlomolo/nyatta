@@ -16,6 +16,7 @@ func Test_Listing_Services(t *testing.T) {
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
 		Avatar:    "https://avatar.jpg",
+		Phone:     "+25427348342",
 	})
 
 	// Seed some property(s)

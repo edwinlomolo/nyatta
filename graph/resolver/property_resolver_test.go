@@ -32,7 +32,7 @@ func Test_Property_Resolver(t *testing.T) {
 	}
 
 	// authed server
-	srv := makeAuthedGqlServer(true, ctx)
+	srv := makeAuthedGqlServer(false, ctx)
 
 	// test user
 	newUser, err := userService.CreateUser(&model.NewUser{
@@ -40,6 +40,7 @@ func Test_Property_Resolver(t *testing.T) {
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
 		Avatar:    "https://avatar.jpg",
+		Phone:     "+254712345678",
 	})
 	if err != nil {
 		t.Errorf("expected nil err got: %v", err)
@@ -102,7 +103,6 @@ func Test_Property_Resolver(t *testing.T) {
 		assert.Equal(t, amenity.AddAmenity.Category, "Internet")
 		assert.Equal(t, amenity.AddAmenity.Provider, "Safaricom Home Internet")
 		assert.Equal(t, amenity.AddAmenity.Name, "Home Fibre")
-
 	})
 
 	t.Run("should_get_property_amenities", func(t *testing.T) {
