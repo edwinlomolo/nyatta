@@ -39,7 +39,7 @@ input PropertyUnitInput {
 
 # Represent new property unit bedroom(s) parameter
 input UnitBedroomInput {
-  propertyUnitId: ID!
+  propertyUnitId: ID
   bedroomNumber: Int!
   enSuite: Boolean!
   master: Boolean!
@@ -84,6 +84,46 @@ input UpdateUserInput {
   onboarding: Boolean!
 }
 
+# Represent shoot schedule input
+input ShootInput {
+  date: Time!
+}
+
+# Represent property caretaker input
+input CaretakerInput {
+  first_name: String!
+  last_name: String!
+  phone: String!
+  countryCode: CountryCode!
+  idVefification: String!
+}
+
+# Represent unit amenity input
+input UnitAmenityInput {
+  name: String!
+  category: String!
+}
+
+# Represent property unit input
+input UnitInput {
+  name: String!
+  price: String!
+  type: String!
+  amenities: [UnitAmenityInput!]!
+  bedrooms: [UnitBedroomInput!]!
+}
+
+# Represent setting up property
+input SetupPropertyInput {
+  name: String!
+  town: String!
+  postalCode: String!
+  propertyType: String!
+  caretaker: CaretakerInput!
+  units: [UnitInput!]!
+  shoot: ShootInput!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -116,6 +156,7 @@ type Mutation {
   verifyVerificationCode(input: VerificationInput!): Status!
   handshake(input: HandshakeInput!): User!
   updateUser(input: UpdateUserInput!): User!
+  setupProperty(input: SetupPropertyInput!): Status!
 }
 
 schema {

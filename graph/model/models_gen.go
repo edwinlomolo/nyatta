@@ -19,6 +19,27 @@ type Bedroom struct {
 	UpdatedAt      *time.Time `json:"updatedAt"`
 }
 
+type Caretaker struct {
+	ID             string     `json:"id"`
+	FirstName      string     `json:"first_name"`
+	LastName       string     `json:"last_name"`
+	Phone          string     `json:"phone"`
+	IDVerification string     `json:"idVerification"`
+	CountryCode    string     `json:"countryCode"`
+	Verified       bool       `json:"verified"`
+	ShootsInCharge []*Shoot   `json:"shootsInCharge"`
+	CreatedAt      *time.Time `json:"createdAt"`
+	UpdatedAt      *time.Time `json:"updatedAt"`
+}
+
+type CaretakerInput struct {
+	FirstName      string      `json:"first_name"`
+	LastName       string      `json:"last_name"`
+	Phone          string      `json:"phone"`
+	CountryCode    CountryCode `json:"countryCode"`
+	IDVefification string      `json:"idVefification"`
+}
+
 type HandshakeInput struct {
 	Phone string `json:"phone"`
 }
@@ -41,7 +62,9 @@ type PropertyUnit struct {
 	ID         string     `json:"id"`
 	Bedrooms   []*Bedroom `json:"bedrooms"`
 	PropertyID string     `json:"propertyId"`
+	Price      string     `json:"price"`
 	Bathrooms  int        `json:"bathrooms"`
+	Type       string     `json:"type"`
 	Tenancy    []*Tenant  `json:"tenancy"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`
@@ -50,6 +73,31 @@ type PropertyUnit struct {
 type PropertyUnitInput struct {
 	PropertyID string `json:"propertyId"`
 	Bathrooms  int    `json:"bathrooms"`
+}
+
+type SetupPropertyInput struct {
+	Name         string          `json:"name"`
+	Town         string          `json:"town"`
+	PostalCode   string          `json:"postalCode"`
+	PropertyType string          `json:"propertyType"`
+	Caretaker    *CaretakerInput `json:"caretaker"`
+	Units        []*UnitInput    `json:"units"`
+	Shoot        *ShootInput     `json:"shoot"`
+}
+
+type Shoot struct {
+	ID         string     `json:"id"`
+	PropertyID string     `json:"propertyId"`
+	Date       time.Time  `json:"date"`
+	Status     string     `json:"status"`
+	CreatedAt  *time.Time `json:"createdAt"`
+	UpdatedAt  *time.Time `json:"updatedAt"`
+	Contact    *Caretaker `json:"contact"`
+	ContactID  string     `json:"contactId"`
+}
+
+type ShootInput struct {
+	Date time.Time `json:"date"`
 }
 
 type Status struct {
@@ -81,11 +129,24 @@ type Town struct {
 	PostalCode string `json:"postalCode"`
 }
 
+type UnitAmenityInput struct {
+	Name     string `json:"name"`
+	Category string `json:"category"`
+}
+
 type UnitBedroomInput struct {
-	PropertyUnitID string `json:"propertyUnitId"`
-	BedroomNumber  int    `json:"bedroomNumber"`
-	EnSuite        bool   `json:"enSuite"`
-	Master         bool   `json:"master"`
+	PropertyUnitID *string `json:"propertyUnitId"`
+	BedroomNumber  int     `json:"bedroomNumber"`
+	EnSuite        bool    `json:"enSuite"`
+	Master         bool    `json:"master"`
+}
+
+type UnitInput struct {
+	Name      string              `json:"name"`
+	Price     string              `json:"price"`
+	Type      string              `json:"type"`
+	Amenities []*UnitAmenityInput `json:"amenities"`
+	Bedrooms  []*UnitBedroomInput `json:"bedrooms"`
 }
 
 type UpdateUserInput struct {

@@ -122,6 +122,11 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 	return user, nil
 }
 
+// SetupProperty is the resolver for the setupProperty field.
+func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error) {
+	panic(fmt.Errorf("not implemented: SetupProperty - setupProperty"))
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)

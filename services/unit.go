@@ -57,7 +57,8 @@ func (u *UnitServices) AddUnitBedrooms(input []*model.UnitBedroomInput) ([]*mode
 		if value.BedroomNumber == 0 {
 			return nil, errors.New("Zero is not a valid value")
 		}
-		propertyUnitId, err := strconv.ParseInt(value.PropertyUnitID, 10, 64)
+		propertyId := *value.PropertyUnitID
+		propertyUnitId, err := strconv.ParseInt(propertyId, 10, 64)
 		if err != nil {
 			return nil, err
 		}
