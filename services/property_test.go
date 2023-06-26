@@ -17,6 +17,7 @@ func Test_property_service(t *testing.T) {
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
 		Avatar:    "https://avatar.jpg",
+		Phone:     "+254828992034",
 	})
 
 	var property *model.Property

@@ -21,11 +21,11 @@ func Test_Resolver_User(t *testing.T) {
 	var user *model.User
 
 	// authed server
-	srv := makeAuthedGqlServer(true, ctx)
+	srv := makeAuthedGqlServer(false, ctx)
 
 	t.Run("resolver_should_sign_in_user", func(t *testing.T) {
 
-		query := fmt.Sprintf(`mutation { signIn (input: { first_name: %q, last_name: %q, email: %q, avatar: %q }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail(), "https://avatar.jpg")
+		query := fmt.Sprintf(`mutation { signIn (input: { first_name: %q, last_name: %q, email: %q, avatar: %q, phone: %q }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail(), "https://avatar.jpg", "+254002397075")
 
 		srv.MustPost(query, &signIn)
 
@@ -41,7 +41,7 @@ func Test_Resolver_User(t *testing.T) {
 		var err error
 
 		email := util.GenerateRandomEmail()
-		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email, Avatar: "https://avatar.jpg"})
+		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email, Avatar: "https://avatar.jpg", Phone: "+254829639846"})
 		if err != nil {
 			t.Errorf("expected nil err got %v", err)
 		}
