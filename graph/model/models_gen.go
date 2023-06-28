@@ -147,6 +147,7 @@ type UnitInput struct {
 	Type      string              `json:"type"`
 	Amenities []*UnitAmenityInput `json:"amenities"`
 	Bedrooms  []*UnitBedroomInput `json:"bedrooms"`
+	Baths     int                 `json:"baths"`
 }
 
 type UpdateUserInput struct {

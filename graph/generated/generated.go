@@ -1182,6 +1182,7 @@ input UnitInput {
   type: String!
   amenities: [UnitAmenityInput!]!
   bedrooms: [UnitBedroomInput!]!
+  baths: Int!
 }
 
 # Represent setting up property
@@ -8852,7 +8853,7 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "price", "type", "amenities", "bedrooms"}
+	fieldsInOrder := [...]string{"name", "price", "type", "amenities", "bedrooms", "baths"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8896,6 +8897,14 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bedrooms"))
 			it.Bedrooms, err = ec.unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "baths":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("baths"))
+			it.Baths, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}

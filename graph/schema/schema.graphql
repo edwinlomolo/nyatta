@@ -111,6 +111,7 @@ input UnitInput {
   type: String!
   amenities: [UnitAmenityInput!]!
   bedrooms: [UnitBedroomInput!]!
+  baths: Int!
 }
 
 # Represent setting up property
