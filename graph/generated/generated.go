@@ -1166,7 +1166,7 @@ input CaretakerInput {
   last_name: String!
   phone: String!
   countryCode: CountryCode!
-  idVefification: String!
+  idVerification: String!
 }
 
 # Represent unit amenity input
@@ -8313,7 +8313,7 @@ func (ec *executionContext) unmarshalInputCaretakerInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"first_name", "last_name", "phone", "countryCode", "idVefification"}
+	fieldsInOrder := [...]string{"first_name", "last_name", "phone", "countryCode", "idVerification"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8352,11 +8352,11 @@ func (ec *executionContext) unmarshalInputCaretakerInput(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
-		case "idVefification":
+		case "idVerification":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idVefification"))
-			it.IDVefification, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idVerification"))
+			it.IDVerification, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

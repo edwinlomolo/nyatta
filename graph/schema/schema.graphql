@@ -95,7 +95,7 @@ input CaretakerInput {
   last_name: String!
   phone: String!
   countryCode: CountryCode!
-  idVefification: String!
+  idVerification: String!
 }
 
 # Represent unit amenity input

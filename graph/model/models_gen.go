@@ -37,7 +37,7 @@ type CaretakerInput struct {
 	LastName       string      `json:"last_name"`
 	Phone          string      `json:"phone"`
 	CountryCode    CountryCode `json:"countryCode"`
-	IDVefification string      `json:"idVefification"`
+	IDVerification string      `json:"idVerification"`
 }
 
 type HandshakeInput struct {
