@@ -128,7 +128,6 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetListings func(childComplexity int, input model.ListingsInput) int
 		GetProperty func(childComplexity int, id string) int
 		GetTowns    func(childComplexity int) int
 		GetUser     func(childComplexity int, id string) int
@@ -217,7 +216,6 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id string) (*model.User, error)
 	GetProperty(ctx context.Context, id string) (*model.Property, error)
 	Hello(ctx context.Context) (string, error)
-	GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error)
 	SearchTown(ctx context.Context, town string) ([]*model.Town, error)
 	GetTowns(ctx context.Context) ([]*model.Town, error)
 }
@@ -721,18 +719,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PropertyUnit.UpdatedAt(childComplexity), true
 
-	case "Query.getListings":
-		if e.complexity.Query.GetListings == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getListings_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetListings(childComplexity, args["input"].(model.ListingsInput)), true
-
 	case "Query.getProperty":
 		if e.complexity.Query.GetProperty == nil {
 			break
@@ -997,7 +983,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAmenityInput,
 		ec.unmarshalInputCaretakerInput,
 		ec.unmarshalInputHandshakeInput,
-		ec.unmarshalInputListingsInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
 		ec.unmarshalInputPropertyUnitInput,
@@ -1089,8 +1074,6 @@ input NewProperty {
   town: String!
   postalCode: String!
   type: String!
-  minPrice: Int!
-  maxPrice: Int!
   createdBy: ID!
 }
 
@@ -1121,13 +1104,6 @@ input TenancyInput {
   startDate: Time!
   endDate: Time
   propertyUnitId: ID!
-}
-
-# Represent listings query parameters
-input ListingsInput {
-  town: String!
-  minPrice: Int
-  maxPrice: Int
 }
 
 # Represents supported country codes
@@ -1210,7 +1186,6 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
-  getListings(input: ListingsInput!): [Property!]!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
 }
@@ -1559,21 +1534,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getListings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.ListingsInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐListingsInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
 	return args, nil
 }
 
@@ -4845,89 +4805,6 @@ func (ec *executionContext) fieldContext_Query_hello(ctx context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_getListings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getListings(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetListings(rctx, fc.Args["input"].(model.ListingsInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Property)
-	fc.Result = res
-	return ec.marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Property_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Property_name(ctx, field)
-			case "town":
-				return ec.fieldContext_Property_town(ctx, field)
-			case "postalCode":
-				return ec.fieldContext_Property_postalCode(ctx, field)
-			case "type":
-				return ec.fieldContext_Property_type(ctx, field)
-			case "minPrice":
-				return ec.fieldContext_Property_minPrice(ctx, field)
-			case "maxPrice":
-				return ec.fieldContext_Property_maxPrice(ctx, field)
-			case "amenities":
-				return ec.fieldContext_Property_amenities(ctx, field)
-			case "units":
-				return ec.fieldContext_Property_units(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Property_createdBy(ctx, field)
-			case "owner":
-				return ec.fieldContext_Property_owner(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Property_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Property_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getListings_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
 	}
 	return fc, nil
 }
@@ -8394,50 +8271,6 @@ func (ec *executionContext) unmarshalInputHandshakeInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputListingsInput(ctx context.Context, obj interface{}) (model.ListingsInput, error) {
-	var it model.ListingsInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"town", "minPrice", "maxPrice"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "town":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("town"))
-			it.Town, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "minPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
-			it.MinPrice, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "maxPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPrice"))
-			it.MaxPrice, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj interface{}) (model.NewProperty, error) {
 	var it model.NewProperty
 	asMap := map[string]interface{}{}
@@ -8445,7 +8278,7 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "town", "postalCode", "type", "minPrice", "maxPrice", "createdBy"}
+	fieldsInOrder := [...]string{"name", "town", "postalCode", "type", "createdBy"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8481,22 +8314,6 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
 			it.Type, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "minPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
-			it.MinPrice, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "maxPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPrice"))
-			it.MaxPrice, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9738,29 +9555,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "getListings":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getListings(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "searchTown":
 			field := field
 
@@ -10678,11 +10472,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐListingsInput(ctx context.Context, v interface{}) (model.ListingsInput, error) {
-	res, err := ec.unmarshalInputListingsInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNNewProperty2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNewProperty(ctx context.Context, v interface{}) (model.NewProperty, error) {
 	res, err := ec.unmarshalInputNewProperty(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -11450,22 +11239,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	res := graphql.MarshalID(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalInt(*v)
 	return res
 }
 

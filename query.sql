@@ -12,9 +12,9 @@ RETURNING *;
 
 -- name: CreateProperty :one
 INSERT INTO properties (
-  name, town, postal_code, type, min_price, max_price, created_by
+  name, town, postal_code, type, created_by
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 
@@ -32,15 +32,11 @@ WHERE created_by = $1;
 
 -- name: CreateAmenity :one
 INSERT INTO amenities (
-  name, provider, category, property_id
+  name, category, property_unit_id
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3
 )
 RETURNING *;
-
--- name: PropertyAmenities :many
-SELECT * FROM amenities
-WHERE property_id = $1;
 
 -- name: CreateTenant :one
 INSERT INTO tenants (
@@ -52,9 +48,9 @@ RETURNING *;
 
 -- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms
+  property_id, bathrooms, name, type, price
 ) VALUES (
-  $1, $2
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 
@@ -78,10 +74,6 @@ WHERE property_unit_id = $1;
 SELECT * FROM property_units
 WHERE property_id = $1;
 
--- name: GetListings :many
-SELECT * FROM properties
-WHERE town ILIKE $1 AND min_price >= $2 AND max_price <= $3;
-
 -- name: UpdateUser :one
 UPDATE users
 SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4
@@ -91,3 +83,19 @@ RETURNING *;
 -- name: FindUserByPhone :one
 SELECT * FROM users
 WHERE phone = $1;
+
+-- name: CreateCaretaker :one
+INSERT INTO caretakers (
+  first_name, last_name, idVerification, country_code, phone
+) VALUES (
+  $1, $2, $3, $4, $5
+)
+RETURNING *;
+
+-- name: CreateShootSchedule :one
+INSERT INTO shoots (
+  shoot_date, property_id, property_unit_id, caretaker_id
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING *;

@@ -6,5 +6,4 @@ import (
 
 type AmenityService interface {
 	AddAmenity(*model.AmenityInput) (*model.Amenity, error)
-	PropertyAmenities(propertyId string) ([]*model.Amenity, error)
 }

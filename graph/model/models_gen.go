@@ -44,12 +44,6 @@ type HandshakeInput struct {
 	Phone string `json:"phone"`
 }
 
-type ListingsInput struct {
-	Town     string `json:"town"`
-	MinPrice *int   `json:"minPrice"`
-	MaxPrice *int   `json:"maxPrice"`
-}
-
 type NewUser struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`

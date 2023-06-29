@@ -18,8 +18,6 @@ input NewProperty {
   town: String!
   postalCode: String!
   type: String!
-  minPrice: Int!
-  maxPrice: Int!
   createdBy: ID!
 }
 
@@ -50,13 +48,6 @@ input TenancyInput {
   startDate: Time!
   endDate: Time
   propertyUnitId: ID!
-}
-
-# Represent listings query parameters
-input ListingsInput {
-  town: String!
-  minPrice: Int
-  maxPrice: Int
 }
 
 # Represents supported country codes
@@ -139,7 +130,6 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
-  getListings(input: ListingsInput!): [Property!]!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
 }

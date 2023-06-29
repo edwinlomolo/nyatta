@@ -151,15 +151,6 @@ func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 	return "Hello, World", nil
 }
 
-// GetListings is the resolver for the getListings field.
-func (r *queryResolver) GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error) {
-	foundListings, err := ctx.Value("listingService").(*services.ListingServices).GetListings(input)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-	}
-	return foundListings, nil
-}
-
 // SearchTown is the resolver for the searchTown field.
 func (r *queryResolver) SearchTown(ctx context.Context, town string) ([]*model.Town, error) {
 	var towns []*model.Town

@@ -10,13 +10,13 @@ import (
 )
 
 type Amenity struct {
-	ID         int64     `json:"id"`
-	Name       string    `json:"name"`
-	Provider   string    `json:"provider"`
-	CreatedAt  time.Time `json:"created_at"`
-	Category   string    `json:"category"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	PropertyID int64     `json:"property_id"`
+	ID             int64          `json:"id"`
+	Name           string         `json:"name"`
+	Provider       sql.NullString `json:"provider"`
+	CreatedAt      time.Time      `json:"created_at"`
+	Category       string         `json:"category"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	PropertyUnitID int64          `json:"property_unit_id"`
 }
 
 type Bedroom struct {
@@ -29,25 +29,49 @@ type Bedroom struct {
 	PropertyUnitID int64     `json:"property_unit_id"`
 }
 
+type Caretaker struct {
+	ID             int64     `json:"id"`
+	FirstName      string    `json:"first_name"`
+	LastName       string    `json:"last_name"`
+	Idverification string    `json:"idverification"`
+	CountryCode    string    `json:"country_code"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Phone          string    `json:"phone"`
+	Verified       bool      `json:"verified"`
+}
+
 type Property struct {
-	ID         int64     `json:"id"`
-	Name       string    `json:"name"`
-	Town       string    `json:"town"`
-	PostalCode string    `json:"postal_code"`
-	Type       string    `json:"type"`
-	MinPrice   int32     `json:"min_price"`
-	MaxPrice   int32     `json:"max_price"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	CreatedBy  int64     `json:"created_by"`
+	ID         int64         `json:"id"`
+	Name       string        `json:"name"`
+	Town       string        `json:"town"`
+	PostalCode string        `json:"postal_code"`
+	Type       string        `json:"type"`
+	Status     string        `json:"status"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
+	CreatedBy  int64         `json:"created_by"`
+	Caretaker  sql.NullInt64 `json:"caretaker"`
 }
 
 type PropertyUnit struct {
 	ID         int64     `json:"id"`
+	Name       string    `json:"name"`
+	Type       string    `json:"type"`
+	Price      int32     `json:"price"`
 	Bathrooms  int32     `json:"bathrooms"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	PropertyID int64     `json:"property_id"`
+}
+
+type Shoot struct {
+	ID             int64     `json:"id"`
+	ShootDate      time.Time `json:"shoot_date"`
+	PropertyID     int64     `json:"property_id"`
+	PropertyUnitID int64     `json:"property_unit_id"`
+	Status         string    `json:"status"`
+	CaretakerID    int64     `json:"caretaker_id"`
 }
 
 type Tenant struct {

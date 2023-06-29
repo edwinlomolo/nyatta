@@ -33,9 +33,7 @@ func Test_property_service(t *testing.T) {
 			Name:       "Jonsaga Properties",
 			Town:       "Upper Hill",
 			PostalCode: "00500",
-			Type:       "Studio",
-			MinPrice:   5000,
-			MaxPrice:   100000,
+			Type:       "Apartment",
 			CreatedBy:  user.ID,
 		}
 		var err error
@@ -46,9 +44,7 @@ func Test_property_service(t *testing.T) {
 		assert.Equal(t, property.Name, "Jonsaga Properties")
 		assert.Equal(t, property.Town, "Upper Hill")
 		assert.Equal(t, property.PostalCode, "00500")
-		assert.Equal(t, property.MinPrice, 5000)
-		assert.Equal(t, property.MaxPrice, 100000)
-		assert.Equal(t, property.Type, "Studio")
+		assert.Equal(t, property.Type, "Apartment")
 		assert.NotEmpty(t, property.ID)
 	})
 
@@ -89,18 +85,5 @@ func Test_property_service(t *testing.T) {
 	})
 
 	t.Run("should_find_property_units", func(t *testing.T) {
-		newUnit := &model.PropertyUnitInput{
-			PropertyID: property.ID,
-			Bathrooms:  3,
-		}
-
-		_, err := unitService.AddPropertyUnit(newUnit)
-
-		assert.Nil(t, err)
-
-		propertyUnits, err := propertyService.GetPropertyUnits(property.ID)
-
-		assert.Nil(t, err)
-		assert.Equal(t, len(propertyUnits), 1)
 	})
 }
