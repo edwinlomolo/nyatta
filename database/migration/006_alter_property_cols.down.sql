@@ -1,5 +1,0 @@
-ALTER TABLE properties
-DROP COLUMN IF EXISTS caretaker;
-
-ALTER TABLE properties
-DROP COLUMN IF EXISTS status;

@@ -77,6 +77,7 @@ type SetupPropertyInput struct {
 	Caretaker    *CaretakerInput `json:"caretaker"`
 	Units        []*UnitInput    `json:"units"`
 	Shoot        *ShootInput     `json:"shoot"`
+	Creator      string          `json:"creator"`
 }
 
 type Shoot struct {
@@ -91,7 +92,8 @@ type Shoot struct {
 }
 
 type ShootInput struct {
-	Date time.Time `json:"date"`
+	Date          time.Time `json:"date"`
+	ContactPerson string    `json:"contactPerson"`
 }
 
 type Status struct {

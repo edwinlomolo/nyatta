@@ -124,8 +124,11 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 
 // SetupProperty is the resolver for the setupProperty field.
 func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error) {
-	fmt.Println(input)
-	return &model.Status{Success: "pending"}, nil
+	status, err := ctx.Value("propertyService").(*services.PropertyServices).SetupProperty(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+	}
+	return status, nil
 }
 
 // GetUser is the resolver for the getUser field.

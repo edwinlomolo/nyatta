@@ -1134,6 +1134,7 @@ input UpdateUserInput {
 # Represent shoot schedule input
 input ShootInput {
   date: Time!
+  contactPerson: String!
 }
 
 # Represent property caretaker input
@@ -1170,6 +1171,7 @@ input SetupPropertyInput {
   caretaker: CaretakerInput!
   units: [UnitInput!]!
   shoot: ShootInput!
+  creator: String!
 }
 
 # after signin return this
@@ -8434,7 +8436,7 @@ func (ec *executionContext) unmarshalInputSetupPropertyInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "town", "postalCode", "propertyType", "caretaker", "units", "shoot"}
+	fieldsInOrder := [...]string{"name", "town", "postalCode", "propertyType", "caretaker", "units", "shoot", "creator"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8497,6 +8499,14 @@ func (ec *executionContext) unmarshalInputSetupPropertyInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "creator":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("creator"))
+			it.Creator, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -8510,7 +8520,7 @@ func (ec *executionContext) unmarshalInputShootInput(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"date"}
+	fieldsInOrder := [...]string{"date", "contactPerson"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8522,6 +8532,14 @@ func (ec *executionContext) unmarshalInputShootInput(ctx context.Context, obj in
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
 			it.Date, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "contactPerson":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contactPerson"))
+			it.ContactPerson, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

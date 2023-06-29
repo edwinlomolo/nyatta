@@ -12,9 +12,9 @@ RETURNING *;
 
 -- name: CreateProperty :one
 INSERT INTO properties (
-  name, town, postal_code, type, created_by
+  name, town, postal_code, type, created_by, caretaker
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 
@@ -86,9 +86,9 @@ WHERE phone = $1;
 
 -- name: CreateCaretaker :one
 INSERT INTO caretakers (
-  first_name, last_name, idVerification, country_code, phone
+  first_name, last_name, idVerification, country_code, phone, image
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 

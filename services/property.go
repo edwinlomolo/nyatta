@@ -158,3 +158,82 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 	//
 	// return units, nil
 }
+
+// SetupProperty - setup listing
+func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model.Status, error) {
+	user, err := p.queries.FindByEmail(ctx, sql.NullString{String: input.Creator, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+
+	// Create property caretaker
+	caretaker, err := p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+		FirstName:      input.Caretaker.FirstName,
+		LastName:       input.Caretaker.LastName,
+		Phone:          sql.NullString{String: input.Caretaker.Phone, Valid: true},
+		CountryCode:    input.Caretaker.CountryCode.String(),
+		Idverification: input.Caretaker.IDVerification,
+		Image:          input.Shoot.ContactPerson,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Create property
+	property, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
+		Name:       input.Name,
+		Town:       input.Town,
+		PostalCode: input.PostalCode,
+		Type:       input.PropertyType,
+		CreatedBy:  user.ID,
+		Caretaker:  sql.NullInt64{Int64: caretaker.ID, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Create property unit
+	if len(input.Units) > 0 {
+		for i := 0; i < len(input.Units); i++ {
+			unitPrice, err := strconv.ParseInt(input.Units[i].Price, 10, 64)
+			unit, err := p.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
+				Name:       input.Units[i].Name,
+				Type:       input.Units[i].Type,
+				Bathrooms:  int32(input.Units[i].Baths),
+				Price:      int32(unitPrice),
+				PropertyID: property.ID,
+			})
+			// create unit bedrooms
+			if len(input.Units[i].Bedrooms) > 0 {
+				for j := 0; j < len(input.Units[i].Bedrooms); j++ {
+					_, err := p.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
+						PropertyUnitID: unit.ID,
+						BedroomNumber:  int32(input.Units[i].Bedrooms[j].BedroomNumber),
+						EnSuite:        input.Units[i].Bedrooms[j].EnSuite,
+						Master:         input.Units[i].Bedrooms[j].Master,
+					})
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+			// create unit amenities
+			if len(input.Units[i].Amenities) > 0 {
+				for j := 0; j < len(input.Units[i].Amenities); j++ {
+					_, err := p.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
+						Name:           input.Units[i].Amenities[j].Name,
+						Category:       input.Units[i].Amenities[j].Category,
+						PropertyUnitID: unit.ID,
+					})
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return &model.Status{Success: "okay"}, nil
+}
