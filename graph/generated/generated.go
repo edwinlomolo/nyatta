@@ -37,10 +37,12 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Caretaker() CaretakerResolver
 	Mutation() MutationResolver
 	Property() PropertyResolver
 	PropertyUnit() PropertyUnitResolver
 	Query() QueryResolver
+	Shoot() ShootResolver
 	User() UserResolver
 }
 
@@ -68,6 +70,19 @@ type ComplexityRoot struct {
 		UpdatedAt      func(childComplexity int) int
 	}
 
+	Caretaker struct {
+		CountryCode    func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		FirstName      func(childComplexity int) int
+		ID             func(childComplexity int) int
+		IDVerification func(childComplexity int) int
+		LastName       func(childComplexity int) int
+		Phone          func(childComplexity int) int
+		ShootsInCharge func(childComplexity int) int
+		UpdatedAt      func(childComplexity int) int
+		Verified       func(childComplexity int) int
+	}
+
 	Mutation struct {
 		AddAmenity             func(childComplexity int, input model.AmenityInput) int
 		AddPropertyUnit        func(childComplexity int, input model.PropertyUnitInput) int
@@ -77,6 +92,7 @@ type ComplexityRoot struct {
 		CreateUser             func(childComplexity int, input model.NewUser) int
 		Handshake              func(childComplexity int, input model.HandshakeInput) int
 		SendVerificationCode   func(childComplexity int, input model.VerificationInput) int
+		SetupProperty          func(childComplexity int, input model.SetupPropertyInput) int
 		SignIn                 func(childComplexity int, input model.NewUser) int
 		UpdateUser             func(childComplexity int, input model.UpdateUserInput) int
 		UploadImage            func(childComplexity int, file graphql.Upload) int
@@ -104,18 +120,30 @@ type ComplexityRoot struct {
 		Bedrooms   func(childComplexity int) int
 		CreatedAt  func(childComplexity int) int
 		ID         func(childComplexity int) int
+		Price      func(childComplexity int) int
 		PropertyID func(childComplexity int) int
 		Tenancy    func(childComplexity int) int
+		Type       func(childComplexity int) int
 		UpdatedAt  func(childComplexity int) int
 	}
 
 	Query struct {
-		GetListings func(childComplexity int, input model.ListingsInput) int
 		GetProperty func(childComplexity int, id string) int
 		GetTowns    func(childComplexity int) int
 		GetUser     func(childComplexity int, id string) int
 		Hello       func(childComplexity int) int
 		SearchTown  func(childComplexity int, town string) int
+	}
+
+	Shoot struct {
+		Contact    func(childComplexity int) int
+		ContactID  func(childComplexity int) int
+		CreatedAt  func(childComplexity int) int
+		Date       func(childComplexity int) int
+		ID         func(childComplexity int) int
+		PropertyID func(childComplexity int) int
+		Status     func(childComplexity int) int
+		UpdatedAt  func(childComplexity int) int
 	}
 
 	Status struct {
@@ -155,6 +183,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type CaretakerResolver interface {
+	ShootsInCharge(ctx context.Context, obj *model.Caretaker) ([]*model.Shoot, error)
+}
 type MutationResolver interface {
 	SignIn(ctx context.Context, input model.NewUser) (*model.Token, error)
 	CreateUser(ctx context.Context, input model.NewUser) (*model.User, error)
@@ -168,6 +199,7 @@ type MutationResolver interface {
 	VerifyVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error)
 	Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error)
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
+	SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error)
 }
 type PropertyResolver interface {
 	Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error)
@@ -184,9 +216,11 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id string) (*model.User, error)
 	GetProperty(ctx context.Context, id string) (*model.Property, error)
 	Hello(ctx context.Context) (string, error)
-	GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error)
 	SearchTown(ctx context.Context, town string) ([]*model.Town, error)
 	GetTowns(ctx context.Context) ([]*model.Town, error)
+}
+type ShootResolver interface {
+	Contact(ctx context.Context, obj *model.Shoot) (*model.Caretaker, error)
 }
 type UserResolver interface {
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
@@ -305,6 +339,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bedroom.UpdatedAt(childComplexity), true
 
+	case "Caretaker.countryCode":
+		if e.complexity.Caretaker.CountryCode == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.CountryCode(childComplexity), true
+
+	case "Caretaker.createdAt":
+		if e.complexity.Caretaker.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.CreatedAt(childComplexity), true
+
+	case "Caretaker.first_name":
+		if e.complexity.Caretaker.FirstName == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.FirstName(childComplexity), true
+
+	case "Caretaker.id":
+		if e.complexity.Caretaker.ID == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.ID(childComplexity), true
+
+	case "Caretaker.idVerification":
+		if e.complexity.Caretaker.IDVerification == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.IDVerification(childComplexity), true
+
+	case "Caretaker.last_name":
+		if e.complexity.Caretaker.LastName == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.LastName(childComplexity), true
+
+	case "Caretaker.phone":
+		if e.complexity.Caretaker.Phone == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.Phone(childComplexity), true
+
+	case "Caretaker.shootsInCharge":
+		if e.complexity.Caretaker.ShootsInCharge == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.ShootsInCharge(childComplexity), true
+
+	case "Caretaker.updatedAt":
+		if e.complexity.Caretaker.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.UpdatedAt(childComplexity), true
+
+	case "Caretaker.verified":
+		if e.complexity.Caretaker.Verified == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.Verified(childComplexity), true
+
 	case "Mutation.addAmenity":
 		if e.complexity.Mutation.AddAmenity == nil {
 			break
@@ -400,6 +504,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SendVerificationCode(childComplexity, args["input"].(model.VerificationInput)), true
+
+	case "Mutation.setupProperty":
+		if e.complexity.Mutation.SetupProperty == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setupProperty_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetupProperty(childComplexity, args["input"].(model.SetupPropertyInput)), true
 
 	case "Mutation.signIn":
 		if e.complexity.Mutation.SignIn == nil {
@@ -568,6 +684,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PropertyUnit.ID(childComplexity), true
 
+	case "PropertyUnit.price":
+		if e.complexity.PropertyUnit.Price == nil {
+			break
+		}
+
+		return e.complexity.PropertyUnit.Price(childComplexity), true
+
 	case "PropertyUnit.propertyId":
 		if e.complexity.PropertyUnit.PropertyID == nil {
 			break
@@ -582,24 +705,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PropertyUnit.Tenancy(childComplexity), true
 
+	case "PropertyUnit.type":
+		if e.complexity.PropertyUnit.Type == nil {
+			break
+		}
+
+		return e.complexity.PropertyUnit.Type(childComplexity), true
+
 	case "PropertyUnit.updatedAt":
 		if e.complexity.PropertyUnit.UpdatedAt == nil {
 			break
 		}
 
 		return e.complexity.PropertyUnit.UpdatedAt(childComplexity), true
-
-	case "Query.getListings":
-		if e.complexity.Query.GetListings == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getListings_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetListings(childComplexity, args["input"].(model.ListingsInput)), true
 
 	case "Query.getProperty":
 		if e.complexity.Query.GetProperty == nil {
@@ -650,6 +768,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchTown(childComplexity, args["town"].(string)), true
+
+	case "Shoot.contact":
+		if e.complexity.Shoot.Contact == nil {
+			break
+		}
+
+		return e.complexity.Shoot.Contact(childComplexity), true
+
+	case "Shoot.contactId":
+		if e.complexity.Shoot.ContactID == nil {
+			break
+		}
+
+		return e.complexity.Shoot.ContactID(childComplexity), true
+
+	case "Shoot.createdAt":
+		if e.complexity.Shoot.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Shoot.CreatedAt(childComplexity), true
+
+	case "Shoot.date":
+		if e.complexity.Shoot.Date == nil {
+			break
+		}
+
+		return e.complexity.Shoot.Date(childComplexity), true
+
+	case "Shoot.id":
+		if e.complexity.Shoot.ID == nil {
+			break
+		}
+
+		return e.complexity.Shoot.ID(childComplexity), true
+
+	case "Shoot.propertyId":
+		if e.complexity.Shoot.PropertyID == nil {
+			break
+		}
+
+		return e.complexity.Shoot.PropertyID(childComplexity), true
+
+	case "Shoot.status":
+		if e.complexity.Shoot.Status == nil {
+			break
+		}
+
+		return e.complexity.Shoot.Status(childComplexity), true
+
+	case "Shoot.updatedAt":
+		if e.complexity.Shoot.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Shoot.UpdatedAt(childComplexity), true
 
 	case "Status.success":
 		if e.complexity.Status.Success == nil {
@@ -807,13 +981,17 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAmenityInput,
+		ec.unmarshalInputCaretakerInput,
 		ec.unmarshalInputHandshakeInput,
-		ec.unmarshalInputListingsInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
 		ec.unmarshalInputPropertyUnitInput,
+		ec.unmarshalInputSetupPropertyInput,
+		ec.unmarshalInputShootInput,
 		ec.unmarshalInputTenancyInput,
+		ec.unmarshalInputUnitAmenityInput,
 		ec.unmarshalInputUnitBedroomInput,
+		ec.unmarshalInputUnitInput,
 		ec.unmarshalInputUpdateUserInput,
 		ec.unmarshalInputVerificationInput,
 	)
@@ -896,8 +1074,6 @@ input NewProperty {
   town: String!
   postalCode: String!
   type: String!
-  minPrice: Int!
-  maxPrice: Int!
   createdBy: ID!
 }
 
@@ -917,7 +1093,7 @@ input PropertyUnitInput {
 
 # Represent new property unit bedroom(s) parameter
 input UnitBedroomInput {
-  propertyUnitId: ID!
+  propertyUnitId: ID
   bedroomNumber: Int!
   enSuite: Boolean!
   master: Boolean!
@@ -928,13 +1104,6 @@ input TenancyInput {
   startDate: Time!
   endDate: Time
   propertyUnitId: ID!
-}
-
-# Represent listings query parameters
-input ListingsInput {
-  town: String!
-  minPrice: Int
-  maxPrice: Int
 }
 
 # Represents supported country codes
@@ -962,6 +1131,47 @@ input UpdateUserInput {
   onboarding: Boolean!
 }
 
+# Represent shoot schedule input
+input ShootInput {
+  date: Time!
+}
+
+# Represent property caretaker input
+input CaretakerInput {
+  first_name: String!
+  last_name: String!
+  phone: String!
+  countryCode: CountryCode!
+  idVerification: String!
+}
+
+# Represent unit amenity input
+input UnitAmenityInput {
+  name: String!
+  category: String!
+}
+
+# Represent property unit input
+input UnitInput {
+  name: String!
+  price: String!
+  type: String!
+  amenities: [UnitAmenityInput!]!
+  bedrooms: [UnitBedroomInput!]!
+  baths: Int!
+}
+
+# Represent setting up property
+input SetupPropertyInput {
+  name: String!
+  town: String!
+  postalCode: String!
+  propertyType: String!
+  caretaker: CaretakerInput!
+  units: [UnitInput!]!
+  shoot: ShootInput!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -976,7 +1186,6 @@ type Query {
   getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
-  getListings(input: ListingsInput!): [Property!]!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
 }
@@ -994,6 +1203,7 @@ type Mutation {
   verifyVerificationCode(input: VerificationInput!): Status!
   handshake(input: HandshakeInput!): User!
   updateUser(input: UpdateUserInput!): User!
+  setupProperty(input: SetupPropertyInput!): Status!
 }
 
 schema {
@@ -1023,6 +1233,20 @@ type Bedroom {
   updatedAt: Time
 }
 `, BuiltIn: false},
+	{Name: "../schema/types/caretaker.graphql", Input: `# Represent property caretaker
+type Caretaker {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  phone: String!
+  idVerification: String!
+  countryCode: String!
+  verified: Boolean!
+  shootsInCharge: [Shoot!]!
+  createdAt: Time
+  updatedAt: Time
+}
+`, BuiltIn: false},
 	{Name: "../schema/types/property.graphql", Input: `# Represent a property
 type Property {
   id: ID!
@@ -1038,6 +1262,18 @@ type Property {
   owner: User!
   createdAt: Time
   updatedAt: Time
+}
+`, BuiltIn: false},
+	{Name: "../schema/types/shoot.graphql", Input: `# Represent property shoot schedule
+type Shoot {
+  id: ID!
+  propertyId: String!
+  date: Time!
+  status: String!
+  createdAt: Time
+  updatedAt: Time
+  contact: Caretaker!
+  contactId: ID!
 }
 `, BuiltIn: false},
 	{Name: "../schema/types/tenant.graphql", Input: `# Represent property unit tenant
@@ -1061,7 +1297,9 @@ type PropertyUnit {
   id: ID!
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: ID!
+  price: String!
   bathrooms: Int!
+  type: String!
   tenancy: [Tenant!]! # has-many tenancy
   createdAt: Time
   updatedAt: Time
@@ -1209,6 +1447,21 @@ func (ec *executionContext) field_Mutation_sendVerificationCode_args(ctx context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_setupProperty_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetupPropertyInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetupPropertyInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSetupPropertyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_signIn_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1281,21 +1534,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getListings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.ListingsInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐListingsInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
 	return args, nil
 }
 
@@ -1980,6 +2218,458 @@ func (ec *executionContext) fieldContext_Bedroom_updatedAt(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Caretaker_id(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_first_name(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_first_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_first_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_last_name(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_last_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_last_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_phone(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_phone(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Phone, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_phone(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_idVerification(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_idVerification(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IDVerification, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_idVerification(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_countryCode(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_countryCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountryCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_countryCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_verified(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_verified(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Verified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_verified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_shootsInCharge(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_shootsInCharge(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Caretaker().ShootsInCharge(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Shoot)
+	fc.Result = res
+	return ec.marshalNShoot2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐShootᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_shootsInCharge(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Shoot_id(ctx, field)
+			case "propertyId":
+				return ec.fieldContext_Shoot_propertyId(ctx, field)
+			case "date":
+				return ec.fieldContext_Shoot_date(ctx, field)
+			case "status":
+				return ec.fieldContext_Shoot_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Shoot_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Shoot_updatedAt(ctx, field)
+			case "contact":
+				return ec.fieldContext_Shoot_contact(ctx, field)
+			case "contactId":
+				return ec.fieldContext_Shoot_contactId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Shoot", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Caretaker_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Caretaker_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Caretaker",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_signIn(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_signIn(ctx, field)
 	if err != nil {
@@ -2315,8 +3005,12 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnit(ctx context.Co
 				return ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
 			case "propertyId":
 				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
+			case "price":
+				return ec.fieldContext_PropertyUnit_price(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+			case "type":
+				return ec.fieldContext_PropertyUnit_type(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_PropertyUnit_tenancy(ctx, field)
 			case "createdAt":
@@ -2808,6 +3502,65 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_setupProperty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setupProperty(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetupProperty(rctx, fc.Args["input"].(model.SetupPropertyInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_setupProperty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_Status_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Status", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_setupProperty_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Property_id(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Property_id(ctx, field)
 	if err != nil {
@@ -3221,8 +3974,12 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 				return ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
 			case "propertyId":
 				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
+			case "price":
+				return ec.fieldContext_PropertyUnit_price(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+			case "type":
+				return ec.fieldContext_PropertyUnit_type(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_PropertyUnit_tenancy(ctx, field)
 			case "createdAt":
@@ -3576,6 +4333,50 @@ func (ec *executionContext) fieldContext_PropertyUnit_propertyId(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _PropertyUnit_price(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PropertyUnit_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PropertyUnit_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PropertyUnit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PropertyUnit_bathrooms(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
 	if err != nil {
@@ -3615,6 +4416,50 @@ func (ec *executionContext) fieldContext_PropertyUnit_bathrooms(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PropertyUnit_type(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PropertyUnit_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PropertyUnit_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PropertyUnit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3964,89 +4809,6 @@ func (ec *executionContext) fieldContext_Query_hello(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getListings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getListings(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetListings(rctx, fc.Args["input"].(model.ListingsInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Property)
-	fc.Result = res
-	return ec.marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Property_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Property_name(ctx, field)
-			case "town":
-				return ec.fieldContext_Property_town(ctx, field)
-			case "postalCode":
-				return ec.fieldContext_Property_postalCode(ctx, field)
-			case "type":
-				return ec.fieldContext_Property_type(ctx, field)
-			case "minPrice":
-				return ec.fieldContext_Property_minPrice(ctx, field)
-			case "maxPrice":
-				return ec.fieldContext_Property_maxPrice(ctx, field)
-			case "amenities":
-				return ec.fieldContext_Property_amenities(ctx, field)
-			case "units":
-				return ec.fieldContext_Property_units(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Property_createdBy(ctx, field)
-			case "owner":
-				return ec.fieldContext_Property_owner(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Property_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Property_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getListings_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_searchTown(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_searchTown(ctx, field)
 	if err != nil {
@@ -4286,6 +5048,374 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_id(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_propertyId(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_propertyId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PropertyID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_propertyId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_date(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_status(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_contact(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_contact(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Shoot().Contact(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Caretaker)
+	fc.Result = res
+	return ec.marshalNCaretaker2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretaker(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_contact(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Caretaker_id(ctx, field)
+			case "first_name":
+				return ec.fieldContext_Caretaker_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_Caretaker_last_name(ctx, field)
+			case "phone":
+				return ec.fieldContext_Caretaker_phone(ctx, field)
+			case "idVerification":
+				return ec.fieldContext_Caretaker_idVerification(ctx, field)
+			case "countryCode":
+				return ec.fieldContext_Caretaker_countryCode(ctx, field)
+			case "verified":
+				return ec.fieldContext_Caretaker_verified(ctx, field)
+			case "shootsInCharge":
+				return ec.fieldContext_Caretaker_shootsInCharge(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Caretaker_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Caretaker_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Caretaker", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shoot_contactId(ctx context.Context, field graphql.CollectedField, obj *model.Shoot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shoot_contactId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContactID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shoot_contactId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shoot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7053,6 +8183,66 @@ func (ec *executionContext) unmarshalInputAmenityInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCaretakerInput(ctx context.Context, obj interface{}) (model.CaretakerInput, error) {
+	var it model.CaretakerInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"first_name", "last_name", "phone", "countryCode", "idVerification"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "first_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first_name"))
+			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "last_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last_name"))
+			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "countryCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("countryCode"))
+			it.CountryCode, err = ec.unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "idVerification":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idVerification"))
+			it.IDVerification, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputHandshakeInput(ctx context.Context, obj interface{}) (model.HandshakeInput, error) {
 	var it model.HandshakeInput
 	asMap := map[string]interface{}{}
@@ -7081,50 +8271,6 @@ func (ec *executionContext) unmarshalInputHandshakeInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputListingsInput(ctx context.Context, obj interface{}) (model.ListingsInput, error) {
-	var it model.ListingsInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"town", "minPrice", "maxPrice"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "town":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("town"))
-			it.Town, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "minPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
-			it.MinPrice, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "maxPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPrice"))
-			it.MaxPrice, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj interface{}) (model.NewProperty, error) {
 	var it model.NewProperty
 	asMap := map[string]interface{}{}
@@ -7132,7 +8278,7 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "town", "postalCode", "type", "minPrice", "maxPrice", "createdBy"}
+	fieldsInOrder := [...]string{"name", "town", "postalCode", "type", "createdBy"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7168,22 +8314,6 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
 			it.Type, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "minPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
-			it.MinPrice, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "maxPrice":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPrice"))
-			it.MaxPrice, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7297,6 +8427,110 @@ func (ec *executionContext) unmarshalInputPropertyUnitInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetupPropertyInput(ctx context.Context, obj interface{}) (model.SetupPropertyInput, error) {
+	var it model.SetupPropertyInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "town", "postalCode", "propertyType", "caretaker", "units", "shoot"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "town":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("town"))
+			it.Town, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "postalCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postalCode"))
+			it.PostalCode, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "propertyType":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyType"))
+			it.PropertyType, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "caretaker":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("caretaker"))
+			it.Caretaker, err = ec.unmarshalNCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "units":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("units"))
+			it.Units, err = ec.unmarshalNUnitInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "shoot":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shoot"))
+			it.Shoot, err = ec.unmarshalNShootInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐShootInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputShootInput(ctx context.Context, obj interface{}) (model.ShootInput, error) {
+	var it model.ShootInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"date"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			it.Date, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTenancyInput(ctx context.Context, obj interface{}) (model.TenancyInput, error) {
 	var it model.TenancyInput
 	asMap := map[string]interface{}{}
@@ -7341,6 +8575,42 @@ func (ec *executionContext) unmarshalInputTenancyInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUnitAmenityInput(ctx context.Context, obj interface{}) (model.UnitAmenityInput, error) {
+	var it model.UnitAmenityInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "category"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "category":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+			it.Category, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUnitBedroomInput(ctx context.Context, obj interface{}) (model.UnitBedroomInput, error) {
 	var it model.UnitBedroomInput
 	asMap := map[string]interface{}{}
@@ -7359,7 +8629,7 @@ func (ec *executionContext) unmarshalInputUnitBedroomInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyUnitId"))
-			it.PropertyUnitID, err = ec.unmarshalNID2string(ctx, v)
+			it.PropertyUnitID, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7384,6 +8654,74 @@ func (ec *executionContext) unmarshalInputUnitBedroomInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("master"))
 			it.Master, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj interface{}) (model.UnitInput, error) {
+	var it model.UnitInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "price", "type", "amenities", "bedrooms", "baths"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "price":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			it.Price, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "amenities":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amenities"))
+			it.Amenities, err = ec.unmarshalNUnitAmenityInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "bedrooms":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bedrooms"))
+			it.Bedrooms, err = ec.unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "baths":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("baths"))
+			it.Baths, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7635,6 +8973,104 @@ func (ec *executionContext) _Bedroom(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var caretakerImplementors = []string{"Caretaker"}
+
+func (ec *executionContext) _Caretaker(ctx context.Context, sel ast.SelectionSet, obj *model.Caretaker) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, caretakerImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Caretaker")
+		case "id":
+
+			out.Values[i] = ec._Caretaker_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "first_name":
+
+			out.Values[i] = ec._Caretaker_first_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "last_name":
+
+			out.Values[i] = ec._Caretaker_last_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "phone":
+
+			out.Values[i] = ec._Caretaker_phone(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "idVerification":
+
+			out.Values[i] = ec._Caretaker_idVerification(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "countryCode":
+
+			out.Values[i] = ec._Caretaker_countryCode(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "verified":
+
+			out.Values[i] = ec._Caretaker_verified(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "shootsInCharge":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Caretaker_shootsInCharge(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "createdAt":
+
+			out.Values[i] = ec._Caretaker_createdAt(ctx, field, obj)
+
+		case "updatedAt":
+
+			out.Values[i] = ec._Caretaker_updatedAt(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -7757,6 +9193,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateUser(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "setupProperty":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_setupProperty(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -7962,9 +9407,23 @@ func (ec *executionContext) _PropertyUnit(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "price":
+
+			out.Values[i] = ec._PropertyUnit_price(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "bathrooms":
 
 			out.Values[i] = ec._PropertyUnit_bathrooms(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "type":
+
+			out.Values[i] = ec._PropertyUnit_type(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -8096,29 +9555,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "getListings":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getListings(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "searchTown":
 			field := field
 
@@ -8177,6 +9613,90 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec._Query___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var shootImplementors = []string{"Shoot"}
+
+func (ec *executionContext) _Shoot(ctx context.Context, sel ast.SelectionSet, obj *model.Shoot) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shootImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Shoot")
+		case "id":
+
+			out.Values[i] = ec._Shoot_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "propertyId":
+
+			out.Values[i] = ec._Shoot_propertyId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "date":
+
+			out.Values[i] = ec._Shoot_date(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "status":
+
+			out.Values[i] = ec._Shoot_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "createdAt":
+
+			out.Values[i] = ec._Shoot_createdAt(ctx, field, obj)
+
+		case "updatedAt":
+
+			out.Values[i] = ec._Shoot_updatedAt(ctx, field, obj)
+
+		case "contact":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Shoot_contact(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "contactId":
+
+			out.Values[i] = ec._Shoot_contactId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8888,6 +10408,25 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNCaretaker2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretaker(ctx context.Context, sel ast.SelectionSet, v model.Caretaker) graphql.Marshaler {
+	return ec._Caretaker(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCaretaker2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretaker(ctx context.Context, sel ast.SelectionSet, v *model.Caretaker) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Caretaker(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerInput(ctx context.Context, v interface{}) (*model.CaretakerInput, error) {
+	res, err := ec.unmarshalInputCaretakerInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx context.Context, v interface{}) (model.CountryCode, error) {
 	var res model.CountryCode
 	err := res.UnmarshalGQL(v)
@@ -8931,11 +10470,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐListingsInput(ctx context.Context, v interface{}) (model.ListingsInput, error) {
-	res, err := ec.unmarshalInputListingsInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNewProperty2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNewProperty(ctx context.Context, v interface{}) (model.NewProperty, error) {
@@ -9067,6 +10601,70 @@ func (ec *executionContext) marshalNPropertyUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋ
 func (ec *executionContext) unmarshalNPropertyUnitInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnitInput(ctx context.Context, v interface{}) (model.PropertyUnitInput, error) {
 	res, err := ec.unmarshalInputPropertyUnitInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSetupPropertyInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSetupPropertyInput(ctx context.Context, v interface{}) (model.SetupPropertyInput, error) {
+	res, err := ec.unmarshalInputSetupPropertyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNShoot2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐShootᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Shoot) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNShoot2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐShoot(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNShoot2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐShoot(ctx context.Context, sel ast.SelectionSet, v *model.Shoot) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Shoot(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNShootInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐShootInput(ctx context.Context, v interface{}) (*model.ShootInput, error) {
+	res, err := ec.unmarshalInputShootInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNStatus2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
@@ -9244,6 +10842,28 @@ func (ec *executionContext) marshalNTown2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyatta�
 	return ec._Town(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUnitAmenityInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInputᚄ(ctx context.Context, v interface{}) ([]*model.UnitAmenityInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UnitAmenityInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUnitAmenityInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUnitAmenityInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInput(ctx context.Context, v interface{}) (*model.UnitAmenityInput, error) {
+	res, err := ec.unmarshalInputUnitAmenityInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInputᚄ(ctx context.Context, v interface{}) ([]*model.UnitBedroomInput, error) {
 	var vSlice []interface{}
 	if v != nil {
@@ -9263,6 +10883,28 @@ func (ec *executionContext) unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1
 
 func (ec *executionContext) unmarshalNUnitBedroomInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInput(ctx context.Context, v interface{}) (*model.UnitBedroomInput, error) {
 	res, err := ec.unmarshalInputUnitBedroomInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUnitInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInputᚄ(ctx context.Context, v interface{}) ([]*model.UnitInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UnitInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUnitInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUnitInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInput(ctx context.Context, v interface{}) (*model.UnitInput, error) {
+	res, err := ec.unmarshalInputUnitInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -9584,19 +11226,19 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalInt(v)
+	res, err := graphql.UnmarshalID(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalInt(*v)
+	res := graphql.MarshalID(*v)
 	return res
 }
 

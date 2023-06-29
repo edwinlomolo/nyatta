@@ -71,12 +71,12 @@ func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.C
 		return "", err
 	} else {
 		if res.Status != nil {
-			if *res.Status == "approved" {
-				_, err := t.userService.CreateUser(&model.NewUser{Phone: phone})
-				if err != nil {
-					return "", err
-				}
-			}
+			//if *res.Status == "approved" {
+			//	_, err := t.userService.CreateUser(&model.NewUser{Phone: phone})
+			//	if err != nil {
+			//		return "", err
+			//	}
+			//}
 			return *res.Status, nil
 		}
 		return "", errors.New("nil response from twilio")

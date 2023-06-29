@@ -3,7 +3,9 @@ type PropertyUnit {
   id: ID!
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: ID!
+  price: String!
   bathrooms: Int!
+  type: String!
   tenancy: [Tenant!]! # has-many tenancy
   createdAt: Time
   updatedAt: Time

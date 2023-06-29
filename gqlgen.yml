@@ -83,3 +83,13 @@ models:
         resolver: true
       tenancy:
         resolver: true
+
+  Caretaker:
+    fields:
+      shootsInCharge:
+        resolver: true
+
+  Shoot:
+    fields:
+      contact:
+        resolver: true

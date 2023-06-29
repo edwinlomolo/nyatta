@@ -15,11 +15,12 @@ import (
 
 // Amenities is the resolver for the amenities field.
 func (r *propertyResolver) Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error) {
-	foundAmenities, err := ctx.Value("amenityService").(*services.AmenityServices).PropertyAmenities(obj.ID)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-	}
-	return foundAmenities, nil
+	return []*model.Amenity{}, nil
+	//foundAmenities, err := ctx.Value("amenityService").(*services.AmenityServices).PropertyAmenities(obj.ID)
+	//if err != nil {
+	//	return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	//}
+	//return foundAmenities, nil
 }
 
 // Units is the resolver for the units field.

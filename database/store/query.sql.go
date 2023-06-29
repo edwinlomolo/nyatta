@@ -13,27 +13,21 @@ import (
 
 const createAmenity = `-- name: CreateAmenity :one
 INSERT INTO amenities (
-  name, provider, category, property_id
+  name, category, property_unit_id
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3
 )
-RETURNING id, name, provider, created_at, category, updated_at, property_id
+RETURNING id, name, provider, created_at, category, updated_at, property_unit_id
 `
 
 type CreateAmenityParams struct {
-	Name       string `json:"name"`
-	Provider   string `json:"provider"`
-	Category   string `json:"category"`
-	PropertyID int64  `json:"property_id"`
+	Name           string `json:"name"`
+	Category       string `json:"category"`
+	PropertyUnitID int64  `json:"property_unit_id"`
 }
 
 func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (Amenity, error) {
-	row := q.db.QueryRowContext(ctx, createAmenity,
-		arg.Name,
-		arg.Provider,
-		arg.Category,
-		arg.PropertyID,
-	)
+	row := q.db.QueryRowContext(ctx, createAmenity, arg.Name, arg.Category, arg.PropertyUnitID)
 	var i Amenity
 	err := row.Scan(
 		&i.ID,
@@ -42,18 +36,58 @@ func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (A
 		&i.CreatedAt,
 		&i.Category,
 		&i.UpdatedAt,
-		&i.PropertyID,
+		&i.PropertyUnitID,
+	)
+	return i, err
+}
+
+const createCaretaker = `-- name: CreateCaretaker :one
+INSERT INTO caretakers (
+  first_name, last_name, idVerification, country_code, phone
+) VALUES (
+  $1, $2, $3, $4, $5
+)
+RETURNING id, first_name, last_name, idverification, country_code, created_at, updated_at, phone, verified
+`
+
+type CreateCaretakerParams struct {
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	Idverification string `json:"idverification"`
+	CountryCode    string `json:"country_code"`
+	Phone          string `json:"phone"`
+}
+
+func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams) (Caretaker, error) {
+	row := q.db.QueryRowContext(ctx, createCaretaker,
+		arg.FirstName,
+		arg.LastName,
+		arg.Idverification,
+		arg.CountryCode,
+		arg.Phone,
+	)
+	var i Caretaker
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Idverification,
+		&i.CountryCode,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Phone,
+		&i.Verified,
 	)
 	return i, err
 }
 
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
-  name, town, postal_code, type, min_price, max_price, created_by
+  name, town, postal_code, type, created_by
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7
+  $1, $2, $3, $4, $5
 )
-RETURNING id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by
+RETURNING id, name, town, postal_code, type, status, created_at, updated_at, created_by, caretaker
 `
 
 type CreatePropertyParams struct {
@@ -61,8 +95,6 @@ type CreatePropertyParams struct {
 	Town       string `json:"town"`
 	PostalCode string `json:"postal_code"`
 	Type       string `json:"type"`
-	MinPrice   int32  `json:"min_price"`
-	MaxPrice   int32  `json:"max_price"`
 	CreatedBy  int64  `json:"created_by"`
 }
 
@@ -72,8 +104,6 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		arg.Town,
 		arg.PostalCode,
 		arg.Type,
-		arg.MinPrice,
-		arg.MaxPrice,
 		arg.CreatedBy,
 	)
 	var i Property
@@ -83,38 +113,85 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		&i.Town,
 		&i.PostalCode,
 		&i.Type,
-		&i.MinPrice,
-		&i.MaxPrice,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
+		&i.Caretaker,
 	)
 	return i, err
 }
 
 const createPropertyUnit = `-- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms
+  property_id, bathrooms, name, type, price
 ) VALUES (
-  $1, $2
+  $1, $2, $3, $4, $5
 )
-RETURNING id, bathrooms, created_at, updated_at, property_id
+RETURNING id, name, type, price, bathrooms, created_at, updated_at, property_id
 `
 
 type CreatePropertyUnitParams struct {
-	PropertyID int64 `json:"property_id"`
-	Bathrooms  int32 `json:"bathrooms"`
+	PropertyID int64  `json:"property_id"`
+	Bathrooms  int32  `json:"bathrooms"`
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	Price      int32  `json:"price"`
 }
 
 func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnitParams) (PropertyUnit, error) {
-	row := q.db.QueryRowContext(ctx, createPropertyUnit, arg.PropertyID, arg.Bathrooms)
+	row := q.db.QueryRowContext(ctx, createPropertyUnit,
+		arg.PropertyID,
+		arg.Bathrooms,
+		arg.Name,
+		arg.Type,
+		arg.Price,
+	)
 	var i PropertyUnit
 	err := row.Scan(
 		&i.ID,
+		&i.Name,
+		&i.Type,
+		&i.Price,
 		&i.Bathrooms,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.PropertyID,
+	)
+	return i, err
+}
+
+const createShootSchedule = `-- name: CreateShootSchedule :one
+INSERT INTO shoots (
+  shoot_date, property_id, property_unit_id, caretaker_id
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, shoot_date, property_id, property_unit_id, status, caretaker_id
+`
+
+type CreateShootScheduleParams struct {
+	ShootDate      time.Time `json:"shoot_date"`
+	PropertyID     int64     `json:"property_id"`
+	PropertyUnitID int64     `json:"property_unit_id"`
+	CaretakerID    int64     `json:"caretaker_id"`
+}
+
+func (q *Queries) CreateShootSchedule(ctx context.Context, arg CreateShootScheduleParams) (Shoot, error) {
+	row := q.db.QueryRowContext(ctx, createShootSchedule,
+		arg.ShootDate,
+		arg.PropertyID,
+		arg.PropertyUnitID,
+		arg.CaretakerID,
+	)
+	var i Shoot
+	err := row.Scan(
+		&i.ID,
+		&i.ShootDate,
+		&i.PropertyID,
+		&i.PropertyUnitID,
+		&i.Status,
+		&i.CaretakerID,
 	)
 	return i, err
 }
@@ -268,53 +345,8 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone sql.NullString) (Us
 	return i, err
 }
 
-const getListings = `-- name: GetListings :many
-SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
-WHERE town ILIKE $1 AND min_price >= $2 AND max_price <= $3
-`
-
-type GetListingsParams struct {
-	Town     string `json:"town"`
-	MinPrice int32  `json:"min_price"`
-	MaxPrice int32  `json:"max_price"`
-}
-
-func (q *Queries) GetListings(ctx context.Context, arg GetListingsParams) ([]Property, error) {
-	rows, err := q.db.QueryContext(ctx, getListings, arg.Town, arg.MinPrice, arg.MaxPrice)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Property
-	for rows.Next() {
-		var i Property
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Town,
-			&i.PostalCode,
-			&i.Type,
-			&i.MinPrice,
-			&i.MaxPrice,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.CreatedBy,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getProperty = `-- name: GetProperty :one
-SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
+SELECT id, name, town, postal_code, type, status, created_at, updated_at, created_by, caretaker FROM properties
 WHERE id = $1 LIMIT 1
 `
 
@@ -327,17 +359,17 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 		&i.Town,
 		&i.PostalCode,
 		&i.Type,
-		&i.MinPrice,
-		&i.MaxPrice,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
+		&i.Caretaker,
 	)
 	return i, err
 }
 
 const getPropertyUnits = `-- name: GetPropertyUnits :many
-SELECT id, bathrooms, created_at, updated_at, property_id FROM property_units
+SELECT id, name, type, price, bathrooms, created_at, updated_at, property_id FROM property_units
 WHERE property_id = $1
 `
 
@@ -352,6 +384,9 @@ func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID int64) ([]Pro
 		var i PropertyUnit
 		if err := rows.Scan(
 			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.Price,
 			&i.Bathrooms,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -464,7 +499,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT id, name, town, postal_code, type, min_price, max_price, created_at, updated_at, created_by FROM properties
+SELECT id, name, town, postal_code, type, status, created_at, updated_at, created_by, caretaker FROM properties
 WHERE created_by = $1
 `
 
@@ -483,47 +518,11 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]P
 			&i.Town,
 			&i.PostalCode,
 			&i.Type,
-			&i.MinPrice,
-			&i.MaxPrice,
+			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CreatedBy,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const propertyAmenities = `-- name: PropertyAmenities :many
-SELECT id, name, provider, created_at, category, updated_at, property_id FROM amenities
-WHERE property_id = $1
-`
-
-func (q *Queries) PropertyAmenities(ctx context.Context, propertyID int64) ([]Amenity, error) {
-	rows, err := q.db.QueryContext(ctx, propertyAmenities, propertyID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Amenity
-	for rows.Next() {
-		var i Amenity
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Provider,
-			&i.CreatedAt,
-			&i.Category,
-			&i.UpdatedAt,
-			&i.PropertyID,
+			&i.Caretaker,
 		); err != nil {
 			return nil, err
 		}

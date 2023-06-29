@@ -1,0 +1,11 @@
+# Represent property shoot schedule
+type Shoot {
+  id: ID!
+  propertyId: String!
+  date: Time!
+  status: String!
+  createdAt: Time
+  updatedAt: Time
+  contact: Caretaker!
+  contactId: ID!
+}

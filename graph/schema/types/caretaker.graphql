@@ -1,0 +1,13 @@
+# Represent property caretaker
+type Caretaker {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  phone: String!
+  idVerification: String!
+  countryCode: String!
+  verified: Boolean!
+  shootsInCharge: [Shoot!]!
+  createdAt: Time
+  updatedAt: Time
+}

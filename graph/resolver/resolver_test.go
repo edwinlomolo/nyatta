@@ -100,6 +100,7 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
+// TODO redudant test
 func Test_unauthed_graphql_request(t *testing.T) {
 	var signIn struct {
 		SignIn struct {

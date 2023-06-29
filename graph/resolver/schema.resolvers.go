@@ -122,6 +122,12 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 	return user, nil
 }
 
+// SetupProperty is the resolver for the setupProperty field.
+func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error) {
+	fmt.Println(input)
+	return &model.Status{Success: "pending"}, nil
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)
@@ -143,15 +149,6 @@ func (r *queryResolver) GetProperty(ctx context.Context, id string) (*model.Prop
 // Hello is the resolver for the hello field.
 func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 	return "Hello, World", nil
-}
-
-// GetListings is the resolver for the getListings field.
-func (r *queryResolver) GetListings(ctx context.Context, input model.ListingsInput) ([]*model.Property, error) {
-	foundListings, err := ctx.Value("listingService").(*services.ListingServices).GetListings(input)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-	}
-	return foundListings, nil
 }
 
 // SearchTown is the resolver for the searchTown field.

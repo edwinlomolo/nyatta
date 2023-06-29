@@ -45,8 +45,6 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 		Name:       property.Name,
 		Town:       property.Town,
 		Type:       property.Type,
-		MinPrice:   int32(property.MinPrice),
-		MaxPrice:   int32(property.MaxPrice),
 		PostalCode: property.PostalCode,
 		CreatedBy:  creator,
 	})
@@ -60,8 +58,6 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 		Town:       insertedProperty.Town,
 		PostalCode: insertedProperty.PostalCode,
 		Type:       insertedProperty.Type,
-		MinPrice:   int(insertedProperty.MinPrice),
-		MaxPrice:   int(insertedProperty.MaxPrice),
 		CreatedBy:  strconv.FormatInt(creator, 10),
 		CreatedAt:  &insertedProperty.CreatedAt,
 		UpdatedAt:  &insertedProperty.UpdatedAt,
@@ -84,8 +80,6 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 		Name:       foundProperty.Name,
 		Town:       foundProperty.Town,
 		Type:       foundProperty.Type,
-		MinPrice:   int(foundProperty.MinPrice),
-		MaxPrice:   int(foundProperty.MaxPrice),
 		PostalCode: foundProperty.PostalCode,
 		CreatedBy:  strconv.FormatInt(foundProperty.CreatedBy, 10),
 		CreatedAt:  &foundProperty.CreatedAt,
@@ -124,8 +118,6 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 			Name:       item.Name,
 			Town:       item.Town,
 			Type:       item.Type,
-			MinPrice:   int(item.MinPrice),
-			MaxPrice:   int(item.MaxPrice),
 			PostalCode: item.PostalCode,
 			CreatedAt:  &item.CreatedAt,
 			UpdatedAt:  &item.UpdatedAt,
@@ -139,26 +131,30 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 // GetPropertyUnits - get property units
 func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error) {
 	var units []*model.PropertyUnit
-
-	id, err := strconv.ParseInt(propertyId, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	foundUnits, err := p.queries.GetPropertyUnits(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	for _, foundUnit := range foundUnits {
-		unit := &model.PropertyUnit{
-			ID:         strconv.FormatInt(foundUnit.ID, 10),
-			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
-			CreatedAt:  &foundUnit.CreatedAt,
-			Bathrooms:  int(foundUnit.Bathrooms),
-			UpdatedAt:  &foundUnit.UpdatedAt,
-		}
-		units = append(units, unit)
-	}
-
 	return units, nil
+
+	// id, err := strconv.ParseInt(propertyId, 10, 64)
+	//
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//
+	// foundUnits, err := p.queries.GetPropertyUnits(ctx, id)
+	//
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	for _, foundUnit := range foundUnits {
+	//		unit := &model.PropertyUnit{
+	//			ID:         strconv.FormatInt(foundUnit.ID, 10),
+	//			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
+	//			CreatedAt:  &foundUnit.CreatedAt,
+	//			Bathrooms:  int(foundUnit.Bathrooms),
+	//			UpdatedAt:  &foundUnit.UpdatedAt,
+	//		}
+	//		units = append(units, unit)
+	//	}
+	//
+	// return units, nil
 }
