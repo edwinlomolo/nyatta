@@ -10,4 +10,5 @@ type PropertyService interface {
 	FindByPostalCode(postalCode string) ([]*model.Property, error)
 	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
 	GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error)
+	SetupProperty(*model.SetupPropertyInput) (*model.Status, error)
 }

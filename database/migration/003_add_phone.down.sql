@@ -1,3 +1,0 @@
-ALTER TABLE users
-DROP COLUMN IF EXISTS onboarding,
-DROP COLUMN IF EXISTS phone;

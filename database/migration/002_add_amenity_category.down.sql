@@ -1,2 +1,0 @@
-ALTER TABLE amenities
-DROP COLUMN IF EXISTS category CASCADE;

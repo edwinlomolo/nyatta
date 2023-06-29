@@ -43,19 +43,20 @@ func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (A
 
 const createCaretaker = `-- name: CreateCaretaker :one
 INSERT INTO caretakers (
-  first_name, last_name, idVerification, country_code, phone
+  first_name, last_name, idVerification, country_code, phone, image
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
-RETURNING id, first_name, last_name, idverification, country_code, created_at, updated_at, phone, verified
+RETURNING id, first_name, last_name, idverification, country_code, created_at, updated_at, phone, image, verified
 `
 
 type CreateCaretakerParams struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Idverification string `json:"idverification"`
-	CountryCode    string `json:"country_code"`
-	Phone          string `json:"phone"`
+	FirstName      string         `json:"first_name"`
+	LastName       string         `json:"last_name"`
+	Idverification string         `json:"idverification"`
+	CountryCode    string         `json:"country_code"`
+	Phone          sql.NullString `json:"phone"`
+	Image          string         `json:"image"`
 }
 
 func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams) (Caretaker, error) {
@@ -65,6 +66,7 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 		arg.Idverification,
 		arg.CountryCode,
 		arg.Phone,
+		arg.Image,
 	)
 	var i Caretaker
 	err := row.Scan(
@@ -76,6 +78,7 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Phone,
+		&i.Image,
 		&i.Verified,
 	)
 	return i, err
@@ -83,19 +86,20 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
-  name, town, postal_code, type, created_by
+  name, town, postal_code, type, created_by, caretaker
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING id, name, town, postal_code, type, status, created_at, updated_at, created_by, caretaker
 `
 
 type CreatePropertyParams struct {
-	Name       string `json:"name"`
-	Town       string `json:"town"`
-	PostalCode string `json:"postal_code"`
-	Type       string `json:"type"`
-	CreatedBy  int64  `json:"created_by"`
+	Name       string        `json:"name"`
+	Town       string        `json:"town"`
+	PostalCode string        `json:"postal_code"`
+	Type       string        `json:"type"`
+	CreatedBy  int64         `json:"created_by"`
+	Caretaker  sql.NullInt64 `json:"caretaker"`
 }
 
 func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) (Property, error) {
@@ -105,6 +109,7 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		arg.PostalCode,
 		arg.Type,
 		arg.CreatedBy,
+		arg.Caretaker,
 	)
 	var i Property
 	err := row.Scan(

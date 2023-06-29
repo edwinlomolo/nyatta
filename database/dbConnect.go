@@ -68,18 +68,21 @@ func runDbMigration(db *sql.DB, migrationUrl string) error {
 		log.Errorf("%s: %s", config.MigrationInstanceErr, err)
 		return err
 	}
-	if config.IsPrototypeEnv() {
+
+	// Apply migration(s)
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Errorf("%s: %s", config.MigrationUpErr, err)
+		return err
+	}
+
+	if config.IsPrototypeEnv() && config.ForcePostgresMigration() {
 		// Drop everything
 		if err := m.Down(); err != nil && err != migrate.ErrNoChange {
 			log.Errorf("%s: %s", config.MigrationDownErr, err)
 			return err
 		}
-		// Apply migration(s)
-		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-			log.Errorf("%s: %s", config.MigrationUpErr, err)
-			return err
-		}
 	}
+
 	if !config.IsPrototypeEnv() {
 		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 			log.Errorf("%s: %s", config.MigrationErr, err)

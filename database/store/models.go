@@ -30,15 +30,16 @@ type Bedroom struct {
 }
 
 type Caretaker struct {
-	ID             int64     `json:"id"`
-	FirstName      string    `json:"first_name"`
-	LastName       string    `json:"last_name"`
-	Idverification string    `json:"idverification"`
-	CountryCode    string    `json:"country_code"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-	Phone          string    `json:"phone"`
-	Verified       bool      `json:"verified"`
+	ID             int64          `json:"id"`
+	FirstName      string         `json:"first_name"`
+	LastName       string         `json:"last_name"`
+	Idverification string         `json:"idverification"`
+	CountryCode    string         `json:"country_code"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	Phone          sql.NullString `json:"phone"`
+	Image          string         `json:"image"`
+	Verified       bool           `json:"verified"`
 }
 
 type Property struct {

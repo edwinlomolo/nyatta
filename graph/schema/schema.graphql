@@ -78,6 +78,7 @@ input UpdateUserInput {
 # Represent shoot schedule input
 input ShootInput {
   date: Time!
+  contactPerson: String!
 }
 
 # Represent property caretaker input
@@ -114,6 +115,7 @@ input SetupPropertyInput {
   caretaker: CaretakerInput!
   units: [UnitInput!]!
   shoot: ShootInput!
+  creator: String!
 }
 
 # after signin return this

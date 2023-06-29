@@ -143,3 +143,13 @@ func twilioConfig() TwilioConfig {
 
 	return twilio
 }
+
+// ForcePostgresMigration - force postgres migration
+func ForcePostgresMigration() bool {
+	// Load env variables
+	env()
+
+	forceMigration := os.Getenv("FORCE_MIGRATION")
+
+	return forceMigration == "true"
+}
