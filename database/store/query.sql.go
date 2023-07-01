@@ -503,6 +503,35 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
+const onboardUser = `-- name: OnboardUser :one
+UPDATE users
+SET onboarding = $1
+WHERE email = $2
+RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+`
+
+type OnboardUserParams struct {
+	Onboarding sql.NullBool   `json:"onboarding"`
+	Email      sql.NullString `json:"email"`
+}
+
+func (q *Queries) OnboardUser(ctx context.Context, arg OnboardUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, onboardUser, arg.Onboarding, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
+		&i.Avatar,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
 SELECT id, name, town, postal_code, type, status, created_at, updated_at, created_by, caretaker FROM properties
 WHERE created_by = $1
@@ -565,6 +594,35 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Onboarding,
 		arg.Email,
 	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
+		&i.Avatar,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUserPhone = `-- name: UpdateUserPhone :one
+UPDATE users
+SET phone = $1
+WHERE email = $2
+RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+`
+
+type UpdateUserPhoneParams struct {
+	Phone sql.NullString `json:"phone"`
+	Email sql.NullString `json:"email"`
+}
+
+func (q *Queries) UpdateUserPhone(ctx context.Context, arg UpdateUserPhoneParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUserPhone, arg.Phone, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.ID,

@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"strconv"
@@ -31,7 +30,6 @@ func NewUserService(queries *sqlStore.Queries, logger *log.Logger, config *confi
 
 // CreateUser - create a new user
 func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
-	ctx := context.Background()
 	insertedUser, err := u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
 		FirstName: sql.NullString{String: user.FirstName, Valid: true},
 		LastName:  sql.NullString{String: user.LastName, Valid: true},
@@ -87,7 +85,6 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 
 // FindById - return user given user id
 func (u *UserServices) FindById(id string) (*model.User, error) {
-	ctx := context.Background()
 	propertyId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, err
@@ -109,7 +106,6 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 
 // FindByEmail - return user given user email
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
-	ctx := context.Background()
 	foundUser, err := u.queries.FindByEmail(ctx, sql.NullString{String: email, Valid: true})
 	if err == sql.ErrNoRows {
 		return nil, errors.New("User not found")
@@ -121,6 +117,7 @@ func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 		Email:      foundUser.Email.String,
 		Avatar:     foundUser.Avatar.String,
 		Onboarding: foundUser.Onboarding.Bool,
+		Phone:      foundUser.Phone.String,
 		CreatedAt:  &foundUser.CreatedAt,
 		UpdatedAt:  &foundUser.UpdatedAt,
 	}, nil
@@ -193,5 +190,47 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 		Avatar:     foundUser.Avatar.String,
 		CreatedAt:  &foundUser.CreatedAt,
 		UpdatedAt:  &foundUser.UpdatedAt,
+	}, nil
+}
+
+// UpdateUserPhone - update user phone number
+func (u *UserServices) UpdateUserPhone(email, phone string) (*model.User, error) {
+	updatedUser, err := u.queries.UpdateUserPhone(ctx, sqlStore.UpdateUserPhoneParams{
+		Email: sql.NullString{String: email, Valid: true},
+		Phone: sql.NullString{String: phone, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.User{
+		ID:         strconv.FormatInt(updatedUser.ID, 10),
+		FirstName:  updatedUser.FirstName.String,
+		LastName:   updatedUser.LastName.String,
+		Email:      updatedUser.Email.String,
+		Phone:      updatedUser.Phone.String,
+		Onboarding: updatedUser.Onboarding.Bool,
+		CreatedAt:  &updatedUser.CreatedAt,
+		UpdatedAt:  &updatedUser.UpdatedAt,
+	}, nil
+}
+
+// OnboardUser - update user onboarding status
+func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, error) {
+	onboardedUser, err := u.queries.OnboardUser(ctx, sqlStore.OnboardUserParams{
+		Email:      sql.NullString{String: email, Valid: true},
+		Onboarding: sql.NullBool{Bool: onboarding, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.User{
+		ID:         strconv.FormatInt(onboardedUser.ID, 10),
+		FirstName:  onboardedUser.FirstName.String,
+		LastName:   onboardedUser.LastName.String,
+		Email:      onboardedUser.Email.String,
+		Onboarding: onboardedUser.Onboarding.Bool,
+		Phone:      onboardedUser.Phone.String,
+		CreatedAt:  &onboardedUser.CreatedAt,
+		UpdatedAt:  &onboardedUser.UpdatedAt,
 	}, nil
 }

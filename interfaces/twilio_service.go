@@ -6,5 +6,5 @@ import (
 
 type Twilio interface {
 	SendVerification(phone string, countryCode model.CountryCode) (string, error)
-	VerifyCode(phone, verifyCode string, countryCode model.CountryCode) (string, error)
+	VerifyCode(phone, email, verifyCode string, countryCode model.CountryCode) (string, error)
 }

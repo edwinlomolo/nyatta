@@ -52,6 +52,11 @@ type NewUser struct {
 	Phone     string `json:"phone"`
 }
 
+type OnboardUserInput struct {
+	Email      string `json:"email"`
+	Onboarding bool   `json:"onboarding"`
+}
+
 type PropertyUnit struct {
 	ID         string     `json:"id"`
 	Bedrooms   []*Bedroom `json:"bedrooms"`
@@ -157,6 +162,7 @@ type UpdateUserInput struct {
 
 type VerificationInput struct {
 	Phone       string      `json:"phone"`
+	Email       *string     `json:"email"`
 	CountryCode CountryCode `json:"countryCode"`
 	VerifyCode  *string     `json:"verifyCode"`
 }

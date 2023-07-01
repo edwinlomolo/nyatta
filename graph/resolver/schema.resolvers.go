@@ -97,7 +97,8 @@ func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model
 
 // VerifyVerificationCode is the resolver for the verifyVerificationCode field.
 func (r *mutationResolver) VerifyVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
-	status, err := ctx.Value("twilioService").(*services.TwilioServices).VerifyCode(input.Phone, *input.VerifyCode, input.CountryCode)
+	email := input.Email
+	status, err := ctx.Value("twilioService").(*services.TwilioServices).VerifyCode(input.Phone, *email, *input.VerifyCode, input.CountryCode)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
 	}
@@ -131,9 +132,18 @@ func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupP
 	return status, nil
 }
 
+// OnboardUser is the resolver for the onboardUser field.
+func (r *mutationResolver) OnboardUser(ctx context.Context, input model.OnboardUserInput) (*model.User, error) {
+	onboardedUser, err := ctx.Value("userService").(*services.UserServices).OnboardUser(input.Email, input.Onboarding)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+	}
+	return onboardedUser, nil
+}
+
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
-	foundUser, err := ctx.Value("userService").(*services.UserServices).FindById(id)
+func (r *queryResolver) GetUser(ctx context.Context, email string) (*model.User, error) {
+	foundUser, err := ctx.Value("userService").(*services.UserServices).FindByEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
 	}

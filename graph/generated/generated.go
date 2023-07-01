@@ -91,6 +91,7 @@ type ComplexityRoot struct {
 		CreateProperty         func(childComplexity int, input model.NewProperty) int
 		CreateUser             func(childComplexity int, input model.NewUser) int
 		Handshake              func(childComplexity int, input model.HandshakeInput) int
+		OnboardUser            func(childComplexity int, input model.OnboardUserInput) int
 		SendVerificationCode   func(childComplexity int, input model.VerificationInput) int
 		SetupProperty          func(childComplexity int, input model.SetupPropertyInput) int
 		SignIn                 func(childComplexity int, input model.NewUser) int
@@ -130,7 +131,7 @@ type ComplexityRoot struct {
 	Query struct {
 		GetProperty func(childComplexity int, id string) int
 		GetTowns    func(childComplexity int) int
-		GetUser     func(childComplexity int, id string) int
+		GetUser     func(childComplexity int, email string) int
 		Hello       func(childComplexity int) int
 		SearchTown  func(childComplexity int, town string) int
 	}
@@ -200,6 +201,7 @@ type MutationResolver interface {
 	Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error)
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
 	SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error)
+	OnboardUser(ctx context.Context, input model.OnboardUserInput) (*model.User, error)
 }
 type PropertyResolver interface {
 	Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error)
@@ -213,7 +215,7 @@ type PropertyUnitResolver interface {
 	Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error)
 }
 type QueryResolver interface {
-	GetUser(ctx context.Context, id string) (*model.User, error)
+	GetUser(ctx context.Context, email string) (*model.User, error)
 	GetProperty(ctx context.Context, id string) (*model.Property, error)
 	Hello(ctx context.Context) (string, error)
 	SearchTown(ctx context.Context, town string) ([]*model.Town, error)
@@ -493,6 +495,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Handshake(childComplexity, args["input"].(model.HandshakeInput)), true
 
+	case "Mutation.onboardUser":
+		if e.complexity.Mutation.OnboardUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_onboardUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.OnboardUser(childComplexity, args["input"].(model.OnboardUserInput)), true
+
 	case "Mutation.sendVerificationCode":
 		if e.complexity.Mutation.SendVerificationCode == nil {
 			break
@@ -748,7 +762,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetUser(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.GetUser(childComplexity, args["email"].(string)), true
 
 	case "Query.hello":
 		if e.complexity.Query.Hello == nil {
@@ -985,6 +999,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputHandshakeInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
+		ec.unmarshalInputOnboardUserInput,
 		ec.unmarshalInputPropertyUnitInput,
 		ec.unmarshalInputSetupPropertyInput,
 		ec.unmarshalInputShootInput,
@@ -1112,6 +1127,7 @@ enum CountryCode { KE }
 # Represent send verification parameters
 input VerificationInput {
   phone: String!
+  email: String
   countryCode: CountryCode!
   verifyCode: String
 }
@@ -1174,6 +1190,12 @@ input SetupPropertyInput {
   creator: String!
 }
 
+# Represent onboard user input
+input OnboardUserInput {
+  email: String!
+  onboarding: Boolean!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -1185,7 +1207,7 @@ type Status {
 }
 
 type Query {
-  getUser(id: ID!): User!
+  getUser(email: String!): User!
   getProperty(id: ID!): Property!
   hello: String!
   searchTown(town: String!): [Town!]!
@@ -1206,6 +1228,7 @@ type Mutation {
   handshake(input: HandshakeInput!): User!
   updateUser(input: UpdateUserInput!): User!
   setupProperty(input: SetupPropertyInput!): Status!
+  onboardUser(input: OnboardUserInput!): User!
 }
 
 schema {
@@ -1434,6 +1457,21 @@ func (ec *executionContext) field_Mutation_handshake_args(ctx context.Context, r
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_onboardUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.OnboardUserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNOnboardUserInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐOnboardUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_sendVerificationCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1558,14 +1596,14 @@ func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArg
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["id"] = arg0
+	args["email"] = arg0
 	return args, nil
 }
 
@@ -3563,6 +3601,83 @@ func (ec *executionContext) fieldContext_Mutation_setupProperty(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_onboardUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_onboardUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().OnboardUser(rctx, fc.Args["input"].(model.OnboardUserInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_onboardUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "phone":
+				return ec.fieldContext_User_phone(ctx, field)
+			case "onboarding":
+				return ec.fieldContext_User_onboarding(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "properties":
+				return ec.fieldContext_User_properties(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_onboardUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Property_id(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Property_id(ctx, field)
 	if err != nil {
@@ -4621,7 +4736,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetUser(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().GetUser(rctx, fc.Args["email"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8393,6 +8508,42 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputOnboardUserInput(ctx context.Context, obj interface{}) (model.OnboardUserInput, error) {
+	var it model.OnboardUserInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "onboarding"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "onboarding":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onboarding"))
+			it.Onboarding, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPropertyUnitInput(ctx context.Context, obj interface{}) (model.PropertyUnitInput, error) {
 	var it model.PropertyUnitInput
 	asMap := map[string]interface{}{}
@@ -8824,7 +8975,7 @@ func (ec *executionContext) unmarshalInputVerificationInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"phone", "countryCode", "verifyCode"}
+	fieldsInOrder := [...]string{"phone", "email", "countryCode", "verifyCode"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8836,6 +8987,14 @@ func (ec *executionContext) unmarshalInputVerificationInput(ctx context.Context,
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
 			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9220,6 +9379,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_setupProperty(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "onboardUser":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_onboardUser(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -10497,6 +10665,11 @@ func (ec *executionContext) unmarshalNNewProperty2githubᚗcomᚋ3dw1nM0535ᚋny
 
 func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
 	res, err := ec.unmarshalInputNewUser(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNOnboardUserInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐOnboardUserInput(ctx context.Context, v interface{}) (model.OnboardUserInput, error) {
+	res, err := ec.unmarshalInputOnboardUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

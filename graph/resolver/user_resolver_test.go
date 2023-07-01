@@ -45,7 +45,7 @@ func Test_Resolver_User(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected nil err got %v", err)
 		}
-		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { email, first_name  } }`, &getUser, client.Var("id", user.ID))
+		srv.MustPost(`query ($email: String!) { getUser (email: $email) { email, first_name  } }`, &getUser, client.Var("email", email))
 
 		assert.Equal(t, getUser.GetUser.Email, email)
 		assert.Equal(t, getUser.GetUser.First_Name, "John")
@@ -66,7 +66,7 @@ func Test_Resolver_User(t *testing.T) {
 		})
 		assert.Nil(t, err)
 
-		srv.MustPost(`query ($id: ID!) { getUser (id: $id) { properties { name } } }`, &getUser, client.Var("id", user.ID))
+		srv.MustPost(`query ($email: String!) { getUser (email: $email) { properties { name } } }`, &getUser, client.Var("email", user.ID))
 
 		assert.Equal(t, len(getUser.GetUser.Properties), 1)
 	})
