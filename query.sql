@@ -80,12 +80,6 @@ SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4
 WHERE email = $5
 RETURNING *;
 
--- name: UpdateUserPhone :one
-UPDATE users
-SET phone = $1
-WHERE email = $2
-RETURNING *;
-
 -- name: FindUserByPhone :one
 SELECT * FROM users
 WHERE phone = $1;
@@ -105,10 +99,3 @@ INSERT INTO shoots (
   $1, $2, $3, $4
 )
 RETURNING *;
-
--- name: OnboardUser :one
-UPDATE users
-SET onboarding = $1
-WHERE email = $2
-RETURNING *;
-

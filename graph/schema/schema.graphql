@@ -56,7 +56,6 @@ enum CountryCode { KE }
 # Represent send verification parameters
 input VerificationInput {
   phone: String!
-  email: String
   countryCode: CountryCode!
   verifyCode: String
 }
@@ -119,12 +118,6 @@ input SetupPropertyInput {
   creator: String!
 }
 
-# Represent onboard user input
-input OnboardUserInput {
-  email: String!
-  onboarding: Boolean!
-}
-
 # after signin return this
 type Token {
   token: String!
@@ -136,7 +129,7 @@ type Status {
 }
 
 type Query {
-  getUser(email: String!): User!
+  getUser(id: ID!): User!
   getProperty(id: ID!): Property!
   hello: String!
   searchTown(town: String!): [Town!]!
@@ -157,7 +150,6 @@ type Mutation {
   handshake(input: HandshakeInput!): User!
   updateUser(input: UpdateUserInput!): User!
   setupProperty(input: SetupPropertyInput!): Status!
-  onboardUser(input: OnboardUserInput!): User!
 }
 
 schema {

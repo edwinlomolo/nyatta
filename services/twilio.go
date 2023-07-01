@@ -55,7 +55,7 @@ func (t TwilioServices) SendVerification(phone string, countryCode model.Country
 }
 
 // VerifyCode - verify verification code
-func (t TwilioServices) VerifyCode(phone, email, verifyCode string, countryCode model.CountryCode) (string, error) {
+func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.CountryCode) (string, error) {
 	num, err := phonenumbers.Parse(phone, countryCode.String())
 	if err != nil {
 		return "", err
@@ -71,13 +71,12 @@ func (t TwilioServices) VerifyCode(phone, email, verifyCode string, countryCode 
 		return "", err
 	} else {
 		if res.Status != nil {
-			if *res.Status == "approved" {
-				// Start creating user after verification
-				_, err := t.userService.UpdateUserPhone(email, phone)
-				if err != nil {
-					return "", err
-				}
-			}
+			//if *res.Status == "approved" {
+			//	_, err := t.userService.CreateUser(&model.NewUser{Phone: phone})
+			//	if err != nil {
+			//		return "", err
+			//	}
+			//}
 			return *res.Status, nil
 		}
 		return "", errors.New("nil response from twilio")
