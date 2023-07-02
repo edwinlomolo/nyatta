@@ -71,7 +71,7 @@ func main() {
 	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(srv)))
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf(":%s", serverConfig.ServerPort),
+		Addr:    fmt.Sprintf("0.0.0.0:%s", serverConfig.ServerPort),
 		Handler: r,
 	}
 
