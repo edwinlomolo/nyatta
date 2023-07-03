@@ -27,6 +27,7 @@ var (
 	queries         *sqlStore.Queries
 	configuration   *config.Configuration
 	postaService    *PostaServices
+	twilioService   *TwilioServices
 )
 
 func TestMain(m *testing.M) {
@@ -43,7 +44,7 @@ func TestMain(m *testing.M) {
 	}
 	queries = sqlStore.New(db)
 
-	twilioService := NewTwilioService(configuration.Twilio, queries)
+	twilioService = NewTwilioService(configuration.Twilio, queries)
 	userService = NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
 	amenityService = NewAmenityService(queries, logger, propertyService)

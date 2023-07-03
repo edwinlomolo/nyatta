@@ -36,6 +36,7 @@ var (
 	err             error
 	db              *sql.DB
 	postaService    *services.PostaServices
+	twilioService   *services.TwilioServices
 )
 
 // setup tests
@@ -60,9 +61,10 @@ func TestMain(m *testing.M) {
 	queries := sqlStore.New(db)
 
 	// Setup services
-	userService = services.NewUserService(queries, logger, &configuration.JwtConfig)
-	propertyService = services.NewPropertyService(queries, logger)
-	amenityService = services.NewAmenityService(queries, logger)
+	twilioService = services.NewTwilioService(configuration.Twilio, queries)
+	userService = services.NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
+	propertyService = services.NewPropertyService(queries, logger, twilioService)
+	amenityService = services.NewAmenityService(queries, logger, propertyService)
 	unitService = services.NewUnitService(queries, logger)
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
@@ -80,6 +82,7 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "store", db)
 	ctx = context.WithValue(ctx, "postaService", postaService)
+	ctx = context.WithValue(ctx, "twilioService", twilioService)
 
 	// Run test
 	exitCode := m.Run()
