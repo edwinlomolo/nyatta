@@ -14,6 +14,5 @@ type UserService interface {
 	ValidateToken(token *string) (*jwt.Token, error)
 	ServiceName() string
 	FindUserByPhone(phone string) (*model.User, error)
-	UpdateUserPhone(email string, phone string) (*model.User, error)
 	OnboardUser(email string, onboarding bool) (*model.User, error)
 }

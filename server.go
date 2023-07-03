@@ -39,15 +39,16 @@ func main() {
 	queries := store.New(db)
 	ctx := context.Background()
 	logger := log.New()
-	userService := services.NewUserService(queries, logger, &configuration.JwtConfig)
-	propertyService := services.NewPropertyService(queries, logger)
-	amenityService := services.NewAmenityService(queries, logger)
+
+	twilioService := services.NewTwilioService(configuration.Twilio, queries)
+	userService := services.NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
+	propertyService := services.NewPropertyService(queries, logger, twilioService)
+	amenityService := services.NewAmenityService(queries, logger, propertyService)
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService()
 	awsService := services.NewAwsService(configuration.Aws)
-	twilioService := services.NewTwilioService(configuration.Twilio, userService)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())

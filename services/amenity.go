@@ -14,8 +14,7 @@ type AmenityServices struct {
 }
 
 // NewAmenityService - factory for amenity services
-func NewAmenityService(queries *sqlStore.Queries, logger *log.Logger) *AmenityServices {
-	propertyService := NewPropertyService(queries, logger)
+func NewAmenityService(queries *sqlStore.Queries, logger *log.Logger, propertyService *PropertyServices) *AmenityServices {
 	return &AmenityServices{queries, logger, propertyService}
 }
 

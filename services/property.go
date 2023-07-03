@@ -20,14 +20,15 @@ var (
 type PropertyServices struct {
 	queries *sqlStore.Queries
 	logger  *log.Logger
+	twilio  *TwilioServices
 }
 
 // _ - PropertyServices{} implements PropertyService
 var _ interfaces.PropertyService = &PropertyServices{}
 
 // NewPropertyService - factory for property services
-func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger) *PropertyServices {
-	return &PropertyServices{queries: queries, logger: logger}
+func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger, twilio *TwilioServices) *PropertyServices {
+	return &PropertyServices{queries: queries, logger: logger, twilio: twilio}
 }
 
 // ServiceName - return service name
@@ -236,4 +237,13 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 		}
 	}
 	return &model.Status{Success: "okay"}, nil
+}
+
+// CaretakerVerification - verify caretaker
+func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVerificationInput) (*model.Status, error) {
+	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode, input.CountryCode)
+	if err != nil {
+		return nil, err
+	}
+	return &model.Status{Success: status}, nil
 }

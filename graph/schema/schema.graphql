@@ -3,7 +3,7 @@
 # https://gqlgen.com/getting-started/
 scalar Upload
 
-# Represent new user parameters
+# Represents new user parameters
 input NewUser {
   email: String!
   first_name: String!
@@ -12,7 +12,7 @@ input NewUser {
   phone: String!
 }
 
-# Represent new property parameters
+# Represents new property parameters
 input NewProperty {
   name: String!
   town: String!
@@ -21,7 +21,7 @@ input NewProperty {
   createdBy: ID!
 }
 
-# Represent new property amenity parameters
+# Represents new property amenity parameters
 input AmenityInput {
   name: String!
   provider: String!
@@ -29,13 +29,13 @@ input AmenityInput {
   propertyId: ID!
 }
 
-# Represent new property unit parameters
+# Represents new property unit parameters
 input PropertyUnitInput {
   propertyId: ID!
   bathrooms: Int!
 }
 
-# Represent new property unit bedroom(s) parameter
+# Represents new property unit bedroom(s) parameter
 input UnitBedroomInput {
   propertyUnitId: ID
   bedroomNumber: Int!
@@ -43,7 +43,7 @@ input UnitBedroomInput {
   master: Boolean!
 }
 
-# Represent new property unit tenancy parameters
+# Represents new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
   endDate: Time
@@ -53,20 +53,34 @@ input TenancyInput {
 # Represents supported country codes
 enum CountryCode { KE }
 
-# Represent send verification parameters
+# Represents caretaker verify verification parameters
 input VerificationInput {
   phone: String!
-  email: String
   countryCode: CountryCode!
   verifyCode: String
 }
 
-# Represent user handshake input
+# Represents user verify verification parameters
+input UserVerificationInput {
+  phone: String!
+  email: String!
+  countryCode: CountryCode!
+  verifyCode: String!
+}
+
+# Represents caretaker verify verification parameters
+input CaretakerVerificationInput {
+  phone: String!
+  countryCode: CountryCode!
+  verifyCode: String!
+}
+
+# Represents user handshake input
 input HandshakeInput {
   phone: String!
 }
 
-# Represent user update input
+# Represents user update input
 input UpdateUserInput {
   first_name: String!
   last_name: String!
@@ -76,13 +90,13 @@ input UpdateUserInput {
   onboarding: Boolean!
 }
 
-# Represent shoot schedule input
+# Represents shoot schedule input
 input ShootInput {
   date: Time!
   contactPerson: String!
 }
 
-# Represent property caretaker input
+# Represents property caretaker input
 input CaretakerInput {
   first_name: String!
   last_name: String!
@@ -91,13 +105,13 @@ input CaretakerInput {
   idVerification: String!
 }
 
-# Represent unit amenity input
+# Represents unit amenity input
 input UnitAmenityInput {
   name: String!
   category: String!
 }
 
-# Represent property unit input
+# Represents property unit input
 input UnitInput {
   name: String!
   price: String!
@@ -107,7 +121,7 @@ input UnitInput {
   baths: Int!
 }
 
-# Represent setting up property
+# Represents setting up property
 input SetupPropertyInput {
   name: String!
   town: String!
@@ -119,7 +133,7 @@ input SetupPropertyInput {
   creator: String!
 }
 
-# Represent onboard user input
+# Represents onboard user input
 input OnboardUserInput {
   email: String!
   onboarding: Boolean!
@@ -153,7 +167,8 @@ type Mutation {
   addPropertyUnitTenant(input: TenancyInput!): Tenant!
   uploadImage(file: Upload!): String!
   sendVerificationCode(input: VerificationInput!): Status!
-  verifyVerificationCode(input: VerificationInput!): Status!
+  verifyUserVerificationCode(input: UserVerificationInput!): Status!
+  verifyCaretakerVerificationCode(input: CaretakerVerificationInput!): Status!
   handshake(input: HandshakeInput!): User!
   updateUser(input: UpdateUserInput!): User!
   setupProperty(input: SetupPropertyInput!): Status!

@@ -18,14 +18,15 @@ type UserServices struct {
 	queries *sqlStore.Queries
 	log     *log.Logger
 	auth    *AuthServices
+	twilio  *TwilioServices
 }
 
 // _ - UserServices{} implements UserService
 var _ interfaces.UserService = &UserServices{}
 
-func NewUserService(queries *sqlStore.Queries, logger *log.Logger, config *config.Jwt) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *log.Logger, config *config.Jwt, twilio *TwilioServices) *UserServices {
 	authServices := NewAuthService(logger, config)
-	return &UserServices{queries, logger, authServices}
+	return &UserServices{queries, logger, authServices, twilio}
 }
 
 // CreateUser - create a new user
@@ -193,27 +194,6 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 	}, nil
 }
 
-// UpdateUserPhone - update user phone number
-func (u *UserServices) UpdateUserPhone(email, phone string) (*model.User, error) {
-	updatedUser, err := u.queries.UpdateUserPhone(ctx, sqlStore.UpdateUserPhoneParams{
-		Email: sql.NullString{String: email, Valid: true},
-		Phone: sql.NullString{String: phone, Valid: true},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.User{
-		ID:         strconv.FormatInt(updatedUser.ID, 10),
-		FirstName:  updatedUser.FirstName.String,
-		LastName:   updatedUser.LastName.String,
-		Email:      updatedUser.Email.String,
-		Phone:      updatedUser.Phone.String,
-		Onboarding: updatedUser.Onboarding.Bool,
-		CreatedAt:  &updatedUser.CreatedAt,
-		UpdatedAt:  &updatedUser.UpdatedAt,
-	}, nil
-}
-
 // OnboardUser - update user onboarding status
 func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, error) {
 	onboardedUser, err := u.queries.OnboardUser(ctx, sqlStore.OnboardUserParams{
@@ -233,4 +213,20 @@ func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, 
 		CreatedAt:  &onboardedUser.CreatedAt,
 		UpdatedAt:  &onboardedUser.UpdatedAt,
 	}, nil
+}
+
+// UserPhoneVerification - verify user phone number
+func (u *UserServices) UserPhoneVerification(input *model.UserVerificationInput) (*model.Status, error) {
+	status, err := u.twilio.VerifyCode(input.Phone, input.VerifyCode, input.CountryCode)
+	if err != nil {
+		return nil, err
+	}
+	if status == "approved" {
+		// Start creating user after verification
+		_, err := u.twilio.UpdateUserPhone(input.Email, input.Phone)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &model.Status{Success: status}, nil
 }

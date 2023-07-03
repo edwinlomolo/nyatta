@@ -42,10 +42,12 @@ func TestMain(m *testing.M) {
 		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}
 	queries = sqlStore.New(db)
-	userService = NewUserService(queries, logger, &configuration.JwtConfig)
+
+	twilioService := NewTwilioService(configuration.Twilio, queries)
+	userService = NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
-	amenityService = NewAmenityService(queries, logger)
-	propertyService = NewPropertyService(queries, logger)
+	amenityService = NewAmenityService(queries, logger, propertyService)
+	propertyService = NewPropertyService(queries, logger, twilioService)
 	unitService = NewUnitService(queries, logger)
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)

@@ -95,14 +95,22 @@ func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model
 	return &model.Status{Success: status}, nil
 }
 
-// VerifyVerificationCode is the resolver for the verifyVerificationCode field.
-func (r *mutationResolver) VerifyVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
-	email := input.Email
-	status, err := ctx.Value("twilioService").(*services.TwilioServices).VerifyCode(input.Phone, *email, *input.VerifyCode, input.CountryCode)
+// VerifyUserVerificationCode is the resolver for the verifyUserVerificationCode field.
+func (r *mutationResolver) VerifyUserVerificationCode(ctx context.Context, input model.UserVerificationInput) (*model.Status, error) {
+	status, err := ctx.Value("userService").(*services.UserServices).UserPhoneVerification(&input)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
 	}
-	return &model.Status{Success: status}, nil
+	return status, nil
+}
+
+// VerifyCaretakerVerificationCode is the resolver for the verifyCaretakerVerificationCode field.
+func (r *mutationResolver) VerifyCaretakerVerificationCode(ctx context.Context, input model.CaretakerVerificationInput) (*model.Status, error) {
+	status, err := ctx.Value("propertyService").(*services.PropertyServices).CaretakerPhoneVerification(&input)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+	}
+	return status, nil
 }
 
 // Handshake is the resolver for the handshake field.

@@ -84,20 +84,21 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddAmenity             func(childComplexity int, input model.AmenityInput) int
-		AddPropertyUnit        func(childComplexity int, input model.PropertyUnitInput) int
-		AddPropertyUnitTenant  func(childComplexity int, input model.TenancyInput) int
-		AddUnitBedrooms        func(childComplexity int, input []*model.UnitBedroomInput) int
-		CreateProperty         func(childComplexity int, input model.NewProperty) int
-		CreateUser             func(childComplexity int, input model.NewUser) int
-		Handshake              func(childComplexity int, input model.HandshakeInput) int
-		OnboardUser            func(childComplexity int, input model.OnboardUserInput) int
-		SendVerificationCode   func(childComplexity int, input model.VerificationInput) int
-		SetupProperty          func(childComplexity int, input model.SetupPropertyInput) int
-		SignIn                 func(childComplexity int, input model.NewUser) int
-		UpdateUser             func(childComplexity int, input model.UpdateUserInput) int
-		UploadImage            func(childComplexity int, file graphql.Upload) int
-		VerifyVerificationCode func(childComplexity int, input model.VerificationInput) int
+		AddAmenity                      func(childComplexity int, input model.AmenityInput) int
+		AddPropertyUnit                 func(childComplexity int, input model.PropertyUnitInput) int
+		AddPropertyUnitTenant           func(childComplexity int, input model.TenancyInput) int
+		AddUnitBedrooms                 func(childComplexity int, input []*model.UnitBedroomInput) int
+		CreateProperty                  func(childComplexity int, input model.NewProperty) int
+		CreateUser                      func(childComplexity int, input model.NewUser) int
+		Handshake                       func(childComplexity int, input model.HandshakeInput) int
+		OnboardUser                     func(childComplexity int, input model.OnboardUserInput) int
+		SendVerificationCode            func(childComplexity int, input model.VerificationInput) int
+		SetupProperty                   func(childComplexity int, input model.SetupPropertyInput) int
+		SignIn                          func(childComplexity int, input model.NewUser) int
+		UpdateUser                      func(childComplexity int, input model.UpdateUserInput) int
+		UploadImage                     func(childComplexity int, file graphql.Upload) int
+		VerifyCaretakerVerificationCode func(childComplexity int, input model.CaretakerVerificationInput) int
+		VerifyUserVerificationCode      func(childComplexity int, input model.UserVerificationInput) int
 	}
 
 	Property struct {
@@ -197,7 +198,8 @@ type MutationResolver interface {
 	AddPropertyUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error)
 	UploadImage(ctx context.Context, file graphql.Upload) (string, error)
 	SendVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error)
-	VerifyVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error)
+	VerifyUserVerificationCode(ctx context.Context, input model.UserVerificationInput) (*model.Status, error)
+	VerifyCaretakerVerificationCode(ctx context.Context, input model.CaretakerVerificationInput) (*model.Status, error)
 	Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error)
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
 	SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error)
@@ -567,17 +569,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UploadImage(childComplexity, args["file"].(graphql.Upload)), true
 
-	case "Mutation.verifyVerificationCode":
-		if e.complexity.Mutation.VerifyVerificationCode == nil {
+	case "Mutation.verifyCaretakerVerificationCode":
+		if e.complexity.Mutation.VerifyCaretakerVerificationCode == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_verifyVerificationCode_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_verifyCaretakerVerificationCode_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.VerifyVerificationCode(childComplexity, args["input"].(model.VerificationInput)), true
+		return e.complexity.Mutation.VerifyCaretakerVerificationCode(childComplexity, args["input"].(model.CaretakerVerificationInput)), true
+
+	case "Mutation.verifyUserVerificationCode":
+		if e.complexity.Mutation.VerifyUserVerificationCode == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_verifyUserVerificationCode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.VerifyUserVerificationCode(childComplexity, args["input"].(model.UserVerificationInput)), true
 
 	case "Property.amenities":
 		if e.complexity.Property.Amenities == nil {
@@ -996,6 +1010,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAmenityInput,
 		ec.unmarshalInputCaretakerInput,
+		ec.unmarshalInputCaretakerVerificationInput,
 		ec.unmarshalInputHandshakeInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
@@ -1008,6 +1023,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUnitBedroomInput,
 		ec.unmarshalInputUnitInput,
 		ec.unmarshalInputUpdateUserInput,
+		ec.unmarshalInputUserVerificationInput,
 		ec.unmarshalInputVerificationInput,
 	)
 	first := true
@@ -1074,7 +1090,7 @@ var sources = []*ast.Source{
 # https://gqlgen.com/getting-started/
 scalar Upload
 
-# Represent new user parameters
+# Represents new user parameters
 input NewUser {
   email: String!
   first_name: String!
@@ -1083,7 +1099,7 @@ input NewUser {
   phone: String!
 }
 
-# Represent new property parameters
+# Represents new property parameters
 input NewProperty {
   name: String!
   town: String!
@@ -1092,7 +1108,7 @@ input NewProperty {
   createdBy: ID!
 }
 
-# Represent new property amenity parameters
+# Represents new property amenity parameters
 input AmenityInput {
   name: String!
   provider: String!
@@ -1100,13 +1116,13 @@ input AmenityInput {
   propertyId: ID!
 }
 
-# Represent new property unit parameters
+# Represents new property unit parameters
 input PropertyUnitInput {
   propertyId: ID!
   bathrooms: Int!
 }
 
-# Represent new property unit bedroom(s) parameter
+# Represents new property unit bedroom(s) parameter
 input UnitBedroomInput {
   propertyUnitId: ID
   bedroomNumber: Int!
@@ -1114,7 +1130,7 @@ input UnitBedroomInput {
   master: Boolean!
 }
 
-# Represent new property unit tenancy parameters
+# Represents new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
   endDate: Time
@@ -1124,20 +1140,34 @@ input TenancyInput {
 # Represents supported country codes
 enum CountryCode { KE }
 
-# Represent send verification parameters
+# Represents caretaker verify verification parameters
 input VerificationInput {
   phone: String!
-  email: String
   countryCode: CountryCode!
   verifyCode: String
 }
 
-# Represent user handshake input
+# Represents user verify verification parameters
+input UserVerificationInput {
+  phone: String!
+  email: String!
+  countryCode: CountryCode!
+  verifyCode: String!
+}
+
+# Represents caretaker verify verification parameters
+input CaretakerVerificationInput {
+  phone: String!
+  countryCode: CountryCode!
+  verifyCode: String!
+}
+
+# Represents user handshake input
 input HandshakeInput {
   phone: String!
 }
 
-# Represent user update input
+# Represents user update input
 input UpdateUserInput {
   first_name: String!
   last_name: String!
@@ -1147,13 +1177,13 @@ input UpdateUserInput {
   onboarding: Boolean!
 }
 
-# Represent shoot schedule input
+# Represents shoot schedule input
 input ShootInput {
   date: Time!
   contactPerson: String!
 }
 
-# Represent property caretaker input
+# Represents property caretaker input
 input CaretakerInput {
   first_name: String!
   last_name: String!
@@ -1162,13 +1192,13 @@ input CaretakerInput {
   idVerification: String!
 }
 
-# Represent unit amenity input
+# Represents unit amenity input
 input UnitAmenityInput {
   name: String!
   category: String!
 }
 
-# Represent property unit input
+# Represents property unit input
 input UnitInput {
   name: String!
   price: String!
@@ -1178,7 +1208,7 @@ input UnitInput {
   baths: Int!
 }
 
-# Represent setting up property
+# Represents setting up property
 input SetupPropertyInput {
   name: String!
   town: String!
@@ -1190,7 +1220,7 @@ input SetupPropertyInput {
   creator: String!
 }
 
-# Represent onboard user input
+# Represents onboard user input
 input OnboardUserInput {
   email: String!
   onboarding: Boolean!
@@ -1224,7 +1254,8 @@ type Mutation {
   addPropertyUnitTenant(input: TenancyInput!): Tenant!
   uploadImage(file: Upload!): String!
   sendVerificationCode(input: VerificationInput!): Status!
-  verifyVerificationCode(input: VerificationInput!): Status!
+  verifyUserVerificationCode(input: UserVerificationInput!): Status!
+  verifyCaretakerVerificationCode(input: CaretakerVerificationInput!): Status!
   handshake(input: HandshakeInput!): User!
   updateUser(input: UpdateUserInput!): User!
   setupProperty(input: SetupPropertyInput!): Status!
@@ -1547,13 +1578,28 @@ func (ec *executionContext) field_Mutation_uploadImage_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_verifyVerificationCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_verifyCaretakerVerificationCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.VerificationInput
+	var arg0 model.CaretakerVerificationInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐVerificationInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCaretakerVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerVerificationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_verifyUserVerificationCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UserVerificationInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUserVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUserVerificationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3329,8 +3375,8 @@ func (ec *executionContext) fieldContext_Mutation_sendVerificationCode(ctx conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_verifyVerificationCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_verifyVerificationCode(ctx, field)
+func (ec *executionContext) _Mutation_verifyUserVerificationCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_verifyUserVerificationCode(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3343,7 +3389,7 @@ func (ec *executionContext) _Mutation_verifyVerificationCode(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().VerifyVerificationCode(rctx, fc.Args["input"].(model.VerificationInput))
+		return ec.resolvers.Mutation().VerifyUserVerificationCode(rctx, fc.Args["input"].(model.UserVerificationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3360,7 +3406,7 @@ func (ec *executionContext) _Mutation_verifyVerificationCode(ctx context.Context
 	return ec.marshalNStatus2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_verifyVerificationCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_verifyUserVerificationCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -3381,7 +3427,66 @@ func (ec *executionContext) fieldContext_Mutation_verifyVerificationCode(ctx con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_verifyVerificationCode_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_verifyUserVerificationCode_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_verifyCaretakerVerificationCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_verifyCaretakerVerificationCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().VerifyCaretakerVerificationCode(rctx, fc.Args["input"].(model.CaretakerVerificationInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_verifyCaretakerVerificationCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_Status_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Status", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_verifyCaretakerVerificationCode_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -8360,6 +8465,50 @@ func (ec *executionContext) unmarshalInputCaretakerInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCaretakerVerificationInput(ctx context.Context, obj interface{}) (model.CaretakerVerificationInput, error) {
+	var it model.CaretakerVerificationInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"phone", "countryCode", "verifyCode"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "countryCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("countryCode"))
+			it.CountryCode, err = ec.unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "verifyCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("verifyCode"))
+			it.VerifyCode, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputHandshakeInput(ctx context.Context, obj interface{}) (model.HandshakeInput, error) {
 	var it model.HandshakeInput
 	asMap := map[string]interface{}{}
@@ -8968,8 +9117,8 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputVerificationInput(ctx context.Context, obj interface{}) (model.VerificationInput, error) {
-	var it model.VerificationInput
+func (ec *executionContext) unmarshalInputUserVerificationInput(ctx context.Context, obj interface{}) (model.UserVerificationInput, error) {
+	var it model.UserVerificationInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -8994,7 +9143,51 @@ func (ec *executionContext) unmarshalInputVerificationInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "countryCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("countryCode"))
+			it.CountryCode, err = ec.unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "verifyCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("verifyCode"))
+			it.VerifyCode, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputVerificationInput(ctx context.Context, obj interface{}) (model.VerificationInput, error) {
+	var it model.VerificationInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"phone", "countryCode", "verifyCode"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9348,10 +9541,19 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "verifyVerificationCode":
+		case "verifyUserVerificationCode":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_verifyVerificationCode(ctx, field)
+				return ec._Mutation_verifyUserVerificationCode(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "verifyCaretakerVerificationCode":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_verifyCaretakerVerificationCode(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -10613,6 +10815,11 @@ func (ec *executionContext) unmarshalNCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM053
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCaretakerVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerVerificationInput(ctx context.Context, v interface{}) (model.CaretakerVerificationInput, error) {
+	res, err := ec.unmarshalInputCaretakerVerificationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx context.Context, v interface{}) (model.CountryCode, error) {
 	var res model.CountryCode
 	err := res.UnmarshalGQL(v)
@@ -11131,6 +11338,11 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyatta�
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUserVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUserVerificationInput(ctx context.Context, v interface{}) (model.UserVerificationInput, error) {
+	res, err := ec.unmarshalInputUserVerificationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐVerificationInput(ctx context.Context, v interface{}) (model.VerificationInput, error) {

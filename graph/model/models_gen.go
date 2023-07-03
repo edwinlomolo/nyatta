@@ -40,6 +40,12 @@ type CaretakerInput struct {
 	IDVerification string      `json:"idVerification"`
 }
 
+type CaretakerVerificationInput struct {
+	Phone       string      `json:"phone"`
+	CountryCode CountryCode `json:"countryCode"`
+	VerifyCode  string      `json:"verifyCode"`
+}
+
 type HandshakeInput struct {
 	Phone string `json:"phone"`
 }
@@ -160,9 +166,15 @@ type UpdateUserInput struct {
 	Onboarding bool   `json:"onboarding"`
 }
 
+type UserVerificationInput struct {
+	Phone       string      `json:"phone"`
+	Email       string      `json:"email"`
+	CountryCode CountryCode `json:"countryCode"`
+	VerifyCode  string      `json:"verifyCode"`
+}
+
 type VerificationInput struct {
 	Phone       string      `json:"phone"`
-	Email       *string     `json:"email"`
 	CountryCode CountryCode `json:"countryCode"`
 	VerifyCode  *string     `json:"verifyCode"`
 }
