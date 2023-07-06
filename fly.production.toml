@@ -1,6 +1,6 @@
 # fly.toml file generated for nyatta on 2023-04-13T20:03:46+03:00
 
-app = "nyatta-staging"
+app = "nyatta"
 kill_signal = "SIGINT"
 kill_timeout = 5
 mounts = []

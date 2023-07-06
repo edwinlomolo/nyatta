@@ -1,10 +1,8 @@
-name: Test
-on:
-  push:
-    branches: "*"
+name: test
+on: [push]
 jobs:
   deploy:
-    name: Test
+    name: test
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -22,20 +20,20 @@ jobs:
           --health-retries 5
     steps:
     # Checkout code
-    - name: Checkout code
+    - name: checkout code
       uses: actions/checkout@v3
     # Setup go
-    - name: Setup go
+    - name: setup go
       uses: actions/setup-go@v3
       with:
         go-version: ^1.19
-    - name: Set up PostgreSQL
+    - name: set up PostgreSQL
       run: |
         sudo apt-get -yqq install postgresql-client
         psql --version
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'DROP DATABASE IF EXISTS test_db;'
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE test_db;'
-    - name: Test
+    - name: test
       # Env vars
       env:
         # DB
