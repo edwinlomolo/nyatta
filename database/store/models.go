@@ -42,6 +42,11 @@ type Caretaker struct {
 	Verified       bool           `json:"verified"`
 }
 
+type Mailing struct {
+	ID    int64  `json:"id"`
+	Email string `json:"email"`
+}
+
 type Property struct {
 	ID         int64         `json:"id"`
 	Name       string        `json:"name"`

@@ -112,3 +112,16 @@ SET onboarding = $1
 WHERE email = $2
 RETURNING *;
 
+-- name: SaveMail :one
+INSERT INTO mailings (
+  email
+) VALUES (
+  $1
+)
+RETURNING *;
+
+-- name: MailingExists :one
+SELECT EXISTS(
+  SELECT * FROM mailings
+  WHERE email = $1
+);

@@ -503,6 +503,20 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
+const mailingExists = `-- name: MailingExists :one
+SELECT EXISTS(
+  SELECT id, email FROM mailings
+  WHERE email = $1
+)
+`
+
+func (q *Queries) MailingExists(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, mailingExists, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const onboardUser = `-- name: OnboardUser :one
 UPDATE users
 SET onboarding = $1
@@ -569,6 +583,22 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]P
 		return nil, err
 	}
 	return items, nil
+}
+
+const saveMail = `-- name: SaveMail :one
+INSERT INTO mailings (
+  email
+) VALUES (
+  $1
+)
+RETURNING id, email
+`
+
+func (q *Queries) SaveMail(ctx context.Context, email string) (Mailing, error) {
+	row := q.db.QueryRowContext(ctx, saveMail, email)
+	var i Mailing
+	err := row.Scan(&i.ID, &i.Email)
+	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one

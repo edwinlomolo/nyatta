@@ -47,6 +47,7 @@ func TestMain(m *testing.M) {
 	propertyService := services.NewPropertyService(queries, logger, twilioService)
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
+	mailingService := services.NewMailingService(queries)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)
@@ -54,6 +55,7 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
 	ctx = context.WithValue(ctx, "log", logger)
+	ctx = context.WithValue(ctx, "mailingService", mailingService)
 
 	// exit once done
 	os.Exit(m.Run())

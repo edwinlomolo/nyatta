@@ -49,6 +49,7 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService()
 	awsService := services.NewAwsService(configuration.Aws)
+	mailingService := services.NewMailingService(queries)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())
@@ -63,6 +64,7 @@ func main() {
 	ctx = context.WithValue(ctx, "postaService", postaService)
 	ctx = context.WithValue(ctx, "awsService", awsService)
 	ctx = context.WithValue(ctx, "twilioService", twilioService)
+	ctx = context.WithValue(ctx, "mailingService", mailingService)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 

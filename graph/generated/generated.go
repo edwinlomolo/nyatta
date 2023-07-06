@@ -92,6 +92,7 @@ type ComplexityRoot struct {
 		CreateUser                      func(childComplexity int, input model.NewUser) int
 		Handshake                       func(childComplexity int, input model.HandshakeInput) int
 		OnboardUser                     func(childComplexity int, input model.OnboardUserInput) int
+		SaveMailing                     func(childComplexity int, email *string) int
 		SendVerificationCode            func(childComplexity int, input model.VerificationInput) int
 		SetupProperty                   func(childComplexity int, input model.SetupPropertyInput) int
 		SignIn                          func(childComplexity int, input model.NewUser) int
@@ -204,6 +205,7 @@ type MutationResolver interface {
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
 	SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error)
 	OnboardUser(ctx context.Context, input model.OnboardUserInput) (*model.User, error)
+	SaveMailing(ctx context.Context, email *string) (*model.Status, error)
 }
 type PropertyResolver interface {
 	Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error)
@@ -508,6 +510,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.OnboardUser(childComplexity, args["input"].(model.OnboardUserInput)), true
+
+	case "Mutation.saveMailing":
+		if e.complexity.Mutation.SaveMailing == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_saveMailing_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SaveMailing(childComplexity, args["email"].(*string)), true
 
 	case "Mutation.sendVerificationCode":
 		if e.complexity.Mutation.SendVerificationCode == nil {
@@ -1260,6 +1274,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): User!
   setupProperty(input: SetupPropertyInput!): Status!
   onboardUser(input: OnboardUserInput!): User!
+  saveMailing(email: String): Status!
 }
 
 schema {
@@ -1500,6 +1515,21 @@ func (ec *executionContext) field_Mutation_onboardUser_args(ctx context.Context,
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_saveMailing_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["email"] = arg0
 	return args, nil
 }
 
@@ -3777,6 +3807,65 @@ func (ec *executionContext) fieldContext_Mutation_onboardUser(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_onboardUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_saveMailing(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_saveMailing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SaveMailing(rctx, fc.Args["email"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Status)
+	fc.Result = res
+	return ec.marshalNStatus2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_saveMailing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_Status_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Status", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_saveMailing_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -9590,6 +9679,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_onboardUser(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "saveMailing":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_saveMailing(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

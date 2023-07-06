@@ -173,6 +173,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): User!
   setupProperty(input: SetupPropertyInput!): Status!
   onboardUser(input: OnboardUserInput!): User!
+  saveMailing(email: String): Status!
 }
 
 schema {

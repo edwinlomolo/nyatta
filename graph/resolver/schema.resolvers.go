@@ -149,6 +149,15 @@ func (r *mutationResolver) OnboardUser(ctx context.Context, input model.OnboardU
 	return onboardedUser, nil
 }
 
+// SaveMailing is the resolver for the saveMailing field.
+func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*model.Status, error) {
+	status, err := ctx.Value("mailingService").(*services.MailingServices).SaveMailing(*email)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+	}
+	return status, nil
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, email string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindByEmail(email)

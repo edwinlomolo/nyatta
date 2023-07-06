@@ -37,6 +37,7 @@ var (
 	db              *sql.DB
 	postaService    *services.PostaServices
 	twilioService   *services.TwilioServices
+	mailingService  *services.MailingServices
 )
 
 // setup tests
@@ -69,6 +70,7 @@ func TestMain(m *testing.M) {
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
 	postaService = services.NewPostaService()
+	mailingService = services.NewMailingService(queries)
 
 	// Setup context
 	ctx = context.Background()
@@ -83,6 +85,7 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "store", db)
 	ctx = context.WithValue(ctx, "postaService", postaService)
 	ctx = context.WithValue(ctx, "twilioService", twilioService)
+	ctx = context.WithValue(ctx, "mailingService", mailingService)
 
 	// Run test
 	exitCode := m.Run()

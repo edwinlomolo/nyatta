@@ -28,6 +28,7 @@ var (
 	configuration   *config.Configuration
 	postaService    *PostaServices
 	twilioService   *TwilioServices
+	mailingService  *MailingServices
 )
 
 func TestMain(m *testing.M) {
@@ -53,6 +54,7 @@ func TestMain(m *testing.M) {
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)
 	postaService = NewPostaService()
+	mailingService = NewMailingService(queries)
 
 	// exit once done
 	os.Exit(m.Run())
