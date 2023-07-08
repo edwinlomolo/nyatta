@@ -17,6 +17,7 @@ type Property struct {
 	Name       string     `json:"name"`
 	Town       string     `json:"town"`
 	Type       string     `json:"type"`
+	Status     string     `json:"status"`
 	MinPrice   int        `json:"minPrice"`
 	MaxPrice   int        `json:"maxPrice"`
 	Amenities  []Amenity  `json:"amenities"`
