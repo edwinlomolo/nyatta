@@ -15,6 +15,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
@@ -39,6 +40,17 @@ func main() {
 	queries := store.New(db)
 	ctx := context.Background()
 	logger := log.New()
+
+	if serverConfig.ServerEnv == "production" || serverConfig.ServerEnv == "staging" {
+		err := sentry.Init(sentry.ClientOptions{
+			Dsn:              configuration.SentryConfig.Dsn,
+			TracesSampleRate: 1.0,
+		})
+		if err != nil {
+			log.Fatalf("sentry.Init: %s", err)
+		}
+		log.Info("Sentry initialized")
+	}
 
 	twilioService := services.NewTwilioService(configuration.Twilio, queries)
 	userService := services.NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
