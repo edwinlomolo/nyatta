@@ -19,11 +19,12 @@ func env() {
 
 // Configuration - load server and db variables
 type Configuration struct {
-	Database  DatabaseConfig
-	JwtConfig Jwt
-	Server    ServerConfig
-	Aws       AwsConfig
-	Twilio    TwilioConfig
+	Database     DatabaseConfig `json:"database"`
+	JwtConfig    Jwt            `json:"jwt"`
+	Server       ServerConfig   `json:"server"`
+	Aws          AwsConfig      `json:"aws"`
+	Twilio       TwilioConfig   `json:"twilio"`
+	SentryConfig SentryConfig   `json:"sentry"`
 }
 
 var configAll *Configuration
@@ -37,6 +38,7 @@ func LoadConfig() *Configuration {
 	configuration.Server = server()
 	configuration.Aws = awsConfig()
 	configuration.Twilio = twilioConfig()
+	configuration.SentryConfig = sentryConfig()
 
 	configAll = &configuration
 
@@ -152,4 +154,16 @@ func ForcePostgresMigration() bool {
 	forceMigration := os.Getenv("FORCE_MIGRATION")
 
 	return forceMigration == "true"
+}
+
+// sentryConfig - setup sentry config
+func sentryConfig() SentryConfig {
+	var sentryConfig SentryConfig
+
+	// Load env variables
+	env()
+
+	sentryConfig.Dsn = os.Getenv("SENTRY_DSN")
+
+	return sentryConfig
 }

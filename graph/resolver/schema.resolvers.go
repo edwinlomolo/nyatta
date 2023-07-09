@@ -178,7 +178,7 @@ func (r *queryResolver) GetProperty(ctx context.Context, id string) (*model.Prop
 
 // Hello is the resolver for the hello field.
 func (r *queryResolver) Hello(ctx context.Context) (string, error) {
-	return "Hello, World", nil
+	panic(fmt.Errorf("not implemented"))
 }
 
 // SearchTown is the resolver for the searchTown field.
