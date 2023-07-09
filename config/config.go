@@ -19,12 +19,12 @@ func env() {
 
 // Configuration - load server and db variables
 type Configuration struct {
-	Database     DatabaseConfig
-	JwtConfig    Jwt
-	Server       ServerConfig
-	Aws          AwsConfig
-	Twilio       TwilioConfig
-	SentryConfig SentryConfig
+	Database     DatabaseConfig `json:"database"`
+	JwtConfig    Jwt            `json:"jwt"`
+	Server       ServerConfig   `json:"server"`
+	Aws          AwsConfig      `json:"aws"`
+	Twilio       TwilioConfig   `json:"twilio"`
+	SentryConfig SentryConfig   `json:"sentry"`
 }
 
 var configAll *Configuration
