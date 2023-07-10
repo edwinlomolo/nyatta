@@ -15,7 +15,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/getsentry/sentry-go"
+	"github.com/evalphobia/logrus_sentry"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
@@ -33,23 +33,29 @@ func main() {
 	serverConfig := configuration.Server
 
 	// Initialize service(s)
+	// Storage
 	db, err := database.InitDB("./database/migration")
 	if err != nil {
 		log.Fatalf("%s: %v", database.DatabaseError, err)
 	}
 	queries := store.New(db)
 	ctx := context.Background()
+	// Logging
 	logger := log.New()
-
+	// Config error tracking
+	levels := []log.Level{
+		log.PanicLevel,
+		log.FatalLevel,
+		log.ErrorLevel,
+	}
 	if serverConfig.ServerEnv == "production" || serverConfig.ServerEnv == "staging" {
-		err := sentry.Init(sentry.ClientOptions{
-			Dsn:              configuration.SentryConfig.Dsn,
-			TracesSampleRate: 1.0,
-		})
+		hook, err := logrus_sentry.NewSentryHook(configuration.SentryConfig.Dsn, levels)
 		if err != nil {
-			log.Fatalf("sentry.Init: %s", err)
+			log.Fatalf("Failed to initialize sentry logrus hook: %v", err)
+		} else if err == nil {
+			logger.Hooks.Add(hook)
+			log.Infoln("Sentry logging enabled")
 		}
-		log.Info("Sentry initialized")
 	}
 
 	twilioService := services.NewTwilioService(configuration.Twilio, queries)
