@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	h "github.com/3dw1nM0535/nyatta/handler"
@@ -15,10 +17,11 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/resolver"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/evalphobia/logrus_sentry"
+	"github.com/getsentry/sentry-go"
+	sentryLogrus "github.com/getsentry/sentry-go/logrus"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 )
@@ -36,26 +39,35 @@ func main() {
 	// Storage
 	db, err := database.InitDB("./database/migration")
 	if err != nil {
-		log.Fatalf("%s: %v", database.DatabaseError, err)
+		logrus.Fatalf("%s: %v", database.DatabaseError, err)
 	}
 	queries := store.New(db)
 	ctx := context.Background()
 	// Logging
-	logger := log.New()
-	// Config error tracking
-	levels := []log.Level{
-		log.PanicLevel,
-		log.FatalLevel,
-		log.ErrorLevel,
-	}
+	logger := logrus.New()
+	logger.Level = logrus.DebugLevel
+	logger.Out = os.Stdout
+
 	if serverConfig.ServerEnv == "production" || serverConfig.ServerEnv == "staging" {
-		hook, err := logrus_sentry.NewSentryHook(configuration.SentryConfig.Dsn, levels)
-		if err != nil {
-			log.Fatalf("Failed to initialize sentry logrus hook: %v", err)
-		} else if err == nil {
-			logger.Hooks.Add(hook)
-			log.Infoln("Sentry logging enabled")
+		// Send only Error and higher level to sentry
+		sentryLevels := []logrus.Level{
+			logrus.PanicLevel,
+			logrus.FatalLevel,
+			logrus.ErrorLevel,
 		}
+		sentryHook, err := sentryLogrus.New(sentryLevels, sentry.ClientOptions{
+			Dsn:              configuration.SentryConfig.Dsn,
+			AttachStacktrace: true,
+		})
+		if err != nil {
+			logrus.Fatalf("Failed to initialize sentry logrus hook: %v", err)
+		} else if err == nil {
+			logger.AddHook(sentryHook)
+			logrus.Infoln("Sentry logging enabled")
+		}
+		defer sentryHook.Flush(5 * time.Second)
+		// Flush before calling os.Exit(1) on logger
+		logrus.RegisterExitHandler(func() { sentryHook.Flush(5 * time.Second) })
 	}
 
 	twilioService := services.NewTwilioService(configuration.Twilio, queries)
@@ -96,6 +108,6 @@ func main() {
 		Handler: r,
 	}
 
-	log.Infof("Server Info: OK")
-	log.Fatal(s.ListenAndServe())
+	logrus.Infof("Server Info: OK")
+	logrus.Fatal(s.ListenAndServe())
 }
