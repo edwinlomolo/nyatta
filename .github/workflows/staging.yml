@@ -24,4 +24,5 @@ jobs:
         environment_name: ${{ secrets.APP_ENV }}
         version_label: 1
         region: ${{ secrets.AWS_BEANSTALK_REGION }}
+        use_existing_version_if_available: true
         deployment_package: deploy.zip
