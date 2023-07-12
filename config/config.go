@@ -25,6 +25,7 @@ type Configuration struct {
 	Aws          AwsConfig      `json:"aws"`
 	Twilio       TwilioConfig   `json:"twilio"`
 	SentryConfig SentryConfig   `json:"sentry"`
+	Email        EmailConfig    `json:"email"`
 }
 
 var configAll *Configuration
@@ -39,6 +40,7 @@ func LoadConfig() *Configuration {
 	configuration.Aws = awsConfig()
 	configuration.Twilio = twilioConfig()
 	configuration.SentryConfig = sentryConfig()
+	configuration.Email = emailConfig()
 
 	configAll = &configuration
 
@@ -166,4 +168,17 @@ func sentryConfig() SentryConfig {
 	sentryConfig.Dsn = os.Getenv("SENTRY_DSN")
 
 	return sentryConfig
+}
+
+// emailConfig - setup email config
+func emailConfig() EmailConfig {
+	var emailConfig EmailConfig
+
+	// Load env variables
+	env()
+
+	emailConfig.From = os.Getenv("EMAIL_FROM")
+	emailConfig.Apikey = os.Getenv("RESEND_API_KEY")
+
+	return emailConfig
 }

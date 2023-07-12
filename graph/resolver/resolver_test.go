@@ -70,7 +70,7 @@ func TestMain(m *testing.M) {
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
 	postaService = services.NewPostaService()
-	mailingService = services.NewMailingService(queries)
+	mailingService = services.NewMailingService(queries, configuration.Email)
 
 	// Setup context
 	ctx = context.Background()
