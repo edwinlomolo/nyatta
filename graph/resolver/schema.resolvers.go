@@ -12,7 +12,6 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/99designs/gqlgen/graphql"
-	log "github.com/sirupsen/logrus"
 )
 
 // SignIn is the resolver for the signIn field.
@@ -179,8 +178,6 @@ func (r *queryResolver) GetProperty(ctx context.Context, id string) (*model.Prop
 
 // Hello is the resolver for the hello field.
 func (r *queryResolver) Hello(ctx context.Context) (string, error) {
-	logger := ctx.Value("log").(*log.Logger)
-	logger.Errorf("Hello, World")
 	return "Hello, World", nil
 }
 
