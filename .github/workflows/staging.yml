@@ -16,7 +16,7 @@ jobs:
       run: zip -r deploy.zip . -x '*.git*'
 
     - name: Deploy to AWS Elastic Beanstalk
-      uses: einaregilsson/beanstalk-deploy@v21
+      uses: einaregilsson/beanstalk-deploy
       with:
         aws_access_key: ${{ secrets.ACCESS_KEY }}
         aws_secret_key: ${{ secrets.SECRET_ACCESS_KEY }}
