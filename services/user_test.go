@@ -54,7 +54,7 @@ func TestMain(m *testing.M) {
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)
 	postaService = NewPostaService()
-	mailingService = NewMailingService(queries)
+	mailingService = NewMailingService(queries, configuration.Email)
 
 	// exit once done
 	os.Exit(m.Run())

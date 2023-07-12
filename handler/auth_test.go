@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 	propertyService := services.NewPropertyService(queries, logger, twilioService)
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
-	mailingService := services.NewMailingService(queries)
+	mailingService := services.NewMailingService(queries, cfg.Email)
 
 	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)

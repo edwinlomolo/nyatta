@@ -68,6 +68,7 @@ func main() {
 		defer sentryHook.Flush(5 * time.Second)
 		// Flush before calling os.Exit(1) on logger
 		logrus.RegisterExitHandler(func() { sentryHook.Flush(5 * time.Second) })
+
 	}
 
 	twilioService := services.NewTwilioService(configuration.Twilio, queries)
@@ -79,7 +80,7 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService()
 	awsService := services.NewAwsService(configuration.Aws)
-	mailingService := services.NewMailingService(queries)
+	mailingService := services.NewMailingService(queries, configuration.Email)
 
 	// Initialize context with values
 	ctx = context.WithValue(ctx, "config", config.GetConfig())

@@ -7,4 +7,5 @@ import (
 type Mailing interface {
 	ServiceName() string
 	SaveMailing(email string) (*model.Status, error)
+	SendEmail(to []string, from, subject, body string) error
 }
