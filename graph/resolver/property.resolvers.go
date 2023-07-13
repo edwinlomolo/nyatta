@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
@@ -27,7 +26,7 @@ func (r *propertyResolver) Amenities(ctx context.Context, obj *model.Property) (
 func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error) {
 	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyUnits(obj.ID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundUnits, nil
 }
@@ -36,7 +35,7 @@ func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*m
 func (r *propertyResolver) Owner(ctx context.Context, obj *model.Property) (*model.User, error) {
 	foundOwner, err := ctx.Value("userService").(*services.UserServices).FindById(obj.CreatedBy)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundOwner, nil
 }

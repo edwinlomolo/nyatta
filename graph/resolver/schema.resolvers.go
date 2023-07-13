@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
@@ -18,7 +17,7 @@ import (
 func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*model.Token, error) {
 	token, err := ctx.Value("userService").(*services.UserServices).SignIn(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return &model.Token{Token: *token}, nil
 }
@@ -27,7 +26,7 @@ func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*mo
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
 	_, err := ctx.Value("userService").(*services.UserServices).CreateUser(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 	return &model.User{}, nil
 }
@@ -36,7 +35,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error) {
 	newProperty, err := ctx.Value("propertyService").(*services.PropertyServices).CreateProperty(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return newProperty, nil
 }
@@ -45,7 +44,7 @@ func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewPr
 func (r *mutationResolver) AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error) {
 	insertedAmenity, err := ctx.Value("amenityService").(*services.AmenityServices).AddAmenity(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return insertedAmenity, err
 }
@@ -54,7 +53,7 @@ func (r *mutationResolver) AddAmenity(ctx context.Context, input model.AmenityIn
 func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error) {
 	insertedPropertyUnit, err := ctx.Value("unitService").(*services.UnitServices).AddPropertyUnit(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return insertedPropertyUnit, err
 }
@@ -63,7 +62,7 @@ func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.Prop
 func (r *mutationResolver) AddUnitBedrooms(ctx context.Context, input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
 	insertedUnitBedrooms, err := ctx.Value("unitService").(*services.UnitServices).AddUnitBedrooms(input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return insertedUnitBedrooms, err
 }
@@ -72,7 +71,7 @@ func (r *mutationResolver) AddUnitBedrooms(ctx context.Context, input []*model.U
 func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error) {
 	insertedUnitTenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).AddUnitTenancy(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return insertedUnitTenancy, err
 }
@@ -81,7 +80,7 @@ func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input mode
 func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload) (string, error) {
 	fileLocation, err := ctx.Value("awsService").(*services.AwsServices).UploadFile(file)
 	if err != nil {
-		return "", fmt.Errorf("%s: %v", config.ResolverError, err)
+		return "", err
 	}
 	return fileLocation, nil
 }
@@ -90,7 +89,7 @@ func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload)
 func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
 	status, err := ctx.Value("twilioService").(*services.TwilioServices).SendVerification(input.Phone, input.CountryCode)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return &model.Status{Success: status}, nil
 }
@@ -99,7 +98,7 @@ func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model
 func (r *mutationResolver) VerifyUserVerificationCode(ctx context.Context, input model.UserVerificationInput) (*model.Status, error) {
 	status, err := ctx.Value("userService").(*services.UserServices).UserPhoneVerification(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return status, nil
 }
@@ -108,7 +107,7 @@ func (r *mutationResolver) VerifyUserVerificationCode(ctx context.Context, input
 func (r *mutationResolver) VerifyCaretakerVerificationCode(ctx context.Context, input model.CaretakerVerificationInput) (*model.Status, error) {
 	status, err := ctx.Value("propertyService").(*services.PropertyServices).CaretakerPhoneVerification(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return status, nil
 }
@@ -117,7 +116,7 @@ func (r *mutationResolver) VerifyCaretakerVerificationCode(ctx context.Context, 
 func (r *mutationResolver) Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindUserByPhone(input.Phone)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundUser, nil
 }
@@ -126,7 +125,7 @@ func (r *mutationResolver) Handshake(ctx context.Context, input model.HandshakeI
 func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
 	user, err := ctx.Value("userService").(*services.UserServices).UpdateUser(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 	return user, nil
 }
@@ -135,7 +134,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error) {
 	status, err := ctx.Value("propertyService").(*services.PropertyServices).SetupProperty(&input)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 	return status, nil
 }
@@ -144,7 +143,7 @@ func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupP
 func (r *mutationResolver) OnboardUser(ctx context.Context, input model.OnboardUserInput) (*model.User, error) {
 	onboardedUser, err := ctx.Value("userService").(*services.UserServices).OnboardUser(input.Email, input.Onboarding)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 	return onboardedUser, nil
 }
@@ -153,7 +152,7 @@ func (r *mutationResolver) OnboardUser(ctx context.Context, input model.OnboardU
 func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*model.Status, error) {
 	status, err := ctx.Value("mailingService").(*services.MailingServices).SaveMailing(*email)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 	return status, nil
 }
@@ -162,7 +161,7 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 func (r *queryResolver) GetUser(ctx context.Context, email string) (*model.User, error) {
 	foundUser, err := ctx.Value("userService").(*services.UserServices).FindByEmail(email)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundUser, nil
 }
@@ -171,7 +170,7 @@ func (r *queryResolver) GetUser(ctx context.Context, email string) (*model.User,
 func (r *queryResolver) GetProperty(ctx context.Context, id string) (*model.Property, error) {
 	foundProperty, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(id)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundProperty, nil
 }
@@ -186,7 +185,7 @@ func (r *queryResolver) SearchTown(ctx context.Context, town string) ([]*model.T
 	var towns []*model.Town
 	towns, err := ctx.Value("postaService").(*services.PostaServices).SearchTown(town)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 
 	return towns, nil
@@ -198,7 +197,7 @@ func (r *queryResolver) GetTowns(ctx context.Context) ([]*model.Town, error) {
 	towns, err := ctx.Value("postaService").(*services.PostaServices).GetTowns()
 
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.ResolverError, err)
+		return nil, err
 	}
 
 	return towns, nil

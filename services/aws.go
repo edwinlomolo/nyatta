@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var _ interfaces.AwsServicesInterface = &AwsServices{}
@@ -19,21 +19,22 @@ var _ interfaces.AwsServicesInterface = &AwsServices{}
 type AwsServices struct {
 	S3     *manager.Uploader
 	Config cfg.AwsConfig
+	log    *logrus.Logger
 }
 
-func NewAwsService(cfg cfg.AwsConfig) *AwsServices {
+func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
 	config, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretAccessKey, "")),
 	)
 	if err != nil {
-		log.Errorf("Unable to load aws config: %v", err)
+		logger.Errorf("Unable to load aws config: %v", err)
 	}
 
 	// Create S3 client
 	s3Client := manager.NewUploader(s3.NewFromConfig(config))
 
-	return &AwsServices{S3: s3Client, Config: cfg}
+	return &AwsServices{S3: s3Client, Config: cfg, log: logger}
 }
 
 // UploadFile - upload file to s3
@@ -48,7 +49,12 @@ func (a *AwsServices) UploadFile(file graphql.Upload) (string, error) {
 	// Do upload
 	res, err := a.S3.Upload(context.Background(), params)
 	if err != nil {
+		a.log.Errorf("%s: %v", a.ServiceName(), err)
 		return "", err
 	}
 	return res.Location, nil
+}
+
+func (a AwsServices) ServiceName() string {
+	return "AwsServices"
 }

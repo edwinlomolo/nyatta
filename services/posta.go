@@ -2,33 +2,33 @@ package services
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type PostaServices struct {
 	Store *sql.DB
+	log   *logrus.Logger
 }
 
 // _ - PostaServices implement Posta interface
 var _ interfaces.Posta = &PostaServices{}
 
 // NewPostaServices - return new posta instance
-func NewPostaService() *PostaServices {
-	store, err := newPostalStorage()
+func NewPostaService(logger *logrus.Logger) *PostaServices {
+	store, err := newPostalStorage(logger)
 	if err != nil {
-		log.Errorf("%s: %s", config.DatabaseError, err.Error())
+		logger.Errorf("%s: %s", config.DatabaseError, err.Error())
 	}
 
-	return &PostaServices{Store: store}
+	return &PostaServices{Store: store, log: logger}
 }
 
 // newPostalStorage - connects to postal db
-func newPostalStorage() (*sql.DB, error) {
+func newPostalStorage(logger *logrus.Logger) (*sql.DB, error) {
 	// Connect to postal db
 	var dbClient *sql.DB
 	dbConfig := config.GetConfig().Database.RDBMS
@@ -36,12 +36,12 @@ func newPostalStorage() (*sql.DB, error) {
 	// get database instance
 	db, err := sql.Open(dbConfig.Env.Driver, dbConfig.Postal.Uri)
 	if err != nil {
-		log.Errorf("%s:%s", config.DatabaseError, err.Error())
+		logger.Errorf("%s:%s", config.DatabaseError, err.Error())
 	}
 
 	if err := db.Ping(); err == nil {
 		dbClient = db
-		log.Info("Postal database connected")
+		logger.Infoln("Postal database connected")
 	}
 
 	return dbClient, nil
@@ -58,7 +58,8 @@ func (p PostaServices) GetTowns() ([]*model.Town, error) {
 	query := `SELECT id, town, postal_code FROM postal_towns ORDER BY town;`
 	rows, err := p.Store.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.DatabaseError, err)
+		p.log.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -70,14 +71,16 @@ func (p PostaServices) GetTowns() ([]*model.Town, error) {
 
 		err = rows.Scan(&id, &town, &postal_code)
 		if err != nil {
-			return nil, fmt.Errorf("%s:%v", config.DatabaseError, err)
+			p.log.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
 		}
 		towns = append(towns, &model.Town{ID: id, Town: town, PostalCode: postal_code})
 	}
 
 	// rows.Err will report last error encoutered by rows.Scan
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("%s:%v", config.DatabaseError, err)
+		p.log.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
 	}
 
 	return towns, nil
@@ -89,7 +92,8 @@ func (p PostaServices) SearchTown(town string) ([]*model.Town, error) {
 	query := `SELECT id, town, postal_code FROM postal_towns WHERE town ~* $1`
 	rows, err := p.Store.Query(query, town)
 	if err != nil {
-		return nil, fmt.Errorf("%s:%v", config.DatabaseError, err)
+		p.log.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -101,14 +105,16 @@ func (p PostaServices) SearchTown(town string) ([]*model.Town, error) {
 
 		err = rows.Scan(&id, &town, &postal_code)
 		if err != nil {
-			return nil, fmt.Errorf("%s:%v", config.DatabaseError, err)
+			p.log.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
 		}
 		towns = append(towns, &model.Town{ID: id, Town: town, PostalCode: postal_code})
 	}
 
 	// rows.Err will report last error encountered by rows.Scan
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("%s:%v", config.DatabaseError, err)
+		p.log.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
 	}
 
 	return towns, nil

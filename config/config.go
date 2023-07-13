@@ -13,7 +13,7 @@ func env() {
 	// Load env variables
 	err := godotenv.Load()
 	if err != nil {
-		log.WithError(err)
+		log.Errorf("Error loading env vars: %v", err)
 	}
 }
 

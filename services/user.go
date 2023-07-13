@@ -11,13 +11,13 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
 	jwt "github.com/golang-jwt/jwt/v5"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // UserServices - represents user service
 type UserServices struct {
 	queries   *sqlStore.Queries
-	log       *log.Logger
+	log       *logrus.Logger
 	auth      *AuthServices
 	twilio    *TwilioServices
 	sendEmail SendEmail
@@ -27,7 +27,7 @@ type UserServices struct {
 // _ - UserServices{} implements UserService
 var _ interfaces.UserService = &UserServices{}
 
-func NewUserService(queries *sqlStore.Queries, logger *log.Logger, env string, config *config.Jwt, twilio *TwilioServices, sendEmail SendEmail) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string, config *config.Jwt, twilio *TwilioServices, sendEmail SendEmail) *UserServices {
 	authServices := NewAuthService(logger, config)
 	return &UserServices{queries, logger, authServices, twilio, sendEmail, env}
 }
@@ -42,6 +42,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 		Phone:     sql.NullString{String: user.Phone, Valid: true},
 	})
 	if err != nil {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 
@@ -64,12 +65,14 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 	var err error
 	newUser, err = u.FindByEmail(user.Email)
 	if err != nil && err.Error() != "User not found" {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	// user - new user
 	if err != nil && err.Error() == "User not found" {
 		newUser, err = u.CreateUser(user)
 		if err != nil {
+			u.log.Errorf("%s: %v", u.ServiceName(), err)
 			return nil, err
 		}
 	}
@@ -92,10 +95,12 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 func (u *UserServices) FindById(id string) (*model.User, error) {
 	propertyId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	foundUser, err := u.queries.GetUser(ctx, propertyId)
 	if err == sql.ErrNoRows {
+		u.log.Errorf("%s: %v", u.ServiceName(), errors.New("User not found"))
 		return nil, errors.New("User not found")
 	}
 	return &model.User{
@@ -113,6 +118,7 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	foundUser, err := u.queries.FindByEmail(ctx, sql.NullString{String: email, Valid: true})
 	if err == sql.ErrNoRows {
+		u.log.Errorf("%s: %v", u.ServiceName(), errors.New("User not found"))
 		return nil, errors.New("User not found")
 	}
 	return &model.User{
@@ -139,6 +145,7 @@ func (u *UserServices) UpdateUser(input *model.UpdateUserInput) (*model.User, er
 		Email:      sql.NullString{String: input.Email, Valid: true},
 	})
 	if err != nil {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	return &model.User{
@@ -177,6 +184,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 			Phone: phoneNumber,
 		})
 		if err != nil {
+			u.log.Errorf("%s: %v", u.ServiceName(), err)
 			return nil, err
 		}
 		return &model.User{
@@ -184,6 +192,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 			Onboarding: foundUser.Onboarding.Bool,
 		}, nil
 	} else if err != nil && err != sql.ErrNoRows {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	return &model.User{
@@ -205,6 +214,7 @@ func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, 
 		Onboarding: sql.NullBool{Bool: onboarding, Valid: true},
 	})
 	if err != nil {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	// send welcome email in staging/prod env
@@ -232,12 +242,14 @@ func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, 
 func (u *UserServices) UserPhoneVerification(input *model.UserVerificationInput) (*model.Status, error) {
 	status, err := u.twilio.VerifyCode(input.Phone, input.VerifyCode, input.CountryCode)
 	if err != nil {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	if status == "approved" {
 		// Start creating user after verification
 		_, err := u.twilio.UpdateUserPhone(input.Email, input.Phone)
 		if err != nil {
+			u.log.Errorf("%s: %v", u.ServiceName(), err)
 			return nil, err
 		}
 	}
