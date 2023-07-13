@@ -43,18 +43,16 @@ func TestMain(m *testing.M) {
 	queries := sqlStore.New(db)
 
 	mailingService := services.NewMailingService(queries, cfg.Email, logger)
-	twilioService := services.NewTwilioService(cfg.Twilio, queries)
+	twilioService := services.NewTwilioService(cfg.Twilio, queries, logger)
 	userService := services.NewUserService(queries, logger, cfg.Server.ServerEnv, &cfg.JwtConfig, twilioService, mailingService.SendEmail)
 	propertyService := services.NewPropertyService(queries, cfg.Server.ServerEnv, logger, twilioService, mailingService.SendEmail)
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
 
-	ctx = context.WithValue(ctx, "config", cfg)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
-	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
 
 	// exit once done

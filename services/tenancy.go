@@ -28,6 +28,7 @@ func NewTenancyService(queries *sqlStore.Queries, logger *log.Logger) *TenancySe
 func (u *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tenant, error) {
 	propertyId, err := strconv.ParseInt(input.PropertyUnitID, 10, 64)
 	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 
@@ -37,6 +38,7 @@ func (u *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tena
 		EndDate:        sql.NullTime{Time: *input.EndDate, Valid: true},
 	})
 	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	return &model.Tenant{

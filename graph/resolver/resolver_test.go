@@ -63,26 +63,23 @@ func TestMain(m *testing.M) {
 
 	// Setup services
 	mailingService = services.NewMailingService(queries, configuration.Email, logger)
-	twilioService = services.NewTwilioService(configuration.Twilio, queries)
+	twilioService = services.NewTwilioService(configuration.Twilio, queries, logger)
 	userService = services.NewUserService(queries, logger, configuration.Server.ServerEnv, &configuration.JwtConfig, twilioService, mailingService.SendEmail)
 	propertyService = services.NewPropertyService(queries, configuration.Server.ServerEnv, logger, twilioService, mailingService.SendEmail)
 	amenityService = services.NewAmenityService(queries, logger, propertyService)
 	unitService = services.NewUnitService(queries, logger)
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
-	postaService = services.NewPostaService()
+	postaService = services.NewPostaService(logger)
 
 	// Setup context
 	ctx = context.Background()
-	ctx = context.WithValue(ctx, "configuration", configuration)
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "amenityService", amenityService)
 	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
 	ctx = context.WithValue(ctx, "listingService", listingService)
-	ctx = context.WithValue(ctx, "log", logger)
-	ctx = context.WithValue(ctx, "store", db)
 	ctx = context.WithValue(ctx, "postaService", postaService)
 	ctx = context.WithValue(ctx, "twilioService", twilioService)
 	ctx = context.WithValue(ctx, "mailingService", mailingService)

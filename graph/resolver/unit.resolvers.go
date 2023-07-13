@@ -5,9 +5,7 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
@@ -17,7 +15,7 @@ import (
 func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.PropertyUnit) ([]*model.Bedroom, error) {
 	foundBedrooms, err := ctx.Value("unitService").(*services.UnitServices).GetUnitBedrooms(obj.ID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundBedrooms, nil
 }
@@ -26,7 +24,7 @@ func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Property
 func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error) {
 	foundTenancies, err := ctx.Value("unitService").(*services.UnitServices).GetUnitTenancy(obj.ID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
+		return nil, err
 	}
 	return foundTenancies, nil
 }

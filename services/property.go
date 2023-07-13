@@ -43,6 +43,7 @@ func (p PropertyServices) ServiceName() string {
 func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.Property, error) {
 	creator, err := strconv.ParseInt(property.CreatedBy, 10, 64)
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 	insertedProperty, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
@@ -53,6 +54,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 		CreatedBy:  creator,
 	})
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
@@ -73,11 +75,13 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	propertyId, err := strconv.Atoi(id)
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 	foundProperty, err := p.queries.GetProperty(ctx, int64(propertyId))
 	if err == sql.ErrNoRows {
 		// TODO just return empty property list
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, errors.New("Property does not exist")
 	}
 	return &model.Property{
@@ -110,11 +114,13 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 	// Use int64 id
 	creator, err := strconv.ParseInt(createdBy, 10, 64)
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
 	props, err := p.queries.PropertiesCreatedBy(ctx, creator)
 	if err == sql.ErrNoRows {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, errors.New("No properties found")
 	}
 
@@ -170,6 +176,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model.Status, error) {
 	user, err := p.queries.FindByEmail(ctx, sql.NullString{String: input.Creator, Valid: true})
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
@@ -183,6 +190,7 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 		Image:          input.Shoot.ContactPerson,
 	})
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
@@ -196,6 +204,7 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 		Caretaker:  sql.NullInt64{Int64: caretaker.ID, Valid: true},
 	})
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
@@ -220,6 +229,7 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 						Master:         input.Units[i].Bedrooms[j].Master,
 					})
 					if err != nil {
+						p.logger.Errorf("%s: %v", p.ServiceName(), err)
 						return nil, err
 					}
 				}
@@ -233,11 +243,13 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 						PropertyUnitID: unit.ID,
 					})
 					if err != nil {
+						p.logger.Errorf("%s: %v", p.ServiceName(), err)
 						return nil, err
 					}
 				}
 			}
 			if err != nil {
+				p.logger.Errorf("%s: %v", p.ServiceName(), err)
 				return nil, err
 			}
 		}
@@ -254,6 +266,7 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVerificationInput) (*model.Status, error) {
 	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode, input.CountryCode)
 	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 	return &model.Status{Success: status}, nil

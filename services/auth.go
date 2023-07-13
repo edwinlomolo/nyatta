@@ -37,6 +37,7 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 	})
 
 	tokenString, err := token.SignedString([]byte(*a.secret))
+	a.log.Errorf("%s: %v", a.ServiceName(), err)
 	return &tokenString, err
 }
 
@@ -44,12 +45,14 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 func (a *AuthServices) ValidateJWT(tokenString *string) (*jwt.Token, error) {
 	token, err := jwt.Parse(*tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("Unexpected signing method: %v", token.Header["alg"]))
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
 		return []byte(*a.secret), nil
 	})
 	if err != nil {
+		a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("Unexpected error while parsing token: %v", err))
 		return nil, fmt.Errorf("Unexpected error while parsing token: %v", err)
 	}
 	return token, nil

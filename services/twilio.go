@@ -10,6 +10,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/nyaruka/phonenumbers"
+	"github.com/sirupsen/logrus"
 	"github.com/twilio/twilio-go"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 )
@@ -19,26 +20,28 @@ type TwilioServices struct {
 	Sid         string // Verify service id
 	userService *UserServices
 	queries     *sqlStore.Queries
+	logger      *logrus.Logger
 }
 
 // TwilioServices implements Twilio
 var _ interfaces.Twilio = &TwilioServices{}
 
 // NewTwilioService - create new instance of Twilio services
-func NewTwilioService(cfg config.TwilioConfig, queries *sqlStore.Queries) *TwilioServices {
+func NewTwilioService(cfg config.TwilioConfig, queries *sqlStore.Queries, logger *logrus.Logger) *TwilioServices {
 	// Create twilio client
 	twilio := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: cfg.Sid,
 		Password: cfg.AuthToken,
 	})
 
-	return &TwilioServices{Client: twilio, Sid: cfg.VerifySid, queries: queries}
+	return &TwilioServices{Client: twilio, Sid: cfg.VerifySid, queries: queries, logger: logger}
 }
 
 // SendVerification - sends verification code
 func (t TwilioServices) SendVerification(phone string, countryCode model.CountryCode) (string, error) {
 	num, err := phonenumbers.Parse(phone, countryCode.String())
 	if err != nil {
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return "", err
 	}
 
@@ -49,11 +52,13 @@ func (t TwilioServices) SendVerification(phone string, countryCode model.Country
 
 	res, err := t.Client.VerifyV2.CreateVerification(t.Sid, params)
 	if err != nil {
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return "", err
 	} else {
 		if res.Status != nil {
 			return *res.Status, nil
 		}
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return "", errors.New("nil response from twilio")
 	}
 }
@@ -62,6 +67,7 @@ func (t TwilioServices) SendVerification(phone string, countryCode model.Country
 func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.CountryCode) (string, error) {
 	num, err := phonenumbers.Parse(phone, countryCode.String())
 	if err != nil {
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return "", err
 	}
 
@@ -72,11 +78,13 @@ func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.C
 
 	res, err := t.Client.VerifyV2.CreateVerificationCheck(t.Sid, params)
 	if err != nil {
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return "", err
 	} else {
 		if res.Status != nil {
 			return *res.Status, nil
 		}
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return "", errors.New("nil response from twilio")
 	}
 }
@@ -88,6 +96,7 @@ func (t *TwilioServices) UpdateUserPhone(email, phone string) (*model.User, erro
 		Phone: sql.NullString{String: phone, Valid: true},
 	})
 	if err != nil {
+		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return nil, err
 	}
 	return &model.User{
@@ -100,4 +109,9 @@ func (t *TwilioServices) UpdateUserPhone(email, phone string) (*model.User, erro
 		CreatedAt:  &updatedUser.CreatedAt,
 		UpdatedAt:  &updatedUser.UpdatedAt,
 	}, nil
+}
+
+// ServiceName - returns service name
+func (t TwilioServices) ServiceName() string {
+	return "TwilioServices"
 }

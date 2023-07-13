@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 	}
 	queries = sqlStore.New(db)
 
-	twilioService = NewTwilioService(configuration.Twilio, queries)
+	twilioService = NewTwilioService(configuration.Twilio, queries, logger)
 	mailingService = NewMailingService(queries, configuration.Email, logger)
 	userService = NewUserService(queries, logger, configuration.Server.ServerEnv, &configuration.JwtConfig, twilioService, mailingService.SendEmail)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
@@ -54,7 +54,7 @@ func TestMain(m *testing.M) {
 	unitService = NewUnitService(queries, logger)
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)
-	postaService = NewPostaService()
+	postaService = NewPostaService(logger)
 
 	// exit once done
 	os.Exit(m.Run())
