@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"errors"
+	"os"
 	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/config"
@@ -15,18 +16,20 @@ import (
 
 // UserServices - represents user service
 type UserServices struct {
-	queries *sqlStore.Queries
-	log     *log.Logger
-	auth    *AuthServices
-	twilio  *TwilioServices
+	queries   *sqlStore.Queries
+	log       *log.Logger
+	auth      *AuthServices
+	twilio    *TwilioServices
+	sendEmail SendEmail
+	env       string
 }
 
 // _ - UserServices{} implements UserService
 var _ interfaces.UserService = &UserServices{}
 
-func NewUserService(queries *sqlStore.Queries, logger *log.Logger, config *config.Jwt, twilio *TwilioServices) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *log.Logger, env string, config *config.Jwt, twilio *TwilioServices, sendEmail SendEmail) *UserServices {
 	authServices := NewAuthService(logger, config)
-	return &UserServices{queries, logger, authServices, twilio}
+	return &UserServices{queries, logger, authServices, twilio, sendEmail, env}
 }
 
 // CreateUser - create a new user
@@ -41,6 +44,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &model.User{
 		ID:         strconv.FormatInt(insertedUser.ID, 10),
 		FirstName:  insertedUser.FirstName.String,
@@ -202,6 +206,15 @@ func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, 
 	})
 	if err != nil {
 		return nil, err
+	}
+	// send welcome email in staging/prod env
+	if u.env == "staging" || u.env == "production" {
+		from := os.Getenv("EMAIL_FROM")
+		err := u.sendEmail([]string{onboardedUser.Email.String}, from, "Welcome to Nyattta", newUserEmail)
+		if err != nil {
+			u.log.Errorf("Error sending email:%s: %v", u.ServiceName(), err)
+			return nil, err
+		}
 	}
 	return &model.User{
 		ID:         strconv.FormatInt(onboardedUser.ID, 10),
