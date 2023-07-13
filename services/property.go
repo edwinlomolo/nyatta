@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"os"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -18,17 +19,19 @@ var (
 
 // PropertyServices - represents property service
 type PropertyServices struct {
-	queries *sqlStore.Queries
-	logger  *log.Logger
-	twilio  *TwilioServices
+	queries   *sqlStore.Queries
+	logger    *log.Logger
+	twilio    *TwilioServices
+	sendEmail SendEmail
+	env       string
 }
 
 // _ - PropertyServices{} implements PropertyService
 var _ interfaces.PropertyService = &PropertyServices{}
 
 // NewPropertyService - factory for property services
-func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger, twilio *TwilioServices) *PropertyServices {
-	return &PropertyServices{queries: queries, logger: logger, twilio: twilio}
+func NewPropertyService(queries *sqlStore.Queries, env string, logger *log.Logger, twilio *TwilioServices, sendEmail SendEmail) *PropertyServices {
+	return &PropertyServices{queries: queries, logger: logger, twilio: twilio, sendEmail: sendEmail, env: env}
 }
 
 // ServiceName - return service name
@@ -238,6 +241,11 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 				return nil, err
 			}
 		}
+	}
+	// send email
+	if p.env == "staging" || p.env == "production" {
+		from := os.Getenv("EMAIL_FROM")
+		p.sendEmail([]string{user.Email.String}, from, "Congratulations! Welcome Onboard", newPropertyEmail)
 	}
 	return &model.Status{Success: "okay"}, nil
 }

@@ -62,15 +62,15 @@ func TestMain(m *testing.M) {
 	queries := sqlStore.New(db)
 
 	// Setup services
+	mailingService = services.NewMailingService(queries, configuration.Email, logger)
 	twilioService = services.NewTwilioService(configuration.Twilio, queries)
-	userService = services.NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
-	propertyService = services.NewPropertyService(queries, logger, twilioService)
+	userService = services.NewUserService(queries, logger, configuration.Server.ServerEnv, &configuration.JwtConfig, twilioService, mailingService.SendEmail)
+	propertyService = services.NewPropertyService(queries, configuration.Server.ServerEnv, logger, twilioService, mailingService.SendEmail)
 	amenityService = services.NewAmenityService(queries, logger, propertyService)
 	unitService = services.NewUnitService(queries, logger)
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)
 	postaService = services.NewPostaService()
-	mailingService = services.NewMailingService(queries, configuration.Email)
 
 	// Setup context
 	ctx = context.Background()
