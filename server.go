@@ -90,6 +90,7 @@ func main() {
 	ctx = context.WithValue(ctx, "listingService", listingService)
 	ctx = context.WithValue(ctx, "postaService", postaService)
 	ctx = context.WithValue(ctx, "awsService", awsService)
+	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "twilioService", twilioService)
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
 
