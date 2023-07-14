@@ -158,7 +158,6 @@ type Query {
 }
 
 type Mutation {
-  signIn(input: NewUser!): Token!
   createUser(input: NewUser!): User!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!

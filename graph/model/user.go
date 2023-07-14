@@ -20,3 +20,8 @@ type UserCredentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+type SignIn struct {
+	Onboarding *bool  `json:"onboarding"`
+	Token      string `json:"token"`
+}
