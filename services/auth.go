@@ -37,8 +37,11 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 	})
 
 	tokenString, err := token.SignedString([]byte(*a.secret))
-	a.log.Errorf("%s: %v", a.ServiceName(), err)
-	return &tokenString, err
+	if err != nil {
+		a.log.Errorf("%s: %v", a.ServiceName(), err)
+		return nil, err
+	}
+	return &tokenString, nil
 }
 
 // ValidateJWT - validate jwt token

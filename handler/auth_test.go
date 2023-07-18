@@ -54,6 +54,7 @@ func TestMain(m *testing.M) {
 	ctx = context.WithValue(ctx, "unitService", unitService)
 	ctx = context.WithValue(ctx, "tenancyService", tenancyService)
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
+	ctx = context.WithValue(ctx, "log", logger)
 
 	// exit once done
 	os.Exit(m.Run())

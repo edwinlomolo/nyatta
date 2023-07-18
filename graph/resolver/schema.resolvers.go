@@ -13,15 +13,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-// SignIn is the resolver for the signIn field.
-func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*model.Token, error) {
-	token, err := ctx.Value("userService").(*services.UserServices).SignIn(&input)
-	if err != nil {
-		return nil, err
-	}
-	return &model.Token{Token: *token}, nil
-}
-
 // CreateUser - resolver for createUser field
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
 	_, err := ctx.Value("userService").(*services.UserServices).CreateUser(&input)

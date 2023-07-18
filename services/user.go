@@ -59,7 +59,8 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 }
 
 // SignIn - signin existing/returning user
-func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
+func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
+	signInResponse := &model.SignIn{}
 	// user - existing user
 	var newUser *model.User
 	var err error
@@ -76,19 +77,20 @@ func (u *UserServices) SignIn(user *model.NewUser) (*string, error) {
 			return nil, err
 		}
 	}
-	var onboarding string
 	if newUser.Onboarding {
-		onboarding = "true"
-		return &onboarding, nil
+		onboarding := true
+		signInResponse.Onboarding = &onboarding
 	} else {
-		onboarding = "false"
-		return &onboarding, nil
+		onboarding := false
+		signInResponse.Onboarding = &onboarding
 	}
-	//token, err := u.auth.SignJWT(newUser)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return token, nil
+	token, err := u.auth.SignJWT(newUser)
+	if err != nil {
+		u.log.Errorf("%s: %v", u.ServiceName(), err)
+		return nil, err
+	}
+	signInResponse.Token = *token
+	return signInResponse, nil
 }
 
 // FindById - return user given user id

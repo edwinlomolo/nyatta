@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -14,12 +15,13 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	jwt "github.com/golang-jwt/jwt/v5"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func Handshake() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		logger := ctx.Value("log").(*logrus.Logger)
 
 		loginResponse := &model.LoginResponse{}
 		var newUser *model.NewUser
@@ -32,14 +34,16 @@ func Handshake() http.Handler {
 		// Read incoming data from body request
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
+			logger.Errorf("Error reading body: %v", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		json.Unmarshal(reqBody, &newUser)
 
 		// SignIn - authorize incoming user
-		token, err := ctx.Value("userService").(*services.UserServices).SignIn(newUser)
+		signInResponse, err := ctx.Value("userService").(*services.UserServices).SignIn(newUser)
 		if err != nil {
+			logger.Errorf("Error signing in: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		} else {
@@ -48,7 +52,8 @@ func Handshake() http.Handler {
 				Code: http.StatusOK,
 			}
 			loginResponse.Response = response
-			loginResponse.AccessToken = *token
+			loginResponse.AccessToken = signInResponse.Token
+			loginResponse.Onboarding = *signInResponse.Onboarding
 
 			writeResponse(w, loginResponse, loginResponse.Code)
 			return
