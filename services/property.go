@@ -255,7 +255,7 @@ func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model
 		}
 	}
 	// send email
-	if p.env == "staging" || p.env == "production" {
+	if p.env == "production" {
 		from := os.Getenv("EMAIL_FROM")
 		p.sendEmail([]string{user.Email.String}, from, "Congratulations! Welcome Onboard", newPropertyEmail)
 	}
