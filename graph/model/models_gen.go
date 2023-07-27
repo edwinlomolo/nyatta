@@ -65,6 +65,7 @@ type OnboardUserInput struct {
 
 type PropertyUnit struct {
 	ID         string     `json:"id"`
+	Name       string     `json:"name"`
 	Bedrooms   []*Bedroom `json:"bedrooms"`
 	PropertyID string     `json:"propertyId"`
 	Price      string     `json:"price"`

@@ -155,6 +155,8 @@ type Query {
   hello: String!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
+  getPropertyUnits(propertyId: ID!): [PropertyUnit!]!
+  getPropertyTenancy(propertyId: ID!): [Tenant!]!
 }
 
 type Mutation {
