@@ -6,8 +6,53 @@ package store
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 )
+
+type UnitState string
+
+const (
+	UnitStateVacant      UnitState = "vacant"
+	UnitStateUnavailable UnitState = "unavailable"
+	UnitStateOccupied    UnitState = "occupied"
+)
+
+func (e *UnitState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UnitState(s)
+	case string:
+		*e = UnitState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UnitState: %T", src)
+	}
+	return nil
+}
+
+type NullUnitState struct {
+	UnitState UnitState
+	Valid     bool // Valid is true if String is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUnitState) Scan(value interface{}) error {
+	if value == nil {
+		ns.UnitState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UnitState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUnitState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return ns.UnitState, nil
+}
 
 type Amenity struct {
 	ID             int64          `json:"id"`
@@ -64,6 +109,7 @@ type PropertyUnit struct {
 	ID         int64     `json:"id"`
 	Name       string    `json:"name"`
 	Type       string    `json:"type"`
+	State      UnitState `json:"state"`
 	Price      int32     `json:"price"`
 	Bathrooms  int32     `json:"bathrooms"`
 	CreatedAt  time.Time `json:"created_at"`

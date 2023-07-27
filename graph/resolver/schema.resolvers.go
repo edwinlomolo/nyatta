@@ -208,6 +208,15 @@ func (r *queryResolver) GetPropertyTenancy(ctx context.Context, propertyID strin
 	return []*model.Tenant{}, nil
 }
 
+// ListingOverview is the resolver for the listingOverview field.
+func (r *queryResolver) ListingOverview(ctx context.Context, propertyID string) (*model.ListingOverview, error) {
+	overview, err := ctx.Value("propertyService").(*services.PropertyServices).ListingOverview(propertyID)
+	if err != nil {
+		return nil, err
+	}
+	return overview, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

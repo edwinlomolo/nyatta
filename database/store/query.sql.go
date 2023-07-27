@@ -133,7 +133,7 @@ INSERT INTO property_units (
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, name, type, price, bathrooms, created_at, updated_at, property_id
+RETURNING id, name, type, state, price, bathrooms, created_at, updated_at, property_id
 `
 
 type CreatePropertyUnitParams struct {
@@ -157,6 +157,7 @@ func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnit
 		&i.ID,
 		&i.Name,
 		&i.Type,
+		&i.State,
 		&i.Price,
 		&i.Bathrooms,
 		&i.CreatedAt,
@@ -374,7 +375,7 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 }
 
 const getPropertyUnits = `-- name: GetPropertyUnits :many
-SELECT id, name, type, price, bathrooms, created_at, updated_at, property_id FROM property_units
+SELECT id, name, type, state, price, bathrooms, created_at, updated_at, property_id FROM property_units
 WHERE property_id = $1
 `
 
@@ -391,6 +392,7 @@ func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID int64) ([]Pro
 			&i.ID,
 			&i.Name,
 			&i.Type,
+			&i.State,
 			&i.Price,
 			&i.Bathrooms,
 			&i.CreatedAt,
@@ -517,6 +519,18 @@ func (q *Queries) MailingExists(ctx context.Context, email string) (bool, error)
 	return exists, err
 }
 
+const occupiedUnitsCount = `-- name: OccupiedUnitsCount :one
+SELECT COUNT(*) FROM property_units
+WHERE property_id = $1 AND state = 'occupied'
+`
+
+func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, occupiedUnitsCount, propertyID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const onboardUser = `-- name: OnboardUser :one
 UPDATE users
 SET onboarding = $1
@@ -583,6 +597,18 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy int64) ([]P
 		return nil, err
 	}
 	return items, nil
+}
+
+const propertyUnitsCount = `-- name: PropertyUnitsCount :one
+SELECT COUNT(*) FROM property_units
+WHERE property_id = $1
+`
+
+func (q *Queries) PropertyUnitsCount(ctx context.Context, propertyID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, propertyUnitsCount, propertyID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const saveMail = `-- name: SaveMail :one
@@ -666,4 +692,16 @@ func (q *Queries) UpdateUserPhone(ctx context.Context, arg UpdateUserPhoneParams
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const vacantUnitsCount = `-- name: VacantUnitsCount :one
+SELECT COUNT(*) FROM property_units
+WHERE property_id = $1 AND state = 'vacant'
+`
+
+func (q *Queries) VacantUnitsCount(ctx context.Context, propertyID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, vacantUnitsCount, propertyID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }

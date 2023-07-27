@@ -125,3 +125,15 @@ SELECT EXISTS(
   SELECT * FROM mailings
   WHERE email = $1
 );
+
+-- name: PropertyUnitsCount :one
+SELECT COUNT(*) FROM property_units
+WHERE property_id = $1;
+
+-- name: OccupiedUnitsCount :one
+SELECT COUNT(*) FROM property_units
+WHERE property_id = $1 AND state = 'occupied';
+
+-- name: VacantUnitsCount :one
+SELECT COUNT(*) FROM property_units
+WHERE property_id = $1 AND state = 'vacant';

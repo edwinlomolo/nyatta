@@ -149,6 +149,13 @@ type Status {
   success: String!
 }
 
+# Listing summary
+type ListingOverview {
+  occupiedUnits: Int!
+  vacantUnits: Int!
+  totalUnits: Int!
+}
+
 type Query {
   getUser(email: String!): User!
   getProperty(id: ID!): Property!
@@ -157,6 +164,7 @@ type Query {
   getTowns: [Town!]!
   getPropertyUnits(propertyId: ID!): [PropertyUnit!]!
   getPropertyTenancy(propertyId: ID!): [Tenant!]!
+  listingOverview(propertyId: ID!): ListingOverview!
 }
 
 type Mutation {

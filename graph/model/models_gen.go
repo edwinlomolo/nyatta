@@ -50,6 +50,12 @@ type HandshakeInput struct {
 	Phone string `json:"phone"`
 }
 
+type ListingOverview struct {
+	OccupiedUnits int `json:"occupiedUnits"`
+	VacantUnits   int `json:"vacantUnits"`
+	TotalUnits    int `json:"totalUnits"`
+}
+
 type NewUser struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`

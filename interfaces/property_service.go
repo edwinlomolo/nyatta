@@ -12,4 +12,5 @@ type PropertyService interface {
 	GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error)
 	SetupProperty(*model.SetupPropertyInput) (*model.Status, error)
 	CaretakerPhoneVerification(*model.CaretakerVerificationInput) (*model.Status, error)
+	ListingOverview(propertyId string) (*model.ListingOverview, error)
 }

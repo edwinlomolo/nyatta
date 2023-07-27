@@ -271,3 +271,35 @@ func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVeri
 	}
 	return &model.Status{Success: status}, nil
 }
+
+// ListingOverview - get listing summary
+func (p *PropertyServices) ListingOverview(propertyId string) (*model.ListingOverview, error) {
+	id, err := strconv.ParseInt(propertyId, 10, 64)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	totalUnits, err := p.queries.PropertyUnitsCount(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	occupiedUnits, err := p.queries.OccupiedUnitsCount(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	vacantUnits, err := p.queries.VacantUnitsCount(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+	return &model.ListingOverview{
+		TotalUnits:    int(totalUnits),
+		OccupiedUnits: int(occupiedUnits),
+		VacantUnits:   int(vacantUnits),
+	}, nil
+}
