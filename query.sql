@@ -138,6 +138,6 @@ WHERE property_id = $1 AND state = 'occupied';
 SELECT COUNT(*) FROM property_units
 WHERE property_id = $1 AND state = 'vacant';
 
--- name: AmenityCount :one
+-- name: UnitAmenityCount :one
 SELECT COUNT(*) from amenities
 WHERE property_unit_id = $1;

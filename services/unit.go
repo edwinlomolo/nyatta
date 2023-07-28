@@ -143,7 +143,7 @@ func (u *UnitServices) AmenityCount(unitId string) (int64, error) {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return 0, err
 	}
-	count, err := u.queries.AmenityCount(ctx, id)
+	count, err := u.queries.UnitAmenityCount(ctx, id)
 	if err != nil {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return 0, err
