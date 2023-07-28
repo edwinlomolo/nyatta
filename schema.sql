@@ -36,10 +36,12 @@ CREATE TABLE IF NOT EXISTS properties (
   caretaker BIGINT REFERENCES caretakers ON DELETE CASCADE
 );
 
+CREATE TYPE unit_state AS ENUM ('vacant', 'unavailable', 'occupied');
 CREATE TABLE IF NOT EXISTS property_units (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   type VARCHAR(100) NOT NULL,
+  state unit_state NOT NULL DEFAULT 'vacant',
   price INTEGER NOT NULL,
   bathrooms INTEGER NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

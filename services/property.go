@@ -144,32 +144,32 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 // GetPropertyUnits - get property units
 func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error) {
 	var units []*model.PropertyUnit
-	return units, nil
 
-	// id, err := strconv.ParseInt(propertyId, 10, 64)
-	//
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	// foundUnits, err := p.queries.GetPropertyUnits(ctx, id)
-	//
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	for _, foundUnit := range foundUnits {
-	//		unit := &model.PropertyUnit{
-	//			ID:         strconv.FormatInt(foundUnit.ID, 10),
-	//			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
-	//			CreatedAt:  &foundUnit.CreatedAt,
-	//			Bathrooms:  int(foundUnit.Bathrooms),
-	//			UpdatedAt:  &foundUnit.UpdatedAt,
-	//		}
-	//		units = append(units, unit)
-	//	}
-	//
-	// return units, nil
+	id, err := strconv.ParseInt(propertyId, 10, 64)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	foundUnits, err := p.queries.GetPropertyUnits(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	for _, foundUnit := range foundUnits {
+		unit := &model.PropertyUnit{
+			ID:         strconv.FormatInt(foundUnit.ID, 10),
+			Name:       foundUnit.Name,
+			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
+			Bathrooms:  int(foundUnit.Bathrooms),
+			CreatedAt:  &foundUnit.CreatedAt,
+			UpdatedAt:  &foundUnit.UpdatedAt,
+		}
+		units = append(units, unit)
+	}
+
+	return units, nil
 }
 
 // SetupProperty - setup listing
@@ -270,4 +270,36 @@ func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVeri
 		return nil, err
 	}
 	return &model.Status{Success: status}, nil
+}
+
+// ListingOverview - get listing summary
+func (p *PropertyServices) ListingOverview(propertyId string) (*model.ListingOverview, error) {
+	id, err := strconv.ParseInt(propertyId, 10, 64)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	totalUnits, err := p.queries.PropertyUnitsCount(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	occupiedUnits, err := p.queries.OccupiedUnitsCount(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	vacantUnits, err := p.queries.VacantUnitsCount(ctx, id)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+	return &model.ListingOverview{
+		TotalUnits:    int(totalUnits),
+		OccupiedUnits: int(occupiedUnits),
+		VacantUnits:   int(vacantUnits),
+	}, nil
 }

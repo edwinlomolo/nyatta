@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strconv"
+
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
@@ -132,4 +134,19 @@ func (u *UnitServices) GetUnitTenancy(unitId string) ([]*model.Tenant, error) {
 // ServiceName - return service name
 func (u UnitServices) ServiceName() string {
 	return "UnitServices"
+}
+
+// AmenityCount - return total unit amenities
+func (u *UnitServices) AmenityCount(unitId string) (int64, error) {
+	id, err := strconv.ParseInt(unitId, 10, 64)
+	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
+		return 0, err
+	}
+	count, err := u.queries.UnitAmenityCount(ctx, id)
+	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
+		return 0, err
+	}
+	return count, nil
 }

@@ -194,6 +194,29 @@ func (r *queryResolver) GetTowns(ctx context.Context) ([]*model.Town, error) {
 	return towns, nil
 }
 
+// GetPropertyUnits is the resolver for the getPropertyUnits field.
+func (r *queryResolver) GetPropertyUnits(ctx context.Context, propertyID string) ([]*model.PropertyUnit, error) {
+	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyUnits(propertyID)
+	if err != nil {
+		return nil, err
+	}
+	return foundUnits, nil
+}
+
+// GetPropertyTenancy is the resolver for the getPropertyTenancy field.
+func (r *queryResolver) GetPropertyTenancy(ctx context.Context, propertyID string) ([]*model.Tenant, error) {
+	return []*model.Tenant{}, nil
+}
+
+// ListingOverview is the resolver for the listingOverview field.
+func (r *queryResolver) ListingOverview(ctx context.Context, propertyID string) (*model.ListingOverview, error) {
+	overview, err := ctx.Value("propertyService").(*services.PropertyServices).ListingOverview(propertyID)
+	if err != nil {
+		return nil, err
+	}
+	return overview, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
