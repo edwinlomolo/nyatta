@@ -20,6 +20,15 @@ func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Property
 	return foundBedrooms, nil
 }
 
+// AmenityCount is the resolver for the amenityCount field.
+func (r *propertyUnitResolver) AmenityCount(ctx context.Context, obj *model.PropertyUnit) (int, error) {
+	totalAmenities, err := ctx.Value("unitService").(*services.UnitServices).AmenityCount(obj.ID)
+	if err != nil {
+		return 0, err
+	}
+	return int(totalAmenities), nil
+}
+
 // Tenancy is the resolver for the tenancy field.
 func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error) {
 	foundTenancies, err := ctx.Value("unitService").(*services.UnitServices).GetUnitTenancy(obj.ID)

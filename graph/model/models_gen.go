@@ -70,16 +70,17 @@ type OnboardUserInput struct {
 }
 
 type PropertyUnit struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Bedrooms   []*Bedroom `json:"bedrooms"`
-	PropertyID string     `json:"propertyId"`
-	Price      string     `json:"price"`
-	Bathrooms  int        `json:"bathrooms"`
-	Type       string     `json:"type"`
-	Tenancy    []*Tenant  `json:"tenancy"`
-	CreatedAt  *time.Time `json:"createdAt"`
-	UpdatedAt  *time.Time `json:"updatedAt"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Bedrooms     []*Bedroom `json:"bedrooms"`
+	PropertyID   string     `json:"propertyId"`
+	Price        string     `json:"price"`
+	AmenityCount int        `json:"amenityCount"`
+	Bathrooms    int        `json:"bathrooms"`
+	Type         string     `json:"type"`
+	Tenancy      []*Tenant  `json:"tenancy"`
+	CreatedAt    *time.Time `json:"createdAt"`
+	UpdatedAt    *time.Time `json:"updatedAt"`
 }
 
 type PropertyUnitInput struct {

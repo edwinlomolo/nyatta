@@ -5,6 +5,7 @@ type PropertyUnit {
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: ID!
   price: String!
+  amenityCount: Int!
   bathrooms: Int!
   type: String!
   tenancy: [Tenant!]! # has-many tenancy

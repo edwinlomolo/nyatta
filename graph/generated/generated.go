@@ -125,16 +125,17 @@ type ComplexityRoot struct {
 	}
 
 	PropertyUnit struct {
-		Bathrooms  func(childComplexity int) int
-		Bedrooms   func(childComplexity int) int
-		CreatedAt  func(childComplexity int) int
-		ID         func(childComplexity int) int
-		Name       func(childComplexity int) int
-		Price      func(childComplexity int) int
-		PropertyID func(childComplexity int) int
-		Tenancy    func(childComplexity int) int
-		Type       func(childComplexity int) int
-		UpdatedAt  func(childComplexity int) int
+		AmenityCount func(childComplexity int) int
+		Bathrooms    func(childComplexity int) int
+		Bedrooms     func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Price        func(childComplexity int) int
+		PropertyID   func(childComplexity int) int
+		Tenancy      func(childComplexity int) int
+		Type         func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
 	}
 
 	Query struct {
@@ -224,6 +225,8 @@ type PropertyResolver interface {
 }
 type PropertyUnitResolver interface {
 	Bedrooms(ctx context.Context, obj *model.PropertyUnit) ([]*model.Bedroom, error)
+
+	AmenityCount(ctx context.Context, obj *model.PropertyUnit) (int, error)
 
 	Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error)
 }
@@ -725,6 +728,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Property.UpdatedAt(childComplexity), true
+
+	case "PropertyUnit.amenityCount":
+		if e.complexity.PropertyUnit.AmenityCount == nil {
+			break
+		}
+
+		return e.complexity.PropertyUnit.AmenityCount(childComplexity), true
 
 	case "PropertyUnit.bathrooms":
 		if e.complexity.PropertyUnit.Bathrooms == nil {
@@ -1451,6 +1461,7 @@ type PropertyUnit {
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: ID!
   price: String!
+  amenityCount: Int!
   bathrooms: Int!
   type: String!
   tenancy: [Tenant!]! # has-many tenancy
@@ -3312,6 +3323,8 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnit(ctx context.Co
 				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
 			case "price":
 				return ec.fieldContext_PropertyUnit_price(ctx, field)
+			case "amenityCount":
+				return ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
 			case "type":
@@ -4522,6 +4535,8 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
 			case "price":
 				return ec.fieldContext_PropertyUnit_price(ctx, field)
+			case "amenityCount":
+				return ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
 			case "type":
@@ -4962,6 +4977,50 @@ func (ec *executionContext) fieldContext_PropertyUnit_price(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PropertyUnit_amenityCount(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PropertyUnit().AmenityCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PropertyUnit_amenityCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PropertyUnit",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5565,6 +5624,8 @@ func (ec *executionContext) fieldContext_Query_getPropertyUnits(ctx context.Cont
 				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
 			case "price":
 				return ec.fieldContext_PropertyUnit_price(ctx, field)
+			case "amenityCount":
+				return ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
 			case "type":
@@ -10439,6 +10500,26 @@ func (ec *executionContext) _PropertyUnit(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "amenityCount":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PropertyUnit_amenityCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "bathrooms":
 
 			out.Values[i] = ec._PropertyUnit_bathrooms(ctx, field, obj)

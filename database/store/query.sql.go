@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+const amenityCount = `-- name: AmenityCount :one
+SELECT COUNT(*) from amenities
+WHERE property_unit_id = $1
+`
+
+func (q *Queries) AmenityCount(ctx context.Context, propertyUnitID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, amenityCount, propertyUnitID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createAmenity = `-- name: CreateAmenity :one
 INSERT INTO amenities (
   name, category, property_unit_id
