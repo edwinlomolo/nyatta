@@ -133,6 +133,7 @@ type ComplexityRoot struct {
 		Name         func(childComplexity int) int
 		Price        func(childComplexity int) int
 		PropertyID   func(childComplexity int) int
+		State        func(childComplexity int) int
 		Tenancy      func(childComplexity int) int
 		Type         func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
@@ -785,6 +786,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PropertyUnit.PropertyID(childComplexity), true
 
+	case "PropertyUnit.state":
+		if e.complexity.PropertyUnit.State == nil {
+			break
+		}
+
+		return e.complexity.PropertyUnit.State(childComplexity), true
+
 	case "PropertyUnit.tenancy":
 		if e.complexity.PropertyUnit.Tenancy == nil {
 			break
@@ -1235,6 +1243,9 @@ input TenancyInput {
 # Represents supported country codes
 enum CountryCode { KE }
 
+# Represent property unit status
+enum UnitState { VACANT OCCUPIED UNAVAILABLE }
+
 # Represents caretaker verify verification parameters
 input VerificationInput {
   phone: String!
@@ -1463,6 +1474,7 @@ type PropertyUnit {
   price: String!
   amenityCount: Int!
   bathrooms: Int!
+  state: UnitState!
   type: String!
   tenancy: [Tenant!]! # has-many tenancy
   createdAt: Time
@@ -3327,6 +3339,8 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnit(ctx context.Co
 				return ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+			case "state":
+				return ec.fieldContext_PropertyUnit_state(ctx, field)
 			case "type":
 				return ec.fieldContext_PropertyUnit_type(ctx, field)
 			case "tenancy":
@@ -4539,6 +4553,8 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 				return ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+			case "state":
+				return ec.fieldContext_PropertyUnit_state(ctx, field)
 			case "type":
 				return ec.fieldContext_PropertyUnit_type(ctx, field)
 			case "tenancy":
@@ -5065,6 +5081,50 @@ func (ec *executionContext) fieldContext_PropertyUnit_bathrooms(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PropertyUnit_state(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PropertyUnit_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UnitState)
+	fc.Result = res
+	return ec.marshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PropertyUnit_state(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PropertyUnit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UnitState does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5628,6 +5688,8 @@ func (ec *executionContext) fieldContext_Query_getPropertyUnits(ctx context.Cont
 				return ec.fieldContext_PropertyUnit_amenityCount(ctx, field)
 			case "bathrooms":
 				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+			case "state":
+				return ec.fieldContext_PropertyUnit_state(ctx, field)
 			case "type":
 				return ec.fieldContext_PropertyUnit_type(ctx, field)
 			case "tenancy":
@@ -10527,6 +10589,13 @@ func (ec *executionContext) _PropertyUnit(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "state":
+
+			out.Values[i] = ec._PropertyUnit_state(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "type":
 
 			out.Values[i] = ec._PropertyUnit_type(ctx, field, obj)
@@ -12091,6 +12160,16 @@ func (ec *executionContext) unmarshalNUnitInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535�
 func (ec *executionContext) unmarshalNUnitInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInput(ctx context.Context, v interface{}) (*model.UnitInput, error) {
 	res, err := ec.unmarshalInputUnitInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx context.Context, v interface{}) (model.UnitState, error) {
+	var res model.UnitState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx context.Context, sel ast.SelectionSet, v model.UnitState) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNUpdateUserInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUpdateUserInput(ctx context.Context, v interface{}) (model.UpdateUserInput, error) {

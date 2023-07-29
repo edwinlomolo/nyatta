@@ -7,6 +7,7 @@ type PropertyUnit {
   price: String!
   amenityCount: Int!
   bathrooms: Int!
+  state: UnitState!
   type: String!
   tenancy: [Tenant!]! # has-many tenancy
   createdAt: Time
