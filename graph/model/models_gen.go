@@ -77,6 +77,7 @@ type PropertyUnit struct {
 	Price        string     `json:"price"`
 	AmenityCount int        `json:"amenityCount"`
 	Bathrooms    int        `json:"bathrooms"`
+	State        UnitState  `json:"state"`
 	Type         string     `json:"type"`
 	Tenancy      []*Tenant  `json:"tenancy"`
 	CreatedAt    *time.Time `json:"createdAt"`
@@ -223,5 +224,48 @@ func (e *CountryCode) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CountryCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UnitState string
+
+const (
+	UnitStateVacant      UnitState = "VACANT"
+	UnitStateOccupied    UnitState = "OCCUPIED"
+	UnitStateUnavailable UnitState = "UNAVAILABLE"
+)
+
+var AllUnitState = []UnitState{
+	UnitStateVacant,
+	UnitStateOccupied,
+	UnitStateUnavailable,
+}
+
+func (e UnitState) IsValid() bool {
+	switch e {
+	case UnitStateVacant, UnitStateOccupied, UnitStateUnavailable:
+		return true
+	}
+	return false
+}
+
+func (e UnitState) String() string {
+	return string(e)
+}
+
+func (e *UnitState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UnitState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UnitState", str)
+	}
+	return nil
+}
+
+func (e UnitState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

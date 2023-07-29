@@ -161,7 +161,10 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 		unit := &model.PropertyUnit{
 			ID:         strconv.FormatInt(foundUnit.ID, 10),
 			Name:       foundUnit.Name,
+			State:      model.UnitState(foundUnit.State),
+			Type:       foundUnit.Type,
 			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
+			Price:      strconv.FormatInt(int64(foundUnit.Price), 10),
 			Bathrooms:  int(foundUnit.Bathrooms),
 			CreatedAt:  &foundUnit.CreatedAt,
 			UpdatedAt:  &foundUnit.UpdatedAt,

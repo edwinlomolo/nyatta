@@ -53,6 +53,9 @@ input TenancyInput {
 # Represents supported country codes
 enum CountryCode { KE }
 
+# Represent property unit status
+enum UnitState { VACANT OCCUPIED UNAVAILABLE }
+
 # Represents caretaker verify verification parameters
 input VerificationInput {
   phone: String!
