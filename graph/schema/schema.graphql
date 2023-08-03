@@ -167,6 +167,7 @@ type Query {
   getTowns: [Town!]!
   getPropertyUnits(propertyId: ID!): [PropertyUnit!]!
   getPropertyTenancy(propertyId: ID!): [Tenant!]!
+  getUserProperties: [Property!]!
   listingOverview(propertyId: ID!): ListingOverview!
 }
 
