@@ -208,6 +208,17 @@ func (r *queryResolver) GetPropertyTenancy(ctx context.Context, propertyID strin
 	return []*model.Tenant{}, nil
 }
 
+// GetUserProperties is the resolver for the getUserProperties field.
+func (r *queryResolver) GetUserProperties(ctx context.Context) ([]*model.Property, error) {
+	// Get user from authed user context
+	userId := ctx.Value("userId").(*string)
+	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(*userId)
+	if err != nil {
+		return nil, err
+	}
+	return userProperties, nil
+}
+
 // ListingOverview is the resolver for the listingOverview field.
 func (r *queryResolver) ListingOverview(ctx context.Context, propertyID string) (*model.ListingOverview, error) {
 	overview, err := ctx.Value("propertyService").(*services.PropertyServices).ListingOverview(propertyID)
