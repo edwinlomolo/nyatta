@@ -32,7 +32,12 @@ input AmenityInput {
 # Represents new property unit parameters
 input PropertyUnitInput {
   propertyId: ID!
-  bathrooms: Int!
+  baths: Int!
+  name: String!
+  type: String!
+  amenities: [UnitAmenityInput!]!
+  bedrooms: [UnitBedroomInput!]!
+  price: String!
 }
 
 # Represents new property unit bedroom(s) parameter
