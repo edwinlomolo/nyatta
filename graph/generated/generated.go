@@ -1231,7 +1231,12 @@ input AmenityInput {
 # Represents new property unit parameters
 input PropertyUnitInput {
   propertyId: ID!
-  bathrooms: Int!
+  baths: Int!
+  name: String!
+  type: String!
+  amenities: [UnitAmenityInput!]!
+  bedrooms: [UnitBedroomInput!]!
+  price: String!
 }
 
 # Represents new property unit bedroom(s) parameter
@@ -9488,7 +9493,7 @@ func (ec *executionContext) unmarshalInputPropertyUnitInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"propertyId", "bathrooms"}
+	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "amenities", "bedrooms", "price"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9503,11 +9508,51 @@ func (ec *executionContext) unmarshalInputPropertyUnitInput(ctx context.Context,
 			if err != nil {
 				return it, err
 			}
-		case "bathrooms":
+		case "baths":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bathrooms"))
-			it.Bathrooms, err = ec.unmarshalNInt2int(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("baths"))
+			it.Baths, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "amenities":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amenities"))
+			it.Amenities, err = ec.unmarshalNUnitAmenityInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "bedrooms":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bedrooms"))
+			it.Bedrooms, err = ec.unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "price":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			it.Price, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

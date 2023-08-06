@@ -85,8 +85,13 @@ type PropertyUnit struct {
 }
 
 type PropertyUnitInput struct {
-	PropertyID string `json:"propertyId"`
-	Bathrooms  int    `json:"bathrooms"`
+	PropertyID string              `json:"propertyId"`
+	Baths      int                 `json:"baths"`
+	Name       string              `json:"name"`
+	Type       string              `json:"type"`
+	Amenities  []*UnitAmenityInput `json:"amenities"`
+	Bedrooms   []*UnitBedroomInput `json:"bedrooms"`
+	Price      string              `json:"price"`
 }
 
 type SetupPropertyInput struct {
