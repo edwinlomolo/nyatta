@@ -24,30 +24,67 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 
 // AddPropertyUnit - add property unit
 func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.PropertyUnit, error) {
-	return &model.PropertyUnit{}, nil
-	//if input.Bathrooms == 0 {
-	//	return nil, errors.New("Zero is not a valid value")
-	//}
-	//propertyId, err := strconv.ParseInt(input.PropertyID, 10, 64)
-	//if err != nil {
-	//	return nil, err
-	//}
+	propertyId, err := strconv.ParseInt(input.PropertyID, 10, 64)
+	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
+		return nil, err
+	}
 
-	//insertedUnit, err := u.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
-	//	PropertyID: propertyId,
-	//	Bathrooms:  int32(input.Bathrooms),
-	//})
-	//if err != nil {
-	//	return nil, err
-	//}
+	unitPrice, err := strconv.ParseInt(input.Price, 10, 64)
+	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
+		return nil, err
+	}
+	unit, err := u.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
+		PropertyID: propertyId,
+		Name:       input.Name,
+		Price:      int32(unitPrice),
+		Type:       input.Type,
+		Bathrooms:  int32(input.Baths),
+	})
 
-	//return &model.PropertyUnit{
-	//	ID:         strconv.FormatInt(insertedUnit.ID, 10),
-	//	Bathrooms:  int(insertedUnit.Bathrooms),
-	//	PropertyID: input.PropertyID,
-	//	CreatedAt:  &insertedUnit.CreatedAt,
-	//	UpdatedAt:  &insertedUnit.UpdatedAt,
-	//}, nil
+	if err != nil {
+		u.logger.Errorf("%s: %v", u.ServiceName(), err)
+		return nil, err
+	}
+	if len(input.Bedrooms) > 0 {
+		for i := 0; i < len(input.Bedrooms); i++ {
+			_, err := u.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
+				PropertyUnitID: unit.ID,
+				BedroomNumber:  int32(input.Bedrooms[i].BedroomNumber),
+				EnSuite:        input.Bedrooms[i].EnSuite,
+				Master:         input.Bedrooms[i].Master,
+			})
+			if err != nil {
+				u.logger.Errorf("%s: %v", u.ServiceName(), err)
+				return nil, err
+			}
+		}
+	}
+	// TODO create unit amenity
+	if len(input.Amenities) > 0 {
+		for j := 0; j < len(input.Amenities); j++ {
+			_, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
+				Name:           input.Amenities[j].Name,
+				Category:       input.Amenities[j].Category,
+				PropertyUnitID: unit.ID,
+			})
+			if err != nil {
+				u.logger.Errorf("%s: %v", u.ServiceName(), err)
+				return nil, err
+			}
+		}
+	}
+
+	return &model.PropertyUnit{
+		ID:         strconv.FormatInt(unit.ID, 10),
+		Bathrooms:  int(unit.Bathrooms),
+		PropertyID: input.PropertyID,
+		CreatedAt:  &unit.CreatedAt,
+		UpdatedAt:  &unit.UpdatedAt,
+		Price:      strconv.FormatInt(int64(unit.Price), 10),
+		Type:       unit.Type,
+	}, nil
 }
 
 // AddUnitBedroom - add property unit bedroom(s)
