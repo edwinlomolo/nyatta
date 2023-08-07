@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	newUserEmail     = "<p>Welcome to Nyatta! I'm excited to have you onboard!<br /><br /> I'm working hard to make Nyatta the best place to find and share your favorite places with friends. You may encounter or face some issues but I'm able to track them as they happen. However, if you see anything of concern, I'm happy to have a chat.<br /><br /> More updates get pushed out every week, so keep an eye out for new features and major improvements.<br /><br /> Please reach out if you have any questions or feedback for me. <br /><br /> <strong>Regards,</strong><br /> Edwin Lomolo.</p>"
-	newPropertyEmail = "<p>I've received your listing! I'm always pushing product updates weekly and you will receive an email about what has changed/what's new. I'm always looking into how I can make your experience using Nyatta better. Don't hesitate to reach out!<br /><br /> <strong>Regards,</strong><br /> Edwin Lomolo.</p>"
+	newUserEmail     = "<p>Welcome to Nyatta! I'm excited to have you onboard!<br /><br /> How best can you describe your house hunting experience? Exactly<br /><br /> I'm working hard to make Nyatta the best place to find, move in, and share your favorite places with friends. You may encounter or face some issues but I'm able to track them as they happen. However, if you see anything of concern, I'm happy to have a chat.<br /><br /> Please reach out if you have any questions or feedback for me. <br /><br /> <strong>Regards,</strong><br /><br /> Edwin Lomolo.</p>"
+	newPropertyEmail = "<p>I've received your listing! I'm always pushing product updates weekly and you will receive an email about what has changed/what's new. I'm always looking into how I can make your experience using Nyatta better. Don't hesitate to reach out!<br /><br /> <strong>Regards,</strong><br /><br /> Edwin Lomolo.</p>"
 )
 
 type SendEmail func(email []string, from, subject, body string) error
