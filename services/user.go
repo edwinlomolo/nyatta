@@ -120,7 +120,6 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 	foundUser, err := u.queries.FindByEmail(ctx, sql.NullString{String: email, Valid: true})
 	if err == sql.ErrNoRows {
-		u.log.Errorf("%s: %v", u.ServiceName(), errors.New("User not found"))
 		return nil, errors.New("User not found")
 	}
 	return &model.User{
