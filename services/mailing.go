@@ -35,12 +35,14 @@ func (m *MailingServices) SaveMailing(email string) (*model.Status, error) {
 	// Mail exists
 	exists, err := m.queries.MailingExists(ctx, email)
 	if err != nil {
+		m.log.Errorf("%s:%v", m.ServiceName(), err)
 		return nil, err
 	}
 	// Save mail
 	if !exists {
 		_, err := m.queries.SaveMail(ctx, email)
 		if err != nil {
+			m.log.Errorf("%s:%v", m.ServiceName(), err)
 			return nil, err
 		}
 		return &model.Status{Success: "okay"}, nil
@@ -58,7 +60,7 @@ func (m *MailingServices) SendEmail(to []string, from, subject, body string) err
 	}
 	_, err := m.client.Emails.Send(params)
 	if err != nil {
-		m.log.Errorf("error sending email: %s:%v", m.ServiceName(), err)
+		m.log.Errorf("%s:%v", m.ServiceName(), err)
 		return err
 	}
 	return nil
