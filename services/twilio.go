@@ -2,7 +2,6 @@ package services
 
 import (
 	"database/sql"
-	"errors"
 	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/config"
@@ -58,8 +57,8 @@ func (t TwilioServices) SendVerification(phone string, countryCode model.Country
 		if res.Status != nil {
 			return *res.Status, nil
 		}
-		t.logger.Errorf("%s: %v", t.ServiceName(), err)
-		return "", errors.New("nil response from twilio")
+		t.logger.Errorf("%s: %v", t.ServiceName(), config.TwilioNilErr)
+		return "", config.TwilioNilErr
 	}
 }
 
@@ -84,8 +83,8 @@ func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.C
 		if res.Status != nil {
 			return *res.Status, nil
 		}
-		t.logger.Errorf("%s: %v", t.ServiceName(), err)
-		return "", errors.New("nil response from twilio")
+		t.logger.Errorf("%s: %v", t.ServiceName(), config.TwilioNilErr)
+		return "", config.TwilioNilErr
 	}
 }
 

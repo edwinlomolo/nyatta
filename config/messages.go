@@ -13,4 +13,5 @@ var (
 	MigrationUpErr       = errors.New("MigrationUpErr")
 	MigrationInstanceErr = errors.New("MigrationInstanceErr")
 	MigrationDriverErr   = errors.New("MigrationDriverErr")
+	TwilioNilErr         = errors.New("nil response from twilio")
 )
