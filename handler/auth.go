@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -32,7 +32,7 @@ func Handshake() http.Handler {
 			return
 		}
 		// Read incoming data from body request
-		reqBody, err := ioutil.ReadAll(r.Body)
+		reqBody, err := io.ReadAll(r.Body)
 		if err != nil {
 			logger.Errorf("Error reading body: %v", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
