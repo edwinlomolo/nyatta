@@ -99,7 +99,7 @@ func main() {
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
 	r.Handle("/handshake", h.AddContext(ctx, logHandler.Logging(h.Handshake())))
-	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
+	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(srv)))
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", serverConfig.ServerPort),
