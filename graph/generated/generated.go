@@ -140,6 +140,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetListings        func(childComplexity int) int
 		GetProperty        func(childComplexity int, id string) int
 		GetPropertyTenancy func(childComplexity int, propertyID string) int
 		GetPropertyUnits   func(childComplexity int, propertyID string) int
@@ -242,6 +243,7 @@ type QueryResolver interface {
 	GetPropertyTenancy(ctx context.Context, propertyID string) ([]*model.Tenant, error)
 	GetUserProperties(ctx context.Context) ([]*model.Property, error)
 	ListingOverview(ctx context.Context, propertyID string) (*model.ListingOverview, error)
+	GetListings(ctx context.Context) ([]*model.Property, error)
 }
 type ShootResolver interface {
 	Contact(ctx context.Context, obj *model.Shoot) (*model.Caretaker, error)
@@ -816,6 +818,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PropertyUnit.UpdatedAt(childComplexity), true
 
+	case "Query.getListings":
+		if e.complexity.Query.GetListings == nil {
+			break
+		}
+
+		return e.complexity.Query.GetListings(childComplexity), true
+
 	case "Query.getProperty":
 		if e.complexity.Query.GetProperty == nil {
 			break
@@ -1373,6 +1382,7 @@ type Query {
   getPropertyTenancy(propertyId: ID!): [Tenant!]!
   getUserProperties: [Property!]!
   listingOverview(propertyId: ID!): ListingOverview!
+  getListings: [Property!]!
 }
 
 type Mutation {
@@ -5933,6 +5943,80 @@ func (ec *executionContext) fieldContext_Query_listingOverview(ctx context.Conte
 	if fc.Args, err = ec.field_Query_listingOverview_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getListings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getListings(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetListings(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Property)
+	fc.Result = res
+	return ec.marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Property_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Property_name(ctx, field)
+			case "town":
+				return ec.fieldContext_Property_town(ctx, field)
+			case "postalCode":
+				return ec.fieldContext_Property_postalCode(ctx, field)
+			case "type":
+				return ec.fieldContext_Property_type(ctx, field)
+			case "status":
+				return ec.fieldContext_Property_status(ctx, field)
+			case "minPrice":
+				return ec.fieldContext_Property_minPrice(ctx, field)
+			case "maxPrice":
+				return ec.fieldContext_Property_maxPrice(ctx, field)
+			case "amenities":
+				return ec.fieldContext_Property_amenities(ctx, field)
+			case "units":
+				return ec.fieldContext_Property_units(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Property_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Property_owner(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Property_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Property_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -10984,6 +11068,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_listingOverview(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getListings":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getListings(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

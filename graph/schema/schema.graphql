@@ -174,6 +174,7 @@ type Query {
   getPropertyTenancy(propertyId: ID!): [Tenant!]!
   getUserProperties: [Property!]!
   listingOverview(propertyId: ID!): ListingOverview!
+  getListings: [Property!]!
 }
 
 type Mutation {
