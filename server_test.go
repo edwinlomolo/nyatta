@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,7 +31,7 @@ func Test_root_api(t *testing.T) {
 		defer res.Body.Close()
 		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 
-		data, err := ioutil.ReadAll(res.Body)
+		data, err := io.ReadAll(res.Body)
 		assert.Nil(t, err)
 		assert.Equal(t, string(data), "{\"Unauthorized\":true}")
 	})
