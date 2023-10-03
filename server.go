@@ -35,8 +35,7 @@ func main() {
 
 	serverConfig := configuration.Server
 
-	// Initialize service(s)
-	// Storage
+	// Start service(s) initialization
 	db, err := database.InitDB("./database/migration")
 	if err != nil {
 		logrus.Fatalf("%s: %v", database.DatabaseError, err)
@@ -81,7 +80,6 @@ func main() {
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
 
-	// Initialize context with values
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
 	ctx = context.WithValue(ctx, "amenityService", amenityService)
