@@ -49,7 +49,7 @@ func main() {
 	logger.Out = os.Stdout
 
 	if serverConfig.ServerEnv == "production" || serverConfig.ServerEnv == "staging" {
-		// Send only Error and higher level to sentry
+		// Error level to extract from logging
 		sentryLevels := []logrus.Level{
 			logrus.PanicLevel,
 			logrus.FatalLevel,
