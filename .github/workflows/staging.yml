@@ -4,7 +4,7 @@ on:
     branches:
       - develop
 jobs:
-  deploy:
+  development-deploy:
     name: staging
     runs-on: ubuntu-latest
     steps:
