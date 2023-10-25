@@ -57,11 +57,11 @@ type ListingOverview struct {
 }
 
 type NewUser struct {
-	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Avatar    string `json:"avatar"`
-	Phone     string `json:"phone"`
+	Email     string  `json:"email"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	Avatar    *string `json:"avatar"`
+	Phone     string  `json:"phone"`
 }
 
 type OnboardUserInput struct {

@@ -80,7 +80,7 @@ func Authenticate(h http.Handler) http.Handler {
 				userIdBytes, _ := base64.StdEncoding.DecodeString(claims["id"].(string))
 				userId = string(userIdBytes[:])
 			}
-		} else {
+		} /* else {
 			// Failed
 			jsonResponse, err := json.Marshal(struct{ Unauthorized bool }{Unauthorized: true})
 			if err != nil {
@@ -90,7 +90,7 @@ func Authenticate(h http.Handler) http.Handler {
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jsonResponse)
 			return
-		}
+		}*/
 
 		// Get remote user ip address from request
 		userIp, _, err := net.SplitHostPort(r.RemoteAddr)

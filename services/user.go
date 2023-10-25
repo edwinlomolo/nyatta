@@ -34,11 +34,16 @@ func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string
 
 // CreateUser - create a new user
 func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
+	avatar := ""
+	if user.Avatar != nil {
+		avatar = *user.Avatar
+	}
+
 	insertedUser, err := u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
 		FirstName: sql.NullString{String: user.FirstName, Valid: true},
 		LastName:  sql.NullString{String: user.LastName, Valid: true},
 		Email:     sql.NullString{String: user.Email, Valid: true},
-		Avatar:    sql.NullString{String: user.Avatar, Valid: true},
+		Avatar:    sql.NullString{String: avatar, Valid: true},
 		Phone:     sql.NullString{String: user.Phone, Valid: true},
 	})
 	if err != nil {
@@ -61,6 +66,7 @@ func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
 // SignIn - signin existing/returning user
 func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
 	signInResponse := &model.SignIn{}
+
 	// user - existing user
 	var newUser *model.User
 	var err error
@@ -71,6 +77,10 @@ func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
 	}
 	// user - new user
 	if err != nil && err.Error() == "User not found" {
+		avatar := ""
+		if user.Avatar == nil {
+			user.Avatar = &avatar
+		}
 		newUser, err = u.CreateUser(user)
 		if err != nil {
 			u.log.Errorf("%s: %v", u.ServiceName(), err)

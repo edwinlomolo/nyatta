@@ -14,12 +14,12 @@ import (
 )
 
 // CreateUser - resolver for createUser field
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	_, err := ctx.Value("userService").(*services.UserServices).CreateUser(&input)
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.Token, error) {
+	res, err := ctx.Value("userService").(*services.UserServices).SignIn(&input)
 	if err != nil {
 		return nil, err
 	}
-	return &model.User{}, nil
+	return &model.Token{Token: res.Token}, nil
 }
 
 // CreateProperty is the resolver for the createProperty field.

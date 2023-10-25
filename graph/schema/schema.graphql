@@ -8,7 +8,7 @@ input NewUser {
   email: String!
   first_name: String!
   last_name: String!
-  avatar: String!
+  avatar: String
   phone: String!
 }
 
@@ -178,7 +178,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(input: NewUser!): User!
+  createUser(input: NewUser!): Token!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!

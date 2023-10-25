@@ -204,7 +204,7 @@ type CaretakerResolver interface {
 	ShootsInCharge(ctx context.Context, obj *model.Caretaker) ([]*model.Shoot, error)
 }
 type MutationResolver interface {
-	CreateUser(ctx context.Context, input model.NewUser) (*model.User, error)
+	CreateUser(ctx context.Context, input model.NewUser) (*model.Token, error)
 	CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error)
 	AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error)
 	AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error)
@@ -1216,7 +1216,7 @@ input NewUser {
   email: String!
   first_name: String!
   last_name: String!
-  avatar: String!
+  avatar: String
   phone: String!
 }
 
@@ -1386,7 +1386,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(input: NewUser!): User!
+  createUser(input: NewUser!): Token!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
@@ -3104,9 +3104,9 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*model.Token)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNToken2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐToken(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3117,28 +3117,10 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "first_name":
-				return ec.fieldContext_User_first_name(ctx, field)
-			case "last_name":
-				return ec.fieldContext_User_last_name(ctx, field)
-			case "phone":
-				return ec.fieldContext_User_phone(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
-			case "avatar":
-				return ec.fieldContext_User_avatar(ctx, field)
-			case "properties":
-				return ec.fieldContext_User_properties(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "token":
+				return ec.fieldContext_Token_token(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Token", field.Name)
 		},
 	}
 	defer func() {
@@ -9516,7 +9498,7 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			it.Avatar, err = ec.unmarshalNString2string(ctx, v)
+			it.Avatar, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12299,6 +12281,20 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNToken2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v model.Token) graphql.Marshaler {
+	return ec._Token(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v *model.Token) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Token(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTown2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTownᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Town) graphql.Marshaler {
