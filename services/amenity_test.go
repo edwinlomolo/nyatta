@@ -9,11 +9,12 @@ import (
 )
 
 func Test_Amenity_service(t *testing.T) {
+	avatar := "https://avatar.jpg"
 	user, err := userService.CreateUser(&model.NewUser{
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
-		Avatar:    "https://avatar.jpg",
+		Avatar:    &avatar,
 	})
 	property, err := propertyService.CreateProperty(&model.NewProperty{
 		Name:       "Jonsaga Properties",

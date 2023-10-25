@@ -25,11 +25,12 @@ func Test_Property_Resolver(t *testing.T) {
 	srv := makeAuthedGqlServer(false, ctx)
 
 	// test user
+	avatar := "https://avatar.jpg"
 	newUser, err := userService.CreateUser(&model.NewUser{
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     util.GenerateRandomEmail(),
-		Avatar:    "https://avatar.jpg",
+		Avatar:    &avatar,
 		Phone:     "+254712345678",
 	})
 	if err != nil {

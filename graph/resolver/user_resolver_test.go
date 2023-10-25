@@ -27,7 +27,8 @@ func Test_Resolver_User(t *testing.T) {
 		var err error
 
 		email := util.GenerateRandomEmail()
-		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email, Avatar: "https://avatar.jpg", Phone: "+254829639846"})
+		avatar := "https://avatar.jpg"
+		user, err = userService.CreateUser(&model.NewUser{FirstName: "John", LastName: "Doe", Email: email, Avatar: &avatar, Phone: "+254829639846"})
 		if err != nil {
 			t.Errorf("expected nil err got %v", err)
 		}

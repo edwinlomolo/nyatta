@@ -3,24 +3,17 @@ package resolver
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/database"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
-	"github.com/3dw1nM0535/nyatta/graph/generated"
-	h "github.com/3dw1nM0535/nyatta/handler"
 	"github.com/3dw1nM0535/nyatta/services"
-	"github.com/3dw1nM0535/nyatta/util"
-	"github.com/99designs/gqlgen/client"
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -101,22 +94,4 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(exitCode)
-}
-
-// TODO redudant test
-func Test_unauthed_graphql_request(t *testing.T) {
-	var signIn struct {
-		SignIn struct {
-			Token string
-		}
-	}
-	var srv = client.New(h.AddContext(context.Background(), h.Authenticate(handler.NewDefaultServer(generated.NewExecutableSchema(New())))))
-
-	t.Run("should_not_next_unauthed_graphql_request", func(t *testing.T) {
-		query := fmt.Sprintf(`mutation { signIn (input: { first_name: %q, last_name: %q, email: %q, avatar: %q }) { token } }`, "Jane", "Doe", util.GenerateRandomEmail(), "https://avatar.jpg")
-
-		err := srv.Post(query, &signIn)
-		assert.NotNil(t, err)
-		assert.Equal(t, err.Error(), "http 401: {\"Unauthorized\":true}")
-	})
 }

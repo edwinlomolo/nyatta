@@ -65,11 +65,12 @@ func Test_User_Services(t *testing.T) {
 	var err error
 
 	t.Run("should_create_new_user", func(t *testing.T) {
+		avatar := "https://avatar.jpg"
 		newUser, err = userService.CreateUser(&model.NewUser{
 			FirstName: "John",
 			LastName:  "Doe",
 			Email:     util.GenerateRandomEmail(),
-			Avatar:    "https://avatar.jpg",
+			Avatar:    &avatar,
 			Phone:     "+2541710073434",
 		})
 
