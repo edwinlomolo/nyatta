@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE,
   first_name TEXT,
   last_name TEXT,
-  phone VARCHAR(15),
+  phone VARCHAR(15) NOT NULL,
   onboarding BOOLEAN DEFAULT true,
+  is_landlord BOOLEAN DEFAULT false,
   avatar TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

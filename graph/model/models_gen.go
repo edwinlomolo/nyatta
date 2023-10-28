@@ -57,11 +57,7 @@ type ListingOverview struct {
 }
 
 type NewUser struct {
-	Email     string  `json:"email"`
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
-	Avatar    *string `json:"avatar"`
-	Phone     string  `json:"phone"`
+	Phone string `json:"phone"`
 }
 
 type OnboardUserInput struct {
@@ -119,6 +115,11 @@ type Shoot struct {
 type ShootInput struct {
 	Date          time.Time `json:"date"`
 	ContactPerson string    `json:"contactPerson"`
+}
+
+type SignInResponse struct {
+	User  *User  `json:"user"`
+	Token string `json:"Token"`
 }
 
 type Status struct {

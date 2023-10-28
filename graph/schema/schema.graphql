@@ -5,10 +5,6 @@ scalar Upload
 
 # Represents new user parameters
 input NewUser {
-  email: String!
-  first_name: String!
-  last_name: String!
-  avatar: String
   phone: String!
 }
 
@@ -164,6 +160,12 @@ type ListingOverview {
   totalUnits: Int!
 }
 
+# SignIn response
+type SignInResponse {
+  user: User!
+  Token: String!
+}
+
 type Query {
   getUser(email: String!): User!
   getProperty(id: ID!): Property!
@@ -178,7 +180,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(input: NewUser!): Token!
+  signIn(input: NewUser!): SignInResponse!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!

@@ -7,6 +7,7 @@ type User struct {
 	FirstName  string      `json:"first_name"`
 	LastName   string      `json:"last_name"`
 	Phone      string      `json:"phone"`
+	IsLandlord bool        `json:"is_landlord"`
 	Onboarding bool        `json:"onboarding"`
 	Email      string      `json:"email"`
 	Avatar     string      `json:"avatar"`
@@ -22,6 +23,6 @@ type UserCredentials struct {
 }
 
 type SignIn struct {
-	Onboarding *bool  `json:"onboarding"`
-	Token      string `json:"token"`
+	Token string `json:"token"`
+	User  *User  `json:"user"`
 }

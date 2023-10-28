@@ -96,7 +96,6 @@ func main() {
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
-	r.Handle("/handshake", h.AddContext(ctx, logHandler.Logging(h.Handshake())))
 	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	s := &http.Server{

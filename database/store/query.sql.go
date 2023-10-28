@@ -269,29 +269,15 @@ func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomPa
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email, first_name, last_name, avatar, phone
+  phone
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1
 )
-RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at
 `
 
-type CreateUserParams struct {
-	Email     sql.NullString `json:"email"`
-	FirstName sql.NullString `json:"first_name"`
-	LastName  sql.NullString `json:"last_name"`
-	Avatar    sql.NullString `json:"avatar"`
-	Phone     sql.NullString `json:"phone"`
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Email,
-		arg.FirstName,
-		arg.LastName,
-		arg.Avatar,
-		arg.Phone,
-	)
+func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, phone)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -300,6 +286,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -308,7 +295,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const findByEmail = `-- name: FindByEmail :one
-SELECT id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -322,6 +309,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, 
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -330,11 +318,11 @@ func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, 
 }
 
 const findUserByPhone = `-- name: FindUserByPhone :one
-SELECT id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at FROM users
 WHERE phone = $1
 `
 
-func (q *Queries) FindUserByPhone(ctx context.Context, phone sql.NullString) (User, error) {
+func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, error) {
 	row := q.db.QueryRowContext(ctx, findUserByPhone, phone)
 	var i User
 	err := row.Scan(
@@ -344,6 +332,7 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone sql.NullString) (Us
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -484,7 +473,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID int64) ([]T
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at FROM users
+SELECT id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -498,6 +487,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -535,7 +525,7 @@ const onboardUser = `-- name: OnboardUser :one
 UPDATE users
 SET onboarding = $1
 WHERE email = $2
-RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at
 `
 
 type OnboardUserParams struct {
@@ -553,6 +543,7 @@ func (q *Queries) OnboardUser(ctx context.Context, arg OnboardUserParams) (User,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -643,7 +634,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4
 WHERE email = $5
-RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -670,6 +661,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -681,11 +673,11 @@ const updateUserPhone = `-- name: UpdateUserPhone :one
 UPDATE users
 SET phone = $1
 WHERE email = $2
-RETURNING id, email, first_name, last_name, phone, onboarding, avatar, created_at, updated_at
+RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, avatar, created_at, updated_at
 `
 
 type UpdateUserPhoneParams struct {
-	Phone sql.NullString `json:"phone"`
+	Phone string         `json:"phone"`
 	Email sql.NullString `json:"email"`
 }
 
@@ -699,6 +691,7 @@ func (q *Queries) UpdateUserPhone(ctx context.Context, arg UpdateUserPhoneParams
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
+		&i.IsLandlord,
 		&i.Avatar,
 		&i.CreatedAt,
 		&i.UpdatedAt,

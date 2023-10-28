@@ -140,8 +140,9 @@ type User struct {
 	Email      sql.NullString `json:"email"`
 	FirstName  sql.NullString `json:"first_name"`
 	LastName   sql.NullString `json:"last_name"`
-	Phone      sql.NullString `json:"phone"`
+	Phone      string         `json:"phone"`
 	Onboarding sql.NullBool   `json:"onboarding"`
+	IsLandlord sql.NullBool   `json:"is_landlord"`
 	Avatar     sql.NullString `json:"avatar"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`

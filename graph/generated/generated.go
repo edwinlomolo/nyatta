@@ -95,12 +95,12 @@ type ComplexityRoot struct {
 		AddPropertyUnitTenant           func(childComplexity int, input model.TenancyInput) int
 		AddUnitBedrooms                 func(childComplexity int, input []*model.UnitBedroomInput) int
 		CreateProperty                  func(childComplexity int, input model.NewProperty) int
-		CreateUser                      func(childComplexity int, input model.NewUser) int
 		Handshake                       func(childComplexity int, input model.HandshakeInput) int
 		OnboardUser                     func(childComplexity int, input model.OnboardUserInput) int
 		SaveMailing                     func(childComplexity int, email *string) int
 		SendVerificationCode            func(childComplexity int, input model.VerificationInput) int
 		SetupProperty                   func(childComplexity int, input model.SetupPropertyInput) int
+		SignIn                          func(childComplexity int, input model.NewUser) int
 		UpdateUser                      func(childComplexity int, input model.UpdateUserInput) int
 		UploadImage                     func(childComplexity int, file graphql.Upload) int
 		VerifyCaretakerVerificationCode func(childComplexity int, input model.CaretakerVerificationInput) int
@@ -163,6 +163,11 @@ type ComplexityRoot struct {
 		UpdatedAt  func(childComplexity int) int
 	}
 
+	SignInResponse struct {
+		Token func(childComplexity int) int
+		User  func(childComplexity int) int
+	}
+
 	Status struct {
 		Success func(childComplexity int) int
 	}
@@ -192,6 +197,7 @@ type ComplexityRoot struct {
 		Email      func(childComplexity int) int
 		FirstName  func(childComplexity int) int
 		ID         func(childComplexity int) int
+		IsLandlord func(childComplexity int) int
 		LastName   func(childComplexity int) int
 		Onboarding func(childComplexity int) int
 		Phone      func(childComplexity int) int
@@ -204,7 +210,7 @@ type CaretakerResolver interface {
 	ShootsInCharge(ctx context.Context, obj *model.Caretaker) ([]*model.Shoot, error)
 }
 type MutationResolver interface {
-	CreateUser(ctx context.Context, input model.NewUser) (*model.Token, error)
+	SignIn(ctx context.Context, input model.NewUser) (*model.SignInResponse, error)
 	CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error)
 	AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error)
 	AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error)
@@ -516,18 +522,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateProperty(childComplexity, args["input"].(model.NewProperty)), true
 
-	case "Mutation.createUser":
-		if e.complexity.Mutation.CreateUser == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.NewUser)), true
-
 	case "Mutation.handshake":
 		if e.complexity.Mutation.Handshake == nil {
 			break
@@ -587,6 +581,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetupProperty(childComplexity, args["input"].(model.SetupPropertyInput)), true
+
+	case "Mutation.signIn":
+		if e.complexity.Mutation.SignIn == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_signIn_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SignIn(childComplexity, args["input"].(model.NewUser)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -974,6 +980,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Shoot.UpdatedAt(childComplexity), true
 
+	case "SignInResponse.Token":
+		if e.complexity.SignInResponse.Token == nil {
+			break
+		}
+
+		return e.complexity.SignInResponse.Token(childComplexity), true
+
+	case "SignInResponse.user":
+		if e.complexity.SignInResponse.User == nil {
+			break
+		}
+
+		return e.complexity.SignInResponse.User(childComplexity), true
+
 	case "Status.success":
 		if e.complexity.Status.Success == nil {
 			break
@@ -1085,6 +1105,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.ID(childComplexity), true
+
+	case "User.is_landlord":
+		if e.complexity.User.IsLandlord == nil {
+			break
+		}
+
+		return e.complexity.User.IsLandlord(childComplexity), true
 
 	case "User.last_name":
 		if e.complexity.User.LastName == nil {
@@ -1213,10 +1240,6 @@ scalar Upload
 
 # Represents new user parameters
 input NewUser {
-  email: String!
-  first_name: String!
-  last_name: String!
-  avatar: String
   phone: String!
 }
 
@@ -1372,6 +1395,12 @@ type ListingOverview {
   totalUnits: Int!
 }
 
+# SignIn response
+type SignInResponse {
+  user: User!
+  Token: String!
+}
+
 type Query {
   getUser(email: String!): User!
   getProperty(id: ID!): Property!
@@ -1386,7 +1415,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(input: NewUser!): Token!
+  signIn(input: NewUser!): SignInResponse!
   createProperty(input: NewProperty!): Property!
   addAmenity(input: AmenityInput!): Amenity!
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
@@ -1515,6 +1544,7 @@ type User {
   last_name: String!
   phone: String!
   onboarding: Boolean!
+  is_landlord: Boolean!
   avatar: String!
   properties: [Property!]!
   createdAt: Time
@@ -1603,21 +1633,6 @@ func (ec *executionContext) field_Mutation_createProperty_args(ctx context.Conte
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.NewUser
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNewUser(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_handshake_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1685,6 +1700,21 @@ func (ec *executionContext) field_Mutation_setupProperty_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSetupPropertyInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSetupPropertyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_signIn_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewUser
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNewUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3078,8 +3108,8 @@ func (ec *executionContext) fieldContext_ListingOverview_totalUnits(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
+func (ec *executionContext) _Mutation_signIn(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_signIn(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3092,7 +3122,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(model.NewUser))
+		return ec.resolvers.Mutation().SignIn(rctx, fc.Args["input"].(model.NewUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3104,12 +3134,12 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Token)
+	res := resTmp.(*model.SignInResponse)
 	fc.Result = res
-	return ec.marshalNToken2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐToken(ctx, field.Selections, res)
+	return ec.marshalNSignInResponse2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSignInResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_signIn(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -3117,10 +3147,12 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "token":
-				return ec.fieldContext_Token_token(ctx, field)
+			case "user":
+				return ec.fieldContext_SignInResponse_user(ctx, field)
+			case "Token":
+				return ec.fieldContext_SignInResponse_Token(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Token", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SignInResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -3130,7 +3162,7 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_signIn_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3797,6 +3829,8 @@ func (ec *executionContext) fieldContext_Mutation_handshake(ctx context.Context,
 				return ec.fieldContext_User_phone(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "properties":
@@ -3874,6 +3908,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 				return ec.fieldContext_User_phone(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "properties":
@@ -4010,6 +4046,8 @@ func (ec *executionContext) fieldContext_Mutation_onboardUser(ctx context.Contex
 				return ec.fieldContext_User_phone(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "properties":
@@ -4672,6 +4710,8 @@ func (ec *executionContext) fieldContext_Property_owner(ctx context.Context, fie
 				return ec.fieldContext_User_phone(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "properties":
@@ -5372,6 +5412,8 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_phone(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
 			case "avatar":
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "properties":
@@ -6500,6 +6542,118 @@ func (ec *executionContext) fieldContext_Shoot_contactId(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _SignInResponse_user(ctx context.Context, field graphql.CollectedField, obj *model.SignInResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SignInResponse_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SignInResponse_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SignInResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "phone":
+				return ec.fieldContext_User_phone(ctx, field)
+			case "onboarding":
+				return ec.fieldContext_User_onboarding(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "properties":
+				return ec.fieldContext_User_properties(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SignInResponse_Token(ctx context.Context, field graphql.CollectedField, obj *model.SignInResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SignInResponse_Token(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SignInResponse_Token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SignInResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Status_success(ctx context.Context, field graphql.CollectedField, obj *model.Status) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Status_success(ctx, field)
 	if err != nil {
@@ -7227,6 +7381,50 @@ func (ec *executionContext) _User_onboarding(ctx context.Context, field graphql.
 }
 
 func (ec *executionContext) fieldContext_User_onboarding(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_is_landlord(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_is_landlord(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsLandlord, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_is_landlord(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -9463,45 +9661,13 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "first_name", "last_name", "avatar", "phone"}
+	fieldsInOrder := [...]string{"phone"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "email":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "first_name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first_name"))
-			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "last_name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last_name"))
-			it.LastName, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "avatar":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			it.Avatar, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "phone":
 			var err error
 
@@ -10401,10 +10567,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createUser":
+		case "signIn":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createUser(ctx, field)
+				return ec._Mutation_signIn(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -11193,6 +11359,41 @@ func (ec *executionContext) _Shoot(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var signInResponseImplementors = []string{"SignInResponse"}
+
+func (ec *executionContext) _SignInResponse(ctx context.Context, sel ast.SelectionSet, obj *model.SignInResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, signInResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SignInResponse")
+		case "user":
+
+			out.Values[i] = ec._SignInResponse_user(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Token":
+
+			out.Values[i] = ec._SignInResponse_Token(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var statusImplementors = []string{"Status"}
 
 func (ec *executionContext) _Status(ctx context.Context, sel ast.SelectionSet, obj *model.Status) graphql.Marshaler {
@@ -11393,6 +11594,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "onboarding":
 
 			out.Values[i] = ec._User_onboarding(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "is_landlord":
+
+			out.Values[i] = ec._User_is_landlord(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -12176,6 +12384,20 @@ func (ec *executionContext) unmarshalNShootInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNSignInResponse2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSignInResponse(ctx context.Context, sel ast.SelectionSet, v model.SignInResponse) graphql.Marshaler {
+	return ec._SignInResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSignInResponse2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSignInResponse(ctx context.Context, sel ast.SelectionSet, v *model.SignInResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SignInResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNStatus2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
 	return ec._Status(ctx, sel, &v)
 }
@@ -12281,20 +12503,6 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNToken2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v model.Token) graphql.Marshaler {
-	return ec._Token(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v *model.Token) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Token(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTown2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTownᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Town) graphql.Marshaler {

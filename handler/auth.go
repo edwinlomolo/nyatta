@@ -4,62 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"io"
 	"log"
 	"net"
 	"net/http"
 	"strings"
 
 	"github.com/3dw1nM0535/nyatta/config"
-	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	jwt "github.com/golang-jwt/jwt/v5"
-	"github.com/sirupsen/logrus"
 )
-
-func Handshake() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		logger := ctx.Value("log").(*logrus.Logger)
-
-		loginResponse := &model.LoginResponse{}
-		var newUser *model.NewUser
-
-		// This handler should only support POST
-		if r.Method != http.MethodPost {
-			http.Error(w, errors.New("Only POST method supported").Error(), http.StatusMethodNotAllowed)
-			return
-		}
-		// Read incoming data from body request
-		reqBody, err := io.ReadAll(r.Body)
-		if err != nil {
-			logger.Errorf("Error reading body: %v", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		json.Unmarshal(reqBody, &newUser)
-
-		// SignIn - authorize incoming user
-		signInResponse, err := ctx.Value("userService").(*services.UserServices).SignIn(newUser)
-		if err != nil {
-			logger.Errorf("Error signing in: %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		} else {
-
-			response := &model.Response{
-				Code: http.StatusOK,
-			}
-			loginResponse.Response = response
-			loginResponse.AccessToken = signInResponse.Token
-			loginResponse.Onboarding = *signInResponse.Onboarding
-
-			writeResponse(w, loginResponse, loginResponse.Code)
-			return
-		}
-	})
-}
 
 func Authenticate(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

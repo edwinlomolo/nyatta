@@ -92,7 +92,7 @@ func (t TwilioServices) VerifyCode(phone, verifyCode string, countryCode model.C
 func (t *TwilioServices) UpdateUserPhone(email, phone string) (*model.User, error) {
 	updatedUser, err := t.queries.UpdateUserPhone(ctx, sqlStore.UpdateUserPhoneParams{
 		Email: sql.NullString{String: email, Valid: true},
-		Phone: sql.NullString{String: phone, Valid: true},
+		Phone: phone,
 	})
 	if err != nil {
 		t.logger.Errorf("%s: %v", t.ServiceName(), err)
@@ -103,7 +103,7 @@ func (t *TwilioServices) UpdateUserPhone(email, phone string) (*model.User, erro
 		FirstName:  updatedUser.FirstName.String,
 		LastName:   updatedUser.LastName.String,
 		Email:      updatedUser.Email.String,
-		Phone:      updatedUser.Phone.String,
+		Phone:      updatedUser.Phone,
 		Onboarding: updatedUser.Onboarding.Bool,
 		CreatedAt:  &updatedUser.CreatedAt,
 		UpdatedAt:  &updatedUser.UpdatedAt,

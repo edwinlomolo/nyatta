@@ -6,7 +6,6 @@ import (
 )
 
 type UserService interface {
-	CreateUser(user *model.NewUser) (*model.User, error)
 	FindById(id string) (*model.User, error)
 	FindByEmail(email string) (*model.User, error)
 	UpdateUser(input *model.UpdateUserInput) (*model.User, error)

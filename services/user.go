@@ -32,34 +32,34 @@ func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string
 	return &UserServices{queries, logger, authServices, twilio, sendEmail, env}
 }
 
-// CreateUser - create a new user
-func (u *UserServices) CreateUser(user *model.NewUser) (*model.User, error) {
-	avatar := ""
-	if user.Avatar != nil {
-		avatar = *user.Avatar
-	}
-
-	insertedUser, err := u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
-		FirstName: sql.NullString{String: user.FirstName, Valid: true},
-		LastName:  sql.NullString{String: user.LastName, Valid: true},
-		Email:     sql.NullString{String: user.Email, Valid: true},
-		Avatar:    sql.NullString{String: avatar, Valid: true},
-		Phone:     sql.NullString{String: user.Phone, Valid: true},
-	})
-	if err != nil {
+// FindUserByPhone - get user by phone number
+func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
+	var foundUser sqlStore.User
+	var err error
+	foundUser, err = u.queries.FindUserByPhone(ctx, phone)
+	if err != nil && err == sql.ErrNoRows {
+		// Create new user(auto-onboard)
+		foundUser, err = u.queries.CreateUser(ctx, phone)
+		if err != nil {
+			u.log.Errorf("%s: %v", u.ServiceName(), err)
+			return nil, err
+		}
+		return &model.User{
+			ID:         strconv.FormatInt(foundUser.ID, 10),
+			IsLandlord: foundUser.IsLandlord.Bool,
+			Phone:      foundUser.Phone,
+			CreatedAt:  &foundUser.CreatedAt,
+		}, nil
+	} else if err != nil && err != sql.ErrNoRows {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
-
 	return &model.User{
-		ID:         strconv.FormatInt(insertedUser.ID, 10),
-		FirstName:  insertedUser.FirstName.String,
-		LastName:   insertedUser.LastName.String,
-		Email:      insertedUser.Email.String,
-		Onboarding: insertedUser.Onboarding.Bool,
-		Avatar:     insertedUser.Avatar.String,
-		CreatedAt:  &insertedUser.CreatedAt,
-		UpdatedAt:  &insertedUser.UpdatedAt,
+		ID:         strconv.FormatInt(foundUser.ID, 10),
+		Phone:      foundUser.Phone,
+		IsLandlord: foundUser.IsLandlord.Bool,
+		CreatedAt:  &foundUser.CreatedAt,
+		UpdatedAt:  &foundUser.UpdatedAt,
 	}, nil
 }
 
@@ -70,29 +70,10 @@ func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
 	// user - existing user
 	var newUser *model.User
 	var err error
-	newUser, err = u.FindByEmail(user.Email)
-	if err != nil && err.Error() != "User not found" {
+	newUser, err = u.FindUserByPhone(user.Phone)
+	if err != nil {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
-	}
-	// user - new user
-	if err != nil && err.Error() == "User not found" {
-		avatar := ""
-		if user.Avatar == nil {
-			user.Avatar = &avatar
-		}
-		newUser, err = u.CreateUser(user)
-		if err != nil {
-			u.log.Errorf("%s: %v", u.ServiceName(), err)
-			return nil, err
-		}
-	}
-	if newUser.Onboarding {
-		onboarding := true
-		signInResponse.Onboarding = &onboarding
-	} else {
-		onboarding := false
-		signInResponse.Onboarding = &onboarding
 	}
 	token, err := u.auth.SignJWT(newUser)
 	if err != nil {
@@ -100,6 +81,7 @@ func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
 		return nil, err
 	}
 	signInResponse.Token = *token
+	signInResponse.User = newUser
 	return signInResponse, nil
 }
 
@@ -139,7 +121,7 @@ func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 		Email:      foundUser.Email.String,
 		Avatar:     foundUser.Avatar.String,
 		Onboarding: foundUser.Onboarding.Bool,
-		Phone:      foundUser.Phone.String,
+		Phone:      foundUser.Phone,
 		CreatedAt:  &foundUser.CreatedAt,
 		UpdatedAt:  &foundUser.UpdatedAt,
 	}, nil
@@ -165,7 +147,7 @@ func (u *UserServices) UpdateUser(input *model.UpdateUserInput) (*model.User, er
 		LastName:   updatedUser.LastName.String,
 		Email:      updatedUser.Email.String,
 		Onboarding: updatedUser.Onboarding.Bool,
-		Phone:      updatedUser.Phone.String,
+		Phone:      updatedUser.Phone,
 		Avatar:     updatedUser.Avatar.String,
 		CreatedAt:  &updatedUser.CreatedAt,
 		UpdatedAt:  &updatedUser.UpdatedAt,
@@ -181,41 +163,6 @@ func (u *UserServices) ValidateToken(tokenString *string) (*jwt.Token, error) {
 // ServiceName - return service name
 func (u UserServices) ServiceName() string {
 	return "UserServices"
-}
-
-// FindUserByPhone - get user by phone number
-func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
-	phoneNumber := sql.NullString{String: phone, Valid: true}
-	var foundUser sqlStore.User
-	var err error
-	foundUser, err = u.queries.FindUserByPhone(ctx, phoneNumber)
-	if err == sql.ErrNoRows {
-		// Create new user(auto-onboard)
-		foundUser, err = u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
-			Phone: phoneNumber,
-		})
-		if err != nil {
-			u.log.Errorf("%s: %v", u.ServiceName(), err)
-			return nil, err
-		}
-		return &model.User{
-			ID:         strconv.FormatInt(foundUser.ID, 10),
-			Onboarding: foundUser.Onboarding.Bool,
-		}, nil
-	} else if err != nil && err != sql.ErrNoRows {
-		u.log.Errorf("%s: %v", u.ServiceName(), err)
-		return nil, err
-	}
-	return &model.User{
-		ID:         strconv.FormatInt(foundUser.ID, 10),
-		FirstName:  foundUser.FirstName.String,
-		LastName:   foundUser.LastName.String,
-		Email:      foundUser.Email.String,
-		Onboarding: foundUser.Onboarding.Bool,
-		Avatar:     foundUser.Avatar.String,
-		CreatedAt:  &foundUser.CreatedAt,
-		UpdatedAt:  &foundUser.UpdatedAt,
-	}, nil
 }
 
 // OnboardUser - update user onboarding status
@@ -243,7 +190,7 @@ func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, 
 		LastName:   onboardedUser.LastName.String,
 		Email:      onboardedUser.Email.String,
 		Onboarding: onboardedUser.Onboarding.Bool,
-		Phone:      onboardedUser.Phone.String,
+		Phone:      onboardedUser.Phone,
 		CreatedAt:  &onboardedUser.CreatedAt,
 		UpdatedAt:  &onboardedUser.UpdatedAt,
 	}, nil
