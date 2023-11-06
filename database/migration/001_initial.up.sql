@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS property_units (
 CREATE TABLE IF NOT EXISTS amenities (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  provider VARCHAR(100),
+  provider VARCHAR(100) NOT NULL DEFAULT '',
   category VARCHAR(50) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS bedrooms (
   property_unit_id BIGINT NOT NULL REFERENCES property_units ON DELETE SET NULL
 );
 
-CREATE TYPE upload_category AS ENUM("profile_img", "unit_images", "caretaker_img")
+CREATE TYPE upload_category AS ENUM ('profile_img', 'unit_images', 'caretaker_img');
 CREATE TABLE IF NOT EXISTS uploads (
   id BIGSERIAL PRIMARY KEY,
   upload TEXT NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS uploads (
   property_unit_id BIGINT REFERENCES property_units ON DELETE CASCADE,
   property_id BIGINT REFERENCES properties ON DELETE CASCADE,
   user_id BIGINT REFERENCES users ON DELETE CASCADE,
-  caretaker_id REFERENCES caretakers ON DELETE CASCADE
+  caretaker_id BIGINT REFERENCES caretakers ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS shoots (
