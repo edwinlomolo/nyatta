@@ -4,10 +4,8 @@ type Caretaker {
   first_name: String!
   last_name: String!
   phone: String!
-  idVerification: String!
-  countryCode: String!
+  image: String!
   verified: Boolean!
-  shootsInCharge: [Shoot!]!
   createdAt: Time
   updatedAt: Time
 }

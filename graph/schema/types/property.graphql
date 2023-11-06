@@ -2,14 +2,14 @@
 type Property {
   id: ID!
   name: String!
-  town: String!
-  postalCode: String!
   thumbnail: String!
   type: String!
   status: String!
   location: Gps!
   units: [PropertyUnit!]!
   createdBy: ID!
+  caretaker: Caretaker!
+  caretakerId: ID!
   owner: User!
   createdAt: Time
   updatedAt: Time

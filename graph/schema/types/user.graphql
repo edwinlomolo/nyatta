@@ -5,10 +5,10 @@ type User {
   email: String!
   first_name: String!
   last_name: String!
+  avatar: String!
   phone: String!
   onboarding: Boolean!
   is_landlord: Boolean!
-  avatar: String!
   properties: [Property!]!
   createdAt: Time
   updatedAt: Time
