@@ -7,7 +7,20 @@ import (
 	"io"
 	"strconv"
 	"time"
+
+	"github.com/99designs/gqlgen/graphql"
 )
+
+type AnyUpload struct {
+	ID         string     `json:"id"`
+	Upload     string     `json:"upload"`
+	Category   string     `json:"category"`
+	PropertyID string     `json:"propertyId"`
+	UserID     string     `json:"userId"`
+	UnitID     string     `json:"unitId"`
+	CreatedAt  *time.Time `json:"createdAt"`
+	UpdatedAt  *time.Time `json:"updatedAt"`
+}
 
 type Bedroom struct {
 	ID             string     `json:"id"`
@@ -20,30 +33,37 @@ type Bedroom struct {
 }
 
 type Caretaker struct {
-	ID             string     `json:"id"`
-	FirstName      string     `json:"first_name"`
-	LastName       string     `json:"last_name"`
-	Phone          string     `json:"phone"`
-	IDVerification string     `json:"idVerification"`
-	CountryCode    string     `json:"countryCode"`
-	Verified       bool       `json:"verified"`
-	ShootsInCharge []*Shoot   `json:"shootsInCharge"`
-	CreatedAt      *time.Time `json:"createdAt"`
-	UpdatedAt      *time.Time `json:"updatedAt"`
+	ID         string       `json:"id"`
+	FirstName  string       `json:"first_name"`
+	LastName   string       `json:"last_name"`
+	Phone      string       `json:"phone"`
+	Uploads    []*AnyUpload `json:"uploads"`
+	Verified   bool         `json:"verified"`
+	Properties []*Property  `json:"properties"`
+	CreatedAt  *time.Time   `json:"createdAt"`
+	UpdatedAt  *time.Time   `json:"updatedAt"`
 }
 
 type CaretakerInput struct {
-	FirstName      string      `json:"first_name"`
-	LastName       string      `json:"last_name"`
-	Phone          string      `json:"phone"`
-	CountryCode    CountryCode `json:"countryCode"`
-	IDVerification string      `json:"idVerification"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	Phone     string         `json:"phone"`
+	Image     graphql.Upload `json:"image"`
 }
 
 type CaretakerVerificationInput struct {
-	Phone       string      `json:"phone"`
-	CountryCode CountryCode `json:"countryCode"`
-	VerifyCode  string      `json:"verifyCode"`
+	Phone      string `json:"phone"`
+	VerifyCode string `json:"verifyCode"`
+}
+
+type Gps struct {
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
+}
+
+type GpsInput struct {
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
 }
 
 type HandshakeInput struct {
@@ -60,45 +80,34 @@ type NewUser struct {
 	Phone string `json:"phone"`
 }
 
-type OnboardUserInput struct {
-	Email      string `json:"email"`
-	Onboarding bool   `json:"onboarding"`
-}
-
 type PropertyUnit struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Bedrooms     []*Bedroom `json:"bedrooms"`
-	PropertyID   string     `json:"propertyId"`
-	Price        string     `json:"price"`
-	AmenityCount int        `json:"amenityCount"`
-	Bathrooms    int        `json:"bathrooms"`
-	State        UnitState  `json:"state"`
-	Type         string     `json:"type"`
-	Tenancy      []*Tenant  `json:"tenancy"`
-	CreatedAt    *time.Time `json:"createdAt"`
-	UpdatedAt    *time.Time `json:"updatedAt"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Bedrooms     []*Bedroom   `json:"bedrooms"`
+	PropertyID   string       `json:"propertyId"`
+	Property     *Property    `json:"property"`
+	Price        string       `json:"price"`
+	AmenityCount int          `json:"amenityCount"`
+	Bathrooms    int          `json:"bathrooms"`
+	Amenities    []*Amenity   `json:"amenities"`
+	State        UnitState    `json:"state"`
+	Type         string       `json:"type"`
+	Uploads      []*AnyUpload `json:"uploads"`
+	Tenancy      []*Tenant    `json:"tenancy"`
+	CreatedAt    *time.Time   `json:"createdAt"`
+	UpdatedAt    *time.Time   `json:"updatedAt"`
 }
 
 type PropertyUnitInput struct {
 	PropertyID string              `json:"propertyId"`
 	Baths      int                 `json:"baths"`
 	Name       string              `json:"name"`
+	Location   *GpsInput           `json:"location"`
 	Type       string              `json:"type"`
 	Amenities  []*UnitAmenityInput `json:"amenities"`
 	Bedrooms   []*UnitBedroomInput `json:"bedrooms"`
 	Price      string              `json:"price"`
-}
-
-type SetupPropertyInput struct {
-	Name         string          `json:"name"`
-	Town         string          `json:"town"`
-	PostalCode   string          `json:"postalCode"`
-	PropertyType string          `json:"propertyType"`
-	Caretaker    *CaretakerInput `json:"caretaker"`
-	Units        []*UnitInput    `json:"units"`
-	Shoot        *ShootInput     `json:"shoot"`
-	Creator      string          `json:"creator"`
+	Uploads    []*UploadImages     `json:"uploads"`
 }
 
 type Shoot struct {
@@ -108,13 +117,10 @@ type Shoot struct {
 	Status     string     `json:"status"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`
-	Contact    *Caretaker `json:"contact"`
-	ContactID  string     `json:"contactId"`
 }
 
 type ShootInput struct {
-	Date          time.Time `json:"date"`
-	ContactPerson string    `json:"contactPerson"`
+	Date time.Time `json:"date"`
 }
 
 type SignInResponse struct {
@@ -127,18 +133,18 @@ type Status struct {
 }
 
 type TenancyInput struct {
-	StartDate      time.Time  `json:"startDate"`
-	EndDate        *time.Time `json:"endDate"`
-	PropertyUnitID string     `json:"propertyUnitId"`
+	StartDate      time.Time `json:"startDate"`
+	PropertyUnitID string    `json:"propertyUnitId"`
 }
 
 type Tenant struct {
-	ID             string     `json:"id"`
-	StartDate      time.Time  `json:"startDate"`
-	EndDate        *time.Time `json:"endDate"`
-	PropertyUnitID string     `json:"propertyUnitId"`
-	CreatedAt      *time.Time `json:"createdAt"`
-	UpdatedAt      *time.Time `json:"updatedAt"`
+	ID             string       `json:"id"`
+	StartDate      time.Time    `json:"startDate"`
+	EndDate        *time.Time   `json:"endDate"`
+	Upload         []*AnyUpload `json:"upload"`
+	PropertyUnitID string       `json:"propertyUnitId"`
+	CreatedAt      *time.Time   `json:"createdAt"`
+	UpdatedAt      *time.Time   `json:"updatedAt"`
 }
 
 type Token struct {
@@ -157,41 +163,24 @@ type UnitAmenityInput struct {
 }
 
 type UnitBedroomInput struct {
-	PropertyUnitID *string `json:"propertyUnitId"`
-	BedroomNumber  int     `json:"bedroomNumber"`
-	EnSuite        bool    `json:"enSuite"`
-	Master         bool    `json:"master"`
+	BedroomNumber int  `json:"bedroomNumber"`
+	EnSuite       bool `json:"enSuite"`
+	Master        bool `json:"master"`
 }
 
-type UnitInput struct {
-	Name      string              `json:"name"`
-	Price     string              `json:"price"`
-	Type      string              `json:"type"`
-	Amenities []*UnitAmenityInput `json:"amenities"`
-	Bedrooms  []*UnitBedroomInput `json:"bedrooms"`
-	Baths     int                 `json:"baths"`
-}
-
-type UpdateUserInput struct {
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	Avatar     string `json:"avatar"`
-	Email      string `json:"email"`
-	Phone      string `json:"phone"`
-	Onboarding bool   `json:"onboarding"`
+type UploadImages struct {
+	Image    string `json:"image"`
+	Category string `json:"category"`
 }
 
 type UserVerificationInput struct {
-	Phone       string      `json:"phone"`
-	Email       string      `json:"email"`
-	CountryCode CountryCode `json:"countryCode"`
-	VerifyCode  string      `json:"verifyCode"`
+	Phone      string `json:"phone"`
+	VerifyCode string `json:"verifyCode"`
 }
 
 type VerificationInput struct {
-	Phone       string      `json:"phone"`
-	CountryCode CountryCode `json:"countryCode"`
-	VerifyCode  *string     `json:"verifyCode"`
+	Phone      string  `json:"phone"`
+	VerifyCode *string `json:"verifyCode"`
 }
 
 type CountryCode string
@@ -273,5 +262,48 @@ func (e *UnitState) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UnitState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UploadCategory string
+
+const (
+	UploadCategoryProfileImg   UploadCategory = "PROFILE_IMG"
+	UploadCategoryUnitImages   UploadCategory = "UNIT_IMAGES"
+	UploadCategoryCaretakerImg UploadCategory = "CARETAKER_IMG"
+)
+
+var AllUploadCategory = []UploadCategory{
+	UploadCategoryProfileImg,
+	UploadCategoryUnitImages,
+	UploadCategoryCaretakerImg,
+}
+
+func (e UploadCategory) IsValid() bool {
+	switch e {
+	case UploadCategoryProfileImg, UploadCategoryUnitImages, UploadCategoryCaretakerImg:
+		return true
+	}
+	return false
+}
+
+func (e UploadCategory) String() string {
+	return string(e)
+}
+
+func (e *UploadCategory) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UploadCategory(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UploadCategory", str)
+	}
+	return nil
+}
+
+func (e UploadCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

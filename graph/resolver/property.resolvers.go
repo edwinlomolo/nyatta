@@ -12,14 +12,9 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
-// Amenities is the resolver for the amenities field.
-func (r *propertyResolver) Amenities(ctx context.Context, obj *model.Property) ([]*model.Amenity, error) {
-	return []*model.Amenity{}, nil
-	//foundAmenities, err := ctx.Value("amenityService").(*services.AmenityServices).PropertyAmenities(obj.ID)
-	//if err != nil {
-	//	return nil, fmt.Errorf("%s: %v", config.ResolverError, err)
-	//}
-	//return foundAmenities, nil
+// Uploads is the resolver for the uploads field.
+func (r *propertyResolver) Uploads(ctx context.Context, obj *model.Property) ([]*model.AnyUpload, error) {
+	panic(fmt.Errorf("not implemented: Uploads - uploads"))
 }
 
 // Units is the resolver for the units field.
@@ -29,6 +24,11 @@ func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*m
 		return nil, err
 	}
 	return foundUnits, nil
+}
+
+// Caretaker is the resolver for the caretaker field.
+func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error) {
+	panic(fmt.Errorf("not implemented: Caretaker - caretaker"))
 }
 
 // Owner is the resolver for the owner field.
@@ -44,19 +44,3 @@ func (r *propertyResolver) Owner(ctx context.Context, obj *model.Property) (*mod
 func (r *Resolver) Property() generated.PropertyResolver { return &propertyResolver{r} }
 
 type propertyResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *propertyResolver) Sstatus(ctx context.Context, obj *model.Property) (string, error) {
-	panic(fmt.Errorf("not implemented: Sstatus - sstatus"))
-}
-func (r *propertyResolver) Type(ctx context.Context, obj *model.Property) (string, error) {
-	panic(fmt.Errorf("not implemented: Type - type"))
-}
-func (r *propertyResolver) CreatedBy(ctx context.Context, obj *model.Property) (int, error) {
-	panic(fmt.Errorf("not implemented: CreatedBy - createdBy"))
-}

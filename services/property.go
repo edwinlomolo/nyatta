@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"os"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -41,17 +40,9 @@ func (p PropertyServices) ServiceName() string {
 
 // CreateProperty - create new property
 func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.Property, error) {
-	creator, err := strconv.ParseInt(property.CreatedBy, 10, 64)
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
 	insertedProperty, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
-		Name:       property.Name,
-		Town:       property.Town,
-		Type:       property.Type,
-		PostalCode: property.PostalCode,
-		CreatedBy:  creator,
+		Name: property.Name,
+		Type: property.Type,
 	})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
@@ -59,15 +50,12 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 	}
 
 	return &model.Property{
-		ID:         strconv.FormatInt(insertedProperty.ID, 10),
-		Name:       insertedProperty.Name,
-		Town:       insertedProperty.Town,
-		PostalCode: insertedProperty.PostalCode,
-		Type:       insertedProperty.Type,
-		Status:     insertedProperty.Status,
-		CreatedBy:  strconv.FormatInt(creator, 10),
-		CreatedAt:  &insertedProperty.CreatedAt,
-		UpdatedAt:  &insertedProperty.UpdatedAt,
+		ID:        strconv.FormatInt(insertedProperty.ID, 10),
+		Name:      insertedProperty.Name,
+		Type:      insertedProperty.Type,
+		Status:    insertedProperty.Status,
+		CreatedAt: &insertedProperty.CreatedAt,
+		UpdatedAt: &insertedProperty.UpdatedAt,
 	}, nil
 }
 
@@ -85,15 +73,12 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 		return nil, errors.New("Property does not exist")
 	}
 	return &model.Property{
-		ID:         strconv.FormatInt(foundProperty.ID, 10),
-		Name:       foundProperty.Name,
-		Town:       foundProperty.Town,
-		Type:       foundProperty.Type,
-		Status:     foundProperty.Status,
-		PostalCode: foundProperty.PostalCode,
-		CreatedBy:  strconv.FormatInt(foundProperty.CreatedBy, 10),
-		CreatedAt:  &foundProperty.CreatedAt,
-		UpdatedAt:  &foundProperty.UpdatedAt,
+		ID:        strconv.FormatInt(foundProperty.ID, 10),
+		Name:      foundProperty.Name,
+		Type:      foundProperty.Type,
+		Status:    foundProperty.Status,
+		CreatedAt: &foundProperty.CreatedAt,
+		UpdatedAt: &foundProperty.UpdatedAt,
 	}, nil
 }
 
@@ -118,7 +103,7 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 		return nil, err
 	}
 
-	props, err := p.queries.PropertiesCreatedBy(ctx, creator)
+	props, err := p.queries.PropertiesCreatedBy(ctx, sql.NullInt64{Int64: creator, Valid: true})
 	if err == sql.ErrNoRows {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, errors.New("No properties found")
@@ -126,14 +111,12 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 
 	for _, item := range props {
 		property := &model.Property{
-			ID:         strconv.FormatInt(item.ID, 10),
-			Name:       item.Name,
-			Town:       item.Town,
-			Type:       item.Type,
-			Status:     item.Status,
-			PostalCode: item.PostalCode,
-			CreatedAt:  &item.CreatedAt,
-			UpdatedAt:  &item.UpdatedAt,
+			ID:        strconv.FormatInt(item.ID, 10),
+			Name:      item.Name,
+			Type:      item.Type,
+			Status:    item.Status,
+			CreatedAt: &item.CreatedAt,
+			UpdatedAt: &item.UpdatedAt,
 		}
 		userProperties = append(userProperties, property)
 	}
@@ -151,7 +134,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 		return nil, err
 	}
 
-	foundUnits, err := p.queries.GetPropertyUnits(ctx, id)
+	foundUnits, err := p.queries.GetPropertyUnits(ctx, sql.NullInt64{Int64: id, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
@@ -163,7 +146,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 			Name:       foundUnit.Name,
 			State:      model.UnitState(foundUnit.State),
 			Type:       foundUnit.Type,
-			PropertyID: strconv.FormatInt(foundUnit.PropertyID, 10),
+			PropertyID: strconv.FormatInt(foundUnit.PropertyID.Int64, 10),
 			Price:      strconv.FormatInt(int64(foundUnit.Price), 10),
 			Bathrooms:  int(foundUnit.Bathrooms),
 			CreatedAt:  &foundUnit.CreatedAt,
@@ -175,99 +158,9 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 	return units, nil
 }
 
-// SetupProperty - setup listing
-func (p PropertyServices) SetupProperty(input *model.SetupPropertyInput) (*model.Status, error) {
-	user, err := p.queries.FindByEmail(ctx, sql.NullString{String: input.Creator, Valid: true})
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	// Create property caretaker
-	caretaker, err := p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
-		FirstName:      input.Caretaker.FirstName,
-		LastName:       input.Caretaker.LastName,
-		Phone:          sql.NullString{String: input.Caretaker.Phone, Valid: true},
-		CountryCode:    input.Caretaker.CountryCode.String(),
-		Idverification: input.Caretaker.IDVerification,
-		Image:          input.Shoot.ContactPerson,
-	})
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	// Create property
-	property, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
-		Name:       input.Name,
-		Town:       input.Town,
-		PostalCode: input.PostalCode,
-		Type:       input.PropertyType,
-		CreatedBy:  user.ID,
-		Caretaker:  sql.NullInt64{Int64: caretaker.ID, Valid: true},
-	})
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	// Create property unit
-	if len(input.Units) > 0 {
-		for i := 0; i < len(input.Units); i++ {
-			unitPrice, err := strconv.ParseInt(input.Units[i].Price, 10, 64)
-			unit, err := p.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
-				Name:       input.Units[i].Name,
-				Type:       input.Units[i].Type,
-				Bathrooms:  int32(input.Units[i].Baths),
-				Price:      int32(unitPrice),
-				PropertyID: property.ID,
-			})
-			// create unit bedrooms
-			if len(input.Units[i].Bedrooms) > 0 {
-				for j := 0; j < len(input.Units[i].Bedrooms); j++ {
-					_, err := p.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
-						PropertyUnitID: unit.ID,
-						BedroomNumber:  int32(input.Units[i].Bedrooms[j].BedroomNumber),
-						EnSuite:        input.Units[i].Bedrooms[j].EnSuite,
-						Master:         input.Units[i].Bedrooms[j].Master,
-					})
-					if err != nil {
-						p.logger.Errorf("%s: %v", p.ServiceName(), err)
-						return nil, err
-					}
-				}
-			}
-			// create unit amenities
-			if len(input.Units[i].Amenities) > 0 {
-				for j := 0; j < len(input.Units[i].Amenities); j++ {
-					_, err := p.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
-						Name:           input.Units[i].Amenities[j].Name,
-						Category:       input.Units[i].Amenities[j].Category,
-						PropertyUnitID: unit.ID,
-					})
-					if err != nil {
-						p.logger.Errorf("%s: %v", p.ServiceName(), err)
-						return nil, err
-					}
-				}
-			}
-			if err != nil {
-				p.logger.Errorf("%s: %v", p.ServiceName(), err)
-				return nil, err
-			}
-		}
-	}
-	// send email
-	if p.env == "staging" || p.env == "production" {
-		from := os.Getenv("EMAIL_FROM")
-		p.sendEmail([]string{user.Email.String}, from, "Congratulations!", newPropertyEmail)
-	}
-	return &model.Status{Success: "okay"}, nil
-}
-
 // CaretakerVerification - verify caretaker
 func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVerificationInput) (*model.Status, error) {
-	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode, input.CountryCode)
+	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
@@ -283,19 +176,19 @@ func (p *PropertyServices) ListingOverview(propertyId string) (*model.ListingOve
 		return nil, err
 	}
 
-	totalUnits, err := p.queries.PropertyUnitsCount(ctx, id)
+	totalUnits, err := p.queries.PropertyUnitsCount(ctx, sql.NullInt64{Int64: id, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
-	occupiedUnits, err := p.queries.OccupiedUnitsCount(ctx, id)
+	occupiedUnits, err := p.queries.OccupiedUnitsCount(ctx, sql.NullInt64{Int64: id, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
-	vacantUnits, err := p.queries.VacantUnitsCount(ctx, id)
+	vacantUnits, err := p.queries.VacantUnitsCount(ctx, sql.NullInt64{Int64: id, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err

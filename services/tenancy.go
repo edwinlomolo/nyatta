@@ -33,9 +33,8 @@ func (u *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tena
 	}
 
 	insertedTenant, err := u.queries.CreateTenant(ctx, sqlStore.CreateTenantParams{
-		PropertyUnitID: propertyId,
+		PropertyUnitID: sql.NullInt64{Int64: propertyId, Valid: true},
 		StartDate:      input.StartDate,
-		EndDate:        sql.NullTime{Time: *input.EndDate, Valid: true},
 	})
 	if err != nil {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)

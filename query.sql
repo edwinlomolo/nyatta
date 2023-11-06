@@ -12,9 +12,9 @@ RETURNING *;
 
 -- name: CreateProperty :one
 INSERT INTO properties (
-  name, thumbnail, type, created_by, location
+  name, type, created_by, location
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4
 )
 RETURNING *;
 
@@ -40,17 +40,17 @@ RETURNING *;
 
 -- name: CreateTenant :one
 INSERT INTO tenants (
-  start_date, end_date, property_unit_id
+  start_date, property_unit_id
 ) VALUES (
-  $1, $2, $3
+  $1, $2
 )
 RETURNING *;
 
 -- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms, name, type, price
+  property_id, bathrooms, name, type, price, location
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 
@@ -74,35 +74,23 @@ WHERE property_unit_id = $1;
 SELECT * FROM property_units
 WHERE property_id = $1;
 
--- name: UpdateUser :one
-UPDATE users
-SET avatar = $1, first_name = $2, last_name = $3, onboarding = $4
-WHERE email = $5
-RETURNING *;
-
--- name: UpdateUserPhone :one
-UPDATE users
-SET phone = $1
-WHERE email = $2
-RETURNING *;
-
 -- name: FindUserByPhone :one
 SELECT * FROM users
 WHERE phone = $1;
 
 -- name: CreateCaretaker :one
 INSERT INTO caretakers (
-  first_name, last_name, idVerification, country_code, phone, image
+  first_name, last_name, phone
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3
 )
 RETURNING *;
 
 -- name: CreateShootSchedule :one
 INSERT INTO shoots (
-  shoot_date, property_id, property_unit_id, caretaker_id
+  shoot_date, property_id
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2
 )
 RETURNING *;
 

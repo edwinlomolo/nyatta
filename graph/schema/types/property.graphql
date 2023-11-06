@@ -2,10 +2,10 @@
 type Property {
   id: ID!
   name: String!
-  thumbnail: String!
   type: String!
   status: String!
   location: Gps!
+  uploads: [AnyUpload!]!
   units: [PropertyUnit!]!
   createdBy: ID!
   caretaker: Caretaker!

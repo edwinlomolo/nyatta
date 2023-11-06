@@ -4,8 +4,9 @@ type Caretaker {
   first_name: String!
   last_name: String!
   phone: String!
-  image: String!
+  uploads: [AnyUpload!]!
   verified: Boolean!
+  properties: [Property!]!
   createdAt: Time
   updatedAt: Time
 }

@@ -54,14 +54,57 @@ func (ns NullUnitState) Value() (driver.Value, error) {
 	return ns.UnitState, nil
 }
 
+type UploadCategory string
+
+const (
+	UploadCategoryProfileImg   UploadCategory = "profile_img"
+	UploadCategoryUnitImages   UploadCategory = "unit_images"
+	UploadCategoryCaretakerImg UploadCategory = "caretaker_img"
+)
+
+func (e *UploadCategory) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UploadCategory(s)
+	case string:
+		*e = UploadCategory(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UploadCategory: %T", src)
+	}
+	return nil
+}
+
+type NullUploadCategory struct {
+	UploadCategory UploadCategory
+	Valid          bool // Valid is true if String is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUploadCategory) Scan(value interface{}) error {
+	if value == nil {
+		ns.UploadCategory, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UploadCategory.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUploadCategory) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return ns.UploadCategory, nil
+}
+
 type Amenity struct {
-	ID             int64          `json:"id"`
-	Name           string         `json:"name"`
-	Provider       sql.NullString `json:"provider"`
-	CreatedAt      time.Time      `json:"created_at"`
-	Category       string         `json:"category"`
-	UpdatedAt      time.Time      `json:"updated_at"`
-	PropertyUnitID int64          `json:"property_unit_id"`
+	ID             int64         `json:"id"`
+	Name           string        `json:"name"`
+	Provider       string        `json:"provider"`
+	Category       string        `json:"category"`
+	CreatedAt      time.Time     `json:"created_at"`
+	UpdatedAt      time.Time     `json:"updated_at"`
+	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
 }
 
 type Bedroom struct {
@@ -75,16 +118,13 @@ type Bedroom struct {
 }
 
 type Caretaker struct {
-	ID             int64          `json:"id"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	Idverification string         `json:"idverification"`
-	CountryCode    string         `json:"country_code"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
-	Phone          sql.NullString `json:"phone"`
-	Image          string         `json:"image"`
-	Verified       bool           `json:"verified"`
+	ID        int64          `json:"id"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	Phone     sql.NullString `json:"phone"`
+	Verified  bool           `json:"verified"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 type Mailing struct {
@@ -93,28 +133,28 @@ type Mailing struct {
 }
 
 type Property struct {
-	ID         int64         `json:"id"`
-	Name       string        `json:"name"`
-	Town       string        `json:"town"`
-	PostalCode string        `json:"postal_code"`
-	Type       string        `json:"type"`
-	Status     string        `json:"status"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  time.Time     `json:"updated_at"`
-	CreatedBy  int64         `json:"created_by"`
-	Caretaker  sql.NullInt64 `json:"caretaker"`
+	ID          int64         `json:"id"`
+	Name        string        `json:"name"`
+	Location    interface{}   `json:"location"`
+	Type        string        `json:"type"`
+	Status      string        `json:"status"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	CreatedBy   sql.NullInt64 `json:"created_by"`
+	CaretakerID sql.NullInt64 `json:"caretaker_id"`
 }
 
 type PropertyUnit struct {
-	ID         int64     `json:"id"`
-	Name       string    `json:"name"`
-	Type       string    `json:"type"`
-	State      UnitState `json:"state"`
-	Price      int32     `json:"price"`
-	Bathrooms  int32     `json:"bathrooms"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	PropertyID int64     `json:"property_id"`
+	ID         int64         `json:"id"`
+	Name       string        `json:"name"`
+	Type       string        `json:"type"`
+	State      UnitState     `json:"state"`
+	Location   interface{}   `json:"location"`
+	Price      int32         `json:"price"`
+	Bathrooms  int32         `json:"bathrooms"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
+	PropertyID sql.NullInt64 `json:"property_id"`
 }
 
 type Shoot struct {
@@ -127,12 +167,25 @@ type Shoot struct {
 }
 
 type Tenant struct {
-	ID             int64        `json:"id"`
-	StartDate      time.Time    `json:"start_date"`
-	EndDate        sql.NullTime `json:"end_date"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
-	PropertyUnitID int64        `json:"property_unit_id"`
+	ID             int64         `json:"id"`
+	StartDate      time.Time     `json:"start_date"`
+	EndDate        sql.NullTime  `json:"end_date"`
+	CreatedAt      time.Time     `json:"created_at"`
+	UpdatedAt      time.Time     `json:"updated_at"`
+	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	UserID         sql.NullInt64 `json:"user_id"`
+}
+
+type Upload struct {
+	ID             int64         `json:"id"`
+	Upload         string        `json:"upload"`
+	Category       string        `json:"category"`
+	CreatedAt      time.Time     `json:"created_at"`
+	UpdatedAt      time.Time     `json:"updated_at"`
+	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	PropertyID     sql.NullInt64 `json:"property_id"`
+	UserID         sql.NullInt64 `json:"user_id"`
+	CaretakerID    sql.NullInt64 `json:"caretaker_id"`
 }
 
 type User struct {
@@ -143,7 +196,6 @@ type User struct {
 	Phone      string         `json:"phone"`
 	Onboarding sql.NullBool   `json:"onboarding"`
 	IsLandlord sql.NullBool   `json:"is_landlord"`
-	Avatar     sql.NullString `json:"avatar"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`
 }

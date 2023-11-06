@@ -11,9 +11,14 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 )
 
-// ShootsInCharge is the resolver for the shootsInCharge field.
-func (r *caretakerResolver) ShootsInCharge(ctx context.Context, obj *model.Caretaker) ([]*model.Shoot, error) {
-	panic(fmt.Errorf("not implemented: ShootsInCharge - shootsInCharge"))
+// Uploads is the resolver for the uploads field.
+func (r *caretakerResolver) Uploads(ctx context.Context, obj *model.Caretaker) ([]*model.AnyUpload, error) {
+	panic(fmt.Errorf("not implemented: Uploads - uploads"))
+}
+
+// Properties is the resolver for the properties field.
+func (r *caretakerResolver) Properties(ctx context.Context, obj *model.Caretaker) ([]*model.Property, error) {
+	panic(fmt.Errorf("not implemented: Properties - properties"))
 }
 
 // Caretaker returns generated.CaretakerResolver implementation.

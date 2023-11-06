@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -36,7 +37,7 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 		return nil, err
 	}
 	unit, err := u.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
-		PropertyID: propertyId,
+		PropertyID: sql.NullInt64{Int64: propertyId, Valid: true},
 		Name:       input.Name,
 		Price:      int32(unitPrice),
 		Type:       input.Type,
@@ -67,7 +68,7 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 			_, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
 				Name:           input.Amenities[j].Name,
 				Category:       input.Amenities[j].Category,
-				PropertyUnitID: unit.ID,
+				PropertyUnitID: sql.NullInt64{Int64: unit.ID, Valid: true},
 			})
 			if err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
@@ -180,7 +181,7 @@ func (u *UnitServices) AmenityCount(unitId string) (int64, error) {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return 0, err
 	}
-	count, err := u.queries.UnitAmenityCount(ctx, id)
+	count, err := u.queries.UnitAmenityCount(ctx, sql.NullInt64{Int64: id, Valid: true})
 	if err != nil {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return 0, err

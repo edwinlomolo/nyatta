@@ -4,11 +4,14 @@ type PropertyUnit {
   name: String!
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: ID!
+  property: Property!
   price: String!
   amenityCount: Int!
   bathrooms: Int!
+  amenities: [Amenity!]!
   state: UnitState!
   type: String!
+  uploads: [AnyUpload!]!
   tenancy: [Tenant!]! # has-many tenancy
   createdAt: Time
   updatedAt: Time

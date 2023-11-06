@@ -3,8 +3,8 @@ type Amenity {
   id: ID!
   name: String!
   provider: String
-  category: String
-  propertyId: ID!
+  category: String!
+  unitId: ID
   createdAt: Time
   updatedAt: Time
 }

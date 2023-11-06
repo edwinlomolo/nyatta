@@ -5,5 +5,5 @@ import (
 )
 
 type AmenityService interface {
-	AddAmenity(*model.AmenityInput) (*model.Amenity, error)
+	AddAmenity(*model.UnitAmenityInput) (*model.Amenity, error)
 }

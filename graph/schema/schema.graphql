@@ -11,18 +11,15 @@ input NewUser {
 # Represents new property parameters
 input NewProperty {
   name: String!
-  town: String!
-  postalCode: String!
   type: String!
-  createdBy: ID!
+  location: GpsInput!
+  thumbnail: Upload!
 }
 
-# Represents new property amenity parameters
-input AmenityInput {
-  name: String!
-  provider: String!
-  category: String
-  propertyId: ID!
+# Represent gps input
+input GpsInput {
+  lat: Float!
+  lng: Float!
 }
 
 # Represents new property unit parameters
@@ -30,15 +27,22 @@ input PropertyUnitInput {
   propertyId: ID!
   baths: Int!
   name: String!
+  location: GpsInput!
   type: String!
   amenities: [UnitAmenityInput!]!
   bedrooms: [UnitBedroomInput!]!
   price: String!
+  uploads: [UploadImages!]
+}
+
+# Represent image uploads
+input UploadImages {
+  image: String!
+  category: String!
 }
 
 # Represents new property unit bedroom(s) parameter
 input UnitBedroomInput {
-  propertyUnitId: ID
   bedroomNumber: Int!
   enSuite: Boolean!
   master: Boolean!
@@ -47,35 +51,43 @@ input UnitBedroomInput {
 # Represents new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
-  endDate: Time
   propertyUnitId: ID!
 }
 
 # Represents supported country codes
-enum CountryCode { KE }
+enum CountryCode {
+  KE
+}
 
 # Represent property unit status
-enum UnitState { VACANT OCCUPIED UNAVAILABLE }
+enum UnitState {
+  VACANT
+  OCCUPIED
+  UNAVAILABLE
+}
+
+# Represent upload category
+enum UploadCategory {
+  PROFILE_IMG
+  UNIT_IMAGES
+  CARETAKER_IMG
+}
 
 # Represents caretaker verify verification parameters
 input VerificationInput {
   phone: String!
-  countryCode: CountryCode!
   verifyCode: String
 }
 
 # Represents user verify verification parameters
 input UserVerificationInput {
   phone: String!
-  email: String!
-  countryCode: CountryCode!
   verifyCode: String!
 }
 
 # Represents caretaker verify verification parameters
 input CaretakerVerificationInput {
   phone: String!
-  countryCode: CountryCode!
   verifyCode: String!
 }
 
@@ -84,20 +96,9 @@ input HandshakeInput {
   phone: String!
 }
 
-# Represents user update input
-input UpdateUserInput {
-  first_name: String!
-  last_name: String!
-  avatar: String!
-  email: String!
-  phone: String!
-  onboarding: Boolean!
-}
-
 # Represents shoot schedule input
 input ShootInput {
   date: Time!
-  contactPerson: String!
 }
 
 # Represents property caretaker input
@@ -105,42 +106,13 @@ input CaretakerInput {
   first_name: String!
   last_name: String!
   phone: String!
-  countryCode: CountryCode!
-  idVerification: String!
+  image: Upload!
 }
 
 # Represents unit amenity input
 input UnitAmenityInput {
   name: String!
   category: String!
-}
-
-# Represents property unit input
-input UnitInput {
-  name: String!
-  price: String!
-  type: String!
-  amenities: [UnitAmenityInput!]!
-  bedrooms: [UnitBedroomInput!]!
-  baths: Int!
-}
-
-# Represents setting up property
-input SetupPropertyInput {
-  name: String!
-  town: String!
-  postalCode: String!
-  propertyType: String!
-  caretaker: CaretakerInput!
-  units: [UnitInput!]!
-  shoot: ShootInput!
-  creator: String!
-}
-
-# Represents onboard user input
-input OnboardUserInput {
-  email: String!
-  onboarding: Boolean!
 }
 
 # after signin return this
@@ -182,18 +154,13 @@ type Query {
 type Mutation {
   signIn(input: NewUser!): SignInResponse!
   createProperty(input: NewProperty!): Property!
-  addAmenity(input: AmenityInput!): Amenity!
   addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
-  addUnitBedrooms(input: [UnitBedroomInput!]!): [Bedroom!]!
   addPropertyUnitTenant(input: TenancyInput!): Tenant!
   uploadImage(file: Upload!): String!
   sendVerificationCode(input: VerificationInput!): Status!
   verifyUserVerificationCode(input: UserVerificationInput!): Status!
   verifyCaretakerVerificationCode(input: CaretakerVerificationInput!): Status!
   handshake(input: HandshakeInput!): User!
-  updateUser(input: UpdateUserInput!): User!
-  setupProperty(input: SetupPropertyInput!): Status!
-  onboardUser(input: OnboardUserInput!): User!
   saveMailing(email: String): Status!
 }
 

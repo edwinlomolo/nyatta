@@ -22,6 +22,6 @@ func NewAmenityService(queries *sqlStore.Queries, logger *log.Logger, propertySe
 var _ interfaces.AmenityService = &AmenityServices{}
 
 // AddAmenity - add property amenity(s)
-func (a *AmenityServices) AddAmenity(amenity *model.AmenityInput) (*model.Amenity, error) {
+func (a *AmenityServices) AddAmenity(amenity *model.UnitAmenityInput) (*model.Amenity, error) {
 	return &model.Amenity{}, nil
 }

@@ -3,6 +3,7 @@ type Tenant {
   id: ID!
   startDate: Time!
   endDate: Time
+  upload: [AnyUpload!]!
   propertyUnitId: ID! # belongs-to property unit
   createdAt: Time
   updatedAt: Time

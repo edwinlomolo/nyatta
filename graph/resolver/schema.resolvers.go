@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -34,15 +33,6 @@ func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewPr
 	return newProperty, nil
 }
 
-// AddAmenity is the resolver for the addAmenity field.
-func (r *mutationResolver) AddAmenity(ctx context.Context, input model.AmenityInput) (*model.Amenity, error) {
-	insertedAmenity, err := ctx.Value("amenityService").(*services.AmenityServices).AddAmenity(&input)
-	if err != nil {
-		return nil, err
-	}
-	return insertedAmenity, err
-}
-
 // AddPropertyUnit is the resolver for the addPropertyUnit field.
 func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error) {
 	insertedPropertyUnit, err := ctx.Value("unitService").(*services.UnitServices).AddPropertyUnit(&input)
@@ -50,15 +40,6 @@ func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.Prop
 		return nil, err
 	}
 	return insertedPropertyUnit, err
-}
-
-// AddUnitBedrooms is the resolver for the addUnitBedrooms field.
-func (r *mutationResolver) AddUnitBedrooms(ctx context.Context, input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
-	insertedUnitBedrooms, err := ctx.Value("unitService").(*services.UnitServices).AddUnitBedrooms(input)
-	if err != nil {
-		return nil, err
-	}
-	return insertedUnitBedrooms, err
 }
 
 // AddPropertyUnitTenant is the resolver for the addPropertyUnitTenant field.
@@ -81,7 +62,7 @@ func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload)
 
 // SendVerificationCode is the resolver for the sendVerificationCode field.
 func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
-	status, err := ctx.Value("twilioService").(*services.TwilioServices).SendVerification(input.Phone, input.CountryCode)
+	status, err := ctx.Value("twilioService").(*services.TwilioServices).SendVerification(input.Phone)
 	if err != nil {
 		return nil, err
 	}
@@ -90,11 +71,7 @@ func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model
 
 // VerifyUserVerificationCode is the resolver for the verifyUserVerificationCode field.
 func (r *mutationResolver) VerifyUserVerificationCode(ctx context.Context, input model.UserVerificationInput) (*model.Status, error) {
-	status, err := ctx.Value("userService").(*services.UserServices).UserPhoneVerification(&input)
-	if err != nil {
-		return nil, err
-	}
-	return status, nil
+	return &model.Status{}, nil
 }
 
 // VerifyCaretakerVerificationCode is the resolver for the verifyCaretakerVerificationCode field.
@@ -113,33 +90,6 @@ func (r *mutationResolver) Handshake(ctx context.Context, input model.HandshakeI
 		return nil, err
 	}
 	return foundUser, nil
-}
-
-// UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
-	user, err := ctx.Value("userService").(*services.UserServices).UpdateUser(&input)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-// SetupProperty is the resolver for the setupProperty field.
-func (r *mutationResolver) SetupProperty(ctx context.Context, input model.SetupPropertyInput) (*model.Status, error) {
-	status, err := ctx.Value("propertyService").(*services.PropertyServices).SetupProperty(&input)
-	if err != nil {
-		return nil, err
-	}
-	return status, nil
-}
-
-// OnboardUser is the resolver for the onboardUser field.
-func (r *mutationResolver) OnboardUser(ctx context.Context, input model.OnboardUserInput) (*model.User, error) {
-	onboardedUser, err := ctx.Value("userService").(*services.UserServices).OnboardUser(input.Email, input.Onboarding)
-	if err != nil {
-		return nil, err
-	}
-	return onboardedUser, nil
 }
 
 // SaveMailing is the resolver for the saveMailing field.
@@ -244,13 +194,3 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) GetUserListings(ctx context.Context, email string) ([]*model.Property, error) {
-	panic(fmt.Errorf("not implemented: GetUserListings - getUserListings"))
-}

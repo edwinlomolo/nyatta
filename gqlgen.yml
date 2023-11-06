@@ -67,10 +67,16 @@ models:
     fields:
       properties:
         resolver: true
+      uploads:
+        resolver: true
 
   Property:
     fields:
+      uploads:
+        resolver: true
       owner:
+        resolver: true
+      caretaker:
         resolver: true
       amenities:
         resolver: true
@@ -79,6 +85,8 @@ models:
 
   PropertyUnit:
     fields:
+      uploads:
+        resolver: true
       bedrooms:
         resolver: true
       tenancy:
@@ -88,10 +96,7 @@ models:
 
   Caretaker:
     fields:
-      shootsInCharge:
+      uploads:
         resolver: true
-
-  Shoot:
-    fields:
-      contact:
+      properties:
         resolver: true

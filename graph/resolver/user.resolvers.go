@@ -12,6 +12,11 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
+// Uploads is the resolver for the uploads field.
+func (r *userResolver) Uploads(ctx context.Context, obj *model.User) ([]*model.AnyUpload, error) {
+	panic(fmt.Errorf("not implemented: Uploads - uploads"))
+}
+
 // Properties is the resolver for the properties field.
 func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*model.Property, error) {
 	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(obj.ID)
@@ -25,19 +30,3 @@ func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*mode
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
 type userResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *userResolver) Phone(ctx context.Context, obj *model.User) (string, error) {
-	panic(fmt.Errorf("not implemented: Phone - phone"))
-}
-func (r *userResolver) Onboarding(ctx context.Context, obj *model.User) (bool, error) {
-	panic(fmt.Errorf("not implemented: Onboarding - onboarding"))
-}
-func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (string, error) {
-	panic(fmt.Errorf("not implemented: Avatar - avatar"))
-}

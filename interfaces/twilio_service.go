@@ -1,11 +1,6 @@
 package interfaces
 
-import (
-	"github.com/3dw1nM0535/nyatta/graph/model"
-)
-
 type Twilio interface {
-	SendVerification(phone string, countryCode model.CountryCode) (string, error)
-	VerifyCode(phone, verifyCode string, countryCode model.CountryCode) (string, error)
-	UpdateUserPhone(email string, phone string) (*model.User, error)
+	SendVerification(phone string) (string, error)
+	VerifyCode(phone, verifyCode string) (string, error)
 }

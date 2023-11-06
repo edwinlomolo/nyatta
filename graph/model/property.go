@@ -1,28 +1,30 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/99designs/gqlgen/graphql"
+)
 
 type NewProperty struct {
-	Name       string `json:"name"`
-	Town       string `json:"town"`
-	PostalCode string `json:"postalCode"`
-	Type       string `json:"type"`
-	MinPrice   int    `json:"minPrice"`
-	MaxPrice   int    `json:"maxPrice"`
-	CreatedBy  string `json:"createdBy"`
+	Name      string         `json:"name"`
+	Location  *GpsInput      `json:"location"`
+	Type      string         `json:"type"`
+	Thumbnail graphql.Upload `json:"thumbnail"`
 }
 
 type Property struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Town       string     `json:"town"`
-	Type       string     `json:"type"`
-	Status     string     `json:"status"`
-	MinPrice   int        `json:"minPrice"`
-	MaxPrice   int        `json:"maxPrice"`
-	Amenities  []Amenity  `json:"amenities"`
-	CreatedBy  string     `json:"createdBy"`
-	PostalCode string     `json:"postalCode"`
-	CreatedAt  *time.Time `json:"createdAt"`
-	UpdatedAt  *time.Time `json:"updatedAt"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Type        string          `json:"type"`
+	Status      string          `json:"status"`
+	Location    *Gps            `json:"location"`
+	Units       []*PropertyUnit `json:"property_units"`
+	Uploads     []*AnyUpload    `json:"uploads"`
+	Caretaker   *Caretaker      `json:"caretaker"`
+	CaretakerID string          `json:"caretakerId"`
+	Owner       *User           `json:"owner"`
+	CreatedBy   string          `json:"createdBy"`
+	CreatedAt   *time.Time      `json:"createdAt"`
+	UpdatedAt   *time.Time      `json:"updatedAt"`
 }

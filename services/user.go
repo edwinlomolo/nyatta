@@ -102,7 +102,6 @@ func (u *UserServices) FindById(id string) (*model.User, error) {
 		FirstName: foundUser.FirstName.String,
 		LastName:  foundUser.LastName.String,
 		Email:     foundUser.Email.String,
-		Avatar:    foundUser.Avatar.String,
 		CreatedAt: &foundUser.CreatedAt,
 		UpdatedAt: &foundUser.UpdatedAt,
 	}, nil
@@ -119,38 +118,10 @@ func (u *UserServices) FindByEmail(email string) (*model.User, error) {
 		FirstName:  foundUser.FirstName.String,
 		LastName:   foundUser.LastName.String,
 		Email:      foundUser.Email.String,
-		Avatar:     foundUser.Avatar.String,
 		Onboarding: foundUser.Onboarding.Bool,
 		Phone:      foundUser.Phone,
 		CreatedAt:  &foundUser.CreatedAt,
 		UpdatedAt:  &foundUser.UpdatedAt,
-	}, nil
-}
-
-// UpdateUser - update user details
-func (u *UserServices) UpdateUser(input *model.UpdateUserInput) (*model.User, error) {
-	// TODO any other way around casting to NullString?
-	updatedUser, err := u.queries.UpdateUser(ctx, sqlStore.UpdateUserParams{
-		FirstName:  sql.NullString{String: input.FirstName, Valid: true},
-		LastName:   sql.NullString{String: input.LastName, Valid: true},
-		Avatar:     sql.NullString{String: input.Avatar, Valid: true},
-		Onboarding: sql.NullBool{Bool: input.Onboarding, Valid: true},
-		Email:      sql.NullString{String: input.Email, Valid: true},
-	})
-	if err != nil {
-		u.log.Errorf("%s: %v", u.ServiceName(), err)
-		return nil, err
-	}
-	return &model.User{
-		ID:         strconv.FormatInt(updatedUser.ID, 10),
-		FirstName:  updatedUser.FirstName.String,
-		LastName:   updatedUser.LastName.String,
-		Email:      updatedUser.Email.String,
-		Onboarding: updatedUser.Onboarding.Bool,
-		Phone:      updatedUser.Phone,
-		Avatar:     updatedUser.Avatar.String,
-		CreatedAt:  &updatedUser.CreatedAt,
-		UpdatedAt:  &updatedUser.UpdatedAt,
 	}, nil
 }
 
@@ -194,22 +165,4 @@ func (u *UserServices) OnboardUser(email string, onboarding bool) (*model.User, 
 		CreatedAt:  &onboardedUser.CreatedAt,
 		UpdatedAt:  &onboardedUser.UpdatedAt,
 	}, nil
-}
-
-// UserPhoneVerification - verify user phone number
-func (u *UserServices) UserPhoneVerification(input *model.UserVerificationInput) (*model.Status, error) {
-	status, err := u.twilio.VerifyCode(input.Phone, input.VerifyCode, input.CountryCode)
-	if err != nil {
-		u.log.Errorf("%s: %v", u.ServiceName(), err)
-		return nil, err
-	}
-	if status == "approved" {
-		// Start creating user after verification
-		_, err := u.twilio.UpdateUserPhone(input.Email, input.Phone)
-		if err != nil {
-			u.log.Errorf("%s: %v", u.ServiceName(), err)
-			return nil, err
-		}
-	}
-	return &model.Status{Success: status}, nil
 }
