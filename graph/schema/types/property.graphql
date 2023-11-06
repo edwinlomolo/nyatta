@@ -4,11 +4,10 @@ type Property {
   name: String!
   town: String!
   postalCode: String!
+  thumbnail: String!
   type: String!
   status: String!
-  minPrice: Int!
-  maxPrice: Int!
-  amenities: [Amenity!]! # TODO: shared amenities with property units
+  location: Gps!
   units: [PropertyUnit!]!
   createdBy: ID!
   owner: User!
