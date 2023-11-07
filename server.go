@@ -69,7 +69,7 @@ func main() {
 		logrus.RegisterExitHandler(func() { sentryHook.Flush(5 * time.Second) })
 	}
 
-	// TODO provide mpesa callback
+	// TODO provide mpesa callback for pay services
 	services.NewMpesaService("", "CustomerPayBillOnline", configuration.Mpesa, logger).GetAccessToken()
 	mailingService := services.NewMailingService(queries, configuration.Email, logger)
 	twilioService := services.NewTwilioService(configuration.Twilio, queries, logger)
