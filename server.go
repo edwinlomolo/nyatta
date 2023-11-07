@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -70,7 +71,26 @@ func main() {
 	}
 
 	// TODO provide mpesa callback for pay services
-	services.NewMpesaService("", "CustomerPayBillOnline", configuration.Mpesa, logger).GetAccessToken()
+	mpesaService := services.NewMpesaService(configuration.Mpesa, logger)
+	t := time.Now().Format("20060102150405")
+	dataToEncode := fmt.Sprintf("%d%s%s", 174379, configuration.Mpesa.PassKey, t)
+	res, err := mpesaService.StkPush(services.LipaNaMpesaPayload{
+		BusinessShortCode: 174379,
+		Password:          base64.StdEncoding.EncodeToString([]byte(dataToEncode)),
+		Timestamp:         t,
+		TransactionType:   "CustomerPayBillOnline",
+		Amount:            1,
+		PartyA:            254792921440,
+		PartyB:            174379,
+		PhoneNumber:       254792921440,
+		CallBackURL:       "https://d86d-102-217-127-1.ngrok.io/mpesa/charge",
+		AccountReference:  "CompanyXLTD",
+		TransactionDesc:   "Landlord subscription",
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(res)
 	mailingService := services.NewMailingService(queries, configuration.Email, logger)
 	twilioService := services.NewTwilioService(configuration.Twilio, queries, logger)
 	userService := services.NewUserService(queries, logger, configuration.Server.ServerEnv, &configuration.JwtConfig, twilioService, mailingService.SendEmail)
@@ -98,6 +118,7 @@ func main() {
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
+	r.Handle("/mpesa/charge", h.AddContext(ctx, logHandler.Logging(h.MpesaChargeCallback())))
 	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	s := &http.Server{
