@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +10,11 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/sirupsen/logrus"
 )
+
+type AccessResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   string `json:"expires_in"`
+}
 
 type MpesaServices struct {
 	transactionType     string
@@ -32,7 +38,7 @@ func NewMpesaService(callbackUrl string, transactionType string, cfg config.Mpes
 	}
 }
 
-func (m *MpesaServices) GetAccessToken() string {
+func (m *MpesaServices) GetAccessToken() AccessResponse {
 	dataToEncode := fmt.Sprintf("%s:%s", m.config.ConsumerKey, m.config.ConsumerSecret)
 	sEnc := base64.StdEncoding.EncodeToString([]byte(dataToEncode))
 
@@ -49,13 +55,14 @@ func (m *MpesaServices) GetAccessToken() string {
 	}
 	defer res.Body.Close()
 
+	response := AccessResponse{}
 	body, err := io.ReadAll(res.Body)
+	json.Unmarshal(body, &response)
 	if err != nil {
 		m.logger.Errorf("%s:%v", m.ServiceName(), err)
 	}
-	fmt.Println(string(body))
 
-	return "access_token"
+	return response
 }
 
 func (m MpesaServices) ServiceName() string { return "MpesaServices" }
