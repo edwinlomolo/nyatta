@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgis/postgis:10-2.5
+        image: postgres
         # Provide credentials for postgres
         env:
           POSTGRES_USER: postgres
