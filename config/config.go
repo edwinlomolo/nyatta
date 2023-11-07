@@ -26,6 +26,7 @@ type Configuration struct {
 	Twilio       TwilioConfig   `json:"twilio"`
 	SentryConfig SentryConfig   `json:"sentry"`
 	Email        EmailConfig    `json:"email"`
+	Mpesa        MpesaConfig    `json:"mpesa"`
 }
 
 var configAll *Configuration
@@ -41,6 +42,7 @@ func LoadConfig() *Configuration {
 	configuration.Twilio = twilioConfig()
 	configuration.SentryConfig = sentryConfig()
 	configuration.Email = emailConfig()
+	configuration.Mpesa = mpesaConfig()
 
 	configAll = &configuration
 
@@ -181,4 +183,18 @@ func emailConfig() EmailConfig {
 	emailConfig.Apikey = os.Getenv("RESEND_API_KEY")
 
 	return emailConfig
+}
+
+// mpesaConfig - setup mpesa config
+func mpesaConfig() MpesaConfig {
+	var mpesaConfig MpesaConfig
+
+	// Load env variables
+	env()
+
+	mpesaConfig.ConsumerKey = os.Getenv("MPESA_CONSUMER_KEY")
+	mpesaConfig.ConsumerSecret = os.Getenv("MPESA_CONSUMER_SECRET")
+	mpesaConfig.BaseApi = os.Getenv("MPESA_BASE_API")
+
+	return mpesaConfig
 }
