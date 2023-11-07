@@ -195,6 +195,7 @@ func mpesaConfig() MpesaConfig {
 	mpesaConfig.ConsumerKey = os.Getenv("MPESA_CONSUMER_KEY")
 	mpesaConfig.ConsumerSecret = os.Getenv("MPESA_CONSUMER_SECRET")
 	mpesaConfig.BaseApi = os.Getenv("MPESA_BASE_API")
+	mpesaConfig.PassKey = os.Getenv("MPESA_PASS_KEY")
 
 	return mpesaConfig
 }
