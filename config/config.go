@@ -196,6 +196,12 @@ func mpesaConfig() MpesaConfig {
 	mpesaConfig.ConsumerSecret = os.Getenv("MPESA_CONSUMER_SECRET")
 	mpesaConfig.BaseApi = os.Getenv("MPESA_BASE_API")
 	mpesaConfig.PassKey = os.Getenv("MPESA_PASS_KEY")
+	mpesaConfig.Env = os.Getenv("MPESA_ENV")
+	if mpesaConfig.Env == "sandbox" {
+		mpesaConfig.CallBackURL = os.Getenv("MPESA_SANDBOX_CALLBACK_URL")
+	} else {
+		mpesaConfig.CallBackURL = os.Getenv("MPESA_PROD_CALLBACK_URL")
+	}
 
 	return mpesaConfig
 }

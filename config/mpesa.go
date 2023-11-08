@@ -5,4 +5,6 @@ type MpesaConfig struct {
 	ConsumerSecret string `json:"mpesaConsumerSecret"`
 	BaseApi        string `json:"baseApi"`
 	PassKey        string `json:"passKey"`
+	CallBackURL    string `json:"callbackUrl"`
+	Env            string `json:"env"`
 }
