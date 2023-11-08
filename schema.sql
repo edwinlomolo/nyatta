@@ -32,7 +32,12 @@ CREATE TABLE IF NOT EXISTS properties (
   caretaker_id BIGINT REFERENCES caretakers ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-CREATE TYPE unit_state AS ENUM ('vacant', 'unavailable', 'occupied');
+DO $$ BEGIN
+  CREATE TYPE unit_state AS ENUM ('vacant', 'unavailable', 'occupied');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS property_units (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -76,7 +81,12 @@ CREATE TABLE IF NOT EXISTS bedrooms (
   property_unit_id BIGINT NOT NULL REFERENCES property_units ON DELETE SET NULL
 );
 
-CREATE TYPE upload_category AS ENUM ('profile_img', 'unit_images', 'caretaker_img');
+DO $$ BEGIN
+  CREATE TYPE upload_category AS ENUM ('profile_img', 'unit_images', 'caretaker_img');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS uploads (
   id BIGSERIAL PRIMARY KEY,
   upload TEXT NOT NULL,
