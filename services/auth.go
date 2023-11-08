@@ -30,10 +30,12 @@ func NewAuthService(logger *log.Logger, config *config.Jwt) *AuthServices {
 // SignJWT - signin user and return jwt token
 func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss":        "Nyatta",
-		"created_at": user.CreatedAt,
-		"id":         base64.StdEncoding.EncodeToString([]byte(user.ID)),
-		"exp":        time.Now().Add(time.Second * *a.expiresIn).Unix(),
+		"iss":         "Nyatta",
+		"created_at":  user.CreatedAt,
+		"is_landlord": user.IsLandlord,
+		"user_phone":  user.Phone,
+		"id":          base64.StdEncoding.EncodeToString([]byte(user.ID)),
+		"exp":         time.Now().Add(time.Second * *a.expiresIn).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(*a.secret))
@@ -41,6 +43,7 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 		a.log.Errorf("%s: %v", a.ServiceName(), err)
 		return nil, err
 	}
+
 	return &tokenString, nil
 }
 
@@ -48,16 +51,18 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 func (a *AuthServices) ValidateJWT(tokenString *string) (*jwt.Token, error) {
 	token, err := jwt.Parse(*tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("Unexpected signing method: %v", token.Header["alg"]))
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("%s: %v", config.InvalidTokenSigningAlgorithm.Error(), token.Header["alg"]))
+			return nil, fmt.Errorf("%s: %v", config.InvalidTokenSigningAlgorithm.Error(), token.Header["alg"])
 		}
 
 		return []byte(*a.secret), nil
 	})
+
 	if err != nil {
-		a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("Unexpected error while parsing token: %v", err))
-		return nil, fmt.Errorf("Unexpected error while parsing token: %v", err)
+		a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("%s: %v", config.TokenParsing.Error(), err))
+		return nil, fmt.Errorf("%s: %v", config.TokenParsing.Error(), err)
 	}
+
 	return token, nil
 }
 

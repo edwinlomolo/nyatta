@@ -17,7 +17,6 @@ type Property struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
 	Type        string          `json:"type"`
-	Status      string          `json:"status"`
 	Location    *Gps            `json:"location"`
 	Units       []*PropertyUnit `json:"property_units"`
 	Uploads     []*AnyUpload    `json:"uploads"`

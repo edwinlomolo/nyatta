@@ -52,8 +52,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.P
 	return &model.Property{
 		ID:        strconv.FormatInt(insertedProperty.ID, 10),
 		Name:      insertedProperty.Name,
-		Type:      insertedProperty.Type,
-		Status:    insertedProperty.Status,
+		Type:      (insertedProperty.Type).(string),
 		CreatedAt: &insertedProperty.CreatedAt,
 		UpdatedAt: &insertedProperty.UpdatedAt,
 	}, nil
@@ -75,8 +74,7 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	return &model.Property{
 		ID:        strconv.FormatInt(foundProperty.ID, 10),
 		Name:      foundProperty.Name,
-		Type:      foundProperty.Type,
-		Status:    foundProperty.Status,
+		Type:      (foundProperty.Type).(string),
 		CreatedAt: &foundProperty.CreatedAt,
 		UpdatedAt: &foundProperty.UpdatedAt,
 	}, nil
@@ -113,8 +111,7 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 		property := &model.Property{
 			ID:        strconv.FormatInt(item.ID, 10),
 			Name:      item.Name,
-			Type:      item.Type,
-			Status:    item.Status,
+			Type:      (item.Type).(string),
 			CreatedAt: &item.CreatedAt,
 			UpdatedAt: &item.UpdatedAt,
 		}
@@ -144,7 +141,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 		unit := &model.PropertyUnit{
 			ID:         strconv.FormatInt(foundUnit.ID, 10),
 			Name:       foundUnit.Name,
-			State:      model.UnitState(foundUnit.State),
+			State:      (foundUnit.State).(model.UnitState),
 			Type:       foundUnit.Type,
 			PropertyID: strconv.FormatInt(foundUnit.PropertyID.Int64, 10),
 			Price:      strconv.FormatInt(int64(foundUnit.Price), 10),

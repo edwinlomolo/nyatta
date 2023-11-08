@@ -12,6 +12,11 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
+// Type is the resolver for the type field.
+func (r *propertyResolver) Type(ctx context.Context, obj *model.Property) (model.PropertyType, error) {
+	panic(fmt.Errorf("not implemented: Type - type"))
+}
+
 // Uploads is the resolver for the uploads field.
 func (r *propertyResolver) Uploads(ctx context.Context, obj *model.Property) ([]*model.AnyUpload, error) {
 	panic(fmt.Errorf("not implemented: Uploads - uploads"))

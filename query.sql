@@ -129,3 +129,23 @@ WHERE property_id = $1 AND state = 'vacant';
 -- name: UnitAmenityCount :one
 SELECT COUNT(*) from amenities
 WHERE property_unit_id = $1;
+
+-- name: CreateInvoice :one
+INSERT INTO invoices (
+  msid, phone, w_co_checkout_id, reason
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING *;
+
+-- name: UpdateInvoiceForMpesa :one
+UPDATE invoices
+SET mpesa_id = $1, status = $2
+WHERE w_co_checkout_id = $3
+RETURNING *;
+
+-- name: UpdateLandlord :one
+UPDATE users
+SET is_landlord = $1
+WHERE phone = $2
+RETURNING *;

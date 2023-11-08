@@ -5,11 +5,15 @@ package resolver
 
 import (
 	"context"
+	"database/sql"
+	"strconv"
 
+	"github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/sirupsen/logrus"
 )
 
 // CreateUser - resolver for createUser field
@@ -99,6 +103,47 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 		return nil, err
 	}
 	return status, nil
+}
+
+// CreatePayment is the resolver for the createPayment field.
+func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
+	sqlStore := ctx.Value("sqlStore").(*store.Queries)
+	userPhone := ctx.Value("phone").(string)
+	logger := ctx.Value("log").(*logrus.Logger)
+
+	p, err := strconv.Atoi(input.Phone)
+	if err != nil {
+		logger.Errorf("%s:%v", "CreatePaymentResolver", err)
+		return nil, err
+	}
+
+	payload := services.LipaNaMpesaPayload{
+		BusinessShortCode: 174379,
+		AccountReference:  "Nyatta",
+		Amount:            1,
+		PartyA:            p,
+		PartyB:            174379,
+		PhoneNumber:       p,
+		TransactionType:   "CustomerPayBillOnline",
+		CallBackURL:       "https://6c89-102-217-127-1.ngrok.io/mpesa/charge",
+		TransactionDesc:   input.Description,
+	}
+
+	stkResponse, err := ctx.Value("mpesaService").(*services.MpesaServices).StkPush(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := sqlStore.CreateInvoice(ctx, store.CreateInvoiceParams{
+		WCoCheckoutID: sql.NullString{String: stkResponse.CheckoutRequestID, Valid: true},
+		Reason:        sql.NullString{String: input.Description, Valid: true},
+		Msid:          sql.NullString{String: input.Phone, Valid: true},
+		Phone:         sql.NullString{String: userPhone, Valid: true},
+	}); err != nil {
+		return nil, err
+	}
+
+	return &model.Status{Success: "Success"}, nil
 }
 
 // GetUser is the resolver for the getUser field.

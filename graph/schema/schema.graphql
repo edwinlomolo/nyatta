@@ -54,25 +54,6 @@ input TenancyInput {
   propertyUnitId: ID!
 }
 
-# Represents supported country codes
-enum CountryCode {
-  KE
-}
-
-# Represent property unit status
-enum UnitState {
-  VACANT
-  OCCUPIED
-  UNAVAILABLE
-}
-
-# Represent upload category
-enum UploadCategory {
-  PROFILE_IMG
-  UNIT_IMAGES
-  CARETAKER_IMG
-}
-
 # Represents caretaker verify verification parameters
 input VerificationInput {
   phone: String!
@@ -115,6 +96,12 @@ input UnitAmenityInput {
   category: String!
 }
 
+# Create payment input
+input CreatePaymentInput {
+  phone: String!,
+  description: String!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -136,6 +123,43 @@ type ListingOverview {
 type SignInResponse {
   user: User!
   Token: String!
+}
+
+# Represents supported country codes
+enum CountryCode {
+  KE
+}
+
+# Represent property unit status
+enum UnitState {
+  VACANT
+  OCCUPIED
+  UNAVAILABLE
+}
+
+# Represent upload category
+enum UploadCategory {
+  PROFILE_IMG
+  UNIT_IMAGE
+  CARETAKER_IMG
+}
+
+# Invoice status
+enum InvoiceStatus {
+  PROCESSED,
+  PROCESSING
+}
+
+# Shoot status
+enum ShootStatus {
+  PENDING,
+  DONE
+}
+
+# Property type
+enum PropertyType {
+  APARTMENTS_BUILDING,
+  APARTMENT
 }
 
 type Query {
@@ -162,6 +186,7 @@ type Mutation {
   verifyCaretakerVerificationCode(input: CaretakerVerificationInput!): Status!
   handshake(input: HandshakeInput!): User!
   saveMailing(email: String): Status!
+  createPayment(input: CreatePaymentInput!): Status!
 }
 
 schema {

@@ -1,0 +1,10 @@
+# Represent payment invoice
+type Invoice {
+  id: ID!
+  msid: String!
+  phone: String!
+  status: InvoiceStatus!
+  wCoCheckoutId: String! # Mpesa checkout id
+  createdAt: Time
+  updatedAt: Time
+}

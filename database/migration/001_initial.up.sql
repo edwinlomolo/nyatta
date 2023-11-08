@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE,
   first_name TEXT,
   last_name TEXT,
-  phone VARCHAR(15) NOT NULL,
+  phone VARCHAR(15) UNIQUE NOT NULL,
   onboarding BOOLEAN DEFAULT true,
   is_landlord BOOLEAN DEFAULT false,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -14,18 +14,23 @@ CREATE TABLE IF NOT EXISTS caretakers (
   id BIGSERIAL PRIMARY KEY,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
-  phone VARCHAR(15),
+  phone VARCHAR(15) UNIQUE,
   verified BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+DO $$ BEGIN
+  CREATE TYPE property_type AS ENUM ('APARTMENTS_BUILDING', 'APARTMENT');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS properties (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   location GEOMETRY,
-  type VARCHAR(20) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  type property_type,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by BIGINT REFERENCES users ON DELETE SET NULL ON UPDATE CASCADE,
@@ -33,7 +38,7 @@ CREATE TABLE IF NOT EXISTS properties (
 );
 
 DO $$ BEGIN
-  CREATE TYPE unit_state AS ENUM ('vacant', 'unavailable', 'occupied');
+  CREATE TYPE unit_state AS ENUM ('VACANT', 'UNAVAILABLE', 'OCCUPIED');
 EXCEPTION
   WHEN duplicate_object THEN null;
 END $$;
@@ -42,7 +47,7 @@ CREATE TABLE IF NOT EXISTS property_units (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   type VARCHAR(100) NOT NULL,
-  state unit_state NOT NULL DEFAULT 'vacant',
+  state unit_state NOT NULL DEFAULT 'VACANT',
   location GEOMETRY,
   price INTEGER NOT NULL,
   bathrooms INTEGER NOT NULL,
@@ -82,7 +87,7 @@ CREATE TABLE IF NOT EXISTS bedrooms (
 );
 
 DO $$ BEGIN
-  CREATE TYPE upload_category AS ENUM ('profile_img', 'unit_images', 'caretaker_img');
+  CREATE TYPE upload_category AS ENUM ('PROFILE_IMG', 'UNIT_IMAGE', 'CARETAKER_IMG');
 EXCEPTION
   WHEN duplicate_object THEN null;
 END $$;
@@ -91,6 +96,7 @@ CREATE TABLE IF NOT EXISTS uploads (
   id BIGSERIAL PRIMARY KEY,
   upload TEXT NOT NULL,
   category VARCHAR(100) NOT NULL,
+  label upload_category,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   property_unit_id BIGINT REFERENCES property_units ON DELETE CASCADE,
@@ -99,16 +105,38 @@ CREATE TABLE IF NOT EXISTS uploads (
   caretaker_id BIGINT REFERENCES caretakers ON DELETE CASCADE
 );
 
+DO $$ BEGIN
+  CREATE TYPE shoot_status AS ENUM ('PENDING', 'DONE');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS shoots (
   id BIGSERIAL PRIMARY KEY,
   shoot_date TIMESTAMP NOT NULL,
   property_id BIGINT NOT NULL REFERENCES properties ON DELETE CASCADE,
   property_unit_id BIGINT NOT NULL REFERENCES property_units ON DELETE CASCADE,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  status shoot_status NOT NULL DEFAULT 'PENDING',
   caretaker_id BIGINT NOT NULL REFERENCES caretakers ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS mailings (
   id BIGSERIAL PRIMARY KEY,
   email VARCHAR(100) NOT NULL UNIQUE
+);
+
+DO $$ BEGIN
+  CREATE TYPE invoice_status AS ENUM ('PROCESSING', 'PROCESSED');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS invoices (
+  id BIGSERIAL PRIMARY KEY,
+  msid VARCHAR(15),
+  mpesa_id VARCHAR(15),
+  phone VARCHAR(15) REFERENCES users(phone) ON DELETE CASCADE,
+  status invoice_status NOT NULL DEFAULT 'PROCESSING',
+  w_co_checkout_id VARCHAR(100),
+  reason TEXT
 );

@@ -2,8 +2,7 @@
 type Property {
   id: ID!
   name: String!
-  type: String!
-  status: String!
+  type: PropertyType!
   location: Gps!
   uploads: [AnyUpload!]!
   units: [PropertyUnit!]!

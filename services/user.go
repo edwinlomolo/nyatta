@@ -38,7 +38,6 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 	var err error
 	foundUser, err = u.queries.FindUserByPhone(ctx, phone)
 	if err != nil && err == sql.ErrNoRows {
-		// Create new user(auto-onboard)
 		foundUser, err = u.queries.CreateUser(ctx, phone)
 		if err != nil {
 			u.log.Errorf("%s: %v", u.ServiceName(), err)
@@ -49,6 +48,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 			IsLandlord: foundUser.IsLandlord.Bool,
 			Phone:      foundUser.Phone,
 			CreatedAt:  &foundUser.CreatedAt,
+			UpdatedAt:  &foundUser.UpdatedAt,
 		}, nil
 	} else if err != nil && err != sql.ErrNoRows {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)

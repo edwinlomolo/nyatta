@@ -79,6 +79,7 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
+	mpesaService := services.NewMpesaService(configuration.Mpesa, logger)
 
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
@@ -91,6 +92,8 @@ func main() {
 	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "twilioService", twilioService)
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
+	ctx = context.WithValue(ctx, "mpesaService", mpesaService)
+	ctx = context.WithValue(ctx, "sqlStore", queries)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 

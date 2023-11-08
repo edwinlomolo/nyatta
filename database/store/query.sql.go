@@ -71,18 +71,54 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 	return i, err
 }
 
+const createInvoice = `-- name: CreateInvoice :one
+INSERT INTO invoices (
+  msid, phone, w_co_checkout_id, reason
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, msid, mpesa_id, phone, status, w_co_checkout_id, reason
+`
+
+type CreateInvoiceParams struct {
+	Msid          sql.NullString `json:"msid"`
+	Phone         sql.NullString `json:"phone"`
+	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`
+	Reason        sql.NullString `json:"reason"`
+}
+
+func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (Invoice, error) {
+	row := q.db.QueryRowContext(ctx, createInvoice,
+		arg.Msid,
+		arg.Phone,
+		arg.WCoCheckoutID,
+		arg.Reason,
+	)
+	var i Invoice
+	err := row.Scan(
+		&i.ID,
+		&i.Msid,
+		&i.MpesaID,
+		&i.Phone,
+		&i.Status,
+		&i.WCoCheckoutID,
+		&i.Reason,
+	)
+	return i, err
+}
+
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
   name, type, created_by, location
 ) VALUES (
   $1, $2, $3, $4
 )
-RETURNING id, name, location, type, status, created_at, updated_at, created_by, caretaker_id
+RETURNING id, name, location, type, created_at, updated_at, created_by, caretaker_id
 `
 
 type CreatePropertyParams struct {
 	Name      string        `json:"name"`
-	Type      string        `json:"type"`
+	Type      interface{}   `json:"type"`
 	CreatedBy sql.NullInt64 `json:"created_by"`
 	Location  interface{}   `json:"location"`
 }
@@ -100,7 +136,6 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		&i.Name,
 		&i.Location,
 		&i.Type,
-		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
@@ -316,7 +351,7 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 }
 
 const getProperty = `-- name: GetProperty :one
-SELECT id, name, location, type, status, created_at, updated_at, created_by, caretaker_id FROM properties
+SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_id FROM properties
 WHERE id = $1 LIMIT 1
 `
 
@@ -328,7 +363,6 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 		&i.Name,
 		&i.Location,
 		&i.Type,
-		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CreatedBy,
@@ -526,7 +560,7 @@ func (q *Queries) OnboardUser(ctx context.Context, arg OnboardUserParams) (User,
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT id, name, location, type, status, created_at, updated_at, created_by, caretaker_id FROM properties
+SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_id FROM properties
 WHERE created_by = $1
 `
 
@@ -544,7 +578,6 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy sql.NullInt
 			&i.Name,
 			&i.Location,
 			&i.Type,
-			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CreatedBy,
@@ -601,6 +634,63 @@ func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID sql.NullI
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const updateInvoiceForMpesa = `-- name: UpdateInvoiceForMpesa :one
+UPDATE invoices
+SET mpesa_id = $1, status = $2
+WHERE w_co_checkout_id = $3
+RETURNING id, msid, mpesa_id, phone, status, w_co_checkout_id, reason
+`
+
+type UpdateInvoiceForMpesaParams struct {
+	MpesaID       sql.NullString `json:"mpesa_id"`
+	Status        interface{}    `json:"status"`
+	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`
+}
+
+func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceForMpesaParams) (Invoice, error) {
+	row := q.db.QueryRowContext(ctx, updateInvoiceForMpesa, arg.MpesaID, arg.Status, arg.WCoCheckoutID)
+	var i Invoice
+	err := row.Scan(
+		&i.ID,
+		&i.Msid,
+		&i.MpesaID,
+		&i.Phone,
+		&i.Status,
+		&i.WCoCheckoutID,
+		&i.Reason,
+	)
+	return i, err
+}
+
+const updateLandlord = `-- name: UpdateLandlord :one
+UPDATE users
+SET is_landlord = $1
+WHERE phone = $2
+RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at
+`
+
+type UpdateLandlordParams struct {
+	IsLandlord sql.NullBool `json:"is_landlord"`
+	Phone      string       `json:"phone"`
+}
+
+func (q *Queries) UpdateLandlord(ctx context.Context, arg UpdateLandlordParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateLandlord, arg.IsLandlord, arg.Phone)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Onboarding,
+		&i.IsLandlord,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const vacantUnitsCount = `-- name: VacantUnitsCount :one

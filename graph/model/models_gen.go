@@ -56,6 +56,11 @@ type CaretakerVerificationInput struct {
 	VerifyCode string `json:"verifyCode"`
 }
 
+type CreatePaymentInput struct {
+	Phone       string `json:"phone"`
+	Description string `json:"description"`
+}
+
 type Gps struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
@@ -68,6 +73,16 @@ type GpsInput struct {
 
 type HandshakeInput struct {
 	Phone string `json:"phone"`
+}
+
+type Invoice struct {
+	ID            string        `json:"id"`
+	Msid          string        `json:"msid"`
+	Phone         string        `json:"phone"`
+	Status        InvoiceStatus `json:"status"`
+	WCoCheckoutID string        `json:"wCoCheckoutId"`
+	CreatedAt     *time.Time    `json:"createdAt"`
+	UpdatedAt     *time.Time    `json:"updatedAt"`
 }
 
 type ListingOverview struct {
@@ -222,6 +237,129 @@ func (e CountryCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type InvoiceStatus string
+
+const (
+	InvoiceStatusProcessed  InvoiceStatus = "PROCESSED"
+	InvoiceStatusProcessing InvoiceStatus = "PROCESSING"
+)
+
+var AllInvoiceStatus = []InvoiceStatus{
+	InvoiceStatusProcessed,
+	InvoiceStatusProcessing,
+}
+
+func (e InvoiceStatus) IsValid() bool {
+	switch e {
+	case InvoiceStatusProcessed, InvoiceStatusProcessing:
+		return true
+	}
+	return false
+}
+
+func (e InvoiceStatus) String() string {
+	return string(e)
+}
+
+func (e *InvoiceStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InvoiceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InvoiceStatus", str)
+	}
+	return nil
+}
+
+func (e InvoiceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type PropertyType string
+
+const (
+	PropertyTypeApartmentsBuilding PropertyType = "APARTMENTS_BUILDING"
+	PropertyTypeApartment          PropertyType = "APARTMENT"
+)
+
+var AllPropertyType = []PropertyType{
+	PropertyTypeApartmentsBuilding,
+	PropertyTypeApartment,
+}
+
+func (e PropertyType) IsValid() bool {
+	switch e {
+	case PropertyTypeApartmentsBuilding, PropertyTypeApartment:
+		return true
+	}
+	return false
+}
+
+func (e PropertyType) String() string {
+	return string(e)
+}
+
+func (e *PropertyType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PropertyType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PropertyType", str)
+	}
+	return nil
+}
+
+func (e PropertyType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ShootStatus string
+
+const (
+	ShootStatusPending ShootStatus = "PENDING"
+	ShootStatusDone    ShootStatus = "DONE"
+)
+
+var AllShootStatus = []ShootStatus{
+	ShootStatusPending,
+	ShootStatusDone,
+}
+
+func (e ShootStatus) IsValid() bool {
+	switch e {
+	case ShootStatusPending, ShootStatusDone:
+		return true
+	}
+	return false
+}
+
+func (e ShootStatus) String() string {
+	return string(e)
+}
+
+func (e *ShootStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ShootStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ShootStatus", str)
+	}
+	return nil
+}
+
+func (e ShootStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type UnitState string
 
 const (
@@ -269,19 +407,19 @@ type UploadCategory string
 
 const (
 	UploadCategoryProfileImg   UploadCategory = "PROFILE_IMG"
-	UploadCategoryUnitImages   UploadCategory = "UNIT_IMAGES"
+	UploadCategoryUnitImage    UploadCategory = "UNIT_IMAGE"
 	UploadCategoryCaretakerImg UploadCategory = "CARETAKER_IMG"
 )
 
 var AllUploadCategory = []UploadCategory{
 	UploadCategoryProfileImg,
-	UploadCategoryUnitImages,
+	UploadCategoryUnitImage,
 	UploadCategoryCaretakerImg,
 }
 
 func (e UploadCategory) IsValid() bool {
 	switch e {
-	case UploadCategoryProfileImg, UploadCategoryUnitImages, UploadCategoryCaretakerImg:
+	case UploadCategoryProfileImg, UploadCategoryUnitImage, UploadCategoryCaretakerImg:
 		return true
 	}
 	return false
