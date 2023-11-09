@@ -194,13 +194,8 @@ func mpesaConfig() MpesaConfig {
 
 	mpesaConfig.ConsumerKey = os.Getenv("MPESA_CONSUMER_KEY")
 	mpesaConfig.ConsumerSecret = os.Getenv("MPESA_CONSUMER_SECRET")
+	mpesaConfig.BaseApi = os.Getenv("MPESA_BASE_API")
 	mpesaConfig.PassKey = os.Getenv("MPESA_PASS_KEY")
-	mpesaConfig.Env = os.Getenv("MPESA_ENV")
-	if mpesaConfig.Env == "sandbox" {
-		mpesaConfig.BaseApi = os.Getenv("MPESA_BASE_API")
-	} else {
-		mpesaConfig.BaseApi = os.Getenv("MPESA_PROD_API")
-	}
 
 	return mpesaConfig
 }

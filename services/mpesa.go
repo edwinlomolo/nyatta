@@ -72,6 +72,7 @@ func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger) *MpesaServic
 
 func (m *MpesaServices) GetAccessToken() (*AccessResponse, error) {
 	response := &AccessResponse{}
+
 	dataToEncode := fmt.Sprintf("%s:%s", m.config.ConsumerKey, m.config.ConsumerSecret)
 	sEnc := base64.StdEncoding.EncodeToString([]byte(dataToEncode))
 
@@ -81,7 +82,7 @@ func (m *MpesaServices) GetAccessToken() (*AccessResponse, error) {
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", sEnc))
+	req.Header.Add("Authorization", "Basic "+sEnc)
 
 	client := &http.Client{}
 	res, err := client.Do(req)
@@ -89,6 +90,7 @@ func (m *MpesaServices) GetAccessToken() (*AccessResponse, error) {
 		m.logger.Errorf("%s:%v", m.ServiceName(), err)
 		return nil, err
 	}
+
 	defer res.Body.Close()
 
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {

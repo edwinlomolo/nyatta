@@ -109,7 +109,11 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
 	sqlStore := ctx.Value("sqlStore").(*store.Queries)
 	userPhone := ctx.Value("phone").(string)
+	u, err := strconv.Atoi(userPhone)
 	logger := ctx.Value("log").(*logrus.Logger)
+	if err != nil {
+		logger.Errorf("%s:%v", "CreatePaymentResolver", err)
+	}
 
 	p, err := strconv.Atoi(input.Phone)
 	if err != nil {
@@ -121,11 +125,11 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 		BusinessShortCode: 174379,
 		AccountReference:  "Nyatta",
 		Amount:            1,
-		PartyA:            p,
+		PartyA:            u,
 		PartyB:            174379,
 		PhoneNumber:       p,
 		TransactionType:   "CustomerPayBillOnline",
-		CallBackURL:       "https://6c89-102-217-127-1.ngrok.io/mpesa/charge",
+		CallBackURL:       "https://a97c-102-217-127-1.ngrok.io/mpesa/charge",
 		TransactionDesc:   input.Description,
 	}
 
