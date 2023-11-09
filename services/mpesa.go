@@ -23,7 +23,7 @@ type AccessResponse struct {
 type StkPushResponse struct {
 	MerchantRequestID string `json:"MerchantRequestID"`
 	CheckoutRequestID string `json:"CheckoutRequestID"`
-	ResponseCode      int    `json:"ResponseCode"`
+	ResponseCode      string `json:"ResponseCode"`
 }
 
 type MpesaServices struct {
@@ -146,7 +146,11 @@ func (m *MpesaServices) StkPush(payload LipaNaMpesaPayload) (*StkPushResponse, e
 		return nil, err
 	}
 
-	if stkResponse != nil && stkResponse.ResponseCode == 0 {
+	resCode, err := strconv.Atoi(stkResponse.ResponseCode)
+	if err != nil {
+		m.logger.Errorf("%s:%v", "StkPushResponseCodeParsingError", err)
+	}
+	if stkResponse != nil && resCode == 0 {
 		if _, err := m.queries.CreateInvoice(ctx, store.CreateInvoiceParams{
 			WCoCheckoutID: sql.NullString{String: stkResponse.CheckoutRequestID, Valid: true},
 			Reason:        sql.NullString{String: payload.TransactionDesc, Valid: true},
