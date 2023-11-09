@@ -109,19 +109,24 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 	u, err := strconv.Atoi(userPhone)
 	logger := ctx.Value("log").(*logrus.Logger)
 	if err != nil {
-		logger.Errorf("%s:%v", "CreatePaymentResolver", err)
+		logger.Errorf("%s:%v", "CreatePaymentResolverUserPhoneParsingError", err)
 	}
 
 	p, err := strconv.Atoi(input.Phone)
 	if err != nil {
-		logger.Errorf("%s:%v", "CreatePaymentResolver", err)
+		logger.Errorf("%s:%v", "CreatePaymentResolverPayPhoneParsingError", err)
 		return nil, err
+	}
+
+	amount, err := strconv.Atoi(input.Amount)
+	if err != nil {
+		logger.Errorf("%s:%v", "CreatePaymentResolverAmountParsingError", err)
 	}
 
 	payload := services.LipaNaMpesaPayload{
 		BusinessShortCode: 174379,
 		AccountReference:  "Nyatta",
-		Amount:            1,
+		Amount:            amount,
 		PartyA:            u,
 		PartyB:            174379,
 		PhoneNumber:       p,
