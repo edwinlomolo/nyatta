@@ -27,6 +27,7 @@ type Configuration struct {
 	SentryConfig SentryConfig   `json:"sentry"`
 	Email        EmailConfig    `json:"email"`
 	Mpesa        MpesaConfig    `json:"mpesa"`
+	Paystack     Paystack       `json:"paystack"`
 }
 
 var configAll *Configuration
@@ -43,6 +44,7 @@ func LoadConfig() *Configuration {
 	configuration.SentryConfig = sentryConfig()
 	configuration.Email = emailConfig()
 	configuration.Mpesa = mpesaConfig()
+	configuration.Paystack = paystackConfig()
 
 	configAll = &configuration
 
@@ -198,4 +200,18 @@ func mpesaConfig() MpesaConfig {
 	mpesaConfig.PassKey = os.Getenv("MPESA_PASS_KEY")
 
 	return mpesaConfig
+}
+
+// paystackConfig - setup paystack config
+func paystackConfig() Paystack {
+	var paystackConfig Paystack
+
+	// Load env
+	env()
+
+	paystackConfig.SecretKey = os.Getenv("PAYSTACK_SECRET_KEY")
+	paystackConfig.BaseApi = os.Getenv("PAYSTACK_BASE_API")
+	paystackConfig.Env = os.Getenv("PAYSTACK_ENV")
+
+	return paystackConfig
 }

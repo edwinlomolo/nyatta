@@ -80,6 +80,7 @@ func main() {
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
 	mpesaService := services.NewMpesaService(configuration.Mpesa, logger, queries)
+	paystackService := services.NewPaystackService(configuration.Paystack, logger, queries)
 
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
@@ -94,6 +95,7 @@ func main() {
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
 	ctx = context.WithValue(ctx, "mpesaService", mpesaService)
 	ctx = context.WithValue(ctx, "sqlStore", queries)
+	ctx = context.WithValue(ctx, "paystackService", paystackService)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 

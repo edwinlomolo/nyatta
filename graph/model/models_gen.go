@@ -60,6 +60,7 @@ type CreatePaymentInput struct {
 	Phone       string `json:"phone"`
 	Description string `json:"description"`
 	Amount      string `json:"amount"`
+	Email       string `json:"email"`
 }
 
 type Gps struct {

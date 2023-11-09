@@ -101,6 +101,7 @@ input CreatePaymentInput {
   phone: String!,
   description: String!
   amount: String!
+  email: String!
 }
 
 # after signin return this

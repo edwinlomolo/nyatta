@@ -105,41 +105,27 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 
 // CreatePayment is the resolver for the createPayment field.
 func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
-	userPhone := ctx.Value("phone").(string)
-	u, err := strconv.Atoi(userPhone)
 	logger := ctx.Value("log").(*logrus.Logger)
-	if err != nil {
-		logger.Errorf("%s:%v", "CreatePaymentResolverUserPhoneParsingError", err)
-	}
-
-	p, err := strconv.Atoi(input.Phone)
-	if err != nil {
-		logger.Errorf("%s:%v", "CreatePaymentResolverPayPhoneParsingError", err)
-		return nil, err
-	}
 
 	amount, err := strconv.Atoi(input.Amount)
 	if err != nil {
-		logger.Errorf("%s:%v", "CreatePaymentResolverAmountParsingError", err)
+		logger.Errorf("%s:%v", "PaystackChargeMpesaResolverError", err)
 	}
 
-	payload := services.LipaNaMpesaPayload{
-		BusinessShortCode: 174379,
-		AccountReference:  "Nyatta",
-		Amount:            amount,
-		PartyA:            u,
-		PartyB:            174379,
-		PhoneNumber:       p,
-		TransactionType:   "CustomerPayBillOnline",
-		CallBackURL:       "https://stagingapi.nyatta.app/mpesa/charge",
-		TransactionDesc:   input.Description,
+	payload := services.PaystackMpesaChargePayload{
+		Email:       input.Email,
+		Amount:      amount,
+		Currency:    "KES",
+		MobileMoney: services.MobileMoneyPayload{Phone: "+" + input.Phone},
 	}
 
-	if _, err := ctx.Value("mpesaService").(*services.MpesaServices).StkPush(payload); err != nil {
+	chargeRes, err := ctx.Value("paystackService").(*services.PaystackServices).ChargeMpesaPhone(payload)
+	if err != nil {
+		logger.Errorf("%s:%v", "PaystackChargeMpesaResolverError", err)
 		return nil, err
 	}
 
-	return &model.Status{Success: "Success"}, nil
+	return &model.Status{Success: chargeRes.Message}, nil
 }
 
 // GetUser is the resolver for the getUser field.
