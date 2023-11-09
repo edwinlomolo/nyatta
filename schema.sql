@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   id BIGSERIAL PRIMARY KEY,
   msid VARCHAR(15),
   mpesa_id VARCHAR(15),
+  amount integer,
   phone VARCHAR(15) REFERENCES users(phone) ON DELETE CASCADE,
   status invoice_status NOT NULL DEFAULT 'PROCESSING',
   w_co_checkout_id VARCHAR(100),

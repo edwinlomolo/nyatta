@@ -79,7 +79,7 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
-	mpesaService := services.NewMpesaService(configuration.Mpesa, logger)
+	mpesaService := services.NewMpesaService(configuration.Mpesa, logger, queries)
 
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)

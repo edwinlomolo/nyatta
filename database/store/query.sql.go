@@ -77,7 +77,7 @@ INSERT INTO invoices (
 ) VALUES (
   $1, $2, $3, $4
 )
-RETURNING id, msid, mpesa_id, phone, status, w_co_checkout_id, reason
+RETURNING id, msid, mpesa_id, amount, phone, status, w_co_checkout_id, reason
 `
 
 type CreateInvoiceParams struct {
@@ -99,6 +99,7 @@ func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (I
 		&i.ID,
 		&i.Msid,
 		&i.MpesaID,
+		&i.Amount,
 		&i.Phone,
 		&i.Status,
 		&i.WCoCheckoutID,
@@ -638,24 +639,31 @@ func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID sql.NullI
 
 const updateInvoiceForMpesa = `-- name: UpdateInvoiceForMpesa :one
 UPDATE invoices
-SET mpesa_id = $1, status = $2
-WHERE w_co_checkout_id = $3
-RETURNING id, msid, mpesa_id, phone, status, w_co_checkout_id, reason
+SET mpesa_id = $1, status = $2, amount = $3
+WHERE w_co_checkout_id = $4
+RETURNING id, msid, mpesa_id, amount, phone, status, w_co_checkout_id, reason
 `
 
 type UpdateInvoiceForMpesaParams struct {
 	MpesaID       sql.NullString `json:"mpesa_id"`
 	Status        interface{}    `json:"status"`
+	Amount        sql.NullInt32  `json:"amount"`
 	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`
 }
 
 func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceForMpesaParams) (Invoice, error) {
-	row := q.db.QueryRowContext(ctx, updateInvoiceForMpesa, arg.MpesaID, arg.Status, arg.WCoCheckoutID)
+	row := q.db.QueryRowContext(ctx, updateInvoiceForMpesa,
+		arg.MpesaID,
+		arg.Status,
+		arg.Amount,
+		arg.WCoCheckoutID,
+	)
 	var i Invoice
 	err := row.Scan(
 		&i.ID,
 		&i.Msid,
 		&i.MpesaID,
+		&i.Amount,
 		&i.Phone,
 		&i.Status,
 		&i.WCoCheckoutID,

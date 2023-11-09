@@ -2,14 +2,16 @@ package services
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
+	"github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,6 +31,7 @@ type MpesaServices struct {
 	accessTokenEndpoint string
 	lipaExpressEndpoint string
 	config              config.MpesaConfig
+	queries             *store.Queries
 }
 
 type LipaNaMpesaPayload struct {
@@ -61,12 +64,13 @@ type MpesaCallBackResponse struct {
 	} `json:"Body"`
 }
 
-func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger) *MpesaServices {
+func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger, queries *store.Queries) *MpesaServices {
 	return &MpesaServices{
 		logger:              logger,
 		accessTokenEndpoint: fmt.Sprintf("%s/oauth/v1/generate?grant_type=client_credentials", cfg.BaseApi),
 		lipaExpressEndpoint: fmt.Sprintf("%s/mpesa/stkpush/v1/processrequest", cfg.BaseApi),
 		config:              cfg,
+		queries:             queries,
 	}
 }
 
@@ -102,7 +106,7 @@ func (m *MpesaServices) GetAccessToken() (*AccessResponse, error) {
 }
 
 func (m *MpesaServices) StkPush(payload LipaNaMpesaPayload) (*StkPushResponse, error) {
-	stkResponse := &StkPushResponse{}
+	var stkResponse *StkPushResponse
 
 	t := time.Now().Format("20060102150405")
 	dataToEncode := fmt.Sprintf("%d%s%s", payload.BusinessShortCode, m.config.PassKey, t)
@@ -137,13 +141,21 @@ func (m *MpesaServices) StkPush(payload LipaNaMpesaPayload) (*StkPushResponse, e
 	}
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&stkResponse); err != nil {
 		m.logger.Errorf("%s:%v", m.ServiceName(), err)
 		return nil, err
 	}
 
-	json.Unmarshal(body, &stkResponse)
+	if stkResponse != nil {
+		if _, err := m.queries.CreateInvoice(ctx, store.CreateInvoiceParams{
+			WCoCheckoutID: sql.NullString{String: stkResponse.CheckoutRequestID, Valid: true},
+			Reason:        sql.NullString{String: payload.TransactionDesc, Valid: true},
+			Msid:          sql.NullString{String: strconv.Itoa(payload.PhoneNumber), Valid: true},
+			Phone:         sql.NullString{String: strconv.Itoa(payload.PartyA), Valid: true},
+		}); err != nil {
+			return nil, err
+		}
+	}
 
 	return stkResponse, nil
 }

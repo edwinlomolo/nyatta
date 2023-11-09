@@ -43,6 +43,7 @@ type Invoice struct {
 	ID            int64          `json:"id"`
 	Msid          sql.NullString `json:"msid"`
 	MpesaID       sql.NullString `json:"mpesa_id"`
+	Amount        sql.NullInt32  `json:"amount"`
 	Phone         sql.NullString `json:"phone"`
 	Status        interface{}    `json:"status"`
 	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`

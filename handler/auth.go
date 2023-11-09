@@ -11,6 +11,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/services"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
 )
 
 func Authenticate(h http.Handler) http.Handler {
@@ -27,6 +28,7 @@ func Authenticate(h http.Handler) http.Handler {
 
 		// Authenticate - authenticate incoming request(s)
 		ctx := r.Context()
+		logger := ctx.Value("log").(*logrus.Logger)
 		// Validate incoming Authorization header
 		token, err := validateBearerAuthHeader(ctx, r)
 		if err == nil {
@@ -40,8 +42,8 @@ func Authenticate(h http.Handler) http.Handler {
 			}
 		} else {
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
+				//http.Error(w, err.Error(), http.StatusBadRequest)
+				logger.Errorf("%s:%v", "AuthMiddlewareTokenValidationError", err)
 			}
 		}
 

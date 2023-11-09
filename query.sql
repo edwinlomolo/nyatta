@@ -140,8 +140,8 @@ RETURNING *;
 
 -- name: UpdateInvoiceForMpesa :one
 UPDATE invoices
-SET mpesa_id = $1, status = $2
-WHERE w_co_checkout_id = $3
+SET mpesa_id = $1, status = $2, amount = $3
+WHERE w_co_checkout_id = $4
 RETURNING *;
 
 -- name: UpdateLandlord :one
@@ -149,3 +149,4 @@ UPDATE users
 SET is_landlord = $1
 WHERE phone = $2
 RETURNING *;
+
