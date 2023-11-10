@@ -73,20 +73,21 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 
 const createInvoice = `-- name: CreateInvoice :one
 INSERT INTO invoices (
-  reference, phone
+  reference, phone, msid
 ) VALUES (
-  $1, $2
+  $1, $2, $3
 )
-RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amount, phone, status, reference
+RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amount, phone, status, reference, created_at, updated_at
 `
 
 type CreateInvoiceParams struct {
 	Reference sql.NullString `json:"reference"`
 	Phone     sql.NullString `json:"phone"`
+	Msid      sql.NullString `json:"msid"`
 }
 
 func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (Invoice, error) {
-	row := q.db.QueryRowContext(ctx, createInvoice, arg.Reference, arg.Phone)
+	row := q.db.QueryRowContext(ctx, createInvoice, arg.Reference, arg.Phone, arg.Msid)
 	var i Invoice
 	err := row.Scan(
 		&i.ID,
@@ -101,6 +102,8 @@ func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (I
 		&i.Phone,
 		&i.Status,
 		&i.Reference,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -191,7 +194,7 @@ INSERT INTO shoots (
 ) VALUES (
   $1, $2
 )
-RETURNING id, shoot_date, property_id, property_unit_id, status, caretaker_id
+RETURNING id, shoot_date, property_id, property_unit_id, status, caretaker_id, created_at, updated_at
 `
 
 type CreateShootScheduleParams struct {
@@ -209,6 +212,8 @@ func (q *Queries) CreateShootSchedule(ctx context.Context, arg CreateShootSchedu
 		&i.PropertyUnitID,
 		&i.Status,
 		&i.CaretakerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -248,7 +253,7 @@ INSERT INTO bedrooms (
 ) VALUES (
   $1, $2, $3, $4
 )
-RETURNING id, bedroom_number, en_suite, master, created_at, updated_at, property_unit_id
+RETURNING id, bedroom_number, en_suite, master, property_unit_id, created_at, updated_at
 `
 
 type CreateUnitBedroomParams struct {
@@ -271,9 +276,9 @@ func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomPa
 		&i.BedroomNumber,
 		&i.EnSuite,
 		&i.Master,
+		&i.PropertyUnitID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.PropertyUnitID,
 	)
 	return i, err
 }
@@ -409,7 +414,7 @@ func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID sql.NullInt64
 }
 
 const getUnitBedrooms = `-- name: GetUnitBedrooms :many
-SELECT id, bedroom_number, en_suite, master, created_at, updated_at, property_unit_id FROM bedrooms
+SELECT id, bedroom_number, en_suite, master, property_unit_id, created_at, updated_at FROM bedrooms
 WHERE property_unit_id = $1
 `
 
@@ -427,9 +432,9 @@ func (q *Queries) GetUnitBedrooms(ctx context.Context, propertyUnitID int64) ([]
 			&i.BedroomNumber,
 			&i.EnSuite,
 			&i.Master,
+			&i.PropertyUnitID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.PropertyUnitID,
 		); err != nil {
 			return nil, err
 		}
@@ -504,7 +509,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 
 const mailingExists = `-- name: MailingExists :one
 SELECT EXISTS(
-  SELECT id, email FROM mailings
+  SELECT id, email, created_at, updated_at FROM mailings
   WHERE email = $1
 )
 `
@@ -612,13 +617,18 @@ INSERT INTO mailings (
 ) VALUES (
   $1
 )
-RETURNING id, email
+RETURNING id, email, created_at, updated_at
 `
 
 func (q *Queries) SaveMail(ctx context.Context, email string) (Mailing, error) {
 	row := q.db.QueryRowContext(ctx, saveMail, email)
 	var i Mailing
-	err := row.Scan(&i.ID, &i.Email)
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
@@ -636,9 +646,9 @@ func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID sql.NullI
 
 const updateInvoiceForMpesa = `-- name: UpdateInvoiceForMpesa :one
 UPDATE invoices
-SET channel = $1, status = $2, amount = $3, currency = $4, bank = $5, auth_code = $6, country_code = $7, fees = $8, msid = $9
-WHERE reference = $10
-RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amount, phone, status, reference
+SET channel = $1, status = $2, amount = $3, currency = $4, bank = $5, auth_code = $6, country_code = $7, fees = $8, created_at = $9, updated_at = $10
+WHERE reference = $11
+RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amount, phone, status, reference, created_at, updated_at
 `
 
 type UpdateInvoiceForMpesaParams struct {
@@ -650,7 +660,8 @@ type UpdateInvoiceForMpesaParams struct {
 	AuthCode    sql.NullString `json:"auth_code"`
 	CountryCode sql.NullString `json:"country_code"`
 	Fees        sql.NullString `json:"fees"`
-	Msid        sql.NullString `json:"msid"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 	Reference   sql.NullString `json:"reference"`
 }
 
@@ -664,7 +675,8 @@ func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceFo
 		arg.AuthCode,
 		arg.CountryCode,
 		arg.Fees,
-		arg.Msid,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 		arg.Reference,
 	)
 	var i Invoice
@@ -681,6 +693,8 @@ func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceFo
 		&i.Phone,
 		&i.Status,
 		&i.Reference,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

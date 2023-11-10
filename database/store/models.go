@@ -24,9 +24,9 @@ type Bedroom struct {
 	BedroomNumber  int32     `json:"bedroom_number"`
 	EnSuite        bool      `json:"en_suite"`
 	Master         bool      `json:"master"`
+	PropertyUnitID int64     `json:"property_unit_id"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
-	PropertyUnitID int64     `json:"property_unit_id"`
 }
 
 type Caretaker struct {
@@ -52,11 +52,15 @@ type Invoice struct {
 	Phone       sql.NullString `json:"phone"`
 	Status      interface{}    `json:"status"`
 	Reference   sql.NullString `json:"reference"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
 type Mailing struct {
-	ID    int64  `json:"id"`
-	Email string `json:"email"`
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Property struct {
@@ -90,6 +94,8 @@ type Shoot struct {
 	PropertyUnitID int64       `json:"property_unit_id"`
 	Status         interface{} `json:"status"`
 	CaretakerID    int64       `json:"caretaker_id"`
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
 }
 
 type Tenant struct {
