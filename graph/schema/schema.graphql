@@ -99,7 +99,6 @@ input UnitAmenityInput {
 # Create payment input
 input CreatePaymentInput {
   phone: String!,
-  description: String!
   amount: String!
   email: String!
 }

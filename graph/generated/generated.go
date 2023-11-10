@@ -1418,7 +1418,6 @@ input UnitAmenityInput {
 # Create payment input
 input CreatePaymentInput {
   phone: String!,
-  description: String!
   amount: String!
   email: String!
 }
@@ -10075,7 +10074,7 @@ func (ec *executionContext) unmarshalInputCreatePaymentInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"phone", "description", "amount", "email"}
+	fieldsInOrder := [...]string{"phone", "amount", "email"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10087,14 +10086,6 @@ func (ec *executionContext) unmarshalInputCreatePaymentInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
 			it.Phone, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "description":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
