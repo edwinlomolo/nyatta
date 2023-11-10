@@ -104,7 +104,7 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 	return status, nil
 }
 
-// CreatePayment is the resolver for the createPayment field.
+// CreatePayment is the resolver for the createPayment field
 func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
 	logger := ctx.Value("log").(*logrus.Logger)
 	phone := ctx.Value("phone").(string)
