@@ -126,7 +126,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 		return nil, err
 	}
 
-	return &model.Status{Success: chargeRes.Data.DisplayText}, nil
+	return &model.Status{Success: chargeRes.Message}, nil
 }
 
 // GetUser is the resolver for the getUser field.
