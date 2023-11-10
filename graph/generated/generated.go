@@ -1427,7 +1427,6 @@ input UnitAmenityInput {
 input CreatePaymentInput {
   phone: String!,
   amount: String!
-  email: String!
 }
 
 # after signin return this
@@ -10135,7 +10134,7 @@ func (ec *executionContext) unmarshalInputCreatePaymentInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"phone", "amount", "email"}
+	fieldsInOrder := [...]string{"phone", "amount"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10155,14 +10154,6 @@ func (ec *executionContext) unmarshalInputCreatePaymentInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
 			it.Amount, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "email":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

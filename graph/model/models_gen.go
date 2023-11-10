@@ -59,7 +59,6 @@ type CaretakerVerificationInput struct {
 type CreatePaymentInput struct {
 	Phone  string `json:"phone"`
 	Amount string `json:"amount"`
-	Email  string `json:"email"`
 }
 
 type Gps struct {

@@ -10,6 +10,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
+	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/sirupsen/logrus"
 )
@@ -114,7 +115,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 	}
 
 	payload := services.PaystackMpesaChargePayload{
-		Email:       input.Email,
+		Email:       util.GenerateRandomEmail(),
 		Amount:      amount,
 		Currency:    "KES",
 		MobileMoney: services.MobileMoneyPayload{Phone: "+" + input.Phone},
@@ -131,11 +132,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, email string) (*model.User, error) {
-	foundUser, err := ctx.Value("userService").(*services.UserServices).FindByEmail(email)
-	if err != nil {
-		return nil, err
-	}
-	return foundUser, nil
+	return &model.User{}, nil
 }
 
 // GetProperty is the resolver for the getProperty field.

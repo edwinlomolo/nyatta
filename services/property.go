@@ -80,16 +80,6 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 	}, nil
 }
 
-// FindByTown - find property(s) in a given town
-func (p *PropertyServices) FindByTown(town string) ([]*model.Property, error) {
-	return make([]*model.Property, 0), nil
-}
-
-// FindByPostalCode - find property(s) in a given postal
-func (p *PropertyServices) FindByPostalCode(postalCode string) ([]*model.Property, error) {
-	return make([]*model.Property, 0), nil
-}
-
 // PropertiesCreatedBy - get property(s) created by user
 func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Property, error) {
 	var userProperties []*model.Property

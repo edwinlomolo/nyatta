@@ -130,6 +130,7 @@ func (p *PaystackServices) ChargeMpesaPhone(phone string, payload PaystackMpesaC
 func (p *PaystackServices) ReconcilePaystackMpesaCallback(payload PaystackCallbackResponse) error {
 	data := payload.Data
 	if payload.Event == "charge.success" {
+		nextRenewal := time.Now().Add(time.Hour * 24 * 30)
 		createdAt, err := time.Parse(time.RFC3339, data.CreatedAt)
 		if err != nil {
 			p.logger.Errorf("%s:%v", p.ServiceName(), err)
@@ -159,8 +160,9 @@ func (p *PaystackServices) ReconcilePaystackMpesaCallback(payload PaystackCallba
 			return err
 		}
 		if _, err := p.sqlStore.UpdateLandlord(ctx, store.UpdateLandlordParams{
-			IsLandlord: sql.NullBool{Bool: true, Valid: true},
-			Phone:      updatedInvoice.Phone.String,
+			IsLandlord:  sql.NullBool{Bool: true, Valid: true},
+			NextRenewal: nextRenewal,
+			Phone:       updatedInvoice.Phone.String,
 		}); err != nil {
 			p.logger.Errorf("%s:%v", p.ServiceName(), err)
 			return err

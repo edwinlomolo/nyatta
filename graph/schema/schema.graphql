@@ -100,7 +100,6 @@ input UnitAmenityInput {
 input CreatePaymentInput {
   phone: String!,
   amount: String!
-  email: String!
 }
 
 # after signin return this

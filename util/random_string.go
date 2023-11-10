@@ -15,5 +15,5 @@ func randString() string {
 // GenerateRandomEmail - generate random email address
 func GenerateRandomEmail() string {
 	randPrefix := randString()
-	return fmt.Sprintf("%s@email.com", randPrefix)
+	return fmt.Sprintf("%s@nyatta.app", randPrefix)
 }

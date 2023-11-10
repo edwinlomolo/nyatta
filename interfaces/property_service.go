@@ -6,8 +6,6 @@ type PropertyService interface {
 	ServiceName() string
 	CreateProperty(*model.NewProperty) (*model.Property, error)
 	GetProperty(id string) (*model.Property, error)
-	FindByTown(town string) ([]*model.Property, error)
-	FindByPostalCode(postalCode string) ([]*model.Property, error)
 	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
 	GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error)
 	CaretakerPhoneVerification(*model.CaretakerVerificationInput) (*model.Status, error)

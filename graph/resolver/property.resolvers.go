@@ -38,11 +38,7 @@ func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (
 
 // Owner is the resolver for the owner field.
 func (r *propertyResolver) Owner(ctx context.Context, obj *model.Property) (*model.User, error) {
-	foundOwner, err := ctx.Value("userService").(*services.UserServices).FindById(obj.CreatedBy)
-	if err != nil {
-		return nil, err
-	}
-	return foundOwner, nil
+	return &model.User{}, nil
 }
 
 // Property returns generated.PropertyResolver implementation.
