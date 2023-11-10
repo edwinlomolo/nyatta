@@ -99,7 +99,7 @@ func main() {
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
-	r.Method("POST", "/paystack/mpesa/charge", h.AddContext(ctx, logHandler.Logging(h.MpesaChargeCallback())))
+	r.Method("POST", "/paystack/webhook", h.AddContext(ctx, logHandler.Logging(h.MpesaChargeCallback())))
 	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	s := &http.Server{
