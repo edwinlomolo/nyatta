@@ -134,10 +134,14 @@ END $$;
 CREATE TABLE IF NOT EXISTS invoices (
   id BIGSERIAL PRIMARY KEY,
   msid VARCHAR(15),
-  mpesa_id VARCHAR(15),
-  amount integer,
+  channel VARCHAR(100),
+  currency TEXT,
+  bank TEXT,
+  auth_code TEXT,
+  country_code VARCHAR(5),
+  fees money,
+  amount money,
   phone VARCHAR(15) REFERENCES users(phone) ON DELETE CASCADE,
   status invoice_status NOT NULL DEFAULT 'PROCESSING',
-  w_co_checkout_id VARCHAR(100),
-  reason TEXT
+  reference TEXT
 );

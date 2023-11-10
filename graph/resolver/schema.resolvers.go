@@ -106,6 +106,7 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 // CreatePayment is the resolver for the createPayment field.
 func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
 	logger := ctx.Value("log").(*logrus.Logger)
+	phone := ctx.Value("phone").(string)
 
 	amount, err := strconv.Atoi(input.Amount)
 	if err != nil {
@@ -119,7 +120,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 		MobileMoney: services.MobileMoneyPayload{Phone: "+" + input.Phone},
 	}
 
-	chargeRes, err := ctx.Value("paystackService").(*services.PaystackServices).ChargeMpesaPhone(payload)
+	chargeRes, err := ctx.Value("paystackService").(*services.PaystackServices).ChargeMpesaPhone(phone, payload)
 	if err != nil {
 		logger.Errorf("%s:%v", "PaystackChargeMpesaResolverError", err)
 		return nil, err

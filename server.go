@@ -79,7 +79,6 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
-	mpesaService := services.NewMpesaService(configuration.Mpesa, logger, queries)
 	paystackService := services.NewPaystackService(configuration.Paystack, logger, queries)
 
 	ctx = context.WithValue(ctx, "userService", userService)
@@ -93,7 +92,6 @@ func main() {
 	ctx = context.WithValue(ctx, "log", logger)
 	ctx = context.WithValue(ctx, "twilioService", twilioService)
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
-	ctx = context.WithValue(ctx, "mpesaService", mpesaService)
 	ctx = context.WithValue(ctx, "sqlStore", queries)
 	ctx = context.WithValue(ctx, "paystackService", paystackService)
 
@@ -101,7 +99,7 @@ func main() {
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
-	r.Handle("/mpesa/charge", h.AddContext(ctx, logHandler.Logging(h.MpesaChargeCallback())))
+	r.Method("POST", "/paystack/mpesa/charge", h.AddContext(ctx, logHandler.Logging(h.MpesaChargeCallback())))
 	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 
 	s := &http.Server{

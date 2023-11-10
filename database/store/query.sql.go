@@ -73,37 +73,34 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 
 const createInvoice = `-- name: CreateInvoice :one
 INSERT INTO invoices (
-  msid, phone, w_co_checkout_id, reason
+  reference, phone
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2
 )
-RETURNING id, msid, mpesa_id, amount, phone, status, w_co_checkout_id, reason
+RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amount, phone, status, reference
 `
 
 type CreateInvoiceParams struct {
-	Msid          sql.NullString `json:"msid"`
-	Phone         sql.NullString `json:"phone"`
-	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`
-	Reason        sql.NullString `json:"reason"`
+	Reference sql.NullString `json:"reference"`
+	Phone     sql.NullString `json:"phone"`
 }
 
 func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (Invoice, error) {
-	row := q.db.QueryRowContext(ctx, createInvoice,
-		arg.Msid,
-		arg.Phone,
-		arg.WCoCheckoutID,
-		arg.Reason,
-	)
+	row := q.db.QueryRowContext(ctx, createInvoice, arg.Reference, arg.Phone)
 	var i Invoice
 	err := row.Scan(
 		&i.ID,
 		&i.Msid,
-		&i.MpesaID,
+		&i.Channel,
+		&i.Currency,
+		&i.Bank,
+		&i.AuthCode,
+		&i.CountryCode,
+		&i.Fees,
 		&i.Amount,
 		&i.Phone,
 		&i.Status,
-		&i.WCoCheckoutID,
-		&i.Reason,
+		&i.Reference,
 	)
 	return i, err
 }
@@ -639,35 +636,51 @@ func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID sql.NullI
 
 const updateInvoiceForMpesa = `-- name: UpdateInvoiceForMpesa :one
 UPDATE invoices
-SET mpesa_id = $1, status = $2, amount = $3
-WHERE w_co_checkout_id = $4
-RETURNING id, msid, mpesa_id, amount, phone, status, w_co_checkout_id, reason
+SET channel = $1, status = $2, amount = $3, currency = $4, bank = $5, auth_code = $6, country_code = $7, fees = $8, msid = $9
+WHERE reference = $10
+RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amount, phone, status, reference
 `
 
 type UpdateInvoiceForMpesaParams struct {
-	MpesaID       sql.NullString `json:"mpesa_id"`
-	Status        interface{}    `json:"status"`
-	Amount        sql.NullInt32  `json:"amount"`
-	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`
+	Channel     sql.NullString `json:"channel"`
+	Status      interface{}    `json:"status"`
+	Amount      sql.NullString `json:"amount"`
+	Currency    sql.NullString `json:"currency"`
+	Bank        sql.NullString `json:"bank"`
+	AuthCode    sql.NullString `json:"auth_code"`
+	CountryCode sql.NullString `json:"country_code"`
+	Fees        sql.NullString `json:"fees"`
+	Msid        sql.NullString `json:"msid"`
+	Reference   sql.NullString `json:"reference"`
 }
 
 func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceForMpesaParams) (Invoice, error) {
 	row := q.db.QueryRowContext(ctx, updateInvoiceForMpesa,
-		arg.MpesaID,
+		arg.Channel,
 		arg.Status,
 		arg.Amount,
-		arg.WCoCheckoutID,
+		arg.Currency,
+		arg.Bank,
+		arg.AuthCode,
+		arg.CountryCode,
+		arg.Fees,
+		arg.Msid,
+		arg.Reference,
 	)
 	var i Invoice
 	err := row.Scan(
 		&i.ID,
 		&i.Msid,
-		&i.MpesaID,
+		&i.Channel,
+		&i.Currency,
+		&i.Bank,
+		&i.AuthCode,
+		&i.CountryCode,
+		&i.Fees,
 		&i.Amount,
 		&i.Phone,
 		&i.Status,
-		&i.WCoCheckoutID,
-		&i.Reason,
+		&i.Reference,
 	)
 	return i, err
 }

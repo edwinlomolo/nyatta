@@ -2,12 +2,10 @@ package services
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
@@ -146,7 +144,7 @@ func (m *MpesaServices) StkPush(payload LipaNaMpesaPayload) (*StkPushResponse, e
 		return nil, err
 	}
 
-	resCode, err := strconv.Atoi(stkResponse.ResponseCode)
+	/*resCode, err := strconv.Atoi(stkResponse.ResponseCode)
 	if err != nil {
 		m.logger.Errorf("%s:%v", "StkPushResponseCodeParsingError", err)
 	}
@@ -159,7 +157,7 @@ func (m *MpesaServices) StkPush(payload LipaNaMpesaPayload) (*StkPushResponse, e
 		}); err != nil {
 			return nil, err
 		}
-	}
+	}*/
 
 	return stkResponse, nil
 }

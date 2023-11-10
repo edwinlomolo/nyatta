@@ -132,16 +132,16 @@ WHERE property_unit_id = $1;
 
 -- name: CreateInvoice :one
 INSERT INTO invoices (
-  msid, phone, w_co_checkout_id, reason
+  reference, phone
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2
 )
 RETURNING *;
 
 -- name: UpdateInvoiceForMpesa :one
 UPDATE invoices
-SET mpesa_id = $1, status = $2, amount = $3
-WHERE w_co_checkout_id = $4
+SET channel = $1, status = $2, amount = $3, currency = $4, bank = $5, auth_code = $6, country_code = $7, fees = $8, msid = $9
+WHERE reference = $10
 RETURNING *;
 
 -- name: UpdateLandlord :one

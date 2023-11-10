@@ -40,14 +40,18 @@ type Caretaker struct {
 }
 
 type Invoice struct {
-	ID            int64          `json:"id"`
-	Msid          sql.NullString `json:"msid"`
-	MpesaID       sql.NullString `json:"mpesa_id"`
-	Amount        sql.NullInt32  `json:"amount"`
-	Phone         sql.NullString `json:"phone"`
-	Status        interface{}    `json:"status"`
-	WCoCheckoutID sql.NullString `json:"w_co_checkout_id"`
-	Reason        sql.NullString `json:"reason"`
+	ID          int64          `json:"id"`
+	Msid        sql.NullString `json:"msid"`
+	Channel     sql.NullString `json:"channel"`
+	Currency    sql.NullString `json:"currency"`
+	Bank        sql.NullString `json:"bank"`
+	AuthCode    sql.NullString `json:"auth_code"`
+	CountryCode sql.NullString `json:"country_code"`
+	Fees        sql.NullString `json:"fees"`
+	Amount      sql.NullString `json:"amount"`
+	Phone       sql.NullString `json:"phone"`
+	Status      interface{}    `json:"status"`
+	Reference   sql.NullString `json:"reference"`
 }
 
 type Mailing struct {
