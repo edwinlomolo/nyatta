@@ -289,7 +289,7 @@ INSERT INTO users (
 ) VALUES (
   $1
 )
-RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at
+RETURNING id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at
 `
 
 func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
@@ -299,6 +299,7 @@ func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
+		&i.NextRenewal,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
@@ -310,7 +311,7 @@ func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
 }
 
 const findByEmail = `-- name: FindByEmail :one
-SELECT id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
+SELECT id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -321,6 +322,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, 
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
+		&i.NextRenewal,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
@@ -332,7 +334,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, 
 }
 
 const findUserByPhone = `-- name: FindUserByPhone :one
-SELECT id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
+SELECT id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
 WHERE phone = $1
 `
 
@@ -343,6 +345,7 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
+		&i.NextRenewal,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
@@ -486,7 +489,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID sql.NullInt
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
+SELECT id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -497,6 +500,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
+		&i.NextRenewal,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
@@ -537,7 +541,7 @@ const onboardUser = `-- name: OnboardUser :one
 UPDATE users
 SET onboarding = $1
 WHERE email = $2
-RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at
+RETURNING id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at
 `
 
 type OnboardUserParams struct {
@@ -552,6 +556,7 @@ func (q *Queries) OnboardUser(ctx context.Context, arg OnboardUserParams) (User,
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
+		&i.NextRenewal,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,
@@ -701,23 +706,25 @@ func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceFo
 
 const updateLandlord = `-- name: UpdateLandlord :one
 UPDATE users
-SET is_landlord = $1
-WHERE phone = $2
-RETURNING id, email, first_name, last_name, phone, onboarding, is_landlord, created_at, updated_at
+SET is_landlord = $1, next_renewal = $2
+WHERE phone = $3
+RETURNING id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at
 `
 
 type UpdateLandlordParams struct {
-	IsLandlord sql.NullBool `json:"is_landlord"`
-	Phone      string       `json:"phone"`
+	IsLandlord  sql.NullBool `json:"is_landlord"`
+	NextRenewal time.Time    `json:"next_renewal"`
+	Phone       string       `json:"phone"`
 }
 
 func (q *Queries) UpdateLandlord(ctx context.Context, arg UpdateLandlordParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateLandlord, arg.IsLandlord, arg.Phone)
+	row := q.db.QueryRowContext(ctx, updateLandlord, arg.IsLandlord, arg.NextRenewal, arg.Phone)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.FirstName,
+		&i.NextRenewal,
 		&i.LastName,
 		&i.Phone,
 		&i.Onboarding,

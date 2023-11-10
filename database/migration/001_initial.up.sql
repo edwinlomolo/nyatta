@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL PRIMARY KEY,
   email TEXT UNIQUE,
   first_name TEXT,
+  next_renewal TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_name TEXT,
   phone VARCHAR(15) UNIQUE NOT NULL,
   onboarding BOOLEAN DEFAULT true,

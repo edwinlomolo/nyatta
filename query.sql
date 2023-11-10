@@ -146,7 +146,7 @@ RETURNING *;
 
 -- name: UpdateLandlord :one
 UPDATE users
-SET is_landlord = $1
-WHERE phone = $2
+SET is_landlord = $1, next_renewal = $2
+WHERE phone = $3
 RETURNING *;
 

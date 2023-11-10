@@ -212,17 +212,18 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		CreatedAt  func(childComplexity int) int
-		Email      func(childComplexity int) int
-		FirstName  func(childComplexity int) int
-		ID         func(childComplexity int) int
-		IsLandlord func(childComplexity int) int
-		LastName   func(childComplexity int) int
-		Onboarding func(childComplexity int) int
-		Phone      func(childComplexity int) int
-		Properties func(childComplexity int) int
-		UpdatedAt  func(childComplexity int) int
-		Uploads    func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Email       func(childComplexity int) int
+		FirstName   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		IsLandlord  func(childComplexity int) int
+		LastName    func(childComplexity int) int
+		NextRenewal func(childComplexity int) int
+		Onboarding  func(childComplexity int) int
+		Phone       func(childComplexity int) int
+		Properties  func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		Uploads     func(childComplexity int) int
 	}
 }
 
@@ -1199,6 +1200,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.LastName(childComplexity), true
 
+	case "User.nextRenewal":
+		if e.complexity.User.NextRenewal == nil {
+			break
+		}
+
+		return e.complexity.User.NextRenewal(childComplexity), true
+
 	case "User.onboarding":
 		if e.complexity.User.Onboarding == nil {
 			break
@@ -1647,6 +1655,7 @@ type User {
   email: String!
   first_name: String!
   last_name: String!
+  nextRenewal: Time!
   phone: String!
   uploads: [AnyUpload!]!
   onboarding: Boolean!
@@ -4450,6 +4459,8 @@ func (ec *executionContext) fieldContext_Mutation_handshake(ctx context.Context,
 				return ec.fieldContext_User_first_name(ctx, field)
 			case "last_name":
 				return ec.fieldContext_User_last_name(ctx, field)
+			case "nextRenewal":
+				return ec.fieldContext_User_nextRenewal(ctx, field)
 			case "phone":
 				return ec.fieldContext_User_phone(ctx, field)
 			case "uploads":
@@ -5119,6 +5130,8 @@ func (ec *executionContext) fieldContext_Property_owner(ctx context.Context, fie
 				return ec.fieldContext_User_first_name(ctx, field)
 			case "last_name":
 				return ec.fieldContext_User_last_name(ctx, field)
+			case "nextRenewal":
+				return ec.fieldContext_User_nextRenewal(ctx, field)
 			case "phone":
 				return ec.fieldContext_User_phone(ctx, field)
 			case "uploads":
@@ -6015,6 +6028,8 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_first_name(ctx, field)
 			case "last_name":
 				return ec.fieldContext_User_last_name(ctx, field)
+			case "nextRenewal":
+				return ec.fieldContext_User_nextRenewal(ctx, field)
 			case "phone":
 				return ec.fieldContext_User_phone(ctx, field)
 			case "uploads":
@@ -7082,6 +7097,8 @@ func (ec *executionContext) fieldContext_SignInResponse_user(ctx context.Context
 				return ec.fieldContext_User_first_name(ctx, field)
 			case "last_name":
 				return ec.fieldContext_User_last_name(ctx, field)
+			case "nextRenewal":
+				return ec.fieldContext_User_nextRenewal(ctx, field)
 			case "phone":
 				return ec.fieldContext_User_phone(ctx, field)
 			case "uploads":
@@ -7855,6 +7872,50 @@ func (ec *executionContext) fieldContext_User_last_name(ctx context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_nextRenewal(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_nextRenewal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NextRenewal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalNTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_nextRenewal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12071,6 +12132,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "nextRenewal":
+
+			out.Values[i] = ec._User_nextRenewal(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "phone":
 
 			out.Values[i] = ec._User_phone(ctx, field, obj)
@@ -13013,6 +13081,27 @@ func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v in
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
