@@ -143,5 +143,5 @@ CREATE TABLE IF NOT EXISTS invoices (
   amount money,
   phone VARCHAR(15) REFERENCES users(phone) ON DELETE CASCADE,
   status invoice_status NOT NULL DEFAULT 'PROCESSING',
-  reference TEXT
+  reference VARCHAR(20)
 );
