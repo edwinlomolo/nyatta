@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/database/store"
@@ -43,12 +44,18 @@ type PaystackMpesaChargeResponse struct {
 }
 
 type PaystackAuthorization struct {
-	Bank              string `json:"bank"`
-	Channel           string `json:"channel"`
-	CountryCode       string `json:"country_code"`
-	Brand             string `json:"brand"`
-	MobileMoneyNumber string `json:"mobile_money_number"`
-	AuthCode          string `json:"authorization_code"`
+	Bank        string `json:"bank"`
+	Channel     string `json:"channel"`
+	CountryCode string `json:"country_code"`
+	Brand       string `json:"brand"`
+	AuthCode    string `json:"authorization_code"`
+}
+
+type Customer struct {
+	ID           int    `json:"id"`
+	Phone        string `json:"phone"`
+	CustomerCode string `json:"customer_code"`
+	Email        string `json:"email"`
 }
 
 type CallbackData struct {
@@ -56,6 +63,7 @@ type CallbackData struct {
 	Reference     string                `json:"reference"`
 	Amount        int                   `json:"amount"`
 	PaidAt        string                `json:"paid_at"`
+	Customer      Customer              `json:"customer"`
 	CreatedAt     string                `json:"created_at"`
 	Channel       string                `json:"channel"`
 	Currency      string                `json:"currency"`
@@ -108,6 +116,7 @@ func (p *PaystackServices) ChargeMpesaPhone(phone string, payload PaystackMpesaC
 	}
 
 	if _, err := p.sqlStore.CreateInvoice(ctx, store.CreateInvoiceParams{
+		Msid:      sql.NullString{String: payload.MobileMoney.Phone, Valid: true},
 		Phone:     sql.NullString{String: phone, Valid: true},
 		Reference: sql.NullString{String: chargeResponse.Data.Reference, Valid: true},
 	}); err != nil {
@@ -119,21 +128,31 @@ func (p *PaystackServices) ChargeMpesaPhone(phone string, payload PaystackMpesaC
 }
 
 func (p *PaystackServices) ReconcilePaystackMpesaCallback(payload PaystackCallbackResponse) error {
-	invoiceStatus := model.InvoiceStatusProcessing
 	data := payload.Data
-	if payload.Event == "charge.success" && data.Status == "success" && data.Amount == 1500 {
-		invoiceStatus = model.InvoiceStatusProcessed
+	if payload.Event == "charge.success" {
+		createdAt, err := time.Parse(time.RFC3339, data.CreatedAt)
+		if err != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return err
+		}
+		paidAt, err := time.Parse(time.RFC3339, data.PaidAt)
+		if err != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return err
+		}
+
 		updatedInvoice, err := p.sqlStore.UpdateInvoiceForMpesa(ctx, store.UpdateInvoiceForMpesaParams{
 			Reference:   sql.NullString{String: data.Reference, Valid: true},
-			Msid:        sql.NullString{String: data.Authorization.MobileMoneyNumber, Valid: true},
 			Channel:     sql.NullString{String: data.Authorization.Channel, Valid: true},
-			Status:      invoiceStatus,
+			Status:      model.InvoiceStatusProcessed,
 			Amount:      sql.NullString{String: strconv.Itoa(data.Amount), Valid: true},
 			Bank:        sql.NullString{String: data.Authorization.Bank, Valid: true},
 			AuthCode:    sql.NullString{String: data.Authorization.AuthCode, Valid: true},
 			Fees:        sql.NullString{String: strconv.Itoa(data.Fees), Valid: true},
 			CountryCode: sql.NullString{String: data.Authorization.CountryCode, Valid: true},
 			Currency:    sql.NullString{String: data.Currency, Valid: true},
+			CreatedAt:   createdAt,
+			UpdatedAt:   paidAt,
 		})
 		if err != nil {
 			p.logger.Errorf("%s:%v", p.ServiceName(), err)
