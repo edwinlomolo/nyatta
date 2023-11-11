@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -66,6 +67,7 @@ func Authenticate(h http.Handler) http.Handler {
 func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token, error) {
 	var tokenString string
 	// Grab header values from Authorization key and split into [`Bearer` and `{token}`] slice
+	fmt.Println(r.Header.Get("Authorization"))
 	auth := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(auth) != 2 || auth[0] != "Bearer" {
 		return nil, config.CredentialsError

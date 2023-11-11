@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -211,7 +212,14 @@ func paystackConfig() Paystack {
 
 	paystackConfig.SecretKey = os.Getenv("PAYSTACK_SECRET_KEY")
 	paystackConfig.BaseApi = os.Getenv("PAYSTACK_BASE_API")
-	paystackConfig.Env = os.Getenv("PAYSTACK_ENV")
+
+	if strings.Contains(paystackConfig.SecretKey, "sk_test") {
+		paystackConfig.Env = "test"
+	} else if strings.Contains(paystackConfig.SecretKey, "sk_live") {
+		paystackConfig.Env = "live"
+	} else {
+		paystackConfig.Env = "test"
+	}
 
 	return paystackConfig
 }

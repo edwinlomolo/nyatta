@@ -106,6 +106,7 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 
 // CreatePayment is the resolver for the createPayment field
 func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
+	success := &model.Status{}
 	logger := ctx.Value("log").(*logrus.Logger)
 	phone := ctx.Value("phone").(string)
 
@@ -116,7 +117,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 
 	payload := services.PaystackMpesaChargePayload{
 		Email:       util.GenerateRandomEmail(),
-		Amount:      amount,
+		Amount:      amount * 100,
 		Currency:    "KES",
 		MobileMoney: services.MobileMoneyPayload{Phone: "+" + input.Phone},
 	}
@@ -127,7 +128,13 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 		return nil, err
 	}
 
-	return &model.Status{Success: chargeRes.Message}, nil
+	if chargeRes.Message == "Charge attempted" {
+		success.Success = "Please complete authorization process on your mobile phone"
+	} else {
+		success.Success = chargeRes.Message
+	}
+
+	return success, nil
 }
 
 // GetUser is the resolver for the getUser field.
