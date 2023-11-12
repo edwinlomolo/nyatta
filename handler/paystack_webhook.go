@@ -35,6 +35,7 @@ func MpesaChargeCallback() http.Handler {
 		if expectedMac != paystackSignature {
 			logger.Errorf("%s:%v", "PaystackMpesaCallbackInvalidSignature", err)
 			http.Error(w, "Invalid signature", http.StatusUnauthorized)
+			return
 		}
 
 		json.Unmarshal(body, &paystackMpesaCallbackResponse)
