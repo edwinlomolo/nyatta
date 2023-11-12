@@ -16,6 +16,7 @@ import (
 func MpesaChargeCallback() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var paystackMpesaCallbackResponse *services.PaystackCallbackResponse
+
 		ctx := r.Context()
 		logger := ctx.Value("log").(*logrus.Logger)
 
