@@ -1,7 +1,7 @@
 package interfaces
 
-import "github.com/99designs/gqlgen/graphql"
+import "mime/multipart"
 
 type AwsServicesInterface interface {
-	UploadFile(graphql.Upload) (string, error)
+	UploadFile(multipart.File, *multipart.FileHeader) (string, error)
 }

@@ -56,11 +56,13 @@ func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input mode
 
 // UploadImage is the resolver for the uploadImage field.
 func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload) (string, error) {
-	fileLocation, err := ctx.Value("awsService").(*services.AwsServices).UploadFile(file)
-	if err != nil {
-		return "", err
-	}
-	return fileLocation, nil
+	/*
+		fileLocation, err := ctx.Value("awsService").(*services.AwsServices).UploadFile(file)
+		if err != nil {
+			return "", err
+		}
+	*/
+	return "", nil
 }
 
 // SendVerificationCode is the resolver for the sendVerificationCode field.

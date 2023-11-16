@@ -1,11 +1,12 @@
 package services
 
 import (
+	"bytes"
 	"context"
+	"mime/multipart"
 
 	cfg "github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/interfaces"
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -38,12 +39,15 @@ func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
 }
 
 // UploadFile - upload file to s3
-func (a *AwsServices) UploadFile(file graphql.Upload) (string, error) {
-	// Upload input params
+func (a *AwsServices) UploadFile(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+	size := fileHeader.Size
+	buffer := make([]byte, size)
+	file.Read(buffer)
+
 	params := &s3.PutObjectInput{
 		Bucket: aws.String(a.Config.S3.Buckets.Media),
-		Key:    aws.String(file.Filename),
-		Body:   file.File,
+		Key:    aws.String(fileHeader.Filename),
+		Body:   bytes.NewReader(buffer),
 	}
 
 	// Do upload

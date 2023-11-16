@@ -45,7 +45,5 @@ func MpesaChargeCallback() http.Handler {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-		return
 	})
 }
