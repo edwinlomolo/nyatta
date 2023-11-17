@@ -48,9 +48,9 @@ RETURNING *;
 
 -- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms, name, type, price, location
+  property_id, bathrooms, name, type, price
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 

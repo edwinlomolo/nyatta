@@ -79,7 +79,6 @@ type PropertyUnit struct {
 	Name       string        `json:"name"`
 	Type       string        `json:"type"`
 	State      interface{}   `json:"state"`
-	Location   interface{}   `json:"location"`
 	Price      int32         `json:"price"`
 	Bathrooms  int32         `json:"bathrooms"`
 	CreatedAt  time.Time     `json:"created_at"`

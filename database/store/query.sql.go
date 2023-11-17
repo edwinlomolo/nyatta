@@ -147,11 +147,11 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 
 const createPropertyUnit = `-- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms, name, type, price, location
+  property_id, bathrooms, name, type, price
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5
 )
-RETURNING id, name, type, state, location, price, bathrooms, created_at, updated_at, property_id
+RETURNING id, name, type, state, price, bathrooms, created_at, updated_at, property_id
 `
 
 type CreatePropertyUnitParams struct {
@@ -160,7 +160,6 @@ type CreatePropertyUnitParams struct {
 	Name       string        `json:"name"`
 	Type       string        `json:"type"`
 	Price      int32         `json:"price"`
-	Location   interface{}   `json:"location"`
 }
 
 func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnitParams) (PropertyUnit, error) {
@@ -170,7 +169,6 @@ func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnit
 		arg.Name,
 		arg.Type,
 		arg.Price,
-		arg.Location,
 	)
 	var i PropertyUnit
 	err := row.Scan(
@@ -178,7 +176,6 @@ func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnit
 		&i.Name,
 		&i.Type,
 		&i.State,
-		&i.Location,
 		&i.Price,
 		&i.Bathrooms,
 		&i.CreatedAt,
@@ -378,7 +375,7 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 }
 
 const getPropertyUnits = `-- name: GetPropertyUnits :many
-SELECT id, name, type, state, location, price, bathrooms, created_at, updated_at, property_id FROM property_units
+SELECT id, name, type, state, price, bathrooms, created_at, updated_at, property_id FROM property_units
 WHERE property_id = $1
 `
 
@@ -396,7 +393,6 @@ func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID sql.NullInt64
 			&i.Name,
 			&i.Type,
 			&i.State,
-			&i.Location,
 			&i.Price,
 			&i.Bathrooms,
 			&i.CreatedAt,
