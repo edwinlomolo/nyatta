@@ -37,7 +37,13 @@ func Authenticate(h http.Handler) http.Handler {
 				userIdBytes, _ := base64.StdEncoding.DecodeString(claims["id"].(string))
 				userId = string(userIdBytes[:])
 				phone = claims["user_phone"].(string)
-				isLandlord = claims["is_landlord"].(bool)
+				user, err := ctx.Value("userService").(*services.UserServices).FindUserByPhone(phone)
+				if err != nil {
+					er := "NoUserFromJwtError"
+					logger.Errorf("%s:%v", er, err)
+					http.Error(w, er, http.StatusBadRequest)
+				}
+				isLandlord = user.IsLandlord
 				isAuthorized = true
 			}
 		} else {

@@ -29,7 +29,7 @@ func UploadHandler() http.Handler {
 		}
 		defer file.Close()
 
-		imageUri, err := ctx.Value("awsService").(*services.AwsServices).UploadFile(file, fileHeader)
+		imageUri, err := ctx.Value("awsService").(*services.AwsServices).UploadRestFile(file, fileHeader)
 		if err != nil {
 			er := "AwsServicesInternalError"
 			log.Errorf("%s:%v", er, err)
@@ -40,7 +40,7 @@ func UploadHandler() http.Handler {
 			ImageUri string `json:"image_uri"`
 		}{ImageUri: imageUri})
 		if err != nil {
-			er := "JsonMarshallingError"
+			er := "JsonMarshalError"
 			log.Errorf("%s:%v", er, err)
 			http.Error(w, er, http.StatusInternalServerError)
 		}

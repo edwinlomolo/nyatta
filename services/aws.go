@@ -7,6 +7,7 @@ import (
 
 	cfg "github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/interfaces"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -38,8 +39,23 @@ func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
 	return &AwsServices{S3: s3Client, Config: cfg, log: logger}
 }
 
-// UploadFile - upload file to s3
-func (a *AwsServices) UploadFile(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+func (a *AwsServices) UploadGqlFile(file graphql.Upload) (string, error) {
+	params := &s3.PutObjectInput{
+		Bucket: aws.String(a.Config.S3.Buckets.Media),
+		Key:    aws.String(file.Filename),
+		Body:   file.File,
+	}
+
+	res, err := a.S3.Upload(context.Background(), params)
+	if err != nil {
+		a.log.Errorf("%s:%v", a.ServiceName(), err)
+		return "", err
+	}
+	return res.Location, nil
+}
+
+// UploadRestFile - upload file to s3
+func (a *AwsServices) UploadRestFile(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
 	size := fileHeader.Size
 	buffer := make([]byte, size)
 	file.Read(buffer)
