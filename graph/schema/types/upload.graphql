@@ -3,9 +3,9 @@ type AnyUpload {
   id: ID!
   upload: String!
   category: String!
-  propertyId: ID!
-  userId: ID!
-  unitId: ID!
+  propertyId: ID
+  userId: ID
+  unitId: ID
   createdAt: Time
   updatedAt: Time
 }

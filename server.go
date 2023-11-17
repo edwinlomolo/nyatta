@@ -101,7 +101,7 @@ func main() {
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
 	r.Handle("/api", h.AddContext(ctx, logHandler.Logging(h.Authenticate(srv))))
 	r.Method("POST", "/paystack/webhook", h.AddContext(ctx, logHandler.Logging(h.MpesaChargeCallback())))
-	r.Method("POST", "/upload", h.AddContext(ctx, h.UploadHandler()))
+	r.Method("POST", "/upload", h.AddContext(ctx, logHandler.Logging(h.UploadHandler())))
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", serverConfig.ServerPort),

@@ -286,7 +286,7 @@ INSERT INTO users (
 ) VALUES (
   $1
 )
-RETURNING id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at
+RETURNING id, first_name, last_name, next_renewal, phone, created_at, updated_at
 `
 
 func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
@@ -294,36 +294,10 @@ func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.FirstName,
-		&i.NextRenewal,
 		&i.LastName,
-		&i.Phone,
-		&i.Onboarding,
-		&i.IsLandlord,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const findByEmail = `-- name: FindByEmail :one
-SELECT id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
-WHERE email = $1 LIMIT 1
-`
-
-func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, error) {
-	row := q.db.QueryRowContext(ctx, findByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.FirstName,
 		&i.NextRenewal,
-		&i.LastName,
 		&i.Phone,
-		&i.Onboarding,
-		&i.IsLandlord,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -331,7 +305,7 @@ func (q *Queries) FindByEmail(ctx context.Context, email sql.NullString) (User, 
 }
 
 const findUserByPhone = `-- name: FindUserByPhone :one
-SELECT id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
+SELECT id, first_name, last_name, next_renewal, phone, created_at, updated_at FROM users
 WHERE phone = $1
 `
 
@@ -340,13 +314,10 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.FirstName,
-		&i.NextRenewal,
 		&i.LastName,
+		&i.NextRenewal,
 		&i.Phone,
-		&i.Onboarding,
-		&i.IsLandlord,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -485,7 +456,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID sql.NullInt
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at FROM users
+SELECT id, first_name, last_name, next_renewal, phone, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -494,13 +465,10 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.FirstName,
-		&i.NextRenewal,
 		&i.LastName,
+		&i.NextRenewal,
 		&i.Phone,
-		&i.Onboarding,
-		&i.IsLandlord,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -531,36 +499,6 @@ func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID sql.NullInt
 	var count int64
 	err := row.Scan(&count)
 	return count, err
-}
-
-const onboardUser = `-- name: OnboardUser :one
-UPDATE users
-SET onboarding = $1
-WHERE email = $2
-RETURNING id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at
-`
-
-type OnboardUserParams struct {
-	Onboarding sql.NullBool   `json:"onboarding"`
-	Email      sql.NullString `json:"email"`
-}
-
-func (q *Queries) OnboardUser(ctx context.Context, arg OnboardUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, onboardUser, arg.Onboarding, arg.Email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.FirstName,
-		&i.NextRenewal,
-		&i.LastName,
-		&i.Phone,
-		&i.Onboarding,
-		&i.IsLandlord,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
@@ -702,29 +640,25 @@ func (q *Queries) UpdateInvoiceForMpesa(ctx context.Context, arg UpdateInvoiceFo
 
 const updateLandlord = `-- name: UpdateLandlord :one
 UPDATE users
-SET is_landlord = $1, next_renewal = $2
-WHERE phone = $3
-RETURNING id, email, first_name, next_renewal, last_name, phone, onboarding, is_landlord, created_at, updated_at
+SET next_renewal = $1
+WHERE phone = $2
+RETURNING id, first_name, last_name, next_renewal, phone, created_at, updated_at
 `
 
 type UpdateLandlordParams struct {
-	IsLandlord  sql.NullBool `json:"is_landlord"`
-	NextRenewal time.Time    `json:"next_renewal"`
-	Phone       string       `json:"phone"`
+	NextRenewal time.Time `json:"next_renewal"`
+	Phone       string    `json:"phone"`
 }
 
 func (q *Queries) UpdateLandlord(ctx context.Context, arg UpdateLandlordParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateLandlord, arg.IsLandlord, arg.NextRenewal, arg.Phone)
+	row := q.db.QueryRowContext(ctx, updateLandlord, arg.NextRenewal, arg.Phone)
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.FirstName,
-		&i.NextRenewal,
 		&i.LastName,
+		&i.NextRenewal,
 		&i.Phone,
-		&i.Onboarding,
-		&i.IsLandlord,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -22,10 +22,6 @@ RETURNING *;
 SELECT * FROM properties
 WHERE id = $1 LIMIT 1;
 
--- name: FindByEmail :one
-SELECT * FROM users
-WHERE email = $1 LIMIT 1;
-
 -- name: PropertiesCreatedBy :many
 SELECT * FROM properties
 WHERE created_by = $1;
@@ -94,12 +90,6 @@ INSERT INTO shoots (
 )
 RETURNING *;
 
--- name: OnboardUser :one
-UPDATE users
-SET onboarding = $1
-WHERE email = $2
-RETURNING *;
-
 -- name: SaveMail :one
 INSERT INTO mailings (
   email
@@ -146,7 +136,7 @@ RETURNING *;
 
 -- name: UpdateLandlord :one
 UPDATE users
-SET is_landlord = $1, next_renewal = $2
-WHERE phone = $3
+SET next_renewal = $1
+WHERE phone = $2
 RETURNING *;
 

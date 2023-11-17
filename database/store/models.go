@@ -122,13 +122,10 @@ type Upload struct {
 
 type User struct {
 	ID          int64          `json:"id"`
-	Email       sql.NullString `json:"email"`
 	FirstName   sql.NullString `json:"first_name"`
-	NextRenewal time.Time      `json:"next_renewal"`
 	LastName    sql.NullString `json:"last_name"`
+	NextRenewal time.Time      `json:"next_renewal"`
 	Phone       string         `json:"phone"`
-	Onboarding  sql.NullBool   `json:"onboarding"`
-	IsLandlord  sql.NullBool   `json:"is_landlord"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 }

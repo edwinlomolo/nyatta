@@ -15,9 +15,9 @@ type AnyUpload struct {
 	ID         string     `json:"id"`
 	Upload     string     `json:"upload"`
 	Category   string     `json:"category"`
-	PropertyID string     `json:"propertyId"`
-	UserID     string     `json:"userId"`
-	UnitID     string     `json:"unitId"`
+	PropertyID *string    `json:"propertyId"`
+	UserID     *string    `json:"userId"`
+	UnitID     *string    `json:"unitId"`
 	CreatedAt  *time.Time `json:"createdAt"`
 	UpdatedAt  *time.Time `json:"updatedAt"`
 }

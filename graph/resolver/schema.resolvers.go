@@ -29,7 +29,8 @@ func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*mo
 
 // CreateProperty is the resolver for the createProperty field.
 func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error) {
-	newProperty, err := ctx.Value("propertyService").(*services.PropertyServices).CreateProperty(&input)
+	userId := ctx.Value("userId").(string)
+	newProperty, err := ctx.Value("propertyService").(*services.PropertyServices).CreateProperty(&input, userId)
 	if err != nil {
 		return nil, err
 	}

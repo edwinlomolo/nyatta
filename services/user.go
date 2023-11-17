@@ -56,6 +56,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
+
 	return &model.User{
 		ID:         strconv.FormatInt(foundUser.ID, 10),
 		Phone:      foundUser.Phone,
@@ -82,8 +83,10 @@ func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
+
 	signInResponse.Token = *token
 	signInResponse.User = newUser
+
 	return signInResponse, nil
 }
 

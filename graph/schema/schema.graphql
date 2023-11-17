@@ -13,7 +13,7 @@ input NewProperty {
   name: String!
   type: String!
   location: GpsInput!
-  thumbnail: Upload!
+  thumbnail: String!
 }
 
 # Represent gps input

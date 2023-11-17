@@ -2,15 +2,13 @@ package model
 
 import (
 	"time"
-
-	"github.com/99designs/gqlgen/graphql"
 )
 
 type NewProperty struct {
-	Name      string         `json:"name"`
-	Location  *GpsInput      `json:"location"`
-	Type      string         `json:"type"`
-	Thumbnail graphql.Upload `json:"thumbnail"`
+	Name      string    `json:"name"`
+	Location  *GpsInput `json:"location"`
+	Type      string    `json:"type"`
+	Thumbnail string    `json:"thumbnail"`
 }
 
 type Property struct {

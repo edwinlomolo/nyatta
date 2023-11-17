@@ -39,10 +39,17 @@ func (p PropertyServices) ServiceName() string {
 }
 
 // CreateProperty - create new property
-func (p *PropertyServices) CreateProperty(property *model.NewProperty) (*model.Property, error) {
+func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy string) (*model.Property, error) {
+	creator, err := strconv.ParseInt(createdBy, 10, 64)
+	if err != nil {
+		p.logger.Errorf("%s: %v", p.ServiceName(), err)
+		return nil, err
+	}
+
 	insertedProperty, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
-		Name: property.Name,
-		Type: property.Type,
+		Name:      property.Name,
+		Type:      property.Type,
+		CreatedBy: sql.NullInt64{Int64: creator, Valid: true},
 	})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
