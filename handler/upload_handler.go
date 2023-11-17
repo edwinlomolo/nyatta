@@ -19,6 +19,7 @@ func UploadHandler() http.Handler {
 			er := "FileTooLargeError"
 			log.Errorf("%s:%v", err, err)
 			http.Error(w, er, http.StatusBadRequest)
+			return
 		}
 
 		file, fileHeader, err := r.FormFile("file")
@@ -26,6 +27,7 @@ func UploadHandler() http.Handler {
 			er := "NoFileUploadedError"
 			log.Errorf("%s:%v", er, err)
 			http.Error(w, er, http.StatusBadRequest)
+			return
 		}
 		defer file.Close()
 
@@ -34,6 +36,7 @@ func UploadHandler() http.Handler {
 			er := "AwsServicesInternalError"
 			log.Errorf("%s:%v", er, err)
 			http.Error(w, er, http.StatusInternalServerError)
+			return
 		}
 
 		res, err := json.Marshal(struct {
@@ -43,10 +46,12 @@ func UploadHandler() http.Handler {
 			er := "JsonMarshalError"
 			log.Errorf("%s:%v", er, err)
 			http.Error(w, er, http.StatusInternalServerError)
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
+		return
 	})
 }
