@@ -83,11 +83,13 @@ func runDbMigration(db *sql.DB, migrationUrl string) error {
 		}
 	}
 
-	if !config.IsPrototypeEnv() {
-		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-			log.Errorf("%s: %s", config.MigrationErr, err)
-			return err
+	/*
+		if !config.IsPrototypeEnv() {
+			if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+				log.Errorf("%s: %s", config.MigrationErr, err)
+				return err
+			}
 		}
-	}
+	*/
 	return nil
 }
