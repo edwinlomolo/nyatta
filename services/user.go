@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"strconv"
+	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -32,6 +33,7 @@ func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string
 
 // FindUserByPhone - get user by phone number
 func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
+	var isLandlord bool
 	var foundUser sqlStore.User
 	var err error
 	foundUser, err = u.queries.FindUserByPhone(ctx, phone)
@@ -41,25 +43,25 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 			u.log.Errorf("%s: %v", u.ServiceName(), err)
 			return nil, err
 		}
+
+		isLandlord = time.Now().Before(foundUser.NextRenewal)
 		return &model.User{
-			ID:          strconv.FormatInt(foundUser.ID, 10),
-			IsLandlord:  foundUser.IsLandlord.Bool,
-			Phone:       foundUser.Phone,
-			NextRenewal: &foundUser.NextRenewal,
-			CreatedAt:   &foundUser.CreatedAt,
-			UpdatedAt:   &foundUser.UpdatedAt,
+			ID:         strconv.FormatInt(foundUser.ID, 10),
+			IsLandlord: isLandlord,
+			Phone:      foundUser.Phone,
+			CreatedAt:  &foundUser.CreatedAt,
+			UpdatedAt:  &foundUser.UpdatedAt,
 		}, nil
 	} else if err != nil && err != sql.ErrNoRows {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
 	return &model.User{
-		ID:          strconv.FormatInt(foundUser.ID, 10),
-		Phone:       foundUser.Phone,
-		IsLandlord:  foundUser.IsLandlord.Bool,
-		NextRenewal: &foundUser.NextRenewal,
-		CreatedAt:   &foundUser.CreatedAt,
-		UpdatedAt:   &foundUser.UpdatedAt,
+		ID:         strconv.FormatInt(foundUser.ID, 10),
+		Phone:      foundUser.Phone,
+		IsLandlord: isLandlord,
+		CreatedAt:  &foundUser.CreatedAt,
+		UpdatedAt:  &foundUser.UpdatedAt,
 	}, nil
 }
 

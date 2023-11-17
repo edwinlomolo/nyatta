@@ -17,18 +17,16 @@ import (
 func Authenticate(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var (
-			userId string
-
+			userId       string
 			isAuthorized bool
-
-			isLandlord bool
-
-			phone string
+			isLandlord   bool
+			phone        string
 		)
 
 		// Authenticate - authenticate incoming request(s)
 		ctx := r.Context()
 		logger := ctx.Value("log").(*logrus.Logger)
+
 		// Validate incoming Authorization header
 		token, err := validateBearerAuthHeader(ctx, r)
 		if err == nil {
@@ -37,6 +35,7 @@ func Authenticate(h http.Handler) http.Handler {
 				userIdBytes, _ := base64.StdEncoding.DecodeString(claims["id"].(string))
 				userId = string(userIdBytes[:])
 				phone = claims["user_phone"].(string)
+				// TODO remove this dev hack
 				user, err := ctx.Value("userService").(*services.UserServices).FindUserByPhone(phone)
 				if err != nil {
 					er := "NoUserFromJwtError"
@@ -48,8 +47,8 @@ func Authenticate(h http.Handler) http.Handler {
 			}
 		} else {
 			if err != nil {
-				//http.Error(w, err.Error(), http.StatusBadRequest)
 				logger.Errorf("%s:%v", "AuthMiddlewareTokenValidationError", err)
+				//http.Error(w, err.Error(), http.StatusNotAuthorized)
 			}
 		}
 
@@ -59,7 +58,7 @@ func Authenticate(h http.Handler) http.Handler {
 			log.Printf("Request Ip error: %v", err)
 		}
 		// Pass user info into current context
-		ctx = context.WithValue(ctx, "ip", &userIp)
+		ctx = context.WithValue(ctx, "ip", userIp)
 		ctx = context.WithValue(ctx, "userId", userId)
 		ctx = context.WithValue(ctx, "is_landlord", isLandlord)
 		ctx = context.WithValue(ctx, "is_authorized", isAuthorized)

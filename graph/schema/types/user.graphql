@@ -5,11 +5,10 @@ type User {
   email: String!
   first_name: String!
   last_name: String!
-  nextRenewal: Time!
   phone: String!
+  is_landlord: Boolean!
   uploads: [AnyUpload!]!
   onboarding: Boolean!
-  is_landlord: Boolean!
   properties: [Property!]!
   createdAt: Time
   updatedAt: Time
