@@ -32,7 +32,7 @@ func InitDB(migrationUrl string) (*sql.DB, error) {
 	}
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;")
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis_rasters; --OPTIONAL")
-	db.Exec("CREATE EXTENSION postgis_topology; --OPTIONAL")
+	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis_topology; --OPTIONAL")
 
 	status := "up"
 	if err := db.Ping(); err != nil {
