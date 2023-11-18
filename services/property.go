@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
+	"github.com/cridenour/go-postgis"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -40,6 +42,12 @@ func (p PropertyServices) ServiceName() string {
 
 // CreateProperty - create new property
 func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy string) (*model.Property, error) {
+	gps := postgis.PointS{
+		SRID: 4326,
+		X:    property.Location.Lat,
+		Y:    property.Location.Lng,
+	}
+
 	creator, err := strconv.ParseInt(createdBy, 10, 64)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
@@ -50,6 +58,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 		Name:      property.Name,
 		Type:      property.Type,
 		CreatedBy: sql.NullInt64{Int64: creator, Valid: true},
+		Location:  fmt.Sprintf("SRID=4326;POINT(%.8f %.8f)", gps.Y, gps.X),
 	})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
@@ -57,9 +66,13 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 	}
 
 	return &model.Property{
-		ID:        strconv.FormatInt(insertedProperty.ID, 10),
-		Name:      insertedProperty.Name,
-		Type:      (insertedProperty.Type).(string),
+		ID:   strconv.FormatInt(insertedProperty.ID, 10),
+		Name: insertedProperty.Name,
+		Type: insertedProperty.Type,
+		Location: &model.Gps{
+			Lat: insertedProperty.Location.X,
+			Lng: insertedProperty.Location.Y,
+		},
 		CreatedAt: &insertedProperty.CreatedAt,
 		UpdatedAt: &insertedProperty.UpdatedAt,
 	}, nil
@@ -72,14 +85,16 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
+
 	foundProperty, err := p.queries.GetProperty(ctx, int64(propertyId))
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return nil, errors.New("Can't find property")
 	}
+
 	return &model.Property{
 		ID:        strconv.FormatInt(foundProperty.ID, 10),
 		Name:      foundProperty.Name,
-		Type:      (foundProperty.Type).(string),
+		Type:      foundProperty.Type,
 		CreatedAt: &foundProperty.CreatedAt,
 		UpdatedAt: &foundProperty.UpdatedAt,
 	}, nil
@@ -98,15 +113,18 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 
 	props, err := p.queries.PropertiesCreatedBy(ctx, sql.NullInt64{Int64: creator, Valid: true})
 	if err == sql.ErrNoRows {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, errors.New("No properties found")
+		return userProperties, nil
 	}
 
 	for _, item := range props {
 		property := &model.Property{
-			ID:        strconv.FormatInt(item.ID, 10),
-			Name:      item.Name,
-			Type:      (item.Type).(string),
+			ID:   strconv.FormatInt(item.ID, 10),
+			Name: item.Name,
+			Type: item.Type,
+			Location: &model.Gps{
+				Lat: item.Location.X,
+				Lng: item.Location.Y,
+			},
 			CreatedAt: &item.CreatedAt,
 			UpdatedAt: &item.UpdatedAt,
 		}
@@ -136,7 +154,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 		unit := &model.PropertyUnit{
 			ID:         strconv.FormatInt(foundUnit.ID, 10),
 			Name:       foundUnit.Name,
-			State:      (foundUnit.State).(model.UnitState),
+			State:      model.UnitState(foundUnit.State),
 			Type:       foundUnit.Type,
 			PropertyID: strconv.FormatInt(foundUnit.PropertyID.Int64, 10),
 			Price:      strconv.FormatInt(int64(foundUnit.Price), 10),

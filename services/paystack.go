@@ -147,7 +147,7 @@ func (p *PaystackServices) ReconcilePaystackMpesaCallback(payload PaystackCallba
 		updatedInvoice, err := p.sqlStore.UpdateInvoiceForMpesa(ctx, store.UpdateInvoiceForMpesaParams{
 			Reference:   sql.NullString{String: data.Reference, Valid: true},
 			Channel:     sql.NullString{String: data.Authorization.Channel, Valid: true},
-			Status:      model.InvoiceStatusProcessed,
+			Status:      model.InvoiceStatusProcessed.String(),
 			Amount:      sql.NullString{String: strconv.Itoa(data.Amount / 100), Valid: true},
 			Bank:        sql.NullString{String: data.Authorization.Bank, Valid: true},
 			AuthCode:    sql.NullString{String: data.Authorization.AuthCode, Valid: true},

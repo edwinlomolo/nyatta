@@ -7,6 +7,8 @@ package store
 import (
 	"database/sql"
 	"time"
+
+	"github.com/cridenour/go-postgis"
 )
 
 type Amenity struct {
@@ -50,7 +52,7 @@ type Invoice struct {
 	Fees        sql.NullString `json:"fees"`
 	Amount      sql.NullString `json:"amount"`
 	Phone       sql.NullString `json:"phone"`
-	Status      interface{}    `json:"status"`
+	Status      string         `json:"status"`
 	Reference   sql.NullString `json:"reference"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
@@ -64,21 +66,21 @@ type Mailing struct {
 }
 
 type Property struct {
-	ID          int64         `json:"id"`
-	Name        string        `json:"name"`
-	Location    interface{}   `json:"location"`
-	Type        interface{}   `json:"type"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
-	CreatedBy   sql.NullInt64 `json:"created_by"`
-	CaretakerID sql.NullInt64 `json:"caretaker_id"`
+	ID          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Location    postgis.PointS `json:"location"`
+	Type        string         `json:"type"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	CreatedBy   sql.NullInt64  `json:"created_by"`
+	CaretakerID sql.NullInt64  `json:"caretaker_id"`
 }
 
 type PropertyUnit struct {
 	ID         int64         `json:"id"`
 	Name       string        `json:"name"`
 	Type       string        `json:"type"`
-	State      interface{}   `json:"state"`
+	State      string        `json:"state"`
 	Price      int32         `json:"price"`
 	Bathrooms  int32         `json:"bathrooms"`
 	CreatedAt  time.Time     `json:"created_at"`
@@ -87,14 +89,14 @@ type PropertyUnit struct {
 }
 
 type Shoot struct {
-	ID             int64       `json:"id"`
-	ShootDate      time.Time   `json:"shoot_date"`
-	PropertyID     int64       `json:"property_id"`
-	PropertyUnitID int64       `json:"property_unit_id"`
-	Status         interface{} `json:"status"`
-	CaretakerID    int64       `json:"caretaker_id"`
-	CreatedAt      time.Time   `json:"created_at"`
-	UpdatedAt      time.Time   `json:"updated_at"`
+	ID             int64     `json:"id"`
+	ShootDate      time.Time `json:"shoot_date"`
+	PropertyID     int64     `json:"property_id"`
+	PropertyUnitID int64     `json:"property_unit_id"`
+	Status         string    `json:"status"`
+	CaretakerID    int64     `json:"caretaker_id"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type Tenant struct {
@@ -108,16 +110,16 @@ type Tenant struct {
 }
 
 type Upload struct {
-	ID             int64         `json:"id"`
-	Upload         string        `json:"upload"`
-	Category       string        `json:"category"`
-	Label          interface{}   `json:"label"`
-	CreatedAt      time.Time     `json:"created_at"`
-	UpdatedAt      time.Time     `json:"updated_at"`
-	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
-	PropertyID     sql.NullInt64 `json:"property_id"`
-	UserID         sql.NullInt64 `json:"user_id"`
-	CaretakerID    sql.NullInt64 `json:"caretaker_id"`
+	ID             int64          `json:"id"`
+	Upload         string         `json:"upload"`
+	Category       string         `json:"category"`
+	Label          sql.NullString `json:"label"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	PropertyUnitID sql.NullInt64  `json:"property_unit_id"`
+	PropertyID     sql.NullInt64  `json:"property_id"`
+	UserID         sql.NullInt64  `json:"user_id"`
+	CaretakerID    sql.NullInt64  `json:"caretaker_id"`
 }
 
 type User struct {

@@ -14,7 +14,7 @@ RETURNING *;
 INSERT INTO properties (
   name, type, created_by, location
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, ST_GeomFromText(sqlc.arg(location)::text)
 )
 RETURNING *;
 

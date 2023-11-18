@@ -112,16 +112,16 @@ const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
   name, type, created_by, location
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, ST_GeomFromText($4::text)
 )
 RETURNING id, name, location, type, created_at, updated_at, created_by, caretaker_id
 `
 
 type CreatePropertyParams struct {
 	Name      string        `json:"name"`
-	Type      interface{}   `json:"type"`
+	Type      string        `json:"type"`
 	CreatedBy sql.NullInt64 `json:"created_by"`
-	Location  interface{}   `json:"location"`
+	Location  string        `json:"location"`
 }
 
 func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) (Property, error) {
@@ -592,7 +592,7 @@ RETURNING id, msid, channel, currency, bank, auth_code, country_code, fees, amou
 
 type UpdateInvoiceForMpesaParams struct {
 	Channel     sql.NullString `json:"channel"`
-	Status      interface{}    `json:"status"`
+	Status      string         `json:"status"`
 	Amount      sql.NullString `json:"amount"`
 	Currency    sql.NullString `json:"currency"`
 	Bank        sql.NullString `json:"bank"`
