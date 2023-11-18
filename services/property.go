@@ -73,6 +73,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 			Lat: insertedProperty.Location.X,
 			Lng: insertedProperty.Location.Y,
 		},
+		CreatedBy: strconv.FormatInt(insertedProperty.CreatedBy.Int64, 10),
 		CreatedAt: &insertedProperty.CreatedAt,
 		UpdatedAt: &insertedProperty.UpdatedAt,
 	}, nil
@@ -95,6 +96,11 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 		ID:        strconv.FormatInt(foundProperty.ID, 10),
 		Name:      foundProperty.Name,
 		Type:      foundProperty.Type,
+		CreatedBy: strconv.FormatInt(foundProperty.CreatedBy.Int64, 10),
+		Location: &model.Gps{
+			Lat: foundProperty.Location.X,
+			Lng: foundProperty.Location.Y,
+		},
 		CreatedAt: &foundProperty.CreatedAt,
 		UpdatedAt: &foundProperty.UpdatedAt,
 	}, nil
@@ -125,6 +131,7 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 				Lat: item.Location.X,
 				Lng: item.Location.Y,
 			},
+			CreatedBy: strconv.FormatInt(item.CreatedBy.Int64, 10),
 			CreatedAt: &item.CreatedAt,
 			UpdatedAt: &item.UpdatedAt,
 		}
