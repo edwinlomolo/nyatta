@@ -41,6 +41,7 @@ func Authenticate(h http.Handler) http.Handler {
 					er := "NoUserFromJwtError"
 					logger.Errorf("%s:%v", er, err)
 					http.Error(w, er, http.StatusBadRequest)
+					return
 				}
 				isLandlord = user.IsLandlord
 				isAuthorized = true

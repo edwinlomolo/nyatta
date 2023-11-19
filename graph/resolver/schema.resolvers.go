@@ -12,7 +12,6 @@ import (
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/3dw1nM0535/nyatta/util"
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/sirupsen/logrus"
 )
 
 // CreateUser - resolver for createUser field
@@ -108,12 +107,11 @@ func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*mod
 // CreatePayment is the resolver for the createPayment field
 func (r *mutationResolver) CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error) {
 	success := &model.Status{}
-	logger := ctx.Value("log").(*logrus.Logger)
 	phone := ctx.Value("phone").(string)
 
 	amount, err := strconv.Atoi(input.Amount)
 	if err != nil {
-		logger.Errorf("%s:%v", "PaystackChargeMpesaResolverError", err)
+		return nil, err
 	}
 
 	payload := services.PaystackMpesaChargePayload{
@@ -125,7 +123,6 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 
 	chargeRes, err := ctx.Value("paystackService").(*services.PaystackServices).ChargeMpesaPhone(phone, payload)
 	if err != nil {
-		logger.Errorf("%s:%v", "PaystackChargeMpesaResolverError", err)
 		return nil, err
 	}
 
@@ -136,6 +133,17 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 	}
 
 	return success, nil
+}
+
+// UpdateUserInfo is the resolver for the updateUserInfo field.
+func (r *mutationResolver) UpdateUserInfo(ctx context.Context, firstName string, lastName string, avatar string) (*model.User, error) {
+	userId := ctx.Value("userId").(int64)
+	phone := ctx.Value("phone").(string)
+	updatedUser, err := ctx.Value("userService").(*services.UserServices).UpdateUserInfo(userId, phone, firstName, lastName, avatar)
+	if err != nil {
+		return nil, err
+	}
+	return updatedUser, nil
 }
 
 // GetUser is the resolver for the getUser field.

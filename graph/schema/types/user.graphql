@@ -7,7 +7,7 @@ type User {
   last_name: String!
   phone: String!
   is_landlord: Boolean!
-  uploads: [AnyUpload!]!
+  avatar: AnyUpload
   onboarding: Boolean!
   properties: [Property!]!
   createdAt: Time

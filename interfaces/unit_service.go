@@ -8,6 +8,7 @@ type UnitService interface {
 	AddPropertyUnit(*model.PropertyUnitInput) (*model.PropertyUnit, error)
 	AddUnitBedrooms([]*model.UnitBedroomInput) ([]*model.Bedroom, error)
 	GetUnitBedrooms(unitId string) ([]*model.Bedroom, error)
+	GetUnitImages(id int64) ([]*model.AnyUpload, error)
 	GetUnitTenancy(unitId string) ([]*model.Tenant, error)
 	AmenityCount(unitId string) (int64, error)
 	ServiceName() string

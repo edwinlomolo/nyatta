@@ -44,6 +44,12 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 		Bathrooms:  int32(input.Baths),
 	})
 
+	// TODO for every uploads
+	if _, err := u.queries.CreateUnitImage(ctx, sqlStore.CreateUnitImageParams{}); err != nil {
+		u.logger.Errorf("%s:%v", u.ServiceName(), err)
+		return nil, err
+	}
+
 	if err != nil {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
@@ -187,4 +193,10 @@ func (u *UnitServices) AmenityCount(unitId string) (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+// GetUnitImages - grab uploads
+func (u *UnitServices) GetUnitImages(id int64) ([]*model.AnyUpload, error) {
+	var images []*model.AnyUpload
+	return images, nil
 }

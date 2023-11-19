@@ -140,8 +140,8 @@ enum UnitState {
 # Represent upload category
 enum UploadCategory {
   PROFILE_IMG
-  UNIT_IMAGE
-  CARETAKER_IMG
+  UNIT_IMAGES
+  PROPERTY_THUMBNAIL
 }
 
 # Invoice status
@@ -187,6 +187,7 @@ type Mutation {
   handshake(input: HandshakeInput!): User!
   saveMailing(email: String): Status!
   createPayment(input: CreatePaymentInput!): Status!
+  updateUserInfo(firstName: String!, lastName: String!, avatar: String!): User!
 }
 
 schema {

@@ -145,6 +145,39 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 	return i, err
 }
 
+const createPropertyThumbnail = `-- name: CreatePropertyThumbnail :one
+INSERT INTO uploads (
+  upload, category, property_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+`
+
+type CreatePropertyThumbnailParams struct {
+	Upload     string        `json:"upload"`
+	Category   string        `json:"category"`
+	PropertyID sql.NullInt64 `json:"property_id"`
+}
+
+func (q *Queries) CreatePropertyThumbnail(ctx context.Context, arg CreatePropertyThumbnailParams) (Upload, error) {
+	row := q.db.QueryRowContext(ctx, createPropertyThumbnail, arg.Upload, arg.Category, arg.PropertyID)
+	var i Upload
+	err := row.Scan(
+		&i.ID,
+		&i.Upload,
+		&i.Category,
+		&i.Label,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+		&i.PropertyID,
+		&i.UserID,
+		&i.CaretakerID,
+	)
+	return i, err
+}
+
 const createPropertyUnit = `-- name: CreatePropertyUnit :one
 INSERT INTO property_units (
   property_id, bathrooms, name, type, price
@@ -280,6 +313,45 @@ func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomPa
 	return i, err
 }
 
+const createUnitImage = `-- name: CreateUnitImage :one
+INSERT INTO uploads (
+  upload, category, label, property_unit_id
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+`
+
+type CreateUnitImageParams struct {
+	Upload         string         `json:"upload"`
+	Category       string         `json:"category"`
+	Label          sql.NullString `json:"label"`
+	PropertyUnitID sql.NullInt64  `json:"property_unit_id"`
+}
+
+func (q *Queries) CreateUnitImage(ctx context.Context, arg CreateUnitImageParams) (Upload, error) {
+	row := q.db.QueryRowContext(ctx, createUnitImage,
+		arg.Upload,
+		arg.Category,
+		arg.Label,
+		arg.PropertyUnitID,
+	)
+	var i Upload
+	err := row.Scan(
+		&i.ID,
+		&i.Upload,
+		&i.Category,
+		&i.Label,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+		&i.PropertyID,
+		&i.UserID,
+		&i.CaretakerID,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   phone
@@ -300,6 +372,39 @@ func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
 		&i.Phone,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createUserAvatar = `-- name: CreateUserAvatar :one
+INSERT INTO uploads (
+  upload, category, user_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+`
+
+type CreateUserAvatarParams struct {
+	Upload   string        `json:"upload"`
+	Category string        `json:"category"`
+	UserID   sql.NullInt64 `json:"user_id"`
+}
+
+func (q *Queries) CreateUserAvatar(ctx context.Context, arg CreateUserAvatarParams) (Upload, error) {
+	row := q.db.QueryRowContext(ctx, createUserAvatar, arg.Upload, arg.Category, arg.UserID)
+	var i Upload
+	err := row.Scan(
+		&i.ID,
+		&i.Upload,
+		&i.Category,
+		&i.Label,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+		&i.PropertyID,
+		&i.UserID,
+		&i.CaretakerID,
 	)
 	return i, err
 }
@@ -342,6 +447,28 @@ func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
 		&i.CreatedBy,
 		&i.CaretakerID,
 	)
+	return i, err
+}
+
+const getPropertyThumbnail = `-- name: GetPropertyThumbnail :one
+SELECT id, upload FROM uploads
+WHERE property_id = $1 AND category = $2 LIMIT 1
+`
+
+type GetPropertyThumbnailParams struct {
+	PropertyID sql.NullInt64 `json:"property_id"`
+	Category   string        `json:"category"`
+}
+
+type GetPropertyThumbnailRow struct {
+	ID     int64  `json:"id"`
+	Upload string `json:"upload"`
+}
+
+func (q *Queries) GetPropertyThumbnail(ctx context.Context, arg GetPropertyThumbnailParams) (GetPropertyThumbnailRow, error) {
+	row := q.db.QueryRowContext(ctx, getPropertyThumbnail, arg.PropertyID, arg.Category)
+	var i GetPropertyThumbnailRow
+	err := row.Scan(&i.ID, &i.Upload)
 	return i, err
 }
 
@@ -419,6 +546,45 @@ func (q *Queries) GetUnitBedrooms(ctx context.Context, propertyUnitID int64) ([]
 	return items, nil
 }
 
+const getUnitImages = `-- name: GetUnitImages :many
+SELECT id, upload, label FROM uploads
+WHERE property_unit_id = $1 AND category = $2 LIMIT 1
+`
+
+type GetUnitImagesParams struct {
+	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	Category       string        `json:"category"`
+}
+
+type GetUnitImagesRow struct {
+	ID     int64          `json:"id"`
+	Upload string         `json:"upload"`
+	Label  sql.NullString `json:"label"`
+}
+
+func (q *Queries) GetUnitImages(ctx context.Context, arg GetUnitImagesParams) ([]GetUnitImagesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUnitImages, arg.PropertyUnitID, arg.Category)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUnitImagesRow
+	for rows.Next() {
+		var i GetUnitImagesRow
+		if err := rows.Scan(&i.ID, &i.Upload, &i.Label); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUnitTenancy = `-- name: GetUnitTenancy :many
 SELECT id, start_date, end_date, created_at, updated_at, property_unit_id, user_id FROM tenants
 WHERE property_unit_id = $1
@@ -472,6 +638,29 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
+	return i, err
+}
+
+const getUserAvatar = `-- name: GetUserAvatar :one
+SELECT id, upload, category FROM uploads
+WHERE user_id = $1 AND category = $2 LIMIT 1
+`
+
+type GetUserAvatarParams struct {
+	UserID   sql.NullInt64 `json:"user_id"`
+	Category string        `json:"category"`
+}
+
+type GetUserAvatarRow struct {
+	ID       int64  `json:"id"`
+	Upload   string `json:"upload"`
+	Category string `json:"category"`
+}
+
+func (q *Queries) GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (GetUserAvatarRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserAvatar, arg.UserID, arg.Category)
+	var i GetUserAvatarRow
+	err := row.Scan(&i.ID, &i.Upload, &i.Category)
 	return i, err
 }
 
@@ -652,6 +841,64 @@ type UpdateLandlordParams struct {
 
 func (q *Queries) UpdateLandlord(ctx context.Context, arg UpdateLandlordParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, updateLandlord, arg.NextRenewal, arg.Phone)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.NextRenewal,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUpload = `-- name: UpdateUpload :one
+UPDATE uploads
+SET upload = $1
+WHERE id = $2
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+`
+
+type UpdateUploadParams struct {
+	Upload string `json:"upload"`
+	ID     int64  `json:"id"`
+}
+
+func (q *Queries) UpdateUpload(ctx context.Context, arg UpdateUploadParams) (Upload, error) {
+	row := q.db.QueryRowContext(ctx, updateUpload, arg.Upload, arg.ID)
+	var i Upload
+	err := row.Scan(
+		&i.ID,
+		&i.Upload,
+		&i.Category,
+		&i.Label,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+		&i.PropertyID,
+		&i.UserID,
+		&i.CaretakerID,
+	)
+	return i, err
+}
+
+const updateUserInfo = `-- name: UpdateUserInfo :one
+UPDATE users
+SET first_name = $1, last_name = $2
+WHERE phone = $3
+RETURNING id, first_name, last_name, next_renewal, phone, created_at, updated_at
+`
+
+type UpdateUserInfoParams struct {
+	FirstName sql.NullString `json:"first_name"`
+	LastName  sql.NullString `json:"last_name"`
+	Phone     string         `json:"phone"`
+}
+
+func (q *Queries) UpdateUserInfo(ctx context.Context, arg UpdateUserInfoParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUserInfo, arg.FirstName, arg.LastName, arg.Phone)
 	var i User
 	err := row.Scan(
 		&i.ID,

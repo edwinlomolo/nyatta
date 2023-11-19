@@ -33,15 +33,15 @@ type Bedroom struct {
 }
 
 type Caretaker struct {
-	ID         string       `json:"id"`
-	FirstName  string       `json:"first_name"`
-	LastName   string       `json:"last_name"`
-	Phone      string       `json:"phone"`
-	Uploads    []*AnyUpload `json:"uploads"`
-	Verified   bool         `json:"verified"`
-	Properties []*Property  `json:"properties"`
-	CreatedAt  *time.Time   `json:"createdAt"`
-	UpdatedAt  *time.Time   `json:"updatedAt"`
+	ID         string      `json:"id"`
+	FirstName  string      `json:"first_name"`
+	LastName   string      `json:"last_name"`
+	Phone      string      `json:"phone"`
+	Avatar     *AnyUpload  `json:"avatar"`
+	Verified   bool        `json:"verified"`
+	Properties []*Property `json:"properties"`
+	CreatedAt  *time.Time  `json:"createdAt"`
+	UpdatedAt  *time.Time  `json:"updatedAt"`
 }
 
 type CaretakerInput struct {
@@ -406,20 +406,20 @@ func (e UnitState) MarshalGQL(w io.Writer) {
 type UploadCategory string
 
 const (
-	UploadCategoryProfileImg   UploadCategory = "PROFILE_IMG"
-	UploadCategoryUnitImage    UploadCategory = "UNIT_IMAGE"
-	UploadCategoryCaretakerImg UploadCategory = "CARETAKER_IMG"
+	UploadCategoryProfileImg        UploadCategory = "PROFILE_IMG"
+	UploadCategoryUnitImages        UploadCategory = "UNIT_IMAGES"
+	UploadCategoryPropertyThumbnail UploadCategory = "PROPERTY_THUMBNAIL"
 )
 
 var AllUploadCategory = []UploadCategory{
 	UploadCategoryProfileImg,
-	UploadCategoryUnitImage,
-	UploadCategoryCaretakerImg,
+	UploadCategoryUnitImages,
+	UploadCategoryPropertyThumbnail,
 }
 
 func (e UploadCategory) IsValid() bool {
 	switch e {
-	case UploadCategoryProfileImg, UploadCategoryUnitImage, UploadCategoryCaretakerImg:
+	case UploadCategoryProfileImg, UploadCategoryUnitImages, UploadCategoryPropertyThumbnail:
 		return true
 	}
 	return false

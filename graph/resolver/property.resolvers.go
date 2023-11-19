@@ -6,6 +6,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -17,9 +18,18 @@ func (r *propertyResolver) Type(ctx context.Context, obj *model.Property) (model
 	panic(fmt.Errorf("not implemented: Type - type"))
 }
 
-// Uploads is the resolver for the uploads field.
-func (r *propertyResolver) Uploads(ctx context.Context, obj *model.Property) ([]*model.AnyUpload, error) {
-	panic(fmt.Errorf("not implemented: Uploads - uploads"))
+// Thumbnail is the resolver for the thumbnail field.
+func (r *propertyResolver) Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error) {
+	id, err := strconv.ParseInt(obj.ID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	thumbnail, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyThumbnail(id)
+	if err != nil {
+		return nil, err
+	}
+	return thumbnail, nil
 }
 
 // Units is the resolver for the units field.
@@ -45,3 +55,13 @@ func (r *propertyResolver) Owner(ctx context.Context, obj *model.Property) (*mod
 func (r *Resolver) Property() generated.PropertyResolver { return &propertyResolver{r} }
 
 type propertyResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *propertyResolver) Uploads(ctx context.Context, obj *model.Property) ([]*model.AnyUpload, error) {
+	panic(fmt.Errorf("not implemented: Uploads - uploads"))
+}

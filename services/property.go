@@ -65,6 +65,15 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 		return nil, err
 	}
 
+	if _, err := p.queries.CreatePropertyThumbnail(ctx, sqlStore.CreatePropertyThumbnailParams{
+		Upload:     property.Thumbnail,
+		Category:   model.UploadCategoryPropertyThumbnail.String(),
+		PropertyID: sql.NullInt64{Int64: insertedProperty.ID, Valid: true},
+	}); err != nil {
+		p.logger.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
+	}
+
 	return &model.Property{
 		ID:   strconv.FormatInt(insertedProperty.ID, 10),
 		Name: insertedProperty.Name,
@@ -215,4 +224,9 @@ func (p *PropertyServices) ListingOverview(propertyId string) (*model.ListingOve
 		OccupiedUnits: int(occupiedUnits),
 		VacantUnits:   int(vacantUnits),
 	}, nil
+}
+
+// GetPropertyThumbnail - grab thumbnail
+func (p *PropertyServices) GetPropertyThumbnail(id int64) (*model.AnyUpload, error) {
+	return &model.AnyUpload{}, nil
 }

@@ -5,16 +5,25 @@ package resolver
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
-// Uploads is the resolver for the uploads field.
-func (r *userResolver) Uploads(ctx context.Context, obj *model.User) ([]*model.AnyUpload, error) {
-	panic(fmt.Errorf("not implemented: Uploads - uploads"))
+// Avatar is the resolver for the avatar field.
+func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error) {
+	id, err := strconv.ParseInt(obj.ID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	avatar, err := ctx.Value("userService").(*services.UserServices).GetUserAvatar(id)
+	if err != nil {
+		return nil, err
+	}
+	return avatar, nil
 }
 
 // Properties is the resolver for the properties field.

@@ -4,7 +4,7 @@ type Property {
   name: String!
   type: PropertyType!
   location: Gps!
-  uploads: [AnyUpload!]!
+  thumbnail: AnyUpload
   units: [PropertyUnit!]!
   createdBy: ID!
   caretaker: Caretaker!

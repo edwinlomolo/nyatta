@@ -81,6 +81,7 @@ type ComplexityRoot struct {
 	}
 
 	Caretaker struct {
+		Avatar     func(childComplexity int) int
 		CreatedAt  func(childComplexity int) int
 		FirstName  func(childComplexity int) int
 		ID         func(childComplexity int) int
@@ -88,7 +89,6 @@ type ComplexityRoot struct {
 		Phone      func(childComplexity int) int
 		Properties func(childComplexity int) int
 		UpdatedAt  func(childComplexity int) int
-		Uploads    func(childComplexity int) int
 		Verified   func(childComplexity int) int
 	}
 
@@ -122,6 +122,7 @@ type ComplexityRoot struct {
 		SaveMailing                     func(childComplexity int, email *string) int
 		SendVerificationCode            func(childComplexity int, input model.VerificationInput) int
 		SignIn                          func(childComplexity int, input model.NewUser) int
+		UpdateUserInfo                  func(childComplexity int, firstName string, lastName string, avatar string) int
 		UploadImage                     func(childComplexity int, file graphql.Upload) int
 		VerifyCaretakerVerificationCode func(childComplexity int, input model.CaretakerVerificationInput) int
 		VerifyUserVerificationCode      func(childComplexity int, input model.UserVerificationInput) int
@@ -136,10 +137,10 @@ type ComplexityRoot struct {
 		Location    func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Owner       func(childComplexity int) int
+		Thumbnail   func(childComplexity int) int
 		Type        func(childComplexity int) int
 		Units       func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
-		Uploads     func(childComplexity int) int
 	}
 
 	PropertyUnit struct {
@@ -212,6 +213,7 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
+		Avatar     func(childComplexity int) int
 		CreatedAt  func(childComplexity int) int
 		Email      func(childComplexity int) int
 		FirstName  func(childComplexity int) int
@@ -222,12 +224,11 @@ type ComplexityRoot struct {
 		Phone      func(childComplexity int) int
 		Properties func(childComplexity int) int
 		UpdatedAt  func(childComplexity int) int
-		Uploads    func(childComplexity int) int
 	}
 }
 
 type CaretakerResolver interface {
-	Uploads(ctx context.Context, obj *model.Caretaker) ([]*model.AnyUpload, error)
+	Avatar(ctx context.Context, obj *model.Caretaker) (*model.AnyUpload, error)
 
 	Properties(ctx context.Context, obj *model.Caretaker) ([]*model.Property, error)
 }
@@ -243,11 +244,12 @@ type MutationResolver interface {
 	Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error)
 	SaveMailing(ctx context.Context, email *string) (*model.Status, error)
 	CreatePayment(ctx context.Context, input model.CreatePaymentInput) (*model.Status, error)
+	UpdateUserInfo(ctx context.Context, firstName string, lastName string, avatar string) (*model.User, error)
 }
 type PropertyResolver interface {
 	Type(ctx context.Context, obj *model.Property) (model.PropertyType, error)
 
-	Uploads(ctx context.Context, obj *model.Property) ([]*model.AnyUpload, error)
+	Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error)
 	Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error)
 
 	Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error)
@@ -275,7 +277,7 @@ type QueryResolver interface {
 	GetListings(ctx context.Context) ([]*model.Property, error)
 }
 type UserResolver interface {
-	Uploads(ctx context.Context, obj *model.User) ([]*model.AnyUpload, error)
+	Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error)
 
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
 }
@@ -449,6 +451,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bedroom.UpdatedAt(childComplexity), true
 
+	case "Caretaker.avatar":
+		if e.complexity.Caretaker.Avatar == nil {
+			break
+		}
+
+		return e.complexity.Caretaker.Avatar(childComplexity), true
+
 	case "Caretaker.createdAt":
 		if e.complexity.Caretaker.CreatedAt == nil {
 			break
@@ -497,13 +506,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Caretaker.UpdatedAt(childComplexity), true
-
-	case "Caretaker.uploads":
-		if e.complexity.Caretaker.Uploads == nil {
-			break
-		}
-
-		return e.complexity.Caretaker.Uploads(childComplexity), true
 
 	case "Caretaker.verified":
 		if e.complexity.Caretaker.Verified == nil {
@@ -692,6 +694,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignIn(childComplexity, args["input"].(model.NewUser)), true
 
+	case "Mutation.updateUserInfo":
+		if e.complexity.Mutation.UpdateUserInfo == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUserInfo_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUserInfo(childComplexity, args["firstName"].(string), args["lastName"].(string), args["avatar"].(string)), true
+
 	case "Mutation.uploadImage":
 		if e.complexity.Mutation.UploadImage == nil {
 			break
@@ -784,6 +798,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Property.Owner(childComplexity), true
 
+	case "Property.thumbnail":
+		if e.complexity.Property.Thumbnail == nil {
+			break
+		}
+
+		return e.complexity.Property.Thumbnail(childComplexity), true
+
 	case "Property.type":
 		if e.complexity.Property.Type == nil {
 			break
@@ -804,13 +825,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Property.UpdatedAt(childComplexity), true
-
-	case "Property.uploads":
-		if e.complexity.Property.Uploads == nil {
-			break
-		}
-
-		return e.complexity.Property.Uploads(childComplexity), true
 
 	case "PropertyUnit.amenities":
 		if e.complexity.PropertyUnit.Amenities == nil {
@@ -1157,6 +1171,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Town.Town(childComplexity), true
 
+	case "User.avatar":
+		if e.complexity.User.Avatar == nil {
+			break
+		}
+
+		return e.complexity.User.Avatar(childComplexity), true
+
 	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
 			break
@@ -1226,13 +1247,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.UpdatedAt(childComplexity), true
-
-	case "User.uploads":
-		if e.complexity.User.Uploads == nil {
-			break
-		}
-
-		return e.complexity.User.Uploads(childComplexity), true
 
 	}
 	return 0, false
@@ -1459,8 +1473,8 @@ enum UnitState {
 # Represent upload category
 enum UploadCategory {
   PROFILE_IMG
-  UNIT_IMAGE
-  CARETAKER_IMG
+  UNIT_IMAGES
+  PROPERTY_THUMBNAIL
 }
 
 # Invoice status
@@ -1506,6 +1520,7 @@ type Mutation {
   handshake(input: HandshakeInput!): User!
   saveMailing(email: String): Status!
   createPayment(input: CreatePaymentInput!): Status!
+  updateUserInfo(firstName: String!, lastName: String!, avatar: String!): User!
 }
 
 schema {
@@ -1541,7 +1556,7 @@ type Caretaker {
   first_name: String!
   last_name: String!
   phone: String!
-  uploads: [AnyUpload!]!
+  avatar: AnyUpload
   verified: Boolean!
   properties: [Property!]!
   createdAt: Time
@@ -1571,7 +1586,7 @@ type Property {
   name: String!
   type: PropertyType!
   location: Gps!
-  uploads: [AnyUpload!]!
+  thumbnail: AnyUpload
   units: [PropertyUnit!]!
   createdBy: ID!
   caretaker: Caretaker!
@@ -1648,7 +1663,7 @@ type User {
   last_name: String!
   phone: String!
   is_landlord: Boolean!
-  uploads: [AnyUpload!]!
+  avatar: AnyUpload
   onboarding: Boolean!
   properties: [Property!]!
   createdAt: Time
@@ -1779,6 +1794,39 @@ func (ec *executionContext) field_Mutation_signIn_args(ctx context.Context, rawA
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUserInfo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["firstName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["firstName"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["lastName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lastName"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["avatar"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["avatar"] = arg2
 	return args, nil
 }
 
@@ -3081,8 +3129,8 @@ func (ec *executionContext) fieldContext_Caretaker_phone(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Caretaker_uploads(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Caretaker_uploads(ctx, field)
+func (ec *executionContext) _Caretaker_avatar(ctx context.Context, field graphql.CollectedField, obj *model.Caretaker) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Caretaker_avatar(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3095,24 +3143,21 @@ func (ec *executionContext) _Caretaker_uploads(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Caretaker().Uploads(rctx, obj)
+		return ec.resolvers.Caretaker().Avatar(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.AnyUpload)
+	res := resTmp.(*model.AnyUpload)
 	fc.Result = res
-	return ec.marshalNAnyUpload2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUploadᚄ(ctx, field.Selections, res)
+	return ec.marshalOAnyUpload2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUpload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Caretaker_uploads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Caretaker_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Caretaker",
 		Field:      field,
@@ -3234,8 +3279,8 @@ func (ec *executionContext) fieldContext_Caretaker_properties(ctx context.Contex
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -3969,8 +4014,8 @@ func (ec *executionContext) fieldContext_Mutation_createProperty(ctx context.Con
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -4444,8 +4489,8 @@ func (ec *executionContext) fieldContext_Mutation_handshake(ctx context.Context,
 				return ec.fieldContext_User_phone(ctx, field)
 			case "is_landlord":
 				return ec.fieldContext_User_is_landlord(ctx, field)
-			case "uploads":
-				return ec.fieldContext_User_uploads(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
@@ -4584,6 +4629,85 @@ func (ec *executionContext) fieldContext_Mutation_createPayment(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createPayment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateUserInfo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateUserInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateUserInfo(rctx, fc.Args["firstName"].(string), fc.Args["lastName"].(string), fc.Args["avatar"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateUserInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "phone":
+				return ec.fieldContext_User_phone(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "onboarding":
+				return ec.fieldContext_User_onboarding(ctx, field)
+			case "properties":
+				return ec.fieldContext_User_properties(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateUserInfo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4772,8 +4896,8 @@ func (ec *executionContext) fieldContext_Property_location(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Property_uploads(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Property_uploads(ctx, field)
+func (ec *executionContext) _Property_thumbnail(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_thumbnail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4786,24 +4910,21 @@ func (ec *executionContext) _Property_uploads(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Property().Uploads(rctx, obj)
+		return ec.resolvers.Property().Thumbnail(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.AnyUpload)
+	res := resTmp.(*model.AnyUpload)
 	fc.Result = res
-	return ec.marshalNAnyUpload2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUploadᚄ(ctx, field.Selections, res)
+	return ec.marshalOAnyUpload2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUpload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Property_uploads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Property_thumbnail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Property",
 		Field:      field,
@@ -5001,8 +5122,8 @@ func (ec *executionContext) fieldContext_Property_caretaker(ctx context.Context,
 				return ec.fieldContext_Caretaker_last_name(ctx, field)
 			case "phone":
 				return ec.fieldContext_Caretaker_phone(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Caretaker_uploads(ctx, field)
+			case "avatar":
+				return ec.fieldContext_Caretaker_avatar(ctx, field)
 			case "verified":
 				return ec.fieldContext_Caretaker_verified(ctx, field)
 			case "properties":
@@ -5113,8 +5234,8 @@ func (ec *executionContext) fieldContext_Property_owner(ctx context.Context, fie
 				return ec.fieldContext_User_phone(ctx, field)
 			case "is_landlord":
 				return ec.fieldContext_User_is_landlord(ctx, field)
-			case "uploads":
-				return ec.fieldContext_User_uploads(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
@@ -5451,8 +5572,8 @@ func (ec *executionContext) fieldContext_PropertyUnit_property(ctx context.Conte
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -6009,8 +6130,8 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_phone(ctx, field)
 			case "is_landlord":
 				return ec.fieldContext_User_is_landlord(ctx, field)
-			case "uploads":
-				return ec.fieldContext_User_uploads(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
@@ -6084,8 +6205,8 @@ func (ec *executionContext) fieldContext_Query_getProperty(ctx context.Context, 
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -6482,8 +6603,8 @@ func (ec *executionContext) fieldContext_Query_getUserProperties(ctx context.Con
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -6615,8 +6736,8 @@ func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, 
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -7076,8 +7197,8 @@ func (ec *executionContext) fieldContext_SignInResponse_user(ctx context.Context
 				return ec.fieldContext_User_phone(ctx, field)
 			case "is_landlord":
 				return ec.fieldContext_User_is_landlord(ctx, field)
-			case "uploads":
-				return ec.fieldContext_User_uploads(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
 			case "onboarding":
 				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
@@ -7938,8 +8059,8 @@ func (ec *executionContext) fieldContext_User_is_landlord(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _User_uploads(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_uploads(ctx, field)
+func (ec *executionContext) _User_avatar(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_avatar(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7952,24 +8073,21 @@ func (ec *executionContext) _User_uploads(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().Uploads(rctx, obj)
+		return ec.resolvers.User().Avatar(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.AnyUpload)
+	res := resTmp.(*model.AnyUpload)
 	fc.Result = res
-	return ec.marshalNAnyUpload2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUploadᚄ(ctx, field.Selections, res)
+	return ec.marshalOAnyUpload2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUpload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_uploads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -8091,8 +8209,8 @@ func (ec *executionContext) fieldContext_User_properties(ctx context.Context, fi
 				return ec.fieldContext_Property_type(ctx, field)
 			case "location":
 				return ec.fieldContext_Property_location(ctx, field)
-			case "uploads":
-				return ec.fieldContext_Property_uploads(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
 			case "createdBy":
@@ -10811,7 +10929,7 @@ func (ec *executionContext) _Caretaker(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "uploads":
+		case "avatar":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -10820,10 +10938,7 @@ func (ec *executionContext) _Caretaker(ctx context.Context, sel ast.SelectionSet
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Caretaker_uploads(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				res = ec._Caretaker_avatar(ctx, field, obj)
 				return res
 			}
 
@@ -11136,6 +11251,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "updateUserInfo":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateUserInfo(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11198,7 +11322,7 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "uploads":
+		case "thumbnail":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11207,10 +11331,7 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Property_uploads(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				res = ec._Property_thumbnail(ctx, field, obj)
 				return res
 			}
 
@@ -12058,7 +12179,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "uploads":
+		case "avatar":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -12067,10 +12188,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._User_uploads(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				res = ec._User_avatar(ctx, field, obj)
 				return res
 			}
 
@@ -13397,6 +13515,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOAnyUpload2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUpload(ctx context.Context, sel ast.SelectionSet, v *model.AnyUpload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AnyUpload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

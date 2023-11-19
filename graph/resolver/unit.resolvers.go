@@ -5,7 +5,7 @@ package resolver
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -32,7 +32,16 @@ func (r *propertyUnitResolver) AmenityCount(ctx context.Context, obj *model.Prop
 
 // Uploads is the resolver for the uploads field.
 func (r *propertyUnitResolver) Uploads(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
-	panic(fmt.Errorf("not implemented: Uploads - uploads"))
+	id, err := strconv.ParseInt(obj.ID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(id)
+	if err != nil {
+		return nil, err
+	}
+	return uploads, nil
 }
 
 // Tenancy is the resolver for the tenancy field.

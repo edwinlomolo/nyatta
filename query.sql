@@ -140,3 +140,50 @@ SET next_renewal = $1
 WHERE phone = $2
 RETURNING *;
 
+-- name: UpdateUserInfo :one
+UPDATE users
+SET first_name = $1, last_name = $2
+WHERE phone = $3
+RETURNING *;
+
+-- name: CreateUserAvatar :one
+INSERT INTO uploads (
+  upload, category, user_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
+-- name: GetUserAvatar :one
+SELECT id, upload, category FROM uploads
+WHERE user_id = $1 AND category = $2 LIMIT 1;
+
+-- name: UpdateUpload :one
+UPDATE uploads
+SET upload = $1
+WHERE id = $2
+RETURNING *;
+
+-- name: CreatePropertyThumbnail :one
+INSERT INTO uploads (
+  upload, category, property_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
+-- name: GetPropertyThumbnail :one
+SELECT id, upload FROM uploads
+WHERE property_id = $1 AND category = $2 LIMIT 1;
+
+-- name: CreateUnitImage :one
+INSERT INTO uploads (
+  upload, category, label, property_unit_id
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING *;
+
+-- name: GetUnitImages :many
+SELECT id, upload, label FROM uploads
+WHERE property_unit_id = $1 AND category = $2 LIMIT 1;

@@ -67,12 +67,12 @@ models:
     fields:
       properties:
         resolver: true
-      uploads:
+      avatar:
         resolver: true
 
   Property:
     fields:
-      uploads:
+      thumbnail:
         resolver: true
       owner:
         resolver: true
@@ -96,7 +96,7 @@ models:
 
   Caretaker:
     fields:
-      uploads:
+      avatar:
         resolver: true
       properties:
         resolver: true
