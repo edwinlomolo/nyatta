@@ -33,9 +33,9 @@ func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string
 
 // FindUserByPhone - get user by phone number
 func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
-	var isLandlord bool
 	var foundUser sqlStore.User
 	var err error
+
 	foundUser, err = u.queries.FindUserByPhone(ctx, phone)
 	if err != nil && err == sql.ErrNoRows {
 		foundUser, err = u.queries.CreateUser(ctx, phone)
@@ -44,7 +44,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 			return nil, err
 		}
 
-		isLandlord = time.Now().Before(foundUser.NextRenewal)
+		isLandlord := time.Now().Before(foundUser.NextRenewal)
 		return &model.User{
 			ID:         strconv.FormatInt(foundUser.ID, 10),
 			IsLandlord: isLandlord,
@@ -57,6 +57,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 		return nil, err
 	}
 
+	isLandlord := time.Now().Before(foundUser.NextRenewal)
 	return &model.User{
 		ID:         strconv.FormatInt(foundUser.ID, 10),
 		Phone:      foundUser.Phone,
