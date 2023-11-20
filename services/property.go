@@ -133,10 +133,10 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Pr
 }
 
 // GetPropertyUnits - get property units
-func (p *PropertyServices) GetPropertyUnits(propertyId uuid.UUID) ([]*model.PropertyUnit, error) {
+func (p *PropertyServices) GetPropertyUnits(propertyID uuid.UUID) ([]*model.PropertyUnit, error) {
 	var units []*model.PropertyUnit
 
-	foundUnits, err := p.queries.GetPropertyUnits(ctx, uuid.NullUUID{UUID: propertyId, Valid: true})
+	foundUnits, err := p.queries.GetPropertyUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
@@ -160,7 +160,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyId uuid.UUID) ([]*model.Prop
 	return units, nil
 }
 
-// CaretakerVerification - verify caretaker
+// CaretakerPhoneVerification - verify caretaker
 func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVerificationInput) (*model.Status, error) {
 	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode)
 	if err != nil {
@@ -171,8 +171,8 @@ func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVeri
 }
 
 // ListingOverview - get listing summary
-func (p *PropertyServices) ListingOverview(propertyId uuid.UUID) (*model.ListingOverview, error) {
-	pUUID := uuid.NullUUID{UUID: propertyId, Valid: true}
+func (p *PropertyServices) ListingOverview(propertyID uuid.UUID) (*model.ListingOverview, error) {
+	pUUID := uuid.NullUUID{UUID: propertyID, Valid: true}
 
 	totalUnits, err := p.queries.PropertyUnitsCount(ctx, pUUID)
 	if err != nil {
@@ -204,16 +204,16 @@ func (p *PropertyServices) GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload,
 }
 
 // CreatePropertyCaretaker - register caretaker
-func (p *PropertyServices) CreatePropertyCaretaker(propertyId uuid.UUID) (*model.Caretaker, error) {
+func (p *PropertyServices) CreatePropertyCaretaker(propertyID uuid.UUID) (*model.Caretaker, error) {
 	return &model.Caretaker{}, nil
 }
 
 // GetPropertyCaretaker - grab caretaker
-func (p *PropertyServices) GetPropertyCaretaker(caretakerId uuid.UUID) (*model.Caretaker, error) {
+func (p *PropertyServices) GetPropertyCaretaker(caretakerID uuid.UUID) (*model.Caretaker, error) {
 	return &model.Caretaker{}, nil
 }
 
 // GetCaretakerAvatar - grab caretaker avatar
-func (p *PropertyServices) GetCaretakerAvatar(caretakerId uuid.UUID) (*model.AnyUpload, error) {
+func (p *PropertyServices) GetCaretakerAvatar(caretakerID uuid.UUID) (*model.AnyUpload, error) {
 	return &model.AnyUpload{}, nil
 }

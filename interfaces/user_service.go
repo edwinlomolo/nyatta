@@ -13,4 +13,5 @@ type UserService interface {
 	ValidateToken(token *string) (*jwt.Token, error)
 	ServiceName() string
 	FindUserByPhone(phone string) (*model.User, error)
+	GetUser(id uuid.UUID) (*model.User, error)
 }

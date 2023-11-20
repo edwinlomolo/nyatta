@@ -150,8 +150,14 @@ func (r *mutationResolver) UpdateUserInfo(ctx context.Context, firstName string,
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, email string) (*model.User, error) {
-	return &model.User{}, nil
+func (r *queryResolver) GetUser(ctx context.Context) (*model.User, error) {
+	userId := ctx.Value("userId").(string)
+	foundUser, err := ctx.Value("userService").(*services.UserServices).GetUser(uuid.MustParse(userId))
+	if err != nil {
+		return nil, err
+	}
+
+	return foundUser, nil
 }
 
 // GetProperty is the resolver for the getProperty field.
@@ -228,6 +234,20 @@ func (r *queryResolver) ListingOverview(ctx context.Context, propertyID uuid.UUI
 // GetListings is the resolver for the getListings field.
 func (r *queryResolver) GetListings(ctx context.Context) ([]*model.Property, error) {
 	return make([]*model.Property, 0), nil
+}
+
+// RefreshToken is the resolver for the refreshToken field.
+func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse, error) {
+	phone := ctx.Value("phone").(string)
+	res, err := ctx.Value("userService").(*services.UserServices).SignIn(&model.NewUser{Phone: phone})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.SignInResponse{
+		User:  res.User,
+		Token: res.Token,
+	}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

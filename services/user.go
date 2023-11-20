@@ -170,3 +170,19 @@ func (u *UserServices) GetUserAvatar(userId uuid.UUID) (*model.AnyUpload, error)
 		Upload: foundUpload.Upload,
 	}, nil
 }
+
+// GetUser - grab user
+func (u *UserServices) GetUser(id uuid.UUID) (*model.User, error) {
+	foundUser, err := u.queries.GetUser(ctx, id)
+	if err != nil && err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	return &model.User{
+		ID:        foundUser.ID,
+		FirstName: foundUser.FirstName.String,
+		LastName:  foundUser.LastName.String,
+		CreatedAt: &foundUser.CreatedAt,
+		UpdatedAt: &foundUser.UpdatedAt,
+	}, nil
+}
