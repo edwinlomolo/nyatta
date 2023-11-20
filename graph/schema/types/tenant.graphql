@@ -1,10 +1,10 @@
 # Represent property unit tenant
 type Tenant {
-  id: ID!
+  id: UUID!
   startDate: Time!
   endDate: Time
   upload: [AnyUpload!]!
-  propertyUnitId: ID! # belongs-to property unit
+  propertyUnitId: UUID! # belongs-to property unit
   createdAt: Time
   updatedAt: Time
 }

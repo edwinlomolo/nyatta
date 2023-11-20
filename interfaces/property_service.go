@@ -1,14 +1,17 @@
 package interfaces
 
-import "github.com/3dw1nM0535/nyatta/graph/model"
+import (
+	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/google/uuid"
+)
 
 type PropertyService interface {
 	ServiceName() string
-	CreateProperty(*model.NewProperty, string) (*model.Property, error)
-	GetProperty(id string) (*model.Property, error)
-	GetPropertyThumbnail(id int64) (*model.AnyUpload, error)
-	PropertiesCreatedBy(createdBy string) ([]*model.Property, error)
-	GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error)
+	CreateProperty(property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error)
+	GetProperty(id uuid.UUID) (*model.Property, error)
+	GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload, error)
+	PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Property, error)
+	GetPropertyUnits(propertyId uuid.UUID) ([]*model.PropertyUnit, error)
 	CaretakerPhoneVerification(*model.CaretakerVerificationInput) (*model.Status, error)
-	ListingOverview(propertyId string) (*model.ListingOverview, error)
+	ListingOverview(propertyId uuid.UUID) (*model.ListingOverview, error)
 }

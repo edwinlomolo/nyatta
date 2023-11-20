@@ -1,11 +1,11 @@
 # Represent graphql upload
 type AnyUpload {
-  id: ID!
+  id: UUID!
   upload: String!
   category: String!
-  propertyId: ID
-  userId: ID
-  unitId: ID
+  propertyId: UUID
+  userId: UUID
+  unitId: UUID
   createdAt: Time
   updatedAt: Time
 }

@@ -1,12 +1,12 @@
 package services
 
 import (
-	"database/sql"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,11 +25,7 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 
 // AddPropertyUnit - add property unit
 func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.PropertyUnit, error) {
-	propertyId, err := strconv.ParseInt(input.PropertyID, 10, 64)
-	if err != nil {
-		u.logger.Errorf("%s: %v", u.ServiceName(), err)
-		return nil, err
-	}
+	pUUID := uuid.NullUUID{UUID: input.PropertyID, Valid: true}
 
 	unitPrice, err := strconv.ParseInt(input.Price, 10, 64)
 	if err != nil {
@@ -37,7 +33,7 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 		return nil, err
 	}
 	unit, err := u.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
-		PropertyID: sql.NullInt64{Int64: propertyId, Valid: true},
+		PropertyID: pUUID,
 		Name:       input.Name,
 		Price:      int32(unitPrice),
 		Type:       input.Type,
@@ -50,10 +46,6 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 		return nil, err
 	}
 
-	if err != nil {
-		u.logger.Errorf("%s: %v", u.ServiceName(), err)
-		return nil, err
-	}
 	if len(input.Bedrooms) > 0 {
 		for i := 0; i < len(input.Bedrooms); i++ {
 			_, err := u.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
@@ -69,12 +61,13 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 		}
 	}
 	// TODO create unit amenity
+	uidUUID := uuid.NullUUID{UUID: unit.ID, Valid: true}
 	if len(input.Amenities) > 0 {
 		for j := 0; j < len(input.Amenities); j++ {
 			_, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
 				Name:           input.Amenities[j].Name,
 				Category:       input.Amenities[j].Category,
-				PropertyUnitID: sql.NullInt64{Int64: unit.ID, Valid: true},
+				PropertyUnitID: uidUUID,
 			})
 			if err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
@@ -84,7 +77,7 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 	}
 
 	return &model.PropertyUnit{
-		ID:         strconv.FormatInt(unit.ID, 10),
+		ID:         unit.ID,
 		Bathrooms:  int(unit.Bathrooms),
 		PropertyID: input.PropertyID,
 		CreatedAt:  &unit.CreatedAt,
@@ -128,7 +121,7 @@ func (u *UnitServices) AddUnitBedrooms(input []*model.UnitBedroomInput) ([]*mode
 }
 
 // GetUnitBedrooms - return unit bedrooms
-func (u *UnitServices) GetUnitBedrooms(unitId string) ([]*model.Bedroom, error) {
+func (u *UnitServices) GetUnitBedrooms(unitId uuid.UUID) ([]*model.Bedroom, error) {
 	var bedrooms []*model.Bedroom
 	return bedrooms, nil
 	//id, err := strconv.ParseInt(unitId, 10, 64)
@@ -152,7 +145,7 @@ func (u *UnitServices) GetUnitBedrooms(unitId string) ([]*model.Bedroom, error) 
 }
 
 // GetUnitTenancy - return unit tenancy
-func (u *UnitServices) GetUnitTenancy(unitId string) ([]*model.Tenant, error) {
+func (u *UnitServices) GetUnitTenancy(unitId uuid.UUID) ([]*model.Tenant, error) {
 	var tenancies []*model.Tenant
 
 	return tenancies, nil
@@ -180,23 +173,8 @@ func (u UnitServices) ServiceName() string {
 	return "UnitServices"
 }
 
-// AmenityCount - return total unit amenities
-func (u *UnitServices) AmenityCount(unitId string) (int64, error) {
-	id, err := strconv.ParseInt(unitId, 10, 64)
-	if err != nil {
-		u.logger.Errorf("%s: %v", u.ServiceName(), err)
-		return 0, err
-	}
-	count, err := u.queries.UnitAmenityCount(ctx, sql.NullInt64{Int64: id, Valid: true})
-	if err != nil {
-		u.logger.Errorf("%s: %v", u.ServiceName(), err)
-		return 0, err
-	}
-	return count, nil
-}
-
 // GetUnitImages - grab uploads
-func (u *UnitServices) GetUnitImages(id int64) ([]*model.AnyUpload, error) {
+func (u *UnitServices) GetUnitImages(id uuid.UUID) ([]*model.AnyUpload, error) {
 	var images []*model.AnyUpload
 	return images, nil
 }

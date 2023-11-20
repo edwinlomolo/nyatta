@@ -30,6 +30,7 @@ func InitDB(migrationUrl string) (*sql.DB, error) {
 		log.Errorf("%s:%s", config.DatabaseError, err.Error())
 		return nil, err
 	}
+	db.Exec(fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS %q;", "uuid-ossp"))
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;")
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis_rasters; --OPTIONAL")
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis_topology; --OPTIONAL")

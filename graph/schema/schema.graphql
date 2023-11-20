@@ -2,6 +2,7 @@
 #
 # https://gqlgen.com/getting-started/
 scalar Upload
+scalar UUID
 
 # Represents new user parameters
 input NewUser {
@@ -24,7 +25,7 @@ input GpsInput {
 
 # Represents new property unit parameters
 input PropertyUnitInput {
-  propertyId: ID!
+  propertyId: UUID!
   baths: Int!
   name: String!
   location: GpsInput!
@@ -51,7 +52,7 @@ input UnitBedroomInput {
 # Represents new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
-  propertyUnitId: ID!
+  propertyUnitId: UUID!
 }
 
 # Represents caretaker verify verification parameters
@@ -164,14 +165,14 @@ enum PropertyType {
 
 type Query {
   getUser(email: String!): User!
-  getProperty(id: ID!): Property!
+  getProperty(id: UUID!): Property!
   hello: String!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
-  getPropertyUnits(propertyId: ID!): [PropertyUnit!]!
-  getPropertyTenancy(propertyId: ID!): [Tenant!]!
+  getPropertyUnits(propertyId: UUID!): [PropertyUnit!]!
+  getPropertyTenancy(propertyId: UUID!): [Tenant!]!
   getUserProperties: [Property!]!
-  listingOverview(propertyId: ID!): ListingOverview!
+  listingOverview(propertyId: UUID!): ListingOverview!
   getListings: [Property!]!
 }
 

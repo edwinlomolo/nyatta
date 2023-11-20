@@ -1,13 +1,10 @@
 package services
 
 import (
-	"strconv"
-
-	"database/sql"
-
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,14 +23,8 @@ func NewTenancyService(queries *sqlStore.Queries, logger *log.Logger) *TenancySe
 
 // AddUnitTenancy - add tenancy to property unit
 func (u *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tenant, error) {
-	propertyId, err := strconv.ParseInt(input.PropertyUnitID, 10, 64)
-	if err != nil {
-		u.logger.Errorf("%s: %v", u.ServiceName(), err)
-		return nil, err
-	}
-
 	insertedTenant, err := u.queries.CreateTenant(ctx, sqlStore.CreateTenantParams{
-		PropertyUnitID: sql.NullInt64{Int64: propertyId, Valid: true},
+		PropertyUnitID: uuid.NullUUID{UUID: input.PropertyUnitID, Valid: true},
 		StartDate:      input.StartDate,
 	})
 	if err != nil {
@@ -41,7 +32,7 @@ func (u *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tena
 		return nil, err
 	}
 	return &model.Tenant{
-		ID:             strconv.FormatInt(insertedTenant.ID, 10),
+		ID:             insertedTenant.ID,
 		StartDate:      insertedTenant.StartDate,
 		EndDate:        &insertedTenant.EndDate.Time,
 		PropertyUnitID: input.PropertyUnitID,

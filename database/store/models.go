@@ -9,30 +9,31 @@ import (
 	"time"
 
 	"github.com/cridenour/go-postgis"
+	"github.com/google/uuid"
 )
 
 type Amenity struct {
-	ID             int64         `json:"id"`
+	ID             uuid.UUID     `json:"id"`
 	Name           string        `json:"name"`
 	Provider       string        `json:"provider"`
 	Category       string        `json:"category"`
 	CreatedAt      time.Time     `json:"created_at"`
 	UpdatedAt      time.Time     `json:"updated_at"`
-	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
 }
 
 type Bedroom struct {
-	ID             int64     `json:"id"`
+	ID             uuid.UUID `json:"id"`
 	BedroomNumber  int32     `json:"bedroom_number"`
 	EnSuite        bool      `json:"en_suite"`
 	Master         bool      `json:"master"`
-	PropertyUnitID int64     `json:"property_unit_id"`
+	PropertyUnitID uuid.UUID `json:"property_unit_id"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type Caretaker struct {
-	ID        int64          `json:"id"`
+	ID        uuid.UUID      `json:"id"`
 	FirstName string         `json:"first_name"`
 	LastName  string         `json:"last_name"`
 	Phone     sql.NullString `json:"phone"`
@@ -42,7 +43,7 @@ type Caretaker struct {
 }
 
 type Invoice struct {
-	ID          int64          `json:"id"`
+	ID          uuid.UUID      `json:"id"`
 	Msid        sql.NullString `json:"msid"`
 	Channel     sql.NullString `json:"channel"`
 	Currency    sql.NullString `json:"currency"`
@@ -59,25 +60,25 @@ type Invoice struct {
 }
 
 type Mailing struct {
-	ID        int64     `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Property struct {
-	ID          int64          `json:"id"`
+	ID          uuid.UUID      `json:"id"`
 	Name        string         `json:"name"`
 	Location    postgis.PointS `json:"location"`
 	Type        string         `json:"type"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
-	CreatedBy   sql.NullInt64  `json:"created_by"`
-	CaretakerID sql.NullInt64  `json:"caretaker_id"`
+	CreatedBy   uuid.NullUUID  `json:"created_by"`
+	CaretakerID uuid.NullUUID  `json:"caretaker_id"`
 }
 
 type PropertyUnit struct {
-	ID         int64         `json:"id"`
+	ID         uuid.UUID     `json:"id"`
 	Name       string        `json:"name"`
 	Type       string        `json:"type"`
 	State      string        `json:"state"`
@@ -85,45 +86,45 @@ type PropertyUnit struct {
 	Bathrooms  int32         `json:"bathrooms"`
 	CreatedAt  time.Time     `json:"created_at"`
 	UpdatedAt  time.Time     `json:"updated_at"`
-	PropertyID sql.NullInt64 `json:"property_id"`
+	PropertyID uuid.NullUUID `json:"property_id"`
 }
 
 type Shoot struct {
-	ID             int64     `json:"id"`
+	ID             uuid.UUID `json:"id"`
 	ShootDate      time.Time `json:"shoot_date"`
-	PropertyID     int64     `json:"property_id"`
-	PropertyUnitID int64     `json:"property_unit_id"`
+	PropertyID     uuid.UUID `json:"property_id"`
+	PropertyUnitID uuid.UUID `json:"property_unit_id"`
 	Status         string    `json:"status"`
-	CaretakerID    int64     `json:"caretaker_id"`
+	CaretakerID    uuid.UUID `json:"caretaker_id"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type Tenant struct {
-	ID             int64         `json:"id"`
+	ID             uuid.UUID     `json:"id"`
 	StartDate      time.Time     `json:"start_date"`
 	EndDate        sql.NullTime  `json:"end_date"`
 	CreatedAt      time.Time     `json:"created_at"`
 	UpdatedAt      time.Time     `json:"updated_at"`
-	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
-	UserID         sql.NullInt64 `json:"user_id"`
+	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
+	UserID         uuid.NullUUID `json:"user_id"`
 }
 
 type Upload struct {
-	ID             int64          `json:"id"`
+	ID             uuid.UUID      `json:"id"`
 	Upload         string         `json:"upload"`
 	Category       string         `json:"category"`
 	Label          sql.NullString `json:"label"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
-	PropertyUnitID sql.NullInt64  `json:"property_unit_id"`
-	PropertyID     sql.NullInt64  `json:"property_id"`
-	UserID         sql.NullInt64  `json:"user_id"`
-	CaretakerID    sql.NullInt64  `json:"caretaker_id"`
+	PropertyUnitID uuid.NullUUID  `json:"property_unit_id"`
+	PropertyID     uuid.NullUUID  `json:"property_id"`
+	UserID         uuid.NullUUID  `json:"user_id"`
+	CaretakerID    uuid.NullUUID  `json:"caretaker_id"`
 }
 
 type User struct {
-	ID          int64          `json:"id"`
+	ID          uuid.UUID      `json:"id"`
 	FirstName   sql.NullString `json:"first_name"`
 	LastName    sql.NullString `json:"last_name"`
 	NextRenewal time.Time      `json:"next_renewal"`

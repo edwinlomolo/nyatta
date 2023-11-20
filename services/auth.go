@@ -34,7 +34,7 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 		"created_at":  user.CreatedAt,
 		"is_landlord": user.IsLandlord,
 		"user_phone":  user.Phone,
-		"id":          base64.StdEncoding.EncodeToString([]byte(user.ID)),
+		"id":          base64.StdEncoding.EncodeToString([]byte(user.ID.String())),
 		"exp":         time.Now().Add(time.Second * *a.expiresIn).Unix(),
 	})
 

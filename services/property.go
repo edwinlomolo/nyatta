@@ -11,6 +11,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/cridenour/go-postgis"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,23 +42,17 @@ func (p PropertyServices) ServiceName() string {
 }
 
 // CreateProperty - create new property
-func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy string) (*model.Property, error) {
+func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error) {
 	gps := postgis.PointS{
 		SRID: 4326,
 		X:    property.Location.Lat,
 		Y:    property.Location.Lng,
 	}
 
-	creator, err := strconv.ParseInt(createdBy, 10, 64)
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
 	insertedProperty, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
 		Name:      property.Name,
 		Type:      property.Type,
-		CreatedBy: sql.NullInt64{Int64: creator, Valid: true},
+		CreatedBy: uuid.NullUUID{UUID: createdBy, Valid: true},
 		Location:  fmt.Sprintf("SRID=4326;POINT(%.8f %.8f)", gps.Y, gps.X),
 	})
 	if err != nil {
@@ -68,44 +63,38 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 	if _, err := p.queries.CreatePropertyThumbnail(ctx, sqlStore.CreatePropertyThumbnailParams{
 		Upload:     property.Thumbnail,
 		Category:   model.UploadCategoryPropertyThumbnail.String(),
-		PropertyID: sql.NullInt64{Int64: insertedProperty.ID, Valid: true},
+		PropertyID: uuid.NullUUID{UUID: insertedProperty.ID, Valid: true},
 	}); err != nil {
 		p.logger.Errorf("%s:%v", p.ServiceName(), err)
 		return nil, err
 	}
 
 	return &model.Property{
-		ID:   strconv.FormatInt(insertedProperty.ID, 10),
+		ID:   insertedProperty.ID,
 		Name: insertedProperty.Name,
 		Type: insertedProperty.Type,
 		Location: &model.Gps{
 			Lat: insertedProperty.Location.X,
 			Lng: insertedProperty.Location.Y,
 		},
-		CreatedBy: strconv.FormatInt(insertedProperty.CreatedBy.Int64, 10),
+		CreatedBy: insertedProperty.CreatedBy.UUID.String(),
 		CreatedAt: &insertedProperty.CreatedAt,
 		UpdatedAt: &insertedProperty.UpdatedAt,
 	}, nil
 }
 
 // GetProperty - return existing property given property id
-func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
-	propertyId, err := strconv.Atoi(id)
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	foundProperty, err := p.queries.GetProperty(ctx, int64(propertyId))
+func (p *PropertyServices) GetProperty(id uuid.UUID) (*model.Property, error) {
+	foundProperty, err := p.queries.GetProperty(ctx, id)
 	if err == sql.ErrNoRows {
 		return nil, errors.New("Can't find property")
 	}
 
 	return &model.Property{
-		ID:        strconv.FormatInt(foundProperty.ID, 10),
+		ID:        foundProperty.ID,
 		Name:      foundProperty.Name,
 		Type:      foundProperty.Type,
-		CreatedBy: strconv.FormatInt(foundProperty.CreatedBy.Int64, 10),
+		CreatedBy: foundProperty.CreatedBy.UUID.String(),
 		Location: &model.Gps{
 			Lat: foundProperty.Location.X,
 			Lng: foundProperty.Location.Y,
@@ -116,31 +105,24 @@ func (p *PropertyServices) GetProperty(id string) (*model.Property, error) {
 }
 
 // PropertiesCreatedBy - get property(s) created by user
-func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Property, error) {
+func (p *PropertyServices) PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Property, error) {
 	var userProperties []*model.Property
 
-	// Use int64 id
-	creator, err := strconv.ParseInt(createdBy, 10, 64)
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	props, err := p.queries.PropertiesCreatedBy(ctx, sql.NullInt64{Int64: creator, Valid: true})
+	properties, err := p.queries.PropertiesCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
 	if err == sql.ErrNoRows {
 		return userProperties, nil
 	}
 
-	for _, item := range props {
+	for _, item := range properties {
 		property := &model.Property{
-			ID:   strconv.FormatInt(item.ID, 10),
+			ID:   item.ID,
 			Name: item.Name,
 			Type: item.Type,
 			Location: &model.Gps{
 				Lat: item.Location.X,
 				Lng: item.Location.Y,
 			},
-			CreatedBy: strconv.FormatInt(item.CreatedBy.Int64, 10),
+			CreatedBy: item.CreatedBy.UUID.String(),
 			CreatedAt: &item.CreatedAt,
 			UpdatedAt: &item.UpdatedAt,
 		}
@@ -151,16 +133,10 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy string) ([]*model.Prope
 }
 
 // GetPropertyUnits - get property units
-func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.PropertyUnit, error) {
+func (p *PropertyServices) GetPropertyUnits(propertyId uuid.UUID) ([]*model.PropertyUnit, error) {
 	var units []*model.PropertyUnit
 
-	id, err := strconv.ParseInt(propertyId, 10, 64)
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	foundUnits, err := p.queries.GetPropertyUnits(ctx, sql.NullInt64{Int64: id, Valid: true})
+	foundUnits, err := p.queries.GetPropertyUnits(ctx, uuid.NullUUID{UUID: propertyId, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
@@ -168,11 +144,11 @@ func (p *PropertyServices) GetPropertyUnits(propertyId string) ([]*model.Propert
 
 	for _, foundUnit := range foundUnits {
 		unit := &model.PropertyUnit{
-			ID:         strconv.FormatInt(foundUnit.ID, 10),
+			ID:         foundUnit.ID,
 			Name:       foundUnit.Name,
 			State:      model.UnitState(foundUnit.State),
 			Type:       foundUnit.Type,
-			PropertyID: strconv.FormatInt(foundUnit.PropertyID.Int64, 10),
+			PropertyID: foundUnit.PropertyID.UUID,
 			Price:      strconv.FormatInt(int64(foundUnit.Price), 10),
 			Bathrooms:  int(foundUnit.Bathrooms),
 			CreatedAt:  &foundUnit.CreatedAt,
@@ -195,26 +171,22 @@ func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVeri
 }
 
 // ListingOverview - get listing summary
-func (p *PropertyServices) ListingOverview(propertyId string) (*model.ListingOverview, error) {
-	id, err := strconv.ParseInt(propertyId, 10, 64)
+func (p *PropertyServices) ListingOverview(propertyId uuid.UUID) (*model.ListingOverview, error) {
+	pUUID := uuid.NullUUID{UUID: propertyId, Valid: true}
+
+	totalUnits, err := p.queries.PropertyUnitsCount(ctx, pUUID)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
-	totalUnits, err := p.queries.PropertyUnitsCount(ctx, sql.NullInt64{Int64: id, Valid: true})
+	occupiedUnits, err := p.queries.OccupiedUnitsCount(ctx, pUUID)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
-	occupiedUnits, err := p.queries.OccupiedUnitsCount(ctx, sql.NullInt64{Int64: id, Valid: true})
-	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
-	}
-
-	vacantUnits, err := p.queries.VacantUnitsCount(ctx, sql.NullInt64{Int64: id, Valid: true})
+	vacantUnits, err := p.queries.VacantUnitsCount(ctx, pUUID)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
@@ -227,6 +199,6 @@ func (p *PropertyServices) ListingOverview(propertyId string) (*model.ListingOve
 }
 
 // GetPropertyThumbnail - grab thumbnail
-func (p *PropertyServices) GetPropertyThumbnail(id int64) (*model.AnyUpload, error) {
+func (p *PropertyServices) GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload, error) {
 	return &model.AnyUpload{}, nil
 }

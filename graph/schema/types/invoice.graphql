@@ -1,6 +1,6 @@
 # Represent payment invoice
 type Invoice {
-  id: ID!
+  id: UUID!
   msid: String!
   phone: String!
   status: InvoiceStatus!

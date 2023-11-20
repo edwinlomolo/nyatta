@@ -1,12 +1,11 @@
 # Represent property unit
 type PropertyUnit {
-  id: ID!
+  id: UUID!
   name: String!
   bedrooms: [Bedroom!]! # has-many bedrooms
-  propertyId: ID!
+  propertyId: UUID!
   property: Property!
   price: String!
-  amenityCount: Int!
   bathrooms: Int!
   amenities: [Amenity!]!
   state: UnitState!

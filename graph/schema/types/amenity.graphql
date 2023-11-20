@@ -1,10 +1,10 @@
 # Represent property amenity
 type Amenity {
-  id: ID!
+  id: UUID!
   name: String!
   provider: String
   category: String!
-  unitId: ID
+  unitId: UUID
   createdAt: Time
   updatedAt: Time
 }

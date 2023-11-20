@@ -9,6 +9,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const createAmenity = `-- name: CreateAmenity :one
@@ -23,7 +25,7 @@ RETURNING id, name, provider, category, created_at, updated_at, property_unit_id
 type CreateAmenityParams struct {
 	Name           string        `json:"name"`
 	Category       string        `json:"category"`
-	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
 }
 
 func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (Amenity, error) {
@@ -120,7 +122,7 @@ RETURNING id, name, location, type, created_at, updated_at, created_by, caretake
 type CreatePropertyParams struct {
 	Name      string        `json:"name"`
 	Type      string        `json:"type"`
-	CreatedBy sql.NullInt64 `json:"created_by"`
+	CreatedBy uuid.NullUUID `json:"created_by"`
 	Location  string        `json:"location"`
 }
 
@@ -157,7 +159,7 @@ RETURNING id, upload, category, label, created_at, updated_at, property_unit_id,
 type CreatePropertyThumbnailParams struct {
 	Upload     string        `json:"upload"`
 	Category   string        `json:"category"`
-	PropertyID sql.NullInt64 `json:"property_id"`
+	PropertyID uuid.NullUUID `json:"property_id"`
 }
 
 func (q *Queries) CreatePropertyThumbnail(ctx context.Context, arg CreatePropertyThumbnailParams) (Upload, error) {
@@ -188,7 +190,7 @@ RETURNING id, name, type, state, price, bathrooms, created_at, updated_at, prope
 `
 
 type CreatePropertyUnitParams struct {
-	PropertyID sql.NullInt64 `json:"property_id"`
+	PropertyID uuid.NullUUID `json:"property_id"`
 	Bathrooms  int32         `json:"bathrooms"`
 	Name       string        `json:"name"`
 	Type       string        `json:"type"`
@@ -229,7 +231,7 @@ RETURNING id, shoot_date, property_id, property_unit_id, status, caretaker_id, c
 
 type CreateShootScheduleParams struct {
 	ShootDate  time.Time `json:"shoot_date"`
-	PropertyID int64     `json:"property_id"`
+	PropertyID uuid.UUID `json:"property_id"`
 }
 
 func (q *Queries) CreateShootSchedule(ctx context.Context, arg CreateShootScheduleParams) (Shoot, error) {
@@ -259,7 +261,7 @@ RETURNING id, start_date, end_date, created_at, updated_at, property_unit_id, us
 
 type CreateTenantParams struct {
 	StartDate      time.Time     `json:"start_date"`
-	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
 }
 
 func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
@@ -287,10 +289,10 @@ RETURNING id, bedroom_number, en_suite, master, property_unit_id, created_at, up
 `
 
 type CreateUnitBedroomParams struct {
-	PropertyUnitID int64 `json:"property_unit_id"`
-	BedroomNumber  int32 `json:"bedroom_number"`
-	EnSuite        bool  `json:"en_suite"`
-	Master         bool  `json:"master"`
+	PropertyUnitID uuid.UUID `json:"property_unit_id"`
+	BedroomNumber  int32     `json:"bedroom_number"`
+	EnSuite        bool      `json:"en_suite"`
+	Master         bool      `json:"master"`
 }
 
 func (q *Queries) CreateUnitBedroom(ctx context.Context, arg CreateUnitBedroomParams) (Bedroom, error) {
@@ -326,7 +328,7 @@ type CreateUnitImageParams struct {
 	Upload         string         `json:"upload"`
 	Category       string         `json:"category"`
 	Label          sql.NullString `json:"label"`
-	PropertyUnitID sql.NullInt64  `json:"property_unit_id"`
+	PropertyUnitID uuid.NullUUID  `json:"property_unit_id"`
 }
 
 func (q *Queries) CreateUnitImage(ctx context.Context, arg CreateUnitImageParams) (Upload, error) {
@@ -388,7 +390,7 @@ RETURNING id, upload, category, label, created_at, updated_at, property_unit_id,
 type CreateUserAvatarParams struct {
 	Upload   string        `json:"upload"`
 	Category string        `json:"category"`
-	UserID   sql.NullInt64 `json:"user_id"`
+	UserID   uuid.NullUUID `json:"user_id"`
 }
 
 func (q *Queries) CreateUserAvatar(ctx context.Context, arg CreateUserAvatarParams) (Upload, error) {
@@ -434,7 +436,7 @@ SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_i
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetProperty(ctx context.Context, id int64) (Property, error) {
+func (q *Queries) GetProperty(ctx context.Context, id uuid.UUID) (Property, error) {
 	row := q.db.QueryRowContext(ctx, getProperty, id)
 	var i Property
 	err := row.Scan(
@@ -456,13 +458,13 @@ WHERE property_id = $1 AND category = $2 LIMIT 1
 `
 
 type GetPropertyThumbnailParams struct {
-	PropertyID sql.NullInt64 `json:"property_id"`
+	PropertyID uuid.NullUUID `json:"property_id"`
 	Category   string        `json:"category"`
 }
 
 type GetPropertyThumbnailRow struct {
-	ID     int64  `json:"id"`
-	Upload string `json:"upload"`
+	ID     uuid.UUID `json:"id"`
+	Upload string    `json:"upload"`
 }
 
 func (q *Queries) GetPropertyThumbnail(ctx context.Context, arg GetPropertyThumbnailParams) (GetPropertyThumbnailRow, error) {
@@ -477,7 +479,7 @@ SELECT id, name, type, state, price, bathrooms, created_at, updated_at, property
 WHERE property_id = $1
 `
 
-func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID sql.NullInt64) ([]PropertyUnit, error) {
+func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID uuid.NullUUID) ([]PropertyUnit, error) {
 	rows, err := q.db.QueryContext(ctx, getPropertyUnits, propertyID)
 	if err != nil {
 		return nil, err
@@ -515,7 +517,7 @@ SELECT id, bedroom_number, en_suite, master, property_unit_id, created_at, updat
 WHERE property_unit_id = $1
 `
 
-func (q *Queries) GetUnitBedrooms(ctx context.Context, propertyUnitID int64) ([]Bedroom, error) {
+func (q *Queries) GetUnitBedrooms(ctx context.Context, propertyUnitID uuid.UUID) ([]Bedroom, error) {
 	rows, err := q.db.QueryContext(ctx, getUnitBedrooms, propertyUnitID)
 	if err != nil {
 		return nil, err
@@ -552,12 +554,12 @@ WHERE property_unit_id = $1 AND category = $2 LIMIT 1
 `
 
 type GetUnitImagesParams struct {
-	PropertyUnitID sql.NullInt64 `json:"property_unit_id"`
+	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
 	Category       string        `json:"category"`
 }
 
 type GetUnitImagesRow struct {
-	ID     int64          `json:"id"`
+	ID     uuid.UUID      `json:"id"`
 	Upload string         `json:"upload"`
 	Label  sql.NullString `json:"label"`
 }
@@ -590,7 +592,7 @@ SELECT id, start_date, end_date, created_at, updated_at, property_unit_id, user_
 WHERE property_unit_id = $1
 `
 
-func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID sql.NullInt64) ([]Tenant, error) {
+func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID uuid.NullUUID) ([]Tenant, error) {
 	rows, err := q.db.QueryContext(ctx, getUnitTenancy, propertyUnitID)
 	if err != nil {
 		return nil, err
@@ -626,7 +628,7 @@ SELECT id, first_name, last_name, next_renewal, phone, created_at, updated_at FR
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
 	var i User
 	err := row.Scan(
@@ -647,14 +649,14 @@ WHERE user_id = $1 AND category = $2 LIMIT 1
 `
 
 type GetUserAvatarParams struct {
-	UserID   sql.NullInt64 `json:"user_id"`
+	UserID   uuid.NullUUID `json:"user_id"`
 	Category string        `json:"category"`
 }
 
 type GetUserAvatarRow struct {
-	ID       int64  `json:"id"`
-	Upload   string `json:"upload"`
-	Category string `json:"category"`
+	ID       uuid.UUID `json:"id"`
+	Upload   string    `json:"upload"`
+	Category string    `json:"category"`
 }
 
 func (q *Queries) GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (GetUserAvatarRow, error) {
@@ -683,7 +685,7 @@ SELECT COUNT(*) FROM property_units
 WHERE property_id = $1 AND state = 'occupied'
 `
 
-func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID sql.NullInt64) (int64, error) {
+func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID uuid.NullUUID) (int64, error) {
 	row := q.db.QueryRowContext(ctx, occupiedUnitsCount, propertyID)
 	var count int64
 	err := row.Scan(&count)
@@ -695,7 +697,7 @@ SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_i
 WHERE created_by = $1
 `
 
-func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy sql.NullInt64) ([]Property, error) {
+func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]Property, error) {
 	rows, err := q.db.QueryContext(ctx, propertiesCreatedBy, createdBy)
 	if err != nil {
 		return nil, err
@@ -732,7 +734,7 @@ SELECT COUNT(*) FROM property_units
 WHERE property_id = $1
 `
 
-func (q *Queries) PropertyUnitsCount(ctx context.Context, propertyID sql.NullInt64) (int64, error) {
+func (q *Queries) PropertyUnitsCount(ctx context.Context, propertyID uuid.NullUUID) (int64, error) {
 	row := q.db.QueryRowContext(ctx, propertyUnitsCount, propertyID)
 	var count int64
 	err := row.Scan(&count)
@@ -765,7 +767,7 @@ SELECT COUNT(*) from amenities
 WHERE property_unit_id = $1
 `
 
-func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID sql.NullInt64) (int64, error) {
+func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID uuid.NullUUID) (int64, error) {
 	row := q.db.QueryRowContext(ctx, unitAmenityCount, propertyUnitID)
 	var count int64
 	err := row.Scan(&count)
@@ -862,8 +864,8 @@ RETURNING id, upload, category, label, created_at, updated_at, property_unit_id,
 `
 
 type UpdateUploadParams struct {
-	Upload string `json:"upload"`
-	ID     int64  `json:"id"`
+	Upload string    `json:"upload"`
+	ID     uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateUpload(ctx context.Context, arg UpdateUploadParams) (Upload, error) {
@@ -917,7 +919,7 @@ SELECT COUNT(*) FROM property_units
 WHERE property_id = $1 AND state = 'vacant'
 `
 
-func (q *Queries) VacantUnitsCount(ctx context.Context, propertyID sql.NullInt64) (int64, error) {
+func (q *Queries) VacantUnitsCount(ctx context.Context, propertyID uuid.NullUUID) (int64, error) {
 	row := q.db.QueryRowContext(ctx, vacantUnitsCount, propertyID)
 	var count int64
 	err := row.Scan(&count)

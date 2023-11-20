@@ -1,14 +1,14 @@
 # Represent a property
 type Property {
-  id: ID!
+  id: UUID!
   name: String!
   type: PropertyType!
   location: Gps!
   thumbnail: AnyUpload
   units: [PropertyUnit!]!
-  createdBy: ID!
+  createdBy: UUID!
   caretaker: Caretaker!
-  caretakerId: ID!
+  caretakerId: UUID!
   owner: User!
   createdAt: Time
   updatedAt: Time

@@ -1,7 +1,7 @@
 # Represent a bedroom
 type Bedroom {
-  id: ID!
-  propertyUnitId: ID! # belongs-to property unit
+  id: UUID!
+  propertyUnitId: UUID! # belongs-to property unit
   bedroomNumber: Int!
   enSuite: Boolean!
   master: Boolean!

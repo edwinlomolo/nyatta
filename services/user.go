@@ -2,7 +2,6 @@ package services
 
 import (
 	"database/sql"
-	"strconv"
 	"time"
 
 	"github.com/3dw1nM0535/nyatta/config"
@@ -10,6 +9,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,7 +46,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 
 		isLandlord := time.Now().Before(foundUser.NextRenewal)
 		return &model.User{
-			ID:         strconv.FormatInt(foundUser.ID, 10),
+			ID:         foundUser.ID,
 			IsLandlord: isLandlord,
 			FirstName:  foundUser.FirstName.String,
 			LastName:   foundUser.LastName.String,
@@ -61,7 +61,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 
 	isLandlord := time.Now().Before(foundUser.NextRenewal)
 	return &model.User{
-		ID:         strconv.FormatInt(foundUser.ID, 10),
+		ID:         foundUser.ID,
 		Phone:      foundUser.Phone,
 		FirstName:  foundUser.FirstName.String,
 		LastName:   foundUser.LastName.String,
@@ -107,7 +107,7 @@ func (u UserServices) ServiceName() string {
 }
 
 // UpdateUserInfo - update user details
-func (u *UserServices) UpdateUserInfo(userId int64, phone, firstName, lastName, avatar string) (*model.User, error) {
+func (u *UserServices) UpdateUserInfo(userId uuid.UUID, phone, firstName, lastName, avatar string) (*model.User, error) {
 	foundUpload, err := u.GetUserAvatar(userId)
 	if err != nil {
 		u.log.Errorf("%s:%v", u.ServiceName(), err)
@@ -118,7 +118,7 @@ func (u *UserServices) UpdateUserInfo(userId int64, phone, firstName, lastName, 
 		if _, err := u.queries.CreateUserAvatar(ctx, sqlStore.CreateUserAvatarParams{
 			Upload:   avatar,
 			Category: model.UploadCategoryProfileImg.String(),
-			UserID:   sql.NullInt64{Int64: userId, Valid: true},
+			UserID:   uuid.NullUUID{UUID: userId, Valid: true},
 		}); err != nil {
 			u.log.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
@@ -132,7 +132,7 @@ func (u *UserServices) UpdateUserInfo(userId int64, phone, firstName, lastName, 
 			u.log.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
 		}
-		return &model.User{ID: strconv.FormatInt(updatedUser.ID, 10)}, nil
+		return &model.User{ID: updatedUser.ID}, nil
 	} else {
 		updatedUser, err := u.queries.UpdateUserInfo(ctx, sqlStore.UpdateUserInfoParams{
 			FirstName: sql.NullString{String: firstName, Valid: true},
@@ -143,26 +143,22 @@ func (u *UserServices) UpdateUserInfo(userId int64, phone, firstName, lastName, 
 			u.log.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
 		}
-		uploadId, err := strconv.ParseInt(foundUpload.ID, 10, 64)
-		if err != nil {
-			u.log.Errorf("%s:%v", u.ServiceName(), err)
-			return nil, err
-		}
+
 		if _, err := u.queries.UpdateUpload(ctx, sqlStore.UpdateUploadParams{
-			ID:     uploadId,
+			ID:     foundUpload.ID,
 			Upload: avatar,
 		}); err != nil {
 			u.log.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
 		}
-		return &model.User{ID: strconv.FormatInt(updatedUser.ID, 10)}, nil
+		return &model.User{ID: updatedUser.ID}, nil
 	}
 }
 
 // GetUserAvatar - grab avatar
-func (u *UserServices) GetUserAvatar(userId int64) (*model.AnyUpload, error) {
+func (u *UserServices) GetUserAvatar(userId uuid.UUID) (*model.AnyUpload, error) {
 	foundUpload, err := u.queries.GetUserAvatar(ctx, sqlStore.GetUserAvatarParams{
-		UserID:   sql.NullInt64{Int64: userId, Valid: true},
+		UserID:   uuid.NullUUID{UUID: userId, Valid: true},
 		Category: model.UploadCategoryProfileImg.String(),
 	})
 	if err != nil && err == sql.ErrNoRows {
@@ -170,7 +166,7 @@ func (u *UserServices) GetUserAvatar(userId int64) (*model.AnyUpload, error) {
 	}
 
 	return &model.AnyUpload{
-		ID:     strconv.FormatInt(foundUpload.ID, 10),
+		ID:     foundUpload.ID,
 		Upload: foundUpload.Upload,
 	}, nil
 }

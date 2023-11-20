@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type NewProperty struct {
@@ -12,14 +14,14 @@ type NewProperty struct {
 }
 
 type Property struct {
-	ID          string          `json:"id"`
+	ID          uuid.UUID       `json:"id"`
 	Name        string          `json:"name"`
 	Type        string          `json:"type"`
 	Location    *Gps            `json:"location"`
 	Units       []*PropertyUnit `json:"property_units"`
 	Thumbnail   *AnyUpload      `json:"thumbnail"`
 	Caretaker   *Caretaker      `json:"caretaker"`
-	CaretakerID string          `json:"caretakerId"`
+	CaretakerID *uuid.UUID      `json:"caretakerId"`
 	Owner       *User           `json:"owner"`
 	CreatedBy   string          `json:"createdBy"`
 	CreatedAt   *time.Time      `json:"createdAt"`

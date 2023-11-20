@@ -1,6 +1,6 @@
 # Represent property shoot schedule
 type Shoot {
-  id: ID!
+  id: UUID!
   propertyId: String!
   date: Time!
   status: String!

@@ -1,6 +1,6 @@
 # Represent property caretaker
 type Caretaker {
-  id: ID!
+  id: UUID!
   first_name: String!
   last_name: String!
   phone: String!

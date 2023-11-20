@@ -2,14 +2,14 @@ package interfaces
 
 import (
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/google/uuid"
 )
 
 type UnitService interface {
 	AddPropertyUnit(*model.PropertyUnitInput) (*model.PropertyUnit, error)
 	AddUnitBedrooms([]*model.UnitBedroomInput) ([]*model.Bedroom, error)
-	GetUnitBedrooms(unitId string) ([]*model.Bedroom, error)
-	GetUnitImages(id int64) ([]*model.AnyUpload, error)
-	GetUnitTenancy(unitId string) ([]*model.Tenant, error)
-	AmenityCount(unitId string) (int64, error)
+	GetUnitBedrooms(unitId uuid.UUID) ([]*model.Bedroom, error)
+	GetUnitImages(id uuid.UUID) ([]*model.AnyUpload, error)
+	GetUnitTenancy(unitId uuid.UUID) ([]*model.Tenant, error)
 	ServiceName() string
 }
