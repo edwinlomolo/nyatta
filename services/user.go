@@ -132,7 +132,7 @@ func (u *UserServices) UpdateUserInfo(userId int64, phone, firstName, lastName, 
 			u.log.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
 		}
-		return &model.User{ID: strconv.FormatInt(updatedUser.ID, 64)}, nil
+		return &model.User{ID: strconv.FormatInt(updatedUser.ID, 10)}, nil
 	} else {
 		updatedUser, err := u.queries.UpdateUserInfo(ctx, sqlStore.UpdateUserInfoParams{
 			FirstName: sql.NullString{String: firstName, Valid: true},
@@ -155,7 +155,7 @@ func (u *UserServices) UpdateUserInfo(userId int64, phone, firstName, lastName, 
 			u.log.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
 		}
-		return &model.User{ID: strconv.FormatInt(updatedUser.ID, 64)}, nil
+		return &model.User{ID: strconv.FormatInt(updatedUser.ID, 10)}, nil
 	}
 }
 
@@ -170,7 +170,7 @@ func (u *UserServices) GetUserAvatar(userId int64) (*model.AnyUpload, error) {
 	}
 
 	return &model.AnyUpload{
-		ID:     strconv.FormatInt(foundUpload.ID, 64),
+		ID:     strconv.FormatInt(foundUpload.ID, 10),
 		Upload: foundUpload.Upload,
 	}, nil
 }

@@ -137,7 +137,12 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 
 // UpdateUserInfo is the resolver for the updateUserInfo field.
 func (r *mutationResolver) UpdateUserInfo(ctx context.Context, firstName string, lastName string, avatar string) (*model.User, error) {
-	userId := ctx.Value("userId").(int64)
+	id := ctx.Value("userId").(string)
+	userId, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
 	phone := ctx.Value("phone").(string)
 	updatedUser, err := ctx.Value("userService").(*services.UserServices).UpdateUserInfo(userId, phone, firstName, lastName, avatar)
 	if err != nil {
