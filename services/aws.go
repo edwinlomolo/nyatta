@@ -18,12 +18,14 @@ import (
 
 var _ interfaces.AwsServicesInterface = &AwsServices{}
 
+// AwsServices client
 type AwsServices struct {
 	S3     *manager.Uploader
 	Config cfg.AwsConfig
 	log    *logrus.Logger
 }
 
+// NewAwsService - factory for aws service
 func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
 	config, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
@@ -39,6 +41,7 @@ func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
 	return &AwsServices{S3: s3Client, Config: cfg, log: logger}
 }
 
+// UploadGqlFile - graphql upload
 func (a *AwsServices) UploadGqlFile(file graphql.Upload) (string, error) {
 	params := &s3.PutObjectInput{
 		Bucket: aws.String(a.Config.S3.Buckets.Media),
@@ -75,6 +78,7 @@ func (a *AwsServices) UploadRestFile(file multipart.File, fileHeader *multipart.
 	return res.Location, nil
 }
 
+// ServiceName - get service name
 func (a AwsServices) ServiceName() string {
 	return "AwsServices"
 }

@@ -23,7 +23,7 @@ type Property struct {
 	Caretaker   *Caretaker      `json:"caretaker"`
 	CaretakerID *uuid.UUID      `json:"caretakerId"`
 	Owner       *User           `json:"owner"`
-	CreatedBy   string          `json:"createdBy"`
+	CreatedBy   uuid.UUID       `json:"createdBy"`
 	CreatedAt   *time.Time      `json:"createdAt"`
 	UpdatedAt   *time.Time      `json:"updatedAt"`
 }

@@ -77,7 +77,7 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 			Lat: insertedProperty.Location.X,
 			Lng: insertedProperty.Location.Y,
 		},
-		CreatedBy: insertedProperty.CreatedBy.UUID.String(),
+		CreatedBy: insertedProperty.CreatedBy.UUID,
 		CreatedAt: &insertedProperty.CreatedAt,
 		UpdatedAt: &insertedProperty.UpdatedAt,
 	}, nil
@@ -94,7 +94,7 @@ func (p *PropertyServices) GetProperty(id uuid.UUID) (*model.Property, error) {
 		ID:        foundProperty.ID,
 		Name:      foundProperty.Name,
 		Type:      foundProperty.Type,
-		CreatedBy: foundProperty.CreatedBy.UUID.String(),
+		CreatedBy: foundProperty.CreatedBy.UUID,
 		Location: &model.Gps{
 			Lat: foundProperty.Location.X,
 			Lng: foundProperty.Location.Y,
@@ -122,7 +122,7 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Pr
 				Lat: item.Location.X,
 				Lng: item.Location.Y,
 			},
-			CreatedBy: item.CreatedBy.UUID.String(),
+			CreatedBy: item.CreatedBy.UUID,
 			CreatedAt: &item.CreatedAt,
 			UpdatedAt: &item.UpdatedAt,
 		}
@@ -200,5 +200,20 @@ func (p *PropertyServices) ListingOverview(propertyId uuid.UUID) (*model.Listing
 
 // GetPropertyThumbnail - grab thumbnail
 func (p *PropertyServices) GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload, error) {
+	return &model.AnyUpload{}, nil
+}
+
+// CreatePropertyCaretaker - register caretaker
+func (p *PropertyServices) CreatePropertyCaretaker(propertyId uuid.UUID) (*model.Caretaker, error) {
+	return &model.Caretaker{}, nil
+}
+
+// GetPropertyCaretaker - grab caretaker
+func (p *PropertyServices) GetPropertyCaretaker(caretakerId uuid.UUID) (*model.Caretaker, error) {
+	return &model.Caretaker{}, nil
+}
+
+// GetCaretakerAvatar - grab caretaker avatar
+func (p *PropertyServices) GetCaretakerAvatar(caretakerId uuid.UUID) (*model.AnyUpload, error) {
 	return &model.AnyUpload{}, nil
 }

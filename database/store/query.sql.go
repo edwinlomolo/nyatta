@@ -73,6 +73,39 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 	return i, err
 }
 
+const createCaretakerAvatar = `-- name: CreateCaretakerAvatar :one
+INSERT INTO uploads (
+  upload, category, caretaker_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+`
+
+type CreateCaretakerAvatarParams struct {
+	Upload      string        `json:"upload"`
+	Category    string        `json:"category"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+}
+
+func (q *Queries) CreateCaretakerAvatar(ctx context.Context, arg CreateCaretakerAvatarParams) (Upload, error) {
+	row := q.db.QueryRowContext(ctx, createCaretakerAvatar, arg.Upload, arg.Category, arg.CaretakerID)
+	var i Upload
+	err := row.Scan(
+		&i.ID,
+		&i.Upload,
+		&i.Category,
+		&i.Label,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+		&i.PropertyID,
+		&i.UserID,
+		&i.CaretakerID,
+	)
+	return i, err
+}
+
 const createInvoice = `-- name: CreateInvoice :one
 INSERT INTO invoices (
   reference, phone, msid
@@ -428,6 +461,29 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
+	return i, err
+}
+
+const getCaretakerAvatar = `-- name: GetCaretakerAvatar :one
+SELECT id, upload, category FROM uploads
+WHERE caretaker_id = $1 AND category = $2
+`
+
+type GetCaretakerAvatarParams struct {
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	Category    string        `json:"category"`
+}
+
+type GetCaretakerAvatarRow struct {
+	ID       uuid.UUID `json:"id"`
+	Upload   string    `json:"upload"`
+	Category string    `json:"category"`
+}
+
+func (q *Queries) GetCaretakerAvatar(ctx context.Context, arg GetCaretakerAvatarParams) (GetCaretakerAvatarRow, error) {
+	row := q.db.QueryRowContext(ctx, getCaretakerAvatar, arg.CaretakerID, arg.Category)
+	var i GetCaretakerAvatarRow
+	err := row.Scan(&i.ID, &i.Upload, &i.Category)
 	return i, err
 }
 

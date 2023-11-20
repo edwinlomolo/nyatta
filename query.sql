@@ -82,6 +82,10 @@ INSERT INTO caretakers (
 )
 RETURNING *;
 
+-- name: GetCaretaker :one
+SELECT * FROM caretakers
+WHERE id = $1;
+
 -- name: CreateShootSchedule :one
 INSERT INTO shoots (
   shoot_date, property_id
@@ -154,9 +158,21 @@ INSERT INTO uploads (
 )
 RETURNING *;
 
+-- name: CreateCaretakerAvatar :one
+INSERT INTO uploads (
+  upload, category, caretaker_id
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
 -- name: GetUserAvatar :one
 SELECT id, upload, category FROM uploads
 WHERE user_id = $1 AND category = $2 LIMIT 1;
+
+-- name: GetCaretakerAvatar :one
+SELECT id, upload, category FROM uploads
+WHERE caretaker_id = $1 AND category = $2;
 
 -- name: UpdateUpload :one
 UPDATE uploads

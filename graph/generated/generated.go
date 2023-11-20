@@ -259,7 +259,7 @@ type PropertyResolver interface {
 
 	Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error)
 	Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error)
-	CreatedBy(ctx context.Context, obj *model.Property) (uuid.UUID, error)
+
 	Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error)
 
 	Owner(ctx context.Context, obj *model.Property) (*model.User, error)
@@ -5081,7 +5081,7 @@ func (ec *executionContext) _Property_createdBy(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Property().CreatedBy(rctx, obj)
+		return obj.CreatedBy, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5102,8 +5102,8 @@ func (ec *executionContext) fieldContext_Property_createdBy(ctx context.Context,
 	fc = &graphql.FieldContext{
 		Object:     "Property",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type UUID does not have child fields")
 		},
@@ -11523,41 +11523,10 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdBy":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Property_createdBy(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Property_createdBy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "caretaker":
 			field := field
 
