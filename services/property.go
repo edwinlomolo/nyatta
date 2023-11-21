@@ -54,26 +54,45 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		Y:    property.Location.Lng,
 	}
 
-	caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, property.Caretaker.Phone)
-	if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
-		caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
-			FirstName: property.Caretaker.FirstName,
-			LastName:  property.Caretaker.LastName,
-			Phone:     property.Caretaker.Phone,
-		})
-		if caretakerErr != nil {
-			p.logger.Errorf("%s:%v", p.ServiceName(), caretakerErr)
-			return nil, caretakerErr
+	if !property.IsCaretaker {
+		caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, property.Caretaker.Phone)
+		if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
+			caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+				FirstName: property.Caretaker.FirstName,
+				LastName:  property.Caretaker.LastName,
+				Phone:     property.Caretaker.Phone,
+			})
+			if caretakerErr != nil {
+				p.logger.Errorf("%s:%v", p.ServiceName(), caretakerErr)
+				return nil, caretakerErr
+			}
 		}
-
-		if _, err := p.queries.CreateCaretakerAvatar(ctx, sqlStore.CreateCaretakerAvatarParams{
-			Upload:      property.Caretaker.Image,
-			Category:    model.UploadCategoryProfileImg.String(),
-			CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
-		}); err != nil {
+	} else {
+		caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, phone)
+		userId := ctx.Value("userId").(string)
+		user, err := ctx.Value("userService").(*UserServices).GetUser(uuid.MustParse(userId))
+		if err != nil {
 			p.logger.Errorf("%s:%v", p.ServiceName(), err)
 			return nil, err
 		}
+		caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Phone:     phone,
+		})
+		if caretakerErr != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
+	}
+
+	if _, err := p.queries.CreateCaretakerAvatar(ctx, sqlStore.CreateCaretakerAvatarParams{
+		Upload:      property.Caretaker.Image,
+		Category:    model.UploadCategoryProfileImg.String(),
+		CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
+	}); err != nil {
+		p.logger.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
 	}
 
 	insertedProperty, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
