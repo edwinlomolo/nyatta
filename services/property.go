@@ -42,7 +42,9 @@ func (p PropertyServices) ServiceName() string {
 }
 
 // CreateProperty - create new property
-func (p *PropertyServices) CreateProperty(property *model.NewProperty, isLandlord bool, phone string, createdBy uuid.UUID) (*model.Property, error) {
+func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error) {
+	isLandlord := ctx.Value("is_landlord").(bool)
+	phone := ctx.Value("phone").(string)
 	gps := postgis.PointS{
 		SRID: 4326,
 		X:    property.Location.Lat,

@@ -1,13 +1,15 @@
 package interfaces
 
 import (
+	"context"
+
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/google/uuid"
 )
 
 type PropertyService interface {
 	ServiceName() string
-	CreateProperty(property *model.NewProperty, isLandlord bool, phone string, createdBy uuid.UUID) (*model.Property, error)
+	CreateProperty(ctx context.Context, property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error)
 	GetProperty(id uuid.UUID) (*model.Property, error)
 	GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload, error)
 	PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Property, error)

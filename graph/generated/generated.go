@@ -47,6 +47,7 @@ type ResolverRoot interface {
 	PropertyUnit() PropertyUnitResolver
 	Query() QueryResolver
 	User() UserResolver
+	NewProperty() NewPropertyResolver
 }
 
 type DirectiveRoot struct {
@@ -288,6 +289,11 @@ type UserResolver interface {
 	Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error)
 
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
+}
+
+type NewPropertyResolver interface {
+	IsCaretaker(ctx context.Context, obj *model.NewProperty, data bool) error
+	Caretaker(ctx context.Context, obj *model.NewProperty, data *model.CaretakerInput) error
 }
 
 type executableSchema struct {
@@ -1392,6 +1398,8 @@ input NewProperty {
   type: String!
   location: GpsInput!
   thumbnail: String!
+  isCaretaker: Boolean!
+  caretaker: CaretakerInput
 }
 
 # Represent gps input
@@ -1465,7 +1473,7 @@ input CaretakerInput {
   first_name: String!
   last_name: String!
   phone: String!
-  image: Upload!
+  image: String!
 }
 
 # Represents unit amenity input
@@ -10151,7 +10159,7 @@ func (ec *executionContext) unmarshalInputCaretakerInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
-			data, err := ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10312,7 +10320,7 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "type", "location", "thumbnail"}
+	fieldsInOrder := [...]string{"name", "type", "location", "thumbnail", "isCaretaker", "caretaker"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10355,6 +10363,28 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 				return it, err
 			}
 			it.Thumbnail = data
+		case "isCaretaker":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isCaretaker"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.NewProperty().IsCaretaker(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "caretaker":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("caretaker"))
+			data, err := ec.unmarshalOCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.NewProperty().Caretaker(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -13939,6 +13969,14 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerInput(ctx context.Context, v interface{}) (*model.CaretakerInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCaretakerInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

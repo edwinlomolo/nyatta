@@ -15,6 +15,8 @@ input NewProperty {
   type: String!
   location: GpsInput!
   thumbnail: String!
+  isCaretaker: Boolean!
+  caretaker: CaretakerInput
 }
 
 # Represent gps input
@@ -88,7 +90,7 @@ input CaretakerInput {
   first_name: String!
   last_name: String!
   phone: String!
-  image: Upload!
+  image: String!
 }
 
 # Represents unit amenity input

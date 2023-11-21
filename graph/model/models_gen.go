@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
 )
 
@@ -46,10 +45,10 @@ type Caretaker struct {
 }
 
 type CaretakerInput struct {
-	FirstName string         `json:"first_name"`
-	LastName  string         `json:"last_name"`
-	Phone     string         `json:"phone"`
-	Image     graphql.Upload `json:"image"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+	Image     string `json:"image"`
 }
 
 type CaretakerVerificationInput struct {

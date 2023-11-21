@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
@@ -31,10 +32,8 @@ func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*mo
 // CreateProperty is the resolver for the createProperty field.
 func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error) {
 	userId := ctx.Value("userId").(string)
-	isLandlord := ctx.Value("is_landlord").(bool)
-	phone := ctx.Value("phone").(string)
 
-	newProperty, err := ctx.Value("propertyService").(*services.PropertyServices).CreateProperty(&input, isLandlord, phone, uuid.MustParse(userId))
+	newProperty, err := ctx.Value("propertyService").(*services.PropertyServices).CreateProperty(ctx, &input, uuid.MustParse(userId))
 	if err != nil {
 		return nil, err
 	}
@@ -253,11 +252,25 @@ func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse
 	}, nil
 }
 
+// IsCaretaker is the resolver for the isCaretaker field.
+func (r *newPropertyResolver) IsCaretaker(ctx context.Context, obj *model.NewProperty, data bool) error {
+	panic(fmt.Errorf("not implemented: IsCaretaker - isCaretaker"))
+}
+
+// Caretaker is the resolver for the caretaker field.
+func (r *newPropertyResolver) Caretaker(ctx context.Context, obj *model.NewProperty, data *model.CaretakerInput) error {
+	panic(fmt.Errorf("not implemented: Caretaker - caretaker"))
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// NewProperty returns generated.NewPropertyResolver implementation.
+func (r *Resolver) NewProperty() generated.NewPropertyResolver { return &newPropertyResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type newPropertyResolver struct{ *Resolver }
