@@ -33,13 +33,14 @@ type Bedroom struct {
 }
 
 type Caretaker struct {
-	ID        uuid.UUID      `json:"id"`
-	FirstName string         `json:"first_name"`
-	LastName  string         `json:"last_name"`
-	Phone     sql.NullString `json:"phone"`
-	Verified  bool           `json:"verified"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID        uuid.UUID     `json:"id"`
+	FirstName string        `json:"first_name"`
+	LastName  string        `json:"last_name"`
+	Phone     string        `json:"phone"`
+	Verified  bool          `json:"verified"`
+	CreatedBy uuid.NullUUID `json:"created_by"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
 type Invoice struct {

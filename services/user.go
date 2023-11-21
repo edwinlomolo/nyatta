@@ -51,7 +51,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 			FirstName:        foundUser.FirstName.String,
 			LastName:         foundUser.LastName.String,
 			Phone:            foundUser.Phone,
-			SubscribeRetries: foundUser.SubscribeRetries,
+			SubscribeRetries: int(foundUser.SubscribeRetries),
 			CreatedAt:        &foundUser.CreatedAt,
 			UpdatedAt:        &foundUser.UpdatedAt,
 		}, nil
@@ -67,7 +67,7 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 		FirstName:        foundUser.FirstName.String,
 		LastName:         foundUser.LastName.String,
 		IsLandlord:       isLandlord,
-		SubscribeRetries: foundUser.SubscribeRetries,
+		SubscribeRetries: int(foundUser.SubscribeRetries),
 		CreatedAt:        &foundUser.CreatedAt,
 		UpdatedAt:        &foundUser.UpdatedAt,
 	}, nil

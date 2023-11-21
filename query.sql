@@ -12,9 +12,9 @@ RETURNING *;
 
 -- name: CreateProperty :one
 INSERT INTO properties (
-  name, type, created_by, location
+  name, type, created_by, caretaker_id, location
 ) VALUES (
-  $1, $2, $3, ST_GeomFromText(sqlc.arg(location)::text)
+  $1, $2, $3, $4, ST_GeomFromText(sqlc.arg(location)::text)
 )
 RETURNING *;
 
@@ -76,15 +76,15 @@ WHERE phone = $1;
 
 -- name: CreateCaretaker :one
 INSERT INTO caretakers (
-  first_name, last_name, phone
+  first_name, last_name, phone, created_by
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
 RETURNING *;
 
 -- name: GetCaretaker :one
 SELECT * FROM caretakers
-WHERE id = $1;
+WHERE phone = $1;
 
 -- name: CreateShootSchedule :one
 INSERT INTO shoots (

@@ -45,21 +45,27 @@ func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (A
 
 const createCaretaker = `-- name: CreateCaretaker :one
 INSERT INTO caretakers (
-  first_name, last_name, phone
+  first_name, last_name, phone, created_by
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
-RETURNING id, first_name, last_name, phone, verified, created_at, updated_at
+RETURNING id, first_name, last_name, phone, verified, created_by, created_at, updated_at
 `
 
 type CreateCaretakerParams struct {
-	FirstName string         `json:"first_name"`
-	LastName  string         `json:"last_name"`
-	Phone     sql.NullString `json:"phone"`
+	FirstName string        `json:"first_name"`
+	LastName  string        `json:"last_name"`
+	Phone     string        `json:"phone"`
+	CreatedBy uuid.NullUUID `json:"created_by"`
 }
 
 func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams) (Caretaker, error) {
-	row := q.db.QueryRowContext(ctx, createCaretaker, arg.FirstName, arg.LastName, arg.Phone)
+	row := q.db.QueryRowContext(ctx, createCaretaker,
+		arg.FirstName,
+		arg.LastName,
+		arg.Phone,
+		arg.CreatedBy,
+	)
 	var i Caretaker
 	err := row.Scan(
 		&i.ID,
@@ -67,6 +73,7 @@ func (q *Queries) CreateCaretaker(ctx context.Context, arg CreateCaretakerParams
 		&i.LastName,
 		&i.Phone,
 		&i.Verified,
+		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -145,18 +152,19 @@ func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (I
 
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
-  name, type, created_by, location
+  name, type, created_by, caretaker_id, location
 ) VALUES (
-  $1, $2, $3, ST_GeomFromText($4::text)
+  $1, $2, $3, $4, ST_GeomFromText($5::text)
 )
 RETURNING id, name, location, type, created_at, updated_at, created_by, caretaker_id
 `
 
 type CreatePropertyParams struct {
-	Name      string        `json:"name"`
-	Type      string        `json:"type"`
-	CreatedBy uuid.NullUUID `json:"created_by"`
-	Location  string        `json:"location"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	Location    string        `json:"location"`
 }
 
 func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) (Property, error) {
@@ -164,6 +172,7 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 		arg.Name,
 		arg.Type,
 		arg.CreatedBy,
+		arg.CaretakerID,
 		arg.Location,
 	)
 	var i Property
@@ -467,12 +476,12 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 }
 
 const getCaretaker = `-- name: GetCaretaker :one
-SELECT id, first_name, last_name, phone, verified, created_at, updated_at FROM caretakers
-WHERE id = $1
+SELECT id, first_name, last_name, phone, verified, created_by, created_at, updated_at FROM caretakers
+WHERE phone = $1
 `
 
-func (q *Queries) GetCaretaker(ctx context.Context, id uuid.UUID) (Caretaker, error) {
-	row := q.db.QueryRowContext(ctx, getCaretaker, id)
+func (q *Queries) GetCaretaker(ctx context.Context, phone string) (Caretaker, error) {
+	row := q.db.QueryRowContext(ctx, getCaretaker, phone)
 	var i Caretaker
 	err := row.Scan(
 		&i.ID,
@@ -480,6 +489,7 @@ func (q *Queries) GetCaretaker(ctx context.Context, id uuid.UUID) (Caretaker, er
 		&i.LastName,
 		&i.Phone,
 		&i.Verified,
+		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

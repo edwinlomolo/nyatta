@@ -16,6 +16,4 @@ type PropertyService interface {
 	GetPropertyUnits(propertyId uuid.UUID) ([]*model.PropertyUnit, error)
 	CaretakerPhoneVerification(*model.CaretakerVerificationInput) (*model.Status, error)
 	ListingOverview(propertyId uuid.UUID) (*model.ListingOverview, error)
-	CreatePropertyCaretaker(propertyId uuid.UUID) (*model.Caretaker, error)
-	GetPropertyCaretaker(caretakerId uuid.UUID) (*model.Caretaker, error)
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/3dw1nM0535/nyatta/database/store"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
@@ -43,6 +44,8 @@ func (p PropertyServices) ServiceName() string {
 
 // CreateProperty - create new property
 func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error) {
+	var caretaker store.Caretaker
+	var caretakerErr error
 	isLandlord := ctx.Value("is_landlord").(bool)
 	phone := ctx.Value("phone").(string)
 	gps := postgis.PointS{
@@ -51,11 +54,34 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		Y:    property.Location.Lng,
 	}
 
+	caretaker, caretakerErr = p.queries.GetCaretaker(ctx, property.Caretaker.Phone)
+	if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
+		caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+			FirstName: property.Caretaker.FirstName,
+			LastName:  property.Caretaker.LastName,
+			Phone:     property.Caretaker.Phone,
+		})
+		if caretakerErr != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), caretakerErr)
+			return nil, caretakerErr
+		}
+
+		if _, err := p.queries.CreateCaretakerAvatar(ctx, sqlStore.CreateCaretakerAvatarParams{
+			Upload:      property.Caretaker.Image,
+			Category:    model.UploadCategoryProfileImg.String(),
+			CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
+		}); err != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
+	}
+
 	insertedProperty, err := p.queries.CreateProperty(ctx, sqlStore.CreatePropertyParams{
-		Name:      property.Name,
-		Type:      property.Type,
-		CreatedBy: uuid.NullUUID{UUID: createdBy, Valid: true},
-		Location:  fmt.Sprintf("SRID=4326;POINT(%.8f %.8f)", gps.Y, gps.X),
+		Name:        property.Name,
+		Type:        property.Type,
+		CreatedBy:   uuid.NullUUID{UUID: createdBy, Valid: true},
+		Location:    fmt.Sprintf("SRID=4326;POINT(%.8f %.8f)", gps.Y, gps.X),
+		CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
 	})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
@@ -84,7 +110,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 	return &model.Property{
 		ID:   insertedProperty.ID,
 		Name: insertedProperty.Name,
-		Type: insertedProperty.Type,
+		Type: model.PropertyType(insertedProperty.Type),
 		Location: &model.Gps{
 			Lat: insertedProperty.Location.X,
 			Lng: insertedProperty.Location.Y,
@@ -105,7 +131,7 @@ func (p *PropertyServices) GetProperty(id uuid.UUID) (*model.Property, error) {
 	return &model.Property{
 		ID:        foundProperty.ID,
 		Name:      foundProperty.Name,
-		Type:      foundProperty.Type,
+		Type:      model.PropertyType(foundProperty.Type),
 		CreatedBy: foundProperty.CreatedBy.UUID,
 		Location: &model.Gps{
 			Lat: foundProperty.Location.X,
@@ -129,7 +155,7 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Pr
 		property := &model.Property{
 			ID:   item.ID,
 			Name: item.Name,
-			Type: item.Type,
+			Type: model.PropertyType(item.Type),
 			Location: &model.Gps{
 				Lat: item.Location.X,
 				Lng: item.Location.Y,
@@ -211,21 +237,34 @@ func (p *PropertyServices) ListingOverview(propertyID uuid.UUID) (*model.Listing
 }
 
 // GetPropertyThumbnail - grab thumbnail
-func (p *PropertyServices) GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload, error) {
-	return &model.AnyUpload{}, nil
-}
+func (p *PropertyServices) GetPropertyThumbnail(propertyID uuid.UUID) (*model.AnyUpload, error) {
+	foundThumbnail, err := p.queries.GetPropertyThumbnail(ctx, sqlStore.GetPropertyThumbnailParams{
+		PropertyID: uuid.NullUUID{UUID: propertyID, Valid: true},
+		Category:   model.UploadCategoryPropertyThumbnail.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-// CreatePropertyCaretaker - register caretaker
-func (p *PropertyServices) CreatePropertyCaretaker(propertyID uuid.UUID) (*model.Caretaker, error) {
-	return &model.Caretaker{}, nil
-}
-
-// GetPropertyCaretaker - grab caretaker
-func (p *PropertyServices) GetPropertyCaretaker(caretakerID uuid.UUID) (*model.Caretaker, error) {
-	return &model.Caretaker{}, nil
+	return &model.AnyUpload{
+		ID:     foundThumbnail.ID,
+		Upload: foundThumbnail.Upload,
+	}, nil
 }
 
 // GetCaretakerAvatar - grab caretaker avatar
 func (p *PropertyServices) GetCaretakerAvatar(caretakerID uuid.UUID) (*model.AnyUpload, error) {
-	return &model.AnyUpload{}, nil
+	foundAvatar, err := p.queries.GetCaretakerAvatar(ctx, sqlStore.GetCaretakerAvatarParams{
+		CaretakerID: uuid.NullUUID{UUID: caretakerID, Valid: true},
+		Category:    model.UploadCategoryProfileImg.String(),
+	})
+	if err != nil {
+		p.logger.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	return &model.AnyUpload{
+		ID:     foundAvatar.ID,
+		Upload: foundAvatar.Upload,
+	}, nil
 }
