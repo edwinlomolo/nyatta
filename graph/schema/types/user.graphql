@@ -10,6 +10,7 @@ type User {
   subscribe_retries: Int!
   onboarding: Boolean!
   properties: [Property!]!
+  tenancy: [Tenant!]!
   createdAt: Time
   updatedAt: Time
 }

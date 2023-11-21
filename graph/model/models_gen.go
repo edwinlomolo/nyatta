@@ -135,12 +135,13 @@ type PropertyUnit struct {
 	Bedrooms   []*Bedroom   `json:"bedrooms"`
 	PropertyID uuid.UUID    `json:"propertyId"`
 	Property   *Property    `json:"property"`
+	Tenant     *Tenant      `json:"tenant,omitempty"`
 	Price      string       `json:"price"`
 	Bathrooms  int          `json:"bathrooms"`
 	Amenities  []*Amenity   `json:"amenities"`
 	State      UnitState    `json:"state"`
 	Type       string       `json:"type"`
-	Uploads    []*AnyUpload `json:"uploads"`
+	Images     []*AnyUpload `json:"images"`
 	Tenancy    []*Tenant    `json:"tenancy"`
 	CreatedAt  *time.Time   `json:"createdAt,omitempty"`
 	UpdatedAt  *time.Time   `json:"updatedAt,omitempty"`
@@ -150,7 +151,6 @@ type PropertyUnitInput struct {
 	PropertyID uuid.UUID           `json:"propertyId"`
 	Baths      int                 `json:"baths"`
 	Name       string              `json:"name"`
-	Location   *GpsInput           `json:"location"`
 	Type       string              `json:"type"`
 	Amenities  []*UnitAmenityInput `json:"amenities"`
 	Bedrooms   []*UnitBedroomInput `json:"bedrooms"`
@@ -186,13 +186,15 @@ type TenancyInput struct {
 }
 
 type Tenant struct {
-	ID             uuid.UUID    `json:"id"`
-	StartDate      time.Time    `json:"startDate"`
-	EndDate        *time.Time   `json:"endDate,omitempty"`
-	Upload         []*AnyUpload `json:"upload"`
-	PropertyUnitID uuid.UUID    `json:"propertyUnitId"`
-	CreatedAt      *time.Time   `json:"createdAt,omitempty"`
-	UpdatedAt      *time.Time   `json:"updatedAt,omitempty"`
+	ID             uuid.UUID     `json:"id"`
+	StartDate      time.Time     `json:"startDate"`
+	EndDate        *time.Time    `json:"endDate,omitempty"`
+	PropertyUnitID uuid.UUID     `json:"propertyUnitId"`
+	UserID         uuid.UUID     `json:"userId"`
+	User           *User         `json:"user"`
+	PropertyUnit   *PropertyUnit `json:"propertyUnit,omitempty"`
+	CreatedAt      *time.Time    `json:"createdAt,omitempty"`
+	UpdatedAt      *time.Time    `json:"updatedAt,omitempty"`
 }
 
 type Token struct {
@@ -231,6 +233,7 @@ type User struct {
 	SubscribeRetries int         `json:"subscribe_retries"`
 	Onboarding       bool        `json:"onboarding"`
 	Properties       []*Property `json:"properties"`
+	Tenancy          []*Tenant   `json:"tenancy"`
 	CreatedAt        *time.Time  `json:"createdAt,omitempty"`
 	UpdatedAt        *time.Time  `json:"updatedAt,omitempty"`
 }

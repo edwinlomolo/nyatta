@@ -43,16 +43,6 @@ CREATE TABLE IF NOT EXISTS property_units (
   property_id uuid REFERENCES properties ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS amenities (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(100) NOT NULL,
-  provider VARCHAR(100) NOT NULL DEFAULT '',
-  category VARCHAR(50) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  property_unit_id uuid REFERENCES property_units ON DELETE SET NULL
-);
-
 CREATE TABLE IF NOT EXISTS tenants (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   start_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -61,6 +51,16 @@ CREATE TABLE IF NOT EXISTS tenants (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   property_unit_id uuid REFERENCES property_units ON DELETE SET NULL,
   user_id uuid REFERENCES users ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS amenities (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL,
+  provider VARCHAR(100),
+  category VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  property_unit_id uuid REFERENCES property_units ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS bedrooms (
@@ -83,7 +83,8 @@ CREATE TABLE IF NOT EXISTS uploads (
   property_unit_id uuid REFERENCES property_units ON DELETE CASCADE,
   property_id uuid REFERENCES properties ON DELETE CASCADE,
   user_id uuid REFERENCES users ON DELETE CASCADE,
-  caretaker_id uuid REFERENCES caretakers ON DELETE CASCADE
+  caretaker_id uuid REFERENCES caretakers ON DELETE CASCADE,
+  tenant_id uuid REFERENCES tenants ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS shoots (

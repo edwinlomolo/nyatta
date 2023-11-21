@@ -13,13 +13,13 @@ import (
 )
 
 type Amenity struct {
-	ID             uuid.UUID     `json:"id"`
-	Name           string        `json:"name"`
-	Provider       string        `json:"provider"`
-	Category       string        `json:"category"`
-	CreatedAt      time.Time     `json:"created_at"`
-	UpdatedAt      time.Time     `json:"updated_at"`
-	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
+	ID             uuid.UUID      `json:"id"`
+	Name           string         `json:"name"`
+	Provider       sql.NullString `json:"provider"`
+	Category       string         `json:"category"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	PropertyUnitID uuid.NullUUID  `json:"property_unit_id"`
 }
 
 type Bedroom struct {
@@ -122,6 +122,7 @@ type Upload struct {
 	PropertyID     uuid.NullUUID  `json:"property_id"`
 	UserID         uuid.NullUUID  `json:"user_id"`
 	CaretakerID    uuid.NullUUID  `json:"caretaker_id"`
+	TenantID       uuid.NullUUID  `json:"tenant_id"`
 }
 
 type User struct {

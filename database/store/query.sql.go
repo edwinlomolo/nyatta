@@ -86,7 +86,7 @@ INSERT INTO uploads (
 ) VALUES (
   $1, $2, $3
 )
-RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id, tenant_id
 `
 
 type CreateCaretakerAvatarParams struct {
@@ -109,6 +109,7 @@ func (q *Queries) CreateCaretakerAvatar(ctx context.Context, arg CreateCaretaker
 		&i.PropertyID,
 		&i.UserID,
 		&i.CaretakerID,
+		&i.TenantID,
 	)
 	return i, err
 }
@@ -195,7 +196,7 @@ INSERT INTO uploads (
 ) VALUES (
   $1, $2, $3
 )
-RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id, tenant_id
 `
 
 type CreatePropertyThumbnailParams struct {
@@ -218,15 +219,16 @@ func (q *Queries) CreatePropertyThumbnail(ctx context.Context, arg CreatePropert
 		&i.PropertyID,
 		&i.UserID,
 		&i.CaretakerID,
+		&i.TenantID,
 	)
 	return i, err
 }
 
 const createPropertyUnit = `-- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms, name, type, price
+  property_id, bathrooms, name, type, price, state
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING id, name, type, state, price, bathrooms, created_at, updated_at, property_id
 `
@@ -237,6 +239,7 @@ type CreatePropertyUnitParams struct {
 	Name       string        `json:"name"`
 	Type       string        `json:"type"`
 	Price      int32         `json:"price"`
+	State      string        `json:"state"`
 }
 
 func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnitParams) (PropertyUnit, error) {
@@ -246,6 +249,7 @@ func (q *Queries) CreatePropertyUnit(ctx context.Context, arg CreatePropertyUnit
 		arg.Name,
 		arg.Type,
 		arg.Price,
+		arg.State,
 	)
 	var i PropertyUnit
 	err := row.Scan(
@@ -294,9 +298,9 @@ func (q *Queries) CreateShootSchedule(ctx context.Context, arg CreateShootSchedu
 
 const createTenant = `-- name: CreateTenant :one
 INSERT INTO tenants (
-  start_date, property_unit_id
+  start_date, property_unit_id, user_id
 ) VALUES (
-  $1, $2
+  $1, $2, $3
 )
 RETURNING id, start_date, end_date, created_at, updated_at, property_unit_id, user_id
 `
@@ -304,10 +308,11 @@ RETURNING id, start_date, end_date, created_at, updated_at, property_unit_id, us
 type CreateTenantParams struct {
 	StartDate      time.Time     `json:"start_date"`
 	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
+	UserID         uuid.NullUUID `json:"user_id"`
 }
 
 func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
-	row := q.db.QueryRowContext(ctx, createTenant, arg.StartDate, arg.PropertyUnitID)
+	row := q.db.QueryRowContext(ctx, createTenant, arg.StartDate, arg.PropertyUnitID, arg.UserID)
 	var i Tenant
 	err := row.Scan(
 		&i.ID,
@@ -363,7 +368,7 @@ INSERT INTO uploads (
 ) VALUES (
   $1, $2, $3, $4
 )
-RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id, tenant_id
 `
 
 type CreateUnitImageParams struct {
@@ -392,6 +397,7 @@ func (q *Queries) CreateUnitImage(ctx context.Context, arg CreateUnitImageParams
 		&i.PropertyID,
 		&i.UserID,
 		&i.CaretakerID,
+		&i.TenantID,
 	)
 	return i, err
 }
@@ -427,7 +433,7 @@ INSERT INTO uploads (
 ) VALUES (
   $1, $2, $3
 )
-RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id, tenant_id
 `
 
 type CreateUserAvatarParams struct {
@@ -450,6 +456,7 @@ func (q *Queries) CreateUserAvatar(ctx context.Context, arg CreateUserAvatarPara
 		&i.PropertyID,
 		&i.UserID,
 		&i.CaretakerID,
+		&i.TenantID,
 	)
 	return i, err
 }
@@ -998,7 +1005,7 @@ const updateUpload = `-- name: UpdateUpload :one
 UPDATE uploads
 SET upload = $1
 WHERE id = $2
-RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id
+RETURNING id, upload, category, label, created_at, updated_at, property_unit_id, property_id, user_id, caretaker_id, tenant_id
 `
 
 type UpdateUploadParams struct {
@@ -1020,6 +1027,7 @@ func (q *Queries) UpdateUpload(ctx context.Context, arg UpdateUploadParams) (Upl
 		&i.PropertyID,
 		&i.UserID,
 		&i.CaretakerID,
+		&i.TenantID,
 	)
 	return i, err
 }

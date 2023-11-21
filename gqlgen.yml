@@ -72,6 +72,8 @@ models:
         resolver: true
       avatar:
         resolver: true
+      tenancy:
+        resolver: true
 
   Property:
     fields:
@@ -88,13 +90,17 @@ models:
 
   PropertyUnit:
     fields:
-      uploads:
+      images:
         resolver: true
       bedrooms:
         resolver: true
       tenancy:
         resolver: true
-      amenityCount:
+      amenities:
+        resolver: true
+      tenant:
+        resolver: true
+      property:
         resolver: true
 
   Caretaker:
@@ -102,4 +108,11 @@ models:
       avatar:
         resolver: true
       properties:
+        resolver: true
+
+  Tenant:
+    fields:
+      user:
+        resolver: true
+      propertyUnit:
         resolver: true

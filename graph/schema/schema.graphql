@@ -30,7 +30,6 @@ input PropertyUnitInput {
   propertyId: UUID!
   baths: Int!
   name: String!
-  location: GpsInput!
   type: String!
   amenities: [UnitAmenityInput!]!
   bedrooms: [UnitBedroomInput!]!

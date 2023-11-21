@@ -5,12 +5,13 @@ type PropertyUnit {
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: UUID!
   property: Property!
+  tenant: Tenant # vacancy dictates nullity
   price: String!
   bathrooms: Int!
   amenities: [Amenity!]!
   state: UnitState!
   type: String!
-  uploads: [AnyUpload!]!
+  images: [AnyUpload!]!
   tenancy: [Tenant!]! # has-many tenancy
   createdAt: Time
   updatedAt: Time

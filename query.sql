@@ -36,17 +36,17 @@ RETURNING *;
 
 -- name: CreateTenant :one
 INSERT INTO tenants (
-  start_date, property_unit_id
+  start_date, property_unit_id, user_id
 ) VALUES (
-  $1, $2
+  $1, $2, $3
 )
 RETURNING *;
 
 -- name: CreatePropertyUnit :one
 INSERT INTO property_units (
-  property_id, bathrooms, name, type, price
+  property_id, bathrooms, name, type, price, state
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 

@@ -3,8 +3,10 @@ type Tenant {
   id: UUID!
   startDate: Time!
   endDate: Time
-  upload: [AnyUpload!]!
   propertyUnitId: UUID! # belongs-to property unit
+  userId: UUID!
+  user: User!
+  propertyUnit: PropertyUnit # vacancy dictates nullity
   createdAt: Time
   updatedAt: Time
 }

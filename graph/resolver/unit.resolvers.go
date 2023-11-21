@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -21,13 +22,24 @@ func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Property
 	return foundBedrooms, nil
 }
 
-// Uploads is the resolver for the uploads field.
-func (r *propertyUnitResolver) Uploads(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
-	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	return uploads, nil
+// Property is the resolver for the property field.
+func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.PropertyUnit) (*model.Property, error) {
+	panic(fmt.Errorf("not implemented: Property - property"))
+}
+
+// Tenant is the resolver for the tenant field.
+func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.PropertyUnit) (*model.Tenant, error) {
+	panic(fmt.Errorf("not implemented: Tenant - tenant"))
+}
+
+// Amenities is the resolver for the amenities field.
+func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.PropertyUnit) ([]*model.Amenity, error) {
+	panic(fmt.Errorf("not implemented: Amenities - amenities"))
+}
+
+// Images is the resolver for the images field.
+func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
+	panic(fmt.Errorf("not implemented: Images - images"))
 }
 
 // Tenancy is the resolver for the tenancy field.
@@ -43,3 +55,17 @@ func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyU
 func (r *Resolver) PropertyUnit() generated.PropertyUnitResolver { return &propertyUnitResolver{r} }
 
 type propertyUnitResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *propertyUnitResolver) Uploads(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
+	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return uploads, nil
+}
