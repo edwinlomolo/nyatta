@@ -15,7 +15,7 @@ import (
 
 // Avatar is the resolver for the avatar field.
 func (r *caretakerResolver) Avatar(ctx context.Context, obj *model.Caretaker) (*model.AnyUpload, error) {
-	upload, err := ctx.Value("properyService").(*services.PropertyServices).GetCaretakerAvatar(obj.ID)
+	upload, err := ctx.Value("propertyService").(*services.PropertyServices).GetCaretakerAvatar(obj.ID)
 	if err != nil {
 		return nil, err
 	}
