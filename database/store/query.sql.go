@@ -393,7 +393,7 @@ INSERT INTO users (
 ) VALUES (
   $1
 )
-RETURNING id, first_name, last_name, next_renewal, phone, created_at, updated_at
+RETURNING id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at
 `
 
 func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
@@ -403,6 +403,7 @@ func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
 		&i.ID,
 		&i.FirstName,
 		&i.LastName,
+		&i.SubscribeRetries,
 		&i.NextRenewal,
 		&i.Phone,
 		&i.CreatedAt,
@@ -445,7 +446,7 @@ func (q *Queries) CreateUserAvatar(ctx context.Context, arg CreateUserAvatarPara
 }
 
 const findUserByPhone = `-- name: FindUserByPhone :one
-SELECT id, first_name, last_name, next_renewal, phone, created_at, updated_at FROM users
+SELECT id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at FROM users
 WHERE phone = $1
 `
 
@@ -456,8 +457,29 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 		&i.ID,
 		&i.FirstName,
 		&i.LastName,
+		&i.SubscribeRetries,
 		&i.NextRenewal,
 		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getCaretaker = `-- name: GetCaretaker :one
+SELECT id, first_name, last_name, phone, verified, created_at, updated_at FROM caretakers
+WHERE id = $1
+`
+
+func (q *Queries) GetCaretaker(ctx context.Context, id uuid.UUID) (Caretaker, error) {
+	row := q.db.QueryRowContext(ctx, getCaretaker, id)
+	var i Caretaker
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Verified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -680,7 +702,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID uuid.NullUU
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, first_name, last_name, next_renewal, phone, created_at, updated_at FROM users
+SELECT id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -691,6 +713,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.ID,
 		&i.FirstName,
 		&i.LastName,
+		&i.SubscribeRetries,
 		&i.NextRenewal,
 		&i.Phone,
 		&i.CreatedAt,
@@ -818,6 +841,33 @@ func (q *Queries) SaveMail(ctx context.Context, email string) (Mailing, error) {
 	return i, err
 }
 
+const trackSubscribeRetries = `-- name: TrackSubscribeRetries :one
+UPDATE users SET subscribe_retries = $1
+WHERE phone = $2
+RETURNING id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at
+`
+
+type TrackSubscribeRetriesParams struct {
+	SubscribeRetries int32  `json:"subscribe_retries"`
+	Phone            string `json:"phone"`
+}
+
+func (q *Queries) TrackSubscribeRetries(ctx context.Context, arg TrackSubscribeRetriesParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, trackSubscribeRetries, arg.SubscribeRetries, arg.Phone)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.SubscribeRetries,
+		&i.NextRenewal,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const unitAmenityCount = `-- name: UnitAmenityCount :one
 SELECT COUNT(*) from amenities
 WHERE property_unit_id = $1
@@ -889,7 +939,7 @@ const updateLandlord = `-- name: UpdateLandlord :one
 UPDATE users
 SET next_renewal = $1
 WHERE phone = $2
-RETURNING id, first_name, last_name, next_renewal, phone, created_at, updated_at
+RETURNING id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at
 `
 
 type UpdateLandlordParams struct {
@@ -904,6 +954,7 @@ func (q *Queries) UpdateLandlord(ctx context.Context, arg UpdateLandlordParams) 
 		&i.ID,
 		&i.FirstName,
 		&i.LastName,
+		&i.SubscribeRetries,
 		&i.NextRenewal,
 		&i.Phone,
 		&i.CreatedAt,
@@ -946,7 +997,7 @@ const updateUserInfo = `-- name: UpdateUserInfo :one
 UPDATE users
 SET first_name = $1, last_name = $2
 WHERE phone = $3
-RETURNING id, first_name, last_name, next_renewal, phone, created_at, updated_at
+RETURNING id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at
 `
 
 type UpdateUserInfoParams struct {
@@ -962,6 +1013,7 @@ func (q *Queries) UpdateUserInfo(ctx context.Context, arg UpdateUserInfoParams) 
 		&i.ID,
 		&i.FirstName,
 		&i.LastName,
+		&i.SubscribeRetries,
 		&i.NextRenewal,
 		&i.Phone,
 		&i.CreatedAt,

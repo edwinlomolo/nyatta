@@ -7,7 +7,7 @@ import (
 
 type PropertyService interface {
 	ServiceName() string
-	CreateProperty(property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error)
+	CreateProperty(property *model.NewProperty, isLandlord bool, phone string, createdBy uuid.UUID) (*model.Property, error)
 	GetProperty(id uuid.UUID) (*model.Property, error)
 	GetPropertyThumbnail(id uuid.UUID) (*model.AnyUpload, error)
 	PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Property, error)

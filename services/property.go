@@ -42,7 +42,7 @@ func (p PropertyServices) ServiceName() string {
 }
 
 // CreateProperty - create new property
-func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error) {
+func (p *PropertyServices) CreateProperty(property *model.NewProperty, isLandlord bool, phone string, createdBy uuid.UUID) (*model.Property, error) {
 	gps := postgis.PointS{
 		SRID: 4326,
 		X:    property.Location.Lat,
@@ -67,6 +67,16 @@ func (p *PropertyServices) CreateProperty(property *model.NewProperty, createdBy
 	}); err != nil {
 		p.logger.Errorf("%s:%v", p.ServiceName(), err)
 		return nil, err
+	}
+
+	if !isLandlord {
+		if _, err := p.queries.TrackSubscribeRetries(ctx, sqlStore.TrackSubscribeRetriesParams{
+			Phone:            phone,
+			SubscribeRetries: 1,
+		}); err != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
 
 	return &model.Property{

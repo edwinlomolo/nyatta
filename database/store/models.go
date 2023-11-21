@@ -124,11 +124,12 @@ type Upload struct {
 }
 
 type User struct {
-	ID          uuid.UUID      `json:"id"`
-	FirstName   sql.NullString `json:"first_name"`
-	LastName    sql.NullString `json:"last_name"`
-	NextRenewal time.Time      `json:"next_renewal"`
-	Phone       string         `json:"phone"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ID               uuid.UUID      `json:"id"`
+	FirstName        sql.NullString `json:"first_name"`
+	LastName         sql.NullString `json:"last_name"`
+	SubscribeRetries int32          `json:"subscribe_retries"`
+	NextRenewal      time.Time      `json:"next_renewal"`
+	Phone            string         `json:"phone"`
+	CreatedAt        time.Time      `json:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at"`
 }

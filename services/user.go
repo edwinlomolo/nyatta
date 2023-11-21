@@ -46,13 +46,14 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 
 		isLandlord := time.Now().Before(foundUser.NextRenewal)
 		return &model.User{
-			ID:         foundUser.ID,
-			IsLandlord: isLandlord,
-			FirstName:  foundUser.FirstName.String,
-			LastName:   foundUser.LastName.String,
-			Phone:      foundUser.Phone,
-			CreatedAt:  &foundUser.CreatedAt,
-			UpdatedAt:  &foundUser.UpdatedAt,
+			ID:               foundUser.ID,
+			IsLandlord:       isLandlord,
+			FirstName:        foundUser.FirstName.String,
+			LastName:         foundUser.LastName.String,
+			Phone:            foundUser.Phone,
+			SubscribeRetries: foundUser.SubscribeRetries,
+			CreatedAt:        &foundUser.CreatedAt,
+			UpdatedAt:        &foundUser.UpdatedAt,
 		}, nil
 	} else if err != nil && err != sql.ErrNoRows {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
@@ -61,13 +62,14 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 
 	isLandlord := time.Now().Before(foundUser.NextRenewal)
 	return &model.User{
-		ID:         foundUser.ID,
-		Phone:      foundUser.Phone,
-		FirstName:  foundUser.FirstName.String,
-		LastName:   foundUser.LastName.String,
-		IsLandlord: isLandlord,
-		CreatedAt:  &foundUser.CreatedAt,
-		UpdatedAt:  &foundUser.UpdatedAt,
+		ID:               foundUser.ID,
+		Phone:            foundUser.Phone,
+		FirstName:        foundUser.FirstName.String,
+		LastName:         foundUser.LastName.String,
+		IsLandlord:       isLandlord,
+		SubscribeRetries: foundUser.SubscribeRetries,
+		CreatedAt:        &foundUser.CreatedAt,
+		UpdatedAt:        &foundUser.UpdatedAt,
 	}, nil
 }
 

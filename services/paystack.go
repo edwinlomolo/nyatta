@@ -169,6 +169,14 @@ func (p *PaystackServices) ReconcilePaystackMpesaCallback(payload PaystackCallba
 			p.logger.Errorf("%s:%v", p.ServiceName(), err)
 			return err
 		}
+
+		if _, err := p.sqlStore.TrackSubscribeRetries(ctx, store.TrackSubscribeRetriesParams{
+			Phone:            updatedInvoice.Phone.String,
+			SubscribeRetries: 0,
+		}); err != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return err
+		}
 	}
 	return nil
 }

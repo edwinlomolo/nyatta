@@ -203,3 +203,8 @@ RETURNING *;
 -- name: GetUnitImages :many
 SELECT id, upload, label FROM uploads
 WHERE property_unit_id = $1 AND category = $2 LIMIT 1;
+
+-- name: TrackSubscribeRetries :one
+UPDATE users SET subscribe_retries = $1
+WHERE phone = $2
+RETURNING *;
