@@ -54,7 +54,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		Y:    property.Location.Lng,
 	}
 
-	caretaker, caretakerErr = p.queries.GetCaretaker(ctx, property.Caretaker.Phone)
+	caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, property.Caretaker.Phone)
 	if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
 		caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
 			FirstName: property.Caretaker.FirstName,
@@ -266,5 +266,23 @@ func (p *PropertyServices) GetCaretakerAvatar(caretakerID uuid.UUID) (*model.Any
 	return &model.AnyUpload{
 		ID:     foundAvatar.ID,
 		Upload: foundAvatar.Upload,
+	}, nil
+}
+
+// GetPropertyCaretaker - grab property caretaker
+func (p *PropertyServices) GetPropertyCaretaker(caretakerID uuid.UUID) (*model.Caretaker, error) {
+	foundCaretaker, err := p.queries.GetCaretakerById(ctx, caretakerID)
+	if err != nil {
+		p.logger.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
+	}
+
+	return &model.Caretaker{
+		ID:        foundCaretaker.ID,
+		FirstName: foundCaretaker.FirstName,
+		LastName:  foundCaretaker.LastName,
+		Phone:     foundCaretaker.Phone,
+		CreatedAt: &foundCaretaker.CreatedAt,
+		UpdatedAt: &foundCaretaker.UpdatedAt,
 	}, nil
 }

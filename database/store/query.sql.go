@@ -475,27 +475,6 @@ func (q *Queries) FindUserByPhone(ctx context.Context, phone string) (User, erro
 	return i, err
 }
 
-const getCaretaker = `-- name: GetCaretaker :one
-SELECT id, first_name, last_name, phone, verified, created_by, created_at, updated_at FROM caretakers
-WHERE phone = $1
-`
-
-func (q *Queries) GetCaretaker(ctx context.Context, phone string) (Caretaker, error) {
-	row := q.db.QueryRowContext(ctx, getCaretaker, phone)
-	var i Caretaker
-	err := row.Scan(
-		&i.ID,
-		&i.FirstName,
-		&i.LastName,
-		&i.Phone,
-		&i.Verified,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const getCaretakerAvatar = `-- name: GetCaretakerAvatar :one
 SELECT id, upload, category FROM uploads
 WHERE caretaker_id = $1 AND category = $2
@@ -516,6 +495,48 @@ func (q *Queries) GetCaretakerAvatar(ctx context.Context, arg GetCaretakerAvatar
 	row := q.db.QueryRowContext(ctx, getCaretakerAvatar, arg.CaretakerID, arg.Category)
 	var i GetCaretakerAvatarRow
 	err := row.Scan(&i.ID, &i.Upload, &i.Category)
+	return i, err
+}
+
+const getCaretakerById = `-- name: GetCaretakerById :one
+SELECT id, first_name, last_name, phone, verified, created_by, created_at, updated_at FROM caretakers
+WHERE id = $1
+`
+
+func (q *Queries) GetCaretakerById(ctx context.Context, id uuid.UUID) (Caretaker, error) {
+	row := q.db.QueryRowContext(ctx, getCaretakerById, id)
+	var i Caretaker
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Verified,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getCaretakerByPhone = `-- name: GetCaretakerByPhone :one
+SELECT id, first_name, last_name, phone, verified, created_by, created_at, updated_at FROM caretakers
+WHERE phone = $1
+`
+
+func (q *Queries) GetCaretakerByPhone(ctx context.Context, phone string) (Caretaker, error) {
+	row := q.db.QueryRowContext(ctx, getCaretakerByPhone, phone)
+	var i Caretaker
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Phone,
+		&i.Verified,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 

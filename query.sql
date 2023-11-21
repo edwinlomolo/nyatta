@@ -82,9 +82,13 @@ INSERT INTO caretakers (
 )
 RETURNING *;
 
--- name: GetCaretaker :one
+-- name: GetCaretakerByPhone :one
 SELECT * FROM caretakers
 WHERE phone = $1;
+
+-- name: GetCaretakerById :one
+SELECT * FROM caretakers
+WHERE id = $1;
 
 -- name: CreateShootSchedule :one
 INSERT INTO shoots (
