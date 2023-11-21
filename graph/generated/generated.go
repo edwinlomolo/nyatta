@@ -40,14 +40,12 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Amenity() AmenityResolver
 	Caretaker() CaretakerResolver
 	Mutation() MutationResolver
 	Property() PropertyResolver
 	PropertyUnit() PropertyUnitResolver
 	Query() QueryResolver
 	User() UserResolver
-	NewProperty() NewPropertyResolver
 }
 
 type DirectiveRoot struct {
@@ -232,11 +230,6 @@ type ComplexityRoot struct {
 	}
 }
 
-type AmenityResolver interface {
-	ID(ctx context.Context, obj *model.Amenity) (uuid.UUID, error)
-
-	UnitID(ctx context.Context, obj *model.Amenity) (*uuid.UUID, error)
-}
 type CaretakerResolver interface {
 	Avatar(ctx context.Context, obj *model.Caretaker) (*model.AnyUpload, error)
 
@@ -257,8 +250,6 @@ type MutationResolver interface {
 	UpdateUserInfo(ctx context.Context, firstName string, lastName string, avatar string) (*model.User, error)
 }
 type PropertyResolver interface {
-	Type(ctx context.Context, obj *model.Property) (model.PropertyType, error)
-
 	Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error)
 	Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error)
 
@@ -289,11 +280,6 @@ type UserResolver interface {
 	Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error)
 
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
-}
-
-type NewPropertyResolver interface {
-	IsCaretaker(ctx context.Context, obj *model.NewProperty, data bool) error
-	Caretaker(ctx context.Context, obj *model.NewProperty, data *model.CaretakerInput) error
 }
 
 type executableSchema struct {
@@ -2070,7 +2056,7 @@ func (ec *executionContext) _Amenity_id(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Amenity().ID(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2091,8 +2077,8 @@ func (ec *executionContext) fieldContext_Amenity_id(ctx context.Context, field g
 	fc = &graphql.FieldContext{
 		Object:     "Amenity",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type UUID does not have child fields")
 		},
@@ -2167,9 +2153,9 @@ func (ec *executionContext) _Amenity_provider(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Amenity_provider(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2243,7 +2229,7 @@ func (ec *executionContext) _Amenity_unitId(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Amenity().UnitID(rctx, obj)
+		return obj.UnitID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2261,8 +2247,8 @@ func (ec *executionContext) fieldContext_Amenity_unitId(ctx context.Context, fie
 	fc = &graphql.FieldContext{
 		Object:     "Amenity",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type UUID does not have child fields")
 		},
@@ -4852,7 +4838,7 @@ func (ec *executionContext) _Property_type(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Property().Type(rctx, obj)
+		return obj.Type, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4873,8 +4859,8 @@ func (ec *executionContext) fieldContext_Property_type(ctx context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Property",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type PropertyType does not have child fields")
 		},
@@ -5199,9 +5185,9 @@ func (ec *executionContext) _Property_caretakerId(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*uuid.UUID)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Property_caretakerId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8127,9 +8113,9 @@ func (ec *executionContext) _User_subscribe_retries(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int32)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_subscribe_retries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10371,9 +10357,7 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.NewProperty().IsCaretaker(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.IsCaretaker = data
 		case "caretaker":
 			var err error
 
@@ -10382,9 +10366,7 @@ func (ec *executionContext) unmarshalInputNewProperty(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.NewProperty().Caretaker(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.Caretaker = data
 		}
 	}
 
@@ -10807,86 +10789,24 @@ func (ec *executionContext) _Amenity(ctx context.Context, sel ast.SelectionSet, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Amenity")
 		case "id":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Amenity_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Amenity_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "name":
 			out.Values[i] = ec._Amenity_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "provider":
 			out.Values[i] = ec._Amenity_provider(ctx, field, obj)
 		case "category":
 			out.Values[i] = ec._Amenity_category(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "unitId":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Amenity_unitId(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._Amenity_unitId(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Amenity_createdAt(ctx, field, obj)
 		case "updatedAt":
@@ -11472,41 +11392,10 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "type":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Property_type(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Property_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "location":
 			out.Values[i] = ec._Property_location(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13196,21 +13085,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v interface{}) (int32, error) {
-	res, err := graphql.UnmarshalInt32(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
-	res := graphql.MarshalInt32(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNInvoiceStatus2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐInvoiceStatus(ctx context.Context, v interface{}) (model.InvoiceStatus, error) {
 	var res model.InvoiceStatus
 	err := res.UnmarshalGQL(v)
@@ -13558,27 +13432,6 @@ func (ec *executionContext) unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(c
 
 func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
 	res := graphql.MarshalUUID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {
-	res, err := graphql.UnmarshalUUID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v *uuid.UUID) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	res := graphql.MarshalUUID(*v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -13977,16 +13830,6 @@ func (ec *executionContext) unmarshalOCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM053
 	}
 	res, err := ec.unmarshalInputCaretakerInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

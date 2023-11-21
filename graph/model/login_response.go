@@ -1,7 +1,6 @@
 package model
 
-type LoginResponse struct {
-	*Response
-	AccessToken string `json:"access_token"`
-	Onboarding  bool   `json:"onboarding"`
+type SignIn struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
 }

@@ -11,6 +11,16 @@ import (
 	"github.com/google/uuid"
 )
 
+type Amenity struct {
+	ID        uuid.UUID  `json:"id"`
+	Name      string     `json:"name"`
+	Provider  *string    `json:"provider,omitempty"`
+	Category  string     `json:"category"`
+	UnitID    *uuid.UUID `json:"unitId,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
 type AnyUpload struct {
 	ID         uuid.UUID  `json:"id"`
 	Upload     string     `json:"upload"`
@@ -91,8 +101,32 @@ type ListingOverview struct {
 	TotalUnits    int `json:"totalUnits"`
 }
 
+type NewProperty struct {
+	Name        string          `json:"name"`
+	Type        string          `json:"type"`
+	Location    *GpsInput       `json:"location"`
+	Thumbnail   string          `json:"thumbnail"`
+	IsCaretaker bool            `json:"isCaretaker"`
+	Caretaker   *CaretakerInput `json:"caretaker,omitempty"`
+}
+
 type NewUser struct {
 	Phone string `json:"phone"`
+}
+
+type Property struct {
+	ID          uuid.UUID       `json:"id"`
+	Name        string          `json:"name"`
+	Type        PropertyType    `json:"type"`
+	Location    *Gps            `json:"location"`
+	Thumbnail   *AnyUpload      `json:"thumbnail,omitempty"`
+	Units       []*PropertyUnit `json:"units"`
+	CreatedBy   uuid.UUID       `json:"createdBy"`
+	Caretaker   *Caretaker      `json:"caretaker"`
+	CaretakerID uuid.UUID       `json:"caretakerId"`
+	Owner       *User           `json:"owner"`
+	CreatedAt   *time.Time      `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time      `json:"updatedAt,omitempty"`
 }
 
 type PropertyUnit struct {
@@ -185,6 +219,20 @@ type UnitBedroomInput struct {
 type UploadImages struct {
 	Image    string `json:"image"`
 	Category string `json:"category"`
+}
+
+type User struct {
+	ID               uuid.UUID   `json:"id"`
+	FirstName        string      `json:"first_name"`
+	LastName         string      `json:"last_name"`
+	Phone            string      `json:"phone"`
+	IsLandlord       bool        `json:"is_landlord"`
+	Avatar           *AnyUpload  `json:"avatar,omitempty"`
+	SubscribeRetries int         `json:"subscribe_retries"`
+	Onboarding       bool        `json:"onboarding"`
+	Properties       []*Property `json:"properties"`
+	CreatedAt        *time.Time  `json:"createdAt,omitempty"`
+	UpdatedAt        *time.Time  `json:"updatedAt,omitempty"`
 }
 
 type UserVerificationInput struct {
