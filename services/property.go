@@ -69,20 +69,22 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		}
 	} else {
 		caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, phone)
-		userId := ctx.Value("userId").(string)
-		user, err := ctx.Value("userService").(*UserServices).GetUser(uuid.MustParse(userId))
-		if err != nil {
-			p.logger.Errorf("%s:%v", p.ServiceName(), err)
-			return nil, err
-		}
-		caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Phone:     phone,
-		})
-		if caretakerErr != nil {
-			p.logger.Errorf("%s:%v", p.ServiceName(), err)
-			return nil, err
+		if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
+			userId := ctx.Value("userId").(string)
+			user, err := ctx.Value("userService").(*UserServices).GetUser(uuid.MustParse(userId))
+			if err != nil {
+				p.logger.Errorf("%s:%v", p.ServiceName(), err)
+				return nil, err
+			}
+			caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Phone:     phone,
+			})
+			if caretakerErr != nil {
+				p.logger.Errorf("%s:%v", p.ServiceName(), err)
+				return nil, err
+			}
 		}
 	}
 
