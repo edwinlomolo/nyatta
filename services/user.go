@@ -182,6 +182,7 @@ func (u *UserServices) GetUser(id uuid.UUID) (*model.User, error) {
 		ID:        foundUser.ID,
 		FirstName: foundUser.FirstName.String,
 		LastName:  foundUser.LastName.String,
+		Phone:     foundUser.Phone,
 		CreatedAt: &foundUser.CreatedAt,
 		UpdatedAt: &foundUser.UpdatedAt,
 	}, nil
