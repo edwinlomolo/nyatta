@@ -129,9 +129,10 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 	}
 
 	return &model.Property{
-		ID:   insertedProperty.ID,
-		Name: insertedProperty.Name,
-		Type: model.PropertyType(insertedProperty.Type),
+		ID:          insertedProperty.ID,
+		Name:        insertedProperty.Name,
+		Type:        model.PropertyType(insertedProperty.Type),
+		CaretakerID: insertedProperty.CaretakerID.UUID,
 		Location: &model.Gps{
 			Lat: insertedProperty.Location.X,
 			Lng: insertedProperty.Location.Y,
