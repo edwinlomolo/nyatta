@@ -226,7 +226,6 @@ type ComplexityRoot struct {
 		ID               func(childComplexity int) int
 		IsLandlord       func(childComplexity int) int
 		LastName         func(childComplexity int) int
-		Onboarding       func(childComplexity int) int
 		Phone            func(childComplexity int) int
 		Properties       func(childComplexity int) int
 		SubscribeRetries func(childComplexity int) int
@@ -1248,13 +1247,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.LastName(childComplexity), true
 
-	case "User.onboarding":
-		if e.complexity.User.Onboarding == nil {
-			break
-		}
-
-		return e.complexity.User.Onboarding(childComplexity), true
-
 	case "User.phone":
 		if e.complexity.User.Phone == nil {
 			break
@@ -1743,13 +1735,12 @@ type AnyUpload {
 
 type User {
   id: UUID!
-  first_name: String!
-  last_name: String!
+  first_name: String
+  last_name: String
   phone: String!
   is_landlord: Boolean!
   avatar: AnyUpload
   subscribe_retries: Int!
-  onboarding: Boolean!
   properties: [Property!]!
   tenancy: [Tenant!]!
   createdAt: Time
@@ -4566,8 +4557,6 @@ func (ec *executionContext) fieldContext_Mutation_handshake(ctx context.Context,
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "subscribe_retries":
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
 			case "tenancy":
@@ -4765,8 +4754,6 @@ func (ec *executionContext) fieldContext_Mutation_updateUserInfo(ctx context.Con
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "subscribe_retries":
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
 			case "tenancy":
@@ -5315,8 +5302,6 @@ func (ec *executionContext) fieldContext_Property_owner(ctx context.Context, fie
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "subscribe_retries":
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
 			case "tenancy":
@@ -6234,8 +6219,6 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "subscribe_retries":
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
 			case "tenancy":
@@ -7346,8 +7329,6 @@ func (ec *executionContext) fieldContext_SignInResponse_user(ctx context.Context
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "subscribe_retries":
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
 			case "tenancy":
@@ -7721,8 +7702,6 @@ func (ec *executionContext) fieldContext_Tenant_user(ctx context.Context, field 
 				return ec.fieldContext_User_avatar(ctx, field)
 			case "subscribe_retries":
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
-			case "onboarding":
-				return ec.fieldContext_User_onboarding(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
 			case "tenancy":
@@ -8134,14 +8113,11 @@ func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_first_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8178,14 +8154,11 @@ func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_last_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8387,50 +8360,6 @@ func (ec *executionContext) fieldContext_User_subscribe_retries(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_onboarding(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_onboarding(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Onboarding, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_onboarding(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12858,14 +12787,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "first_name":
 			out.Values[i] = ec._User_first_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "last_name":
 			out.Values[i] = ec._User_last_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "phone":
 			out.Values[i] = ec._User_phone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -12911,11 +12834,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "subscribe_retries":
 			out.Values[i] = ec._User_subscribe_retries(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "onboarding":
-			out.Values[i] = ec._User_onboarding(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

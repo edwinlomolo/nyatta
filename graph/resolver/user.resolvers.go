@@ -14,7 +14,7 @@ import (
 
 // Avatar is the resolver for the avatar field.
 func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error) {
-	avatar, err := ctx.Value("userService").(*services.UserServices).GetUserAvatar(obj.ID)
+	avatar, err := ctx.Value("userService").(*services.UserServices).GetUserAvatar(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyU
 
 // Properties is the resolver for the properties field.
 func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*model.Property, error) {
-	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(obj.ID)
+	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*mode
 
 // Tenancy is the resolver for the tenancy field.
 func (r *userResolver) Tenancy(ctx context.Context, obj *model.User) ([]*model.Tenant, error) {
-	tenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUserTenancy(obj.ID)
+	tenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUserTenancy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

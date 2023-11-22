@@ -14,7 +14,7 @@ import (
 
 // Bedrooms is the resolver for the bedrooms field.
 func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.PropertyUnit) ([]*model.Bedroom, error) {
-	foundBedrooms, err := ctx.Value("unitService").(*services.UnitServices).GetUnitBedrooms(obj.ID)
+	foundBedrooms, err := ctx.Value("unitService").(*services.UnitServices).GetUnitBedrooms(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Property
 
 // Property is the resolver for the property field.
 func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.PropertyUnit) (*model.Property, error) {
-	property, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(obj.PropertyID)
+	property, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(ctx, obj.PropertyID)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.Property
 
 // Tenant is the resolver for the tenant field.
 func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.PropertyUnit) (*model.Tenant, error) {
-	tenant, err := ctx.Value("tenancyService").(*services.TenancyServices).GetCurrentTenant(obj.ID)
+	tenant, err := ctx.Value("tenancyService").(*services.TenancyServices).GetCurrentTenant(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.PropertyUn
 
 // Amenities is the resolver for the amenities field.
 func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.PropertyUnit) ([]*model.Amenity, error) {
-	amenities, err := ctx.Value("unitService").(*services.UnitServices).GetUnitAmenities(obj.ID)
+	amenities, err := ctx.Value("unitService").(*services.UnitServices).GetUnitAmenities(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.Propert
 
 // Images is the resolver for the images field.
 func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
-	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(obj.ID)
+	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.PropertyUn
 
 // Tenancy is the resolver for the tenancy field.
 func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error) {
-	foundTenancies, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUnitTenancy(obj.ID)
+	foundTenancies, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUnitTenancy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

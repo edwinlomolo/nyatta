@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"time"
@@ -28,7 +29,7 @@ func NewAuthService(logger *log.Logger, config *config.Jwt) *AuthServices {
 }
 
 // SignJWT - signin user and return jwt token
-func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
+func (a *AuthServices) SignJWT(ctx context.Context, user *model.User) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss":         "Nyatta",
 		"created_at":  user.CreatedAt,
@@ -48,7 +49,7 @@ func (a *AuthServices) SignJWT(user *model.User) (*string, error) {
 }
 
 // ValidateJWT - validate jwt token
-func (a *AuthServices) ValidateJWT(tokenString *string) (*jwt.Token, error) {
+func (a *AuthServices) ValidateJWT(ctx context.Context, tokenString *string) (*jwt.Token, error) {
 	token, err := jwt.Parse(*tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("%s: %v", config.InvalidTokenSigningAlgorithm.Error(), token.Header["alg"]))

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"strconv"
 
@@ -25,7 +26,7 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 }
 
 // AddPropertyUnit - add property unit
-func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.PropertyUnit, error) {
+func (u *UnitServices) AddPropertyUnit(ctx context.Context, input *model.PropertyUnitInput) (*model.PropertyUnit, error) {
 	pUUID := uuid.NullUUID{UUID: input.PropertyID, Valid: true}
 
 	unitPrice, err := strconv.ParseInt(input.Price, 10, 64)
@@ -94,7 +95,7 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 }
 
 // GetUnitBedrooms - return unit bedrooms
-func (u *UnitServices) GetUnitBedrooms(unitId uuid.UUID) ([]*model.Bedroom, error) {
+func (u *UnitServices) GetUnitBedrooms(ctx context.Context, unitId uuid.UUID) ([]*model.Bedroom, error) {
 	var bedrooms []*model.Bedroom
 
 	foundBedrooms, err := u.queries.GetUnitBedrooms(ctx, unitId)
@@ -128,7 +129,7 @@ func (u UnitServices) ServiceName() string {
 }
 
 // GetUnitImages - grab images
-func (u *UnitServices) GetUnitImages(id uuid.UUID) ([]*model.AnyUpload, error) {
+func (u *UnitServices) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error) {
 	var images []*model.AnyUpload
 
 	foundUploads, err := u.queries.GetUnitImages(ctx, sqlStore.GetUnitImagesParams{
@@ -157,7 +158,7 @@ func (u *UnitServices) GetUnitImages(id uuid.UUID) ([]*model.AnyUpload, error) {
 }
 
 // GetUnitAmenities - grab unit amenities
-func (u *UnitServices) GetUnitAmenities(unitID uuid.UUID) ([]*model.Amenity, error) {
+func (u *UnitServices) GetUnitAmenities(ctx context.Context, unitID uuid.UUID) ([]*model.Amenity, error) {
 	var amenities []*model.Amenity
 
 	foundAmenities, err := u.queries.GetUnitAmenities(ctx, unitID)
@@ -183,7 +184,7 @@ func (u *UnitServices) GetUnitAmenities(unitID uuid.UUID) ([]*model.Amenity, err
 }
 
 // GetPropertyUnit - grab unit
-func (u *UnitServices) GetPropertyUnit(unitID uuid.UUID) (*model.PropertyUnit, error) {
+func (u *UnitServices) GetPropertyUnit(ctx context.Context, unitID uuid.UUID) (*model.PropertyUnit, error) {
 	foundUnit, err := u.queries.GetPropertyUnit(ctx, unitID)
 	if err != nil {
 		if err == sql.ErrNoRows {

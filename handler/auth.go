@@ -35,15 +35,7 @@ func Authenticate(h http.Handler) http.Handler {
 				userIdBytes, _ := base64.StdEncoding.DecodeString(claims["id"].(string))
 				userId = string(userIdBytes[:])
 				phone = claims["user_phone"].(string)
-				// TODO remove this dev hack
-				user, err := ctx.Value("userService").(*services.UserServices).FindUserByPhone(phone)
-				if err != nil {
-					er := "NoUserFromJwtError"
-					logger.Errorf("%s:%v", er, err)
-					http.Error(w, er, http.StatusBadRequest)
-					return
-				}
-				isLandlord = user.IsLandlord
+				isLandlord = claims["is_landlord"].(bool)
 				isAuthorized = true
 			}
 		} else {
@@ -78,6 +70,6 @@ func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token,
 	}
 	tokenString = auth[1]
 	// Is token valid?
-	token, err := ctx.Value("userService").(*services.UserServices).ValidateToken(&tokenString)
+	token, err := ctx.Value("userService").(*services.UserServices).ValidateToken(ctx, &tokenString)
 	return token, err
 }

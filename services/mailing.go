@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/3dw1nM0535/nyatta/config"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -31,7 +33,7 @@ func NewMailingService(queries *sqlStore.Queries, cfg config.EmailConfig, logger
 }
 
 // SaveMailing saves an email to the database
-func (m *MailingServices) SaveMailing(email string) (*model.Status, error) {
+func (m *MailingServices) SaveMailing(ctx context.Context, email string) (*model.Status, error) {
 	// Mail exists
 	exists, err := m.queries.MailingExists(ctx, email)
 	if err != nil {
@@ -51,7 +53,7 @@ func (m *MailingServices) SaveMailing(email string) (*model.Status, error) {
 	}
 }
 
-func (m *MailingServices) SendEmail(to []string, from, subject, body string) error {
+func (m *MailingServices) SendEmail(ctx context.Context, to []string, from, subject, body string) error {
 	params := &resend.SendEmailRequest{
 		To:      to,
 		From:    from,

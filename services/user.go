@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -15,24 +16,23 @@ import (
 
 // UserServices - represents user service
 type UserServices struct {
-	queries   *sqlStore.Queries
-	log       *logrus.Logger
-	auth      *AuthServices
-	twilio    *TwilioServices
-	sendEmail SendEmail
-	env       string
+	queries *sqlStore.Queries
+	log     *logrus.Logger
+	auth    *AuthServices
+	twilio  *TwilioServices
+	env     string
 }
 
 // _ - UserServices{} implements UserService
 var _ interfaces.UserService = &UserServices{}
 
-func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string, config *config.Jwt, twilio *TwilioServices, sendEmail SendEmail) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string, config *config.Jwt, twilio *TwilioServices) *UserServices {
 	authServices := NewAuthService(logger, config)
-	return &UserServices{queries, logger, authServices, twilio, sendEmail, env}
+	return &UserServices{queries, logger, authServices, twilio, env}
 }
 
 // FindUserByPhone - get user by phone number
-func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
+func (u *UserServices) FindUserByPhone(ctx context.Context, phone string) (*model.User, error) {
 	var foundUser sqlStore.User
 	var err error
 
@@ -48,8 +48,8 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 		return &model.User{
 			ID:               foundUser.ID,
 			IsLandlord:       isLandlord,
-			FirstName:        foundUser.FirstName.String,
-			LastName:         foundUser.LastName.String,
+			FirstName:        &foundUser.FirstName.String,
+			LastName:         &foundUser.LastName.String,
 			Phone:            foundUser.Phone,
 			SubscribeRetries: int(foundUser.SubscribeRetries),
 			CreatedAt:        &foundUser.CreatedAt,
@@ -64,8 +64,8 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 	return &model.User{
 		ID:               foundUser.ID,
 		Phone:            foundUser.Phone,
-		FirstName:        foundUser.FirstName.String,
-		LastName:         foundUser.LastName.String,
+		FirstName:        &foundUser.FirstName.String,
+		LastName:         &foundUser.LastName.String,
 		IsLandlord:       isLandlord,
 		SubscribeRetries: int(foundUser.SubscribeRetries),
 		CreatedAt:        &foundUser.CreatedAt,
@@ -74,18 +74,18 @@ func (u *UserServices) FindUserByPhone(phone string) (*model.User, error) {
 }
 
 // SignIn - signin existing/returning user
-func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
+func (u *UserServices) SignIn(ctx context.Context, user *model.NewUser) (*model.SignIn, error) {
 	signInResponse := &model.SignIn{}
 
 	// user - existing user
 	var newUser *model.User
 	var err error
-	newUser, err = u.FindUserByPhone(user.Phone)
+	newUser, err = u.FindUserByPhone(ctx, user.Phone)
 	if err != nil {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
-	token, err := u.auth.SignJWT(newUser)
+	token, err := u.auth.SignJWT(ctx, newUser)
 	if err != nil {
 		u.log.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
@@ -98,8 +98,8 @@ func (u *UserServices) SignIn(user *model.NewUser) (*model.SignIn, error) {
 }
 
 // ValidateToken - validate jwt token
-func (u *UserServices) ValidateToken(tokenString *string) (*jwt.Token, error) {
-	token, err := u.auth.ValidateJWT(tokenString)
+func (u *UserServices) ValidateToken(ctx context.Context, tokenString *string) (*jwt.Token, error) {
+	token, err := u.auth.ValidateJWT(ctx, tokenString)
 	return token, err
 }
 
@@ -109,8 +109,10 @@ func (u UserServices) ServiceName() string {
 }
 
 // UpdateUserInfo - update user details
-func (u *UserServices) UpdateUserInfo(userId uuid.UUID, phone, firstName, lastName, avatar string) (*model.User, error) {
-	foundUpload, err := u.GetUserAvatar(userId)
+func (u *UserServices) UpdateUserInfo(ctx context.Context, userId uuid.UUID, firstName, lastName, avatar string) (*model.User, error) {
+	phone := ctx.Value("phone").(string)
+
+	foundUpload, err := u.GetUserAvatar(ctx, userId)
 	if err != nil {
 		u.log.Errorf("%s:%v", u.ServiceName(), err)
 		return nil, err
@@ -158,7 +160,7 @@ func (u *UserServices) UpdateUserInfo(userId uuid.UUID, phone, firstName, lastNa
 }
 
 // GetUserAvatar - grab avatar
-func (u *UserServices) GetUserAvatar(userId uuid.UUID) (*model.AnyUpload, error) {
+func (u *UserServices) GetUserAvatar(ctx context.Context, userId uuid.UUID) (*model.AnyUpload, error) {
 	foundUpload, err := u.queries.GetUserAvatar(ctx, sqlStore.GetUserAvatarParams{
 		UserID:   uuid.NullUUID{UUID: userId, Valid: true},
 		Category: model.UploadCategoryProfileImg.String(),
@@ -174,18 +176,21 @@ func (u *UserServices) GetUserAvatar(userId uuid.UUID) (*model.AnyUpload, error)
 }
 
 // GetUser - grab user
-func (u *UserServices) GetUser(id uuid.UUID) (*model.User, error) {
+func (u *UserServices) GetUser(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	foundUser, err := u.queries.GetUser(ctx, id)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 
+	isLandlord := time.Now().Before(foundUser.NextRenewal)
 	return &model.User{
-		ID:        foundUser.ID,
-		FirstName: foundUser.FirstName.String,
-		LastName:  foundUser.LastName.String,
-		Phone:     foundUser.Phone,
-		CreatedAt: &foundUser.CreatedAt,
-		UpdatedAt: &foundUser.UpdatedAt,
+		ID:               foundUser.ID,
+		FirstName:        &foundUser.FirstName.String,
+		LastName:         &foundUser.LastName.String,
+		IsLandlord:       isLandlord,
+		SubscribeRetries: int(foundUser.SubscribeRetries),
+		Phone:            foundUser.Phone,
+		CreatedAt:        &foundUser.CreatedAt,
+		UpdatedAt:        &foundUser.UpdatedAt,
 	}, nil
 }

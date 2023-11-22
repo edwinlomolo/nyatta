@@ -226,13 +226,12 @@ type UploadImages struct {
 
 type User struct {
 	ID               uuid.UUID   `json:"id"`
-	FirstName        string      `json:"first_name"`
-	LastName         string      `json:"last_name"`
+	FirstName        *string     `json:"first_name,omitempty"`
+	LastName         *string     `json:"last_name,omitempty"`
 	Phone            string      `json:"phone"`
 	IsLandlord       bool        `json:"is_landlord"`
 	Avatar           *AnyUpload  `json:"avatar,omitempty"`
 	SubscribeRetries int         `json:"subscribe_retries"`
-	Onboarding       bool        `json:"onboarding"`
 	Properties       []*Property `json:"properties"`
 	Tenancy          []*Tenant   `json:"tenancy"`
 	CreatedAt        *time.Time  `json:"createdAt,omitempty"`

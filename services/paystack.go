@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -21,67 +22,12 @@ type PaystackServices struct {
 	sqlStore *store.Queries
 }
 
-type MobileMoneyPayload struct {
-	Phone    string `json:"phone"`
-	Provider string `json:"provider"`
-}
-
-type PaystackMpesaChargePayload struct {
-	Amount      int                `json:"amount"`
-	Email       string             `json:"email"`
-	Currency    string             `json:"currency"`
-	MobileMoney MobileMoneyPayload `json:"mobile_money"`
-}
-
-type PaystackMpesaChargeResponse struct {
-	Status  bool   `json:"status"`
-	Message string `json:"message"`
-	Data    struct {
-		Reference   string `json:"reference"`
-		Status      string `json:"status"`
-		DisplayText string `json:"display_text"`
-	} `json:"data"`
-}
-
-type PaystackAuthorization struct {
-	Bank        string `json:"bank"`
-	Channel     string `json:"channel"`
-	CountryCode string `json:"country_code"`
-	Brand       string `json:"brand"`
-	AuthCode    string `json:"authorization_code"`
-}
-
-type Customer struct {
-	ID           int    `json:"id"`
-	Phone        string `json:"phone"`
-	CustomerCode string `json:"customer_code"`
-	Email        string `json:"email"`
-}
-
-type CallbackData struct {
-	Status        string                `json:"success"`
-	Reference     string                `json:"reference"`
-	Amount        int                   `json:"amount"`
-	PaidAt        string                `json:"paid_at"`
-	Customer      Customer              `json:"customer"`
-	CreatedAt     string                `json:"created_at"`
-	Channel       string                `json:"channel"`
-	Currency      string                `json:"currency"`
-	Fees          int                   `json:"fees"`
-	Authorization PaystackAuthorization `json:"authorization"`
-}
-
-type PaystackCallbackResponse struct {
-	Event string       `json:"event"`
-	Data  CallbackData `json:"data"`
-}
-
 func NewPaystackService(cfg config.Paystack, logger *logrus.Logger, sqlStore *store.Queries) *PaystackServices {
 	return &PaystackServices{config: cfg, logger: logger, baseApi: cfg.BaseApi, sqlStore: sqlStore}
 }
 
-func (p *PaystackServices) ChargeMpesaPhone(phone string, payload PaystackMpesaChargePayload) (*PaystackMpesaChargeResponse, error) {
-	var chargeResponse *PaystackMpesaChargeResponse
+func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, phone string, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error) {
+	var chargeResponse *model.PaystackMpesaChargeResponse
 
 	url := p.baseApi + "/charge"
 	payload.MobileMoney.Provider = "mpesa"
@@ -127,7 +73,7 @@ func (p *PaystackServices) ChargeMpesaPhone(phone string, payload PaystackMpesaC
 	return chargeResponse, nil
 }
 
-func (p *PaystackServices) ReconcilePaystackMpesaCallback(payload PaystackCallbackResponse) error {
+func (p *PaystackServices) ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error {
 	if payload.Event == "charge.success" {
 		data := payload.Data
 		nextRenewal := time.Now().Add(time.Hour * 24 * 30)

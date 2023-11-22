@@ -9,13 +9,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 	"github.com/sirupsen/logrus"
 )
 
 func MpesaChargeCallback() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var paystackMpesaCallbackResponse *services.PaystackCallbackResponse
+		var paystackMpesaCallbackResponse *model.PaystackCallbackResponse
 
 		ctx := r.Context()
 		logger := ctx.Value("log").(*logrus.Logger)
@@ -40,7 +41,7 @@ func MpesaChargeCallback() http.Handler {
 
 		json.Unmarshal(body, &paystackMpesaCallbackResponse)
 
-		if err := ctx.Value("paystackService").(*services.PaystackServices).ReconcilePaystackMpesaCallback(*paystackMpesaCallbackResponse); err != nil {
+		if err := ctx.Value("paystackService").(*services.PaystackServices).ReconcilePaystackMpesaCallback(ctx, *paystackMpesaCallbackResponse); err != nil {
 			logger.Errorf("%s:%v", "PaystackMpesaChargeCallbackReadingBodyRequestError", err)
 		}
 

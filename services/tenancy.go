@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -24,7 +25,7 @@ func NewTenancyService(queries *sqlStore.Queries, logger *log.Logger) *TenancySe
 }
 
 // AddUnitTenancy - add tenancy to property unit
-func (t *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tenant, error) {
+func (t *TenancyServices) AddUnitTenancy(ctx context.Context, input *model.TenancyInput) (*model.Tenant, error) {
 	insertedTenant, err := t.queries.CreateTenant(ctx, sqlStore.CreateTenantParams{
 		PropertyUnitID: input.PropertyUnitID,
 		UserID:         input.UserID,
@@ -45,7 +46,7 @@ func (t *TenancyServices) AddUnitTenancy(input *model.TenancyInput) (*model.Tena
 }
 
 // GetUnitTenancy - return unit tenancy
-func (t *TenancyServices) GetUnitTenancy(unitId uuid.UUID) ([]*model.Tenant, error) {
+func (t *TenancyServices) GetUnitTenancy(ctx context.Context, unitId uuid.UUID) ([]*model.Tenant, error) {
 	var tenancies []*model.Tenant
 
 	foundTenancies, err := t.queries.GetUnitTenancy(ctx, unitId)
@@ -75,7 +76,7 @@ func (t *TenancyServices) GetUnitTenancy(unitId uuid.UUID) ([]*model.Tenant, err
 }
 
 // GetUnitTenant - grab current tenant
-func (t *TenancyServices) GetCurrentTenant(unitID uuid.UUID) (*model.Tenant, error) {
+func (t *TenancyServices) GetCurrentTenant(ctx context.Context, unitID uuid.UUID) (*model.Tenant, error) {
 	foundTenant, err := t.queries.GetCurrentTenant(ctx, unitID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -103,7 +104,7 @@ func (t TenancyServices) ServiceName() string {
 }
 
 // GetUserTenancy - grab user tenancy history
-func (t *TenancyServices) GetUserTenancy(userID uuid.UUID) ([]*model.Tenant, error) {
+func (t *TenancyServices) GetUserTenancy(ctx context.Context, userID uuid.UUID) ([]*model.Tenant, error) {
 	var tenancy []*model.Tenant
 
 	foundTenancy, err := t.queries.GetUserTenancy(ctx, userID)

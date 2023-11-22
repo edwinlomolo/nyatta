@@ -10,19 +10,9 @@ import (
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/database/store"
+	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/sirupsen/logrus"
 )
-
-type AccessResponse struct {
-	AccessToken string `json:"access_token"`
-	ExpiresIn   string `json:"expires_in"`
-}
-
-type StkPushResponse struct {
-	MerchantRequestID string `json:"MerchantRequestID"`
-	CheckoutRequestID string `json:"CheckoutRequestID"`
-	ResponseCode      string `json:"ResponseCode"`
-}
 
 type MpesaServices struct {
 	logger              *logrus.Logger
@@ -30,36 +20,6 @@ type MpesaServices struct {
 	lipaExpressEndpoint string
 	config              config.MpesaConfig
 	queries             *store.Queries
-}
-
-type LipaNaMpesaPayload struct {
-	BusinessShortCode int    `json:"BusinessShortCode"`
-	Password          string `json:"Password"`
-	Timestamp         string `json:"Timestamp"`
-	TransactionType   string `json:"TransactionType"`
-	Amount            int    `json:"Amount"`
-	PartyA            int    `json:"PartyA"`
-	PartyB            int    `json:"PartyB"`
-	PhoneNumber       int    `json:"PhoneNumber"`
-	CallBackURL       string `json:"CallBackURL"`
-	AccountReference  string `json:"AccountReference"`
-	TransactionDesc   string `json:"TransactionDesc"`
-}
-
-type MpesaCallBackResponse struct {
-	Body struct {
-		StkCallBack struct {
-			MerchantRequestID string `json:"MerchantRequestID"`
-			CheckoutRequestID string `json:"CheckoutRequestID"`
-			ResultCode        int    `json:"ResultCode"`
-			CallBackMetadata  struct {
-				Item []struct {
-					Name  string      `json:"Name"`
-					Value interface{} `json:"Value"`
-				} `json:"Item"`
-			} `json:"CallbackMetadata"`
-		} `json:"stkCallback"`
-	} `json:"Body"`
 }
 
 func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger, queries *store.Queries) *MpesaServices {
@@ -72,8 +32,8 @@ func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger, queries *sto
 	}
 }
 
-func (m *MpesaServices) GetAccessToken() (*AccessResponse, error) {
-	response := &AccessResponse{}
+func (m *MpesaServices) GetAccessToken() (*model.AccessResponse, error) {
+	response := &model.AccessResponse{}
 
 	dataToEncode := fmt.Sprintf("%s:%s", m.config.ConsumerKey, m.config.ConsumerSecret)
 	sEnc := base64.StdEncoding.EncodeToString([]byte(dataToEncode))
@@ -103,8 +63,8 @@ func (m *MpesaServices) GetAccessToken() (*AccessResponse, error) {
 	return response, nil
 }
 
-func (m *MpesaServices) StkPush(payload LipaNaMpesaPayload) (*StkPushResponse, error) {
-	var stkResponse *StkPushResponse
+func (m *MpesaServices) StkPush(payload model.LipaNaMpesaPayload) (*model.StkPushResponse, error) {
+	var stkResponse *model.StkPushResponse
 
 	t := time.Now().Format("20060102150405")
 	dataToEncode := fmt.Sprintf("%d%s%s", payload.BusinessShortCode, m.config.PassKey, t)

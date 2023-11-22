@@ -16,25 +16,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	ctx context.Context = context.Background()
-)
-
 // PropertyServices - represents property service
 type PropertyServices struct {
-	queries   *sqlStore.Queries
-	logger    *log.Logger
-	twilio    *TwilioServices
-	sendEmail SendEmail
-	env       string
+	queries *sqlStore.Queries
+	logger  *log.Logger
+	twilio  *TwilioServices
 }
 
 // _ - PropertyServices{} implements PropertyService
 var _ interfaces.PropertyService = &PropertyServices{}
 
 // NewPropertyService - factory for property services
-func NewPropertyService(queries *sqlStore.Queries, env string, logger *log.Logger, twilio *TwilioServices, sendEmail SendEmail) *PropertyServices {
-	return &PropertyServices{queries: queries, logger: logger, twilio: twilio, sendEmail: sendEmail, env: env}
+func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger, twilio *TwilioServices) *PropertyServices {
+	return &PropertyServices{queries: queries, logger: logger, twilio: twilio}
 }
 
 // ServiceName - return service name
@@ -71,14 +65,14 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, phone)
 		if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
 			userId := ctx.Value("userId").(string)
-			user, err := ctx.Value("userService").(*UserServices).GetUser(uuid.MustParse(userId))
+			user, err := ctx.Value("userService").(*UserServices).GetUser(ctx, uuid.MustParse(userId))
 			if err != nil {
 				p.logger.Errorf("%s:%v", p.ServiceName(), err)
 				return nil, err
 			}
 			caretaker, caretakerErr = p.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
-				FirstName: user.FirstName,
-				LastName:  user.LastName,
+				FirstName: *user.FirstName,
+				LastName:  *user.LastName,
 				Phone:     phone,
 			})
 			if caretakerErr != nil {
@@ -144,7 +138,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 }
 
 // GetProperty - return existing property given property id
-func (p *PropertyServices) GetProperty(id uuid.UUID) (*model.Property, error) {
+func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error) {
 	foundProperty, err := p.queries.GetProperty(ctx, id)
 	if err == sql.ErrNoRows {
 		return nil, errors.New("Can't find property")
@@ -165,7 +159,7 @@ func (p *PropertyServices) GetProperty(id uuid.UUID) (*model.Property, error) {
 }
 
 // PropertiesCreatedBy - get property(s) created by user
-func (p *PropertyServices) PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Property, error) {
+func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error) {
 	var userProperties []*model.Property
 
 	properties, err := p.queries.PropertiesCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
@@ -193,7 +187,7 @@ func (p *PropertyServices) PropertiesCreatedBy(createdBy uuid.UUID) ([]*model.Pr
 }
 
 // GetPropertyUnits - get property units
-func (p *PropertyServices) GetPropertyUnits(propertyID uuid.UUID) ([]*model.PropertyUnit, error) {
+func (p *PropertyServices) GetPropertyUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.PropertyUnit, error) {
 	var units []*model.PropertyUnit
 
 	foundUnits, err := p.queries.GetPropertyUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
@@ -221,7 +215,7 @@ func (p *PropertyServices) GetPropertyUnits(propertyID uuid.UUID) ([]*model.Prop
 }
 
 // CaretakerPhoneVerification - verify caretaker
-func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVerificationInput) (*model.Status, error) {
+func (p *PropertyServices) CaretakerPhoneVerification(ctx context.Context, input *model.CaretakerVerificationInput) (*model.Status, error) {
 	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
@@ -231,7 +225,7 @@ func (p *PropertyServices) CaretakerPhoneVerification(input *model.CaretakerVeri
 }
 
 // ListingOverview - get listing summary
-func (p *PropertyServices) ListingOverview(propertyID uuid.UUID) (*model.ListingOverview, error) {
+func (p *PropertyServices) ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error) {
 	pUUID := uuid.NullUUID{UUID: propertyID, Valid: true}
 
 	totalUnits, err := p.queries.PropertyUnitsCount(ctx, pUUID)
@@ -259,7 +253,7 @@ func (p *PropertyServices) ListingOverview(propertyID uuid.UUID) (*model.Listing
 }
 
 // GetPropertyThumbnail - grab thumbnail
-func (p *PropertyServices) GetPropertyThumbnail(propertyID uuid.UUID) (*model.AnyUpload, error) {
+func (p *PropertyServices) GetPropertyThumbnail(ctx context.Context, propertyID uuid.UUID) (*model.AnyUpload, error) {
 	foundThumbnail, err := p.queries.GetPropertyThumbnail(ctx, sqlStore.GetPropertyThumbnailParams{
 		PropertyID: uuid.NullUUID{UUID: propertyID, Valid: true},
 		Category:   model.UploadCategoryPropertyThumbnail.String(),
@@ -275,7 +269,7 @@ func (p *PropertyServices) GetPropertyThumbnail(propertyID uuid.UUID) (*model.An
 }
 
 // GetCaretakerAvatar - grab caretaker avatar
-func (p *PropertyServices) GetCaretakerAvatar(caretakerID uuid.UUID) (*model.AnyUpload, error) {
+func (p *PropertyServices) GetCaretakerAvatar(ctx context.Context, caretakerID uuid.UUID) (*model.AnyUpload, error) {
 	foundAvatar, err := p.queries.GetCaretakerAvatar(ctx, sqlStore.GetCaretakerAvatarParams{
 		CaretakerID: uuid.NullUUID{UUID: caretakerID, Valid: true},
 		Category:    model.UploadCategoryProfileImg.String(),
@@ -292,7 +286,7 @@ func (p *PropertyServices) GetCaretakerAvatar(caretakerID uuid.UUID) (*model.Any
 }
 
 // GetPropertyCaretaker - grab property caretaker
-func (p *PropertyServices) GetPropertyCaretaker(caretakerID uuid.UUID) (*model.Caretaker, error) {
+func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID uuid.UUID) (*model.Caretaker, error) {
 	foundCaretaker, err := p.queries.GetCaretakerById(ctx, caretakerID)
 	if err != nil {
 		p.logger.Errorf("%s:%v", p.ServiceName(), err)

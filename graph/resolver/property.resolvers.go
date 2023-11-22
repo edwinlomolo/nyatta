@@ -14,7 +14,7 @@ import (
 
 // Thumbnail is the resolver for the thumbnail field.
 func (r *propertyResolver) Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error) {
-	thumbnail, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyThumbnail(obj.ID)
+	thumbnail, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyThumbnail(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (r *propertyResolver) Thumbnail(ctx context.Context, obj *model.Property) (
 
 // Units is the resolver for the units field.
 func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error) {
-	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyUnits(obj.ID)
+	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyUnits(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*m
 
 // Caretaker is the resolver for the caretaker field.
 func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error) {
-	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(obj.CaretakerID)
+	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(ctx, obj.CaretakerID)
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,7 @@ import (
 
 // User is the resolver for the user field.
 func (r *tenantResolver) User(ctx context.Context, obj *model.Tenant) (*model.User, error) {
-	user, err := ctx.Value("userService").(*services.UserServices).GetUser(obj.UserID)
+	user, err := ctx.Value("userService").(*services.UserServices).GetUser(ctx, obj.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *tenantResolver) User(ctx context.Context, obj *model.Tenant) (*model.Us
 
 // PropertyUnit is the resolver for the propertyUnit field.
 func (r *tenantResolver) PropertyUnit(ctx context.Context, obj *model.Tenant) (*model.PropertyUnit, error) {
-	unit, err := ctx.Value("unitService").(*services.UnitServices).GetPropertyUnit(obj.PropertyUnitID)
+	unit, err := ctx.Value("unitService").(*services.UnitServices).GetPropertyUnit(ctx, obj.PropertyUnitID)
 	if err != nil {
 		return nil, err
 	}
