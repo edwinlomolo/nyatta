@@ -19,7 +19,6 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/resendlabs/resend-go v1.7.0
 	github.com/rs/cors v1.8.2
-	github.com/rs/xid v1.4.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	github.com/twilio/twilio-go v1.7.2

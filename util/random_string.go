@@ -2,18 +2,19 @@ package util
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/rs/xid"
+	"github.com/google/uuid"
 )
 
 // randString - generate random string ids
 func randString() string {
-	guid := xid.New().String()
-	return guid
+	guid, _ := uuid.NewRandom()
+	return guid.String()
 }
 
 // GenerateRandomEmail - generate random email address
 func GenerateRandomEmail() string {
-	randPrefix := randString()
+	randPrefix := strings.ReplaceAll(randString(), "-", "")
 	return fmt.Sprintf("%s@nyatta.app", randPrefix)
 }
