@@ -34,6 +34,10 @@ INSERT INTO amenities (
 )
 RETURNING *;
 
+-- name: GetUnitAmenities :many
+SELECT * FROM amenities
+WHERE property_unit_id = $1;
+
 -- name: CreateTenant :one
 INSERT INTO tenants (
   start_date, property_unit_id, user_id
@@ -42,6 +46,10 @@ INSERT INTO tenants (
 )
 RETURNING *;
 
+-- name: GetCurrentTenant :one
+SELECT * FROM tenants
+WHERE property_unit_id = $1 AND end_date IS NULL;
+
 -- name: CreatePropertyUnit :one
 INSERT INTO property_units (
   property_id, bathrooms, name, type, price, state
@@ -49,6 +57,10 @@ INSERT INTO property_units (
   $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
+
+-- name: GetPropertyUnit :one
+SELECT * FROM property_units
+WHERE id = $1;
 
 -- name: CreateUnitBedroom :one
 INSERT INTO bedrooms (
@@ -65,6 +77,10 @@ WHERE property_unit_id = $1;
 -- name: GetUnitTenancy :many
 SELECT * FROM tenants
 WHERE property_unit_id = $1;
+
+-- name: GetUserTenancy :many
+SELECT * FROM tenants
+WHERE user_id = $1;
 
 -- name: GetPropertyUnits :many
 SELECT * FROM property_units
@@ -123,10 +139,6 @@ WHERE property_id = $1 AND state = 'occupied';
 -- name: VacantUnitsCount :one
 SELECT COUNT(*) FROM property_units
 WHERE property_id = $1 AND state = 'vacant';
-
--- name: UnitAmenityCount :one
-SELECT COUNT(*) from amenities
-WHERE property_unit_id = $1;
 
 -- name: CreateInvoice :one
 INSERT INTO invoices (

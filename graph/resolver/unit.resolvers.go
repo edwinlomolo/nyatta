@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -24,27 +23,47 @@ func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Property
 
 // Property is the resolver for the property field.
 func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.PropertyUnit) (*model.Property, error) {
-	panic(fmt.Errorf("not implemented: Property - property"))
+	property, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(obj.PropertyID)
+	if err != nil {
+		return nil, err
+	}
+
+	return property, nil
 }
 
 // Tenant is the resolver for the tenant field.
 func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.PropertyUnit) (*model.Tenant, error) {
-	panic(fmt.Errorf("not implemented: Tenant - tenant"))
+	tenant, err := ctx.Value("tenancyService").(*services.TenancyServices).GetCurrentTenant(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return tenant, err
 }
 
 // Amenities is the resolver for the amenities field.
 func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.PropertyUnit) ([]*model.Amenity, error) {
-	panic(fmt.Errorf("not implemented: Amenities - amenities"))
+	amenities, err := ctx.Value("unitService").(*services.UnitServices).GetUnitAmenities(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return amenities, err
 }
 
 // Images is the resolver for the images field.
 func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
-	panic(fmt.Errorf("not implemented: Images - images"))
+	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return uploads, nil
 }
 
 // Tenancy is the resolver for the tenancy field.
 func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error) {
-	foundTenancies, err := ctx.Value("unitService").(*services.UnitServices).GetUnitTenancy(obj.ID)
+	foundTenancies, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUnitTenancy(obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,17 +74,3 @@ func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyU
 func (r *Resolver) PropertyUnit() generated.PropertyUnitResolver { return &propertyUnitResolver{r} }
 
 type propertyUnitResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *propertyUnitResolver) Uploads(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
-	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	return uploads, nil
-}

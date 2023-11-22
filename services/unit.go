@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"strconv"
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
@@ -40,44 +41,49 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 		Bathrooms:  int32(input.Baths),
 	})
 
-	// TODO for every uploads
-	if _, err := u.queries.CreateUnitImage(ctx, sqlStore.CreateUnitImageParams{}); err != nil {
-		u.logger.Errorf("%s:%v", u.ServiceName(), err)
-		return nil, err
-	}
-
 	if len(input.Bedrooms) > 0 {
-		for i := 0; i < len(input.Bedrooms); i++ {
-			_, err := u.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
+		for _, bedroom := range input.Bedrooms {
+			if _, err := u.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
 				PropertyUnitID: unit.ID,
-				BedroomNumber:  int32(input.Bedrooms[i].BedroomNumber),
-				EnSuite:        input.Bedrooms[i].EnSuite,
-				Master:         input.Bedrooms[i].Master,
-			})
-			if err != nil {
+				BedroomNumber:  int32(bedroom.BedroomNumber),
+				EnSuite:        bedroom.EnSuite,
+				Master:         bedroom.Master,
+			}); err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
 				return nil, err
 			}
 		}
 	}
-	// TODO create unit amenity
-	uidUUID := uuid.NullUUID{UUID: unit.ID, Valid: true}
+
 	if len(input.Amenities) > 0 {
-		for j := 0; j < len(input.Amenities); j++ {
-			_, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
-				Name:           input.Amenities[j].Name,
-				Category:       input.Amenities[j].Category,
-				PropertyUnitID: uidUUID,
-			})
-			if err != nil {
+		for _, amenity := range input.Amenities {
+			if _, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
+				Name:           amenity.Name,
+				Category:       amenity.Category,
+				PropertyUnitID: unit.ID,
+			}); err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
 				return nil, err
 			}
+		}
+	}
+
+	uidUUID := uuid.NullUUID{UUID: unit.ID, Valid: true}
+	for _, upload := range input.Uploads {
+		if _, err := u.queries.CreateUnitImage(ctx, sqlStore.CreateUnitImageParams{
+			PropertyUnitID: uidUUID,
+			Category:       model.UploadCategoryUnitImages.String(),
+			Label:          sql.NullString{String: upload.Category, Valid: true},
+			Upload:         upload.Image,
+		}); err != nil {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
 		}
 	}
 
 	return &model.PropertyUnit{
 		ID:         unit.ID,
+		Name:       unit.Name,
 		Bathrooms:  int(unit.Bathrooms),
 		PropertyID: input.PropertyID,
 		CreatedAt:  &unit.CreatedAt,
@@ -87,85 +93,33 @@ func (u *UnitServices) AddPropertyUnit(input *model.PropertyUnitInput) (*model.P
 	}, nil
 }
 
-// AddUnitBedroom - add property unit bedroom(s)
-func (u *UnitServices) AddUnitBedrooms(input []*model.UnitBedroomInput) ([]*model.Bedroom, error) {
-	var insertedBedrooms []*model.Bedroom
-	return insertedBedrooms, nil
-	//for _, value := range input {
-	//	if value.BedroomNumber == 0 {
-	//		return nil, errors.New("Zero is not a valid value")
-	//	}
-	//	propertyId := *value.PropertyUnitID
-	//	propertyUnitId, err := strconv.ParseInt(propertyId, 10, 64)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	insertedBedroom, err := u.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
-	//		PropertyUnitID: propertyUnitId,
-	//		BedroomNumber:  int32(value.BedroomNumber),
-	//		EnSuite:        value.EnSuite,
-	//		Master:         value.Master,
-	//	})
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	insertedBedrooms = append(insertedBedrooms, &model.Bedroom{
-	//		ID:        strconv.FormatInt(insertedBedroom.ID, 10),
-	//		EnSuite:   insertedBedroom.EnSuite,
-	//		Master:    insertedBedroom.Master,
-	//		CreatedAt: &insertedBedroom.CreatedAt,
-	//		UpdatedAt: &insertedBedroom.UpdatedAt,
-	//	})
-	//}
-	//return insertedBedrooms, nil
-}
-
 // GetUnitBedrooms - return unit bedrooms
 func (u *UnitServices) GetUnitBedrooms(unitId uuid.UUID) ([]*model.Bedroom, error) {
 	var bedrooms []*model.Bedroom
+
+	foundBedrooms, err := u.queries.GetUnitBedrooms(ctx, unitId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return bedrooms, nil
+		} else {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
+		}
+	}
+
+	for _, unit := range foundBedrooms {
+		bedroom := &model.Bedroom{
+			ID:            unitId,
+			BedroomNumber: int(unit.BedroomNumber),
+			EnSuite:       unit.EnSuite,
+			Master:        unit.Master,
+			CreatedAt:     &unit.CreatedAt,
+			UpdatedAt:     &unit.UpdatedAt,
+		}
+		bedrooms = append(bedrooms, bedroom)
+	}
+
 	return bedrooms, nil
-	//id, err := strconv.ParseInt(unitId, 10, 64)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//foundBedrooms, err := u.queries.GetUnitBedrooms(ctx, id)
-	//for _, unit := range foundBedrooms {
-	//	bedroom := &model.Bedroom{
-	//		ID:            strconv.FormatInt(unit.ID, 10),
-	//		BedroomNumber: int(unit.BedroomNumber),
-	//		EnSuite:       unit.EnSuite,
-	//		Master:        unit.Master,
-	//		CreatedAt:     &unit.CreatedAt,
-	//		UpdatedAt:     &unit.UpdatedAt,
-	//	}
-	//	bedrooms = append(bedrooms, bedroom)
-	//}
-	//return bedrooms, nil
-}
-
-// GetUnitTenancy - return unit tenancy
-func (u *UnitServices) GetUnitTenancy(unitId uuid.UUID) ([]*model.Tenant, error) {
-	var tenancies []*model.Tenant
-
-	return tenancies, nil
-	//id, err := strconv.ParseInt(unitId, 10, 64)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//foundTenancies, err := u.queries.GetUnitTenancy(ctx, id)
-	//for _, tenancy := range foundTenancies {
-	//	tenant := &model.Tenant{
-	//		ID:        strconv.FormatInt(tenancy.ID, 10),
-	//		StartDate: tenancy.StartDate,
-	//		EndDate:   &tenancy.EndDate.Time,
-	//		CreatedAt: &tenancy.CreatedAt,
-	//		UpdatedAt: &tenancy.UpdatedAt,
-	//	}
-	//	tenancies = append(tenancies, tenant)
-	//}
-	//return tenancies, nil
 }
 
 // ServiceName - return service name
@@ -173,8 +127,81 @@ func (u UnitServices) ServiceName() string {
 	return "UnitServices"
 }
 
-// GetUnitImages - grab uploads
+// GetUnitImages - grab images
 func (u *UnitServices) GetUnitImages(id uuid.UUID) ([]*model.AnyUpload, error) {
 	var images []*model.AnyUpload
+
+	foundUploads, err := u.queries.GetUnitImages(ctx, sqlStore.GetUnitImagesParams{
+		PropertyUnitID: uuid.NullUUID{UUID: id, Valid: true},
+		Category:       model.UploadCategoryUnitImages.String(),
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return images, nil
+		} else {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
+		}
+	}
+
+	for _, upload := range foundUploads {
+		image := &model.AnyUpload{
+			ID:       upload.ID,
+			Category: upload.Label.String,
+			Upload:   upload.Upload,
+		}
+		images = append(images, image)
+	}
+
 	return images, nil
+}
+
+// GetUnitAmenities - grab unit amenities
+func (u *UnitServices) GetUnitAmenities(unitID uuid.UUID) ([]*model.Amenity, error) {
+	var amenities []*model.Amenity
+
+	foundAmenities, err := u.queries.GetUnitAmenities(ctx, unitID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return amenities, nil
+		} else {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
+		}
+	}
+
+	for _, amenity := range foundAmenities {
+		unitAmenity := &model.Amenity{
+			ID:       amenity.ID,
+			Category: amenity.Category,
+			Name:     amenity.Name,
+		}
+		amenities = append(amenities, unitAmenity)
+	}
+
+	return amenities, nil
+}
+
+// GetPropertyUnit - grab unit
+func (u *UnitServices) GetPropertyUnit(unitID uuid.UUID) (*model.PropertyUnit, error) {
+	foundUnit, err := u.queries.GetPropertyUnit(ctx, unitID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+		}
+	}
+
+	return &model.PropertyUnit{
+		ID:         foundUnit.ID,
+		Name:       foundUnit.Name,
+		State:      model.UnitState(foundUnit.State),
+		PropertyID: foundUnit.PropertyID.UUID,
+		Type:       foundUnit.Type,
+		Price:      strconv.FormatInt(int64(foundUnit.Price), 10),
+		Bathrooms:  int(foundUnit.Bathrooms),
+		CreatedAt:  &foundUnit.CreatedAt,
+		UpdatedAt:  &foundUnit.UpdatedAt,
+	}, nil
 }

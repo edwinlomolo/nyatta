@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -33,7 +32,12 @@ func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*mode
 
 // Tenancy is the resolver for the tenancy field.
 func (r *userResolver) Tenancy(ctx context.Context, obj *model.User) ([]*model.Tenant, error) {
-	panic(fmt.Errorf("not implemented: Tenancy - tenancy"))
+	tenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUserTenancy(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return tenancy, nil
 }
 
 // User returns generated.UserResolver implementation.

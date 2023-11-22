@@ -23,9 +23,9 @@ RETURNING id, name, provider, category, created_at, updated_at, property_unit_id
 `
 
 type CreateAmenityParams struct {
-	Name           string        `json:"name"`
-	Category       string        `json:"category"`
-	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
+	Name           string    `json:"name"`
+	Category       string    `json:"category"`
+	PropertyUnitID uuid.UUID `json:"property_unit_id"`
 }
 
 func (q *Queries) CreateAmenity(ctx context.Context, arg CreateAmenityParams) (Amenity, error) {
@@ -306,9 +306,9 @@ RETURNING id, start_date, end_date, created_at, updated_at, property_unit_id, us
 `
 
 type CreateTenantParams struct {
-	StartDate      time.Time     `json:"start_date"`
-	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
-	UserID         uuid.NullUUID `json:"user_id"`
+	StartDate      time.Time `json:"start_date"`
+	PropertyUnitID uuid.UUID `json:"property_unit_id"`
+	UserID         uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
@@ -547,6 +547,26 @@ func (q *Queries) GetCaretakerByPhone(ctx context.Context, phone string) (Careta
 	return i, err
 }
 
+const getCurrentTenant = `-- name: GetCurrentTenant :one
+SELECT id, start_date, end_date, created_at, updated_at, property_unit_id, user_id FROM tenants
+WHERE property_unit_id = $1 AND end_date IS NULL
+`
+
+func (q *Queries) GetCurrentTenant(ctx context.Context, propertyUnitID uuid.UUID) (Tenant, error) {
+	row := q.db.QueryRowContext(ctx, getCurrentTenant, propertyUnitID)
+	var i Tenant
+	err := row.Scan(
+		&i.ID,
+		&i.StartDate,
+		&i.EndDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyUnitID,
+		&i.UserID,
+	)
+	return i, err
+}
+
 const getProperty = `-- name: GetProperty :one
 SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_id FROM properties
 WHERE id = $1 LIMIT 1
@@ -590,6 +610,28 @@ func (q *Queries) GetPropertyThumbnail(ctx context.Context, arg GetPropertyThumb
 	return i, err
 }
 
+const getPropertyUnit = `-- name: GetPropertyUnit :one
+SELECT id, name, type, state, price, bathrooms, created_at, updated_at, property_id FROM property_units
+WHERE id = $1
+`
+
+func (q *Queries) GetPropertyUnit(ctx context.Context, id uuid.UUID) (PropertyUnit, error) {
+	row := q.db.QueryRowContext(ctx, getPropertyUnit, id)
+	var i PropertyUnit
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Type,
+		&i.State,
+		&i.Price,
+		&i.Bathrooms,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PropertyID,
+	)
+	return i, err
+}
+
 const getPropertyUnits = `-- name: GetPropertyUnits :many
 SELECT id, name, type, state, price, bathrooms, created_at, updated_at, property_id FROM property_units
 WHERE property_id = $1
@@ -614,6 +656,42 @@ func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID uuid.NullUUID
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.PropertyID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUnitAmenities = `-- name: GetUnitAmenities :many
+SELECT id, name, provider, category, created_at, updated_at, property_unit_id FROM amenities
+WHERE property_unit_id = $1
+`
+
+func (q *Queries) GetUnitAmenities(ctx context.Context, propertyUnitID uuid.UUID) ([]Amenity, error) {
+	rows, err := q.db.QueryContext(ctx, getUnitAmenities, propertyUnitID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Amenity
+	for rows.Next() {
+		var i Amenity
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Provider,
+			&i.Category,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PropertyUnitID,
 		); err != nil {
 			return nil, err
 		}
@@ -708,7 +786,7 @@ SELECT id, start_date, end_date, created_at, updated_at, property_unit_id, user_
 WHERE property_unit_id = $1
 `
 
-func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID uuid.NullUUID) ([]Tenant, error) {
+func (q *Queries) GetUnitTenancy(ctx context.Context, propertyUnitID uuid.UUID) ([]Tenant, error) {
 	rows, err := q.db.QueryContext(ctx, getUnitTenancy, propertyUnitID)
 	if err != nil {
 		return nil, err
@@ -781,6 +859,42 @@ func (q *Queries) GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (G
 	var i GetUserAvatarRow
 	err := row.Scan(&i.ID, &i.Upload, &i.Category)
 	return i, err
+}
+
+const getUserTenancy = `-- name: GetUserTenancy :many
+SELECT id, start_date, end_date, created_at, updated_at, property_unit_id, user_id FROM tenants
+WHERE user_id = $1
+`
+
+func (q *Queries) GetUserTenancy(ctx context.Context, userID uuid.UUID) ([]Tenant, error) {
+	rows, err := q.db.QueryContext(ctx, getUserTenancy, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tenant
+	for rows.Next() {
+		var i Tenant
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PropertyUnitID,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const mailingExists = `-- name: MailingExists :one
@@ -904,18 +1018,6 @@ func (q *Queries) TrackSubscribeRetries(ctx context.Context, arg TrackSubscribeR
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const unitAmenityCount = `-- name: UnitAmenityCount :one
-SELECT COUNT(*) from amenities
-WHERE property_unit_id = $1
-`
-
-func (q *Queries) UnitAmenityCount(ctx context.Context, propertyUnitID uuid.NullUUID) (int64, error) {
-	row := q.db.QueryRowContext(ctx, unitAmenityCount, propertyUnitID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
 }
 
 const updateInvoiceForMpesa = `-- name: UpdateInvoiceForMpesa :one

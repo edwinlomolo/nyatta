@@ -6,20 +6,30 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
+	"github.com/3dw1nM0535/nyatta/services"
 )
 
 // User is the resolver for the user field.
 func (r *tenantResolver) User(ctx context.Context, obj *model.Tenant) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	user, err := ctx.Value("userService").(*services.UserServices).GetUser(obj.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, err
 }
 
 // PropertyUnit is the resolver for the propertyUnit field.
 func (r *tenantResolver) PropertyUnit(ctx context.Context, obj *model.Tenant) (*model.PropertyUnit, error) {
-	panic(fmt.Errorf("not implemented: PropertyUnit - propertyUnit"))
+	unit, err := ctx.Value("unitService").(*services.UnitServices).GetPropertyUnit(obj.PropertyUnitID)
+	if err != nil {
+		return nil, err
+	}
+
+	return unit, err
 }
 
 // Tenant returns generated.TenantResolver implementation.

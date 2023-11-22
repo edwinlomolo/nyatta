@@ -182,6 +182,7 @@ type Status struct {
 
 type TenancyInput struct {
 	StartDate      time.Time `json:"startDate"`
+	UserID         uuid.UUID `json:"userId"`
 	PropertyUnitID uuid.UUID `json:"propertyUnitId"`
 }
 

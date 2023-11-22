@@ -53,6 +53,7 @@ input UnitBedroomInput {
 # Represents new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
+  userId: UUID!
   propertyUnitId: UUID!
 }
 

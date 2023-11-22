@@ -19,7 +19,7 @@ type Amenity struct {
 	Category       string         `json:"category"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
-	PropertyUnitID uuid.NullUUID  `json:"property_unit_id"`
+	PropertyUnitID uuid.UUID      `json:"property_unit_id"`
 }
 
 type Bedroom struct {
@@ -102,13 +102,13 @@ type Shoot struct {
 }
 
 type Tenant struct {
-	ID             uuid.UUID     `json:"id"`
-	StartDate      time.Time     `json:"start_date"`
-	EndDate        sql.NullTime  `json:"end_date"`
-	CreatedAt      time.Time     `json:"created_at"`
-	UpdatedAt      time.Time     `json:"updated_at"`
-	PropertyUnitID uuid.NullUUID `json:"property_unit_id"`
-	UserID         uuid.NullUUID `json:"user_id"`
+	ID             uuid.UUID    `json:"id"`
+	StartDate      time.Time    `json:"start_date"`
+	EndDate        sql.NullTime `json:"end_date"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+	PropertyUnitID uuid.UUID    `json:"property_unit_id"`
+	UserID         uuid.UUID    `json:"user_id"`
 }
 
 type Upload struct {

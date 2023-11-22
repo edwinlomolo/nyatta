@@ -1465,6 +1465,7 @@ input UnitBedroomInput {
 # Represents new property unit tenancy parameters
 input TenancyInput {
   startDate: Time!
+  userId: UUID!
   propertyUnitId: UUID!
 }
 
@@ -10854,7 +10855,7 @@ func (ec *executionContext) unmarshalInputTenancyInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"startDate", "propertyUnitId"}
+	fieldsInOrder := [...]string{"startDate", "userId", "propertyUnitId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10870,6 +10871,15 @@ func (ec *executionContext) unmarshalInputTenancyInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.StartDate = data
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
 		case "propertyUnitId":
 			var err error
 
