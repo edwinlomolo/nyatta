@@ -26,7 +26,7 @@ input GpsInput {
 }
 
 # Represents new property unit parameters
-input PropertyUnitInput {
+input UnitInput {
   propertyId: UUID!
   baths: Int!
   name: String!
@@ -54,7 +54,7 @@ input UnitBedroomInput {
 input TenancyInput {
   startDate: Time!
   userId: UUID!
-  propertyUnitId: UUID!
+  unitId: UUID!
 }
 
 # Represents caretaker verify verification parameters
@@ -171,7 +171,7 @@ type Query {
   hello: String!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
-  getPropertyUnits(propertyId: UUID!): [PropertyUnit!]!
+  getUnits(propertyId: UUID!): [Unit!]!
   getPropertyTenancy(propertyId: UUID!): [Tenant!]!
   getUserProperties: [Property!]!
   listingOverview(propertyId: UUID!): ListingOverview!
@@ -182,8 +182,8 @@ type Query {
 type Mutation {
   signIn(input: NewUser!): SignInResponse!
   createProperty(input: NewProperty!): Property!
-  addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
-  addPropertyUnitTenant(input: TenancyInput!): Tenant!
+  addUnit(input: UnitInput!): Unit!
+  addUnitTenant(input: TenancyInput!): Tenant!
   uploadImage(file: Upload!): String!
   sendVerificationCode(input: VerificationInput!): Status!
   verifyUserVerificationCode(input: UserVerificationInput!): Status!

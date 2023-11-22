@@ -186,18 +186,18 @@ func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uu
 	return userProperties, nil
 }
 
-// GetPropertyUnits - get property units
-func (p *PropertyServices) GetPropertyUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.PropertyUnit, error) {
-	var units []*model.PropertyUnit
+// GetUnits - get property units
+func (p *PropertyServices) GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error) {
+	var units []*model.Unit
 
-	foundUnits, err := p.queries.GetPropertyUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
+	foundUnits, err := p.queries.GetUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err
 	}
 
 	for _, foundUnit := range foundUnits {
-		unit := &model.PropertyUnit{
+		unit := &model.Unit{
 			ID:         foundUnit.ID,
 			Name:       foundUnit.Name,
 			State:      model.UnitState(foundUnit.State),
@@ -228,7 +228,7 @@ func (p *PropertyServices) CaretakerPhoneVerification(ctx context.Context, input
 func (p *PropertyServices) ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error) {
 	pUUID := uuid.NullUUID{UUID: propertyID, Valid: true}
 
-	totalUnits, err := p.queries.PropertyUnitsCount(ctx, pUUID)
+	totalUnits, err := p.queries.UnitsCount(ctx, pUUID)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
 		return nil, err

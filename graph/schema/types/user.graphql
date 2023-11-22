@@ -9,6 +9,7 @@ type User {
   avatar: AnyUpload
   subscribe_retries: Int!
   properties: [Property!]!
+  units: [Unit!]!
   tenancy: [Tenant!]!
   createdAt: Time
   updatedAt: Time

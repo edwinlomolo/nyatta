@@ -5,7 +5,7 @@ type Property {
   type: PropertyType!
   location: Gps!
   thumbnail: AnyUpload
-  units: [PropertyUnit!]!
+  units: [Unit!]!
   createdBy: UUID!
   caretaker: Caretaker!
   caretakerId: UUID!

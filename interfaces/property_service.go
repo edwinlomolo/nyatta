@@ -13,7 +13,7 @@ type PropertyService interface {
 	GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error)
 	GetPropertyThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error)
 	PropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error)
-	GetPropertyUnits(ctx context.Context, propertyId uuid.UUID) ([]*model.PropertyUnit, error)
+	GetUnits(ctx context.Context, propertyId uuid.UUID) ([]*model.Unit, error)
 	CaretakerPhoneVerification(context.Context, *model.CaretakerVerificationInput) (*model.Status, error)
 	ListingOverview(ctx context.Context, propertyId uuid.UUID) (*model.ListingOverview, error)
 	GetPropertyCaretaker(ctx context.Context, caretakerId uuid.UUID) (*model.Caretaker, error)

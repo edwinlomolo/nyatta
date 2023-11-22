@@ -39,17 +39,17 @@ func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewPr
 	return newProperty, nil
 }
 
-// AddPropertyUnit is the resolver for the addPropertyUnit field.
-func (r *mutationResolver) AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error) {
-	insertedPropertyUnit, err := ctx.Value("unitService").(*services.UnitServices).AddPropertyUnit(ctx, &input)
+// AddUnit is the resolver for the addUnit field.
+func (r *mutationResolver) AddUnit(ctx context.Context, input model.UnitInput) (*model.Unit, error) {
+	insertedUnit, err := ctx.Value("unitService").(*services.UnitServices).AddUnit(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
-	return insertedPropertyUnit, err
+	return insertedUnit, err
 }
 
-// AddPropertyUnitTenant is the resolver for the addPropertyUnitTenant field.
-func (r *mutationResolver) AddPropertyUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error) {
+// AddUnitTenant is the resolver for the addUnitTenant field.
+func (r *mutationResolver) AddUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error) {
 	insertedUnitTenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).AddUnitTenancy(ctx, &input)
 	if err != nil {
 		return nil, err
@@ -197,9 +197,9 @@ func (r *queryResolver) GetTowns(ctx context.Context) ([]*model.Town, error) {
 	return towns, nil
 }
 
-// GetPropertyUnits is the resolver for the getPropertyUnits field.
-func (r *queryResolver) GetPropertyUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.PropertyUnit, error) {
-	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyUnits(ctx, propertyID)
+// GetUnits is the resolver for the getUnits field.
+func (r *queryResolver) GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error) {
+	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetUnits(ctx, propertyID)
 	if err != nil {
 		return nil, err
 	}

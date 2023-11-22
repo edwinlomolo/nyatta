@@ -1,12 +1,17 @@
 # Represent property unit
-type PropertyUnit {
+type Unit {
   id: UUID!
   name: String!
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: UUID!
+  location: Gps
+  caretakerId: UUID
+  caretaker: Caretaker
   property: Property!
   tenant: Tenant # vacancy dictates nullity
   price: String!
+  createdBy: UUID
+  owner: User
   bathrooms: Int!
   amenities: [Amenity!]!
   state: UnitState!

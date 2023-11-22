@@ -115,47 +115,18 @@ type NewUser struct {
 }
 
 type Property struct {
-	ID          uuid.UUID       `json:"id"`
-	Name        string          `json:"name"`
-	Type        PropertyType    `json:"type"`
-	Location    *Gps            `json:"location"`
-	Thumbnail   *AnyUpload      `json:"thumbnail,omitempty"`
-	Units       []*PropertyUnit `json:"units"`
-	CreatedBy   uuid.UUID       `json:"createdBy"`
-	Caretaker   *Caretaker      `json:"caretaker"`
-	CaretakerID uuid.UUID       `json:"caretakerId"`
-	Owner       *User           `json:"owner"`
-	CreatedAt   *time.Time      `json:"createdAt,omitempty"`
-	UpdatedAt   *time.Time      `json:"updatedAt,omitempty"`
-}
-
-type PropertyUnit struct {
-	ID         uuid.UUID    `json:"id"`
-	Name       string       `json:"name"`
-	Bedrooms   []*Bedroom   `json:"bedrooms"`
-	PropertyID uuid.UUID    `json:"propertyId"`
-	Property   *Property    `json:"property"`
-	Tenant     *Tenant      `json:"tenant,omitempty"`
-	Price      string       `json:"price"`
-	Bathrooms  int          `json:"bathrooms"`
-	Amenities  []*Amenity   `json:"amenities"`
-	State      UnitState    `json:"state"`
-	Type       string       `json:"type"`
-	Images     []*AnyUpload `json:"images"`
-	Tenancy    []*Tenant    `json:"tenancy"`
-	CreatedAt  *time.Time   `json:"createdAt,omitempty"`
-	UpdatedAt  *time.Time   `json:"updatedAt,omitempty"`
-}
-
-type PropertyUnitInput struct {
-	PropertyID uuid.UUID           `json:"propertyId"`
-	Baths      int                 `json:"baths"`
-	Name       string              `json:"name"`
-	Type       string              `json:"type"`
-	Amenities  []*UnitAmenityInput `json:"amenities"`
-	Bedrooms   []*UnitBedroomInput `json:"bedrooms"`
-	Price      string              `json:"price"`
-	Uploads    []*UploadImages     `json:"uploads,omitempty"`
+	ID          uuid.UUID    `json:"id"`
+	Name        string       `json:"name"`
+	Type        PropertyType `json:"type"`
+	Location    *Gps         `json:"location"`
+	Thumbnail   *AnyUpload   `json:"thumbnail,omitempty"`
+	Units       []*Unit      `json:"units"`
+	CreatedBy   uuid.UUID    `json:"createdBy"`
+	Caretaker   *Caretaker   `json:"caretaker"`
+	CaretakerID uuid.UUID    `json:"caretakerId"`
+	Owner       *User        `json:"owner"`
+	CreatedAt   *time.Time   `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time   `json:"updatedAt,omitempty"`
 }
 
 type Shoot struct {
@@ -181,21 +152,21 @@ type Status struct {
 }
 
 type TenancyInput struct {
-	StartDate      time.Time `json:"startDate"`
-	UserID         uuid.UUID `json:"userId"`
-	PropertyUnitID uuid.UUID `json:"propertyUnitId"`
+	StartDate time.Time `json:"startDate"`
+	UserID    uuid.UUID `json:"userId"`
+	UnitID    uuid.UUID `json:"unitId"`
 }
 
 type Tenant struct {
-	ID             uuid.UUID     `json:"id"`
-	StartDate      time.Time     `json:"startDate"`
-	EndDate        *time.Time    `json:"endDate,omitempty"`
-	PropertyUnitID uuid.UUID     `json:"propertyUnitId"`
-	UserID         uuid.UUID     `json:"userId"`
-	User           *User         `json:"user"`
-	PropertyUnit   *PropertyUnit `json:"propertyUnit,omitempty"`
-	CreatedAt      *time.Time    `json:"createdAt,omitempty"`
-	UpdatedAt      *time.Time    `json:"updatedAt,omitempty"`
+	ID        uuid.UUID  `json:"id"`
+	StartDate time.Time  `json:"startDate"`
+	EndDate   *time.Time `json:"endDate,omitempty"`
+	UnitID    uuid.UUID  `json:"unitId"`
+	UserID    uuid.UUID  `json:"userId"`
+	User      *User      `json:"user"`
+	Unit      *Unit      `json:"unit,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 type Token struct {
@@ -208,6 +179,29 @@ type Town struct {
 	PostalCode string `json:"postalCode"`
 }
 
+type Unit struct {
+	ID          uuid.UUID    `json:"id"`
+	Name        string       `json:"name"`
+	Bedrooms    []*Bedroom   `json:"bedrooms"`
+	PropertyID  uuid.UUID    `json:"propertyId"`
+	Location    *Gps         `json:"location,omitempty"`
+	CaretakerID *uuid.UUID   `json:"caretakerId,omitempty"`
+	Caretaker   *Caretaker   `json:"caretaker,omitempty"`
+	Property    *Property    `json:"property"`
+	Tenant      *Tenant      `json:"tenant,omitempty"`
+	Price       string       `json:"price"`
+	CreatedBy   *uuid.UUID   `json:"createdBy,omitempty"`
+	Owner       *User        `json:"owner,omitempty"`
+	Bathrooms   int          `json:"bathrooms"`
+	Amenities   []*Amenity   `json:"amenities"`
+	State       UnitState    `json:"state"`
+	Type        string       `json:"type"`
+	Images      []*AnyUpload `json:"images"`
+	Tenancy     []*Tenant    `json:"tenancy"`
+	CreatedAt   *time.Time   `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time   `json:"updatedAt,omitempty"`
+}
+
 type UnitAmenityInput struct {
 	Name     string `json:"name"`
 	Category string `json:"category"`
@@ -217,6 +211,17 @@ type UnitBedroomInput struct {
 	BedroomNumber int  `json:"bedroomNumber"`
 	EnSuite       bool `json:"enSuite"`
 	Master        bool `json:"master"`
+}
+
+type UnitInput struct {
+	PropertyID uuid.UUID           `json:"propertyId"`
+	Baths      int                 `json:"baths"`
+	Name       string              `json:"name"`
+	Type       string              `json:"type"`
+	Amenities  []*UnitAmenityInput `json:"amenities"`
+	Bedrooms   []*UnitBedroomInput `json:"bedrooms"`
+	Price      string              `json:"price"`
+	Uploads    []*UploadImages     `json:"uploads,omitempty"`
 }
 
 type UploadImages struct {
@@ -233,6 +238,7 @@ type User struct {
 	Avatar           *AnyUpload  `json:"avatar,omitempty"`
 	SubscribeRetries int         `json:"subscribe_retries"`
 	Properties       []*Property `json:"properties"`
+	Units            []*Unit     `json:"units"`
 	Tenancy          []*Tenant   `json:"tenancy"`
 	CreatedAt        *time.Time  `json:"createdAt,omitempty"`
 	UpdatedAt        *time.Time  `json:"updatedAt,omitempty"`

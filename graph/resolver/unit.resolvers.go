@@ -7,13 +7,12 @@ package resolver
 import (
 	"context"
 
-	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
 // Bedrooms is the resolver for the bedrooms field.
-func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.PropertyUnit) ([]*model.Bedroom, error) {
+func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.Bedroom, error) {
 	foundBedrooms, err := ctx.Value("unitService").(*services.UnitServices).GetUnitBedrooms(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -22,7 +21,7 @@ func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Property
 }
 
 // Property is the resolver for the property field.
-func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.PropertyUnit) (*model.Property, error) {
+func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.Unit) (*model.Property, error) {
 	property, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(ctx, obj.PropertyID)
 	if err != nil {
 		return nil, err
@@ -32,7 +31,7 @@ func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.Property
 }
 
 // Tenant is the resolver for the tenant field.
-func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.PropertyUnit) (*model.Tenant, error) {
+func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.Unit) (*model.Tenant, error) {
 	tenant, err := ctx.Value("tenancyService").(*services.TenancyServices).GetCurrentTenant(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -42,7 +41,7 @@ func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.PropertyUn
 }
 
 // Amenities is the resolver for the amenities field.
-func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.PropertyUnit) ([]*model.Amenity, error) {
+func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.Unit) ([]*model.Amenity, error) {
 	amenities, err := ctx.Value("unitService").(*services.UnitServices).GetUnitAmenities(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -52,7 +51,7 @@ func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.Propert
 }
 
 // Images is the resolver for the images field.
-func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error) {
+func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.Unit) ([]*model.AnyUpload, error) {
 	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -62,15 +61,12 @@ func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.PropertyUn
 }
 
 // Tenancy is the resolver for the tenancy field.
-func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error) {
+func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.Unit) ([]*model.Tenant, error) {
 	foundTenancies, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUnitTenancy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
 	return foundTenancies, nil
 }
-
-// PropertyUnit returns generated.PropertyUnitResolver implementation.
-func (r *Resolver) PropertyUnit() generated.PropertyUnitResolver { return &propertyUnitResolver{r} }
 
 type propertyUnitResolver struct{ *Resolver }

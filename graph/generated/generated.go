@@ -43,7 +43,6 @@ type ResolverRoot interface {
 	Caretaker() CaretakerResolver
 	Mutation() MutationResolver
 	Property() PropertyResolver
-	PropertyUnit() PropertyUnitResolver
 	Query() QueryResolver
 	Tenant() TenantResolver
 	User() UserResolver
@@ -118,8 +117,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddPropertyUnit                 func(childComplexity int, input model.PropertyUnitInput) int
-		AddPropertyUnitTenant           func(childComplexity int, input model.TenancyInput) int
+		AddUnit                         func(childComplexity int, input model.UnitInput) int
+		AddUnitTenant                   func(childComplexity int, input model.TenancyInput) int
 		CreatePayment                   func(childComplexity int, input model.CreatePaymentInput) int
 		CreateProperty                  func(childComplexity int, input model.NewProperty) int
 		Handshake                       func(childComplexity int, input model.HandshakeInput) int
@@ -147,30 +146,12 @@ type ComplexityRoot struct {
 		UpdatedAt   func(childComplexity int) int
 	}
 
-	PropertyUnit struct {
-		Amenities  func(childComplexity int) int
-		Bathrooms  func(childComplexity int) int
-		Bedrooms   func(childComplexity int) int
-		CreatedAt  func(childComplexity int) int
-		ID         func(childComplexity int) int
-		Images     func(childComplexity int) int
-		Name       func(childComplexity int) int
-		Price      func(childComplexity int) int
-		Property   func(childComplexity int) int
-		PropertyID func(childComplexity int) int
-		State      func(childComplexity int) int
-		Tenancy    func(childComplexity int) int
-		Tenant     func(childComplexity int) int
-		Type       func(childComplexity int) int
-		UpdatedAt  func(childComplexity int) int
-	}
-
 	Query struct {
 		GetListings        func(childComplexity int) int
 		GetProperty        func(childComplexity int, id uuid.UUID) int
 		GetPropertyTenancy func(childComplexity int, propertyID uuid.UUID) int
-		GetPropertyUnits   func(childComplexity int, propertyID uuid.UUID) int
 		GetTowns           func(childComplexity int) int
+		GetUnits           func(childComplexity int, propertyID uuid.UUID) int
 		GetUser            func(childComplexity int) int
 		GetUserProperties  func(childComplexity int) int
 		Hello              func(childComplexity int) int
@@ -198,15 +179,15 @@ type ComplexityRoot struct {
 	}
 
 	Tenant struct {
-		CreatedAt      func(childComplexity int) int
-		EndDate        func(childComplexity int) int
-		ID             func(childComplexity int) int
-		PropertyUnit   func(childComplexity int) int
-		PropertyUnitID func(childComplexity int) int
-		StartDate      func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
-		User           func(childComplexity int) int
-		UserID         func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		EndDate   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		StartDate func(childComplexity int) int
+		Unit      func(childComplexity int) int
+		UnitID    func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		User      func(childComplexity int) int
+		UserID    func(childComplexity int) int
 	}
 
 	Token struct {
@@ -217,6 +198,29 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		PostalCode func(childComplexity int) int
 		Town       func(childComplexity int) int
+	}
+
+	Unit struct {
+		Amenities   func(childComplexity int) int
+		Bathrooms   func(childComplexity int) int
+		Bedrooms    func(childComplexity int) int
+		Caretaker   func(childComplexity int) int
+		CaretakerID func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		CreatedBy   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Images      func(childComplexity int) int
+		Location    func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Owner       func(childComplexity int) int
+		Price       func(childComplexity int) int
+		Property    func(childComplexity int) int
+		PropertyID  func(childComplexity int) int
+		State       func(childComplexity int) int
+		Tenancy     func(childComplexity int) int
+		Tenant      func(childComplexity int) int
+		Type        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	User struct {
@@ -230,6 +234,7 @@ type ComplexityRoot struct {
 		Properties       func(childComplexity int) int
 		SubscribeRetries func(childComplexity int) int
 		Tenancy          func(childComplexity int) int
+		Units            func(childComplexity int) int
 		UpdatedAt        func(childComplexity int) int
 	}
 }
@@ -242,8 +247,8 @@ type CaretakerResolver interface {
 type MutationResolver interface {
 	SignIn(ctx context.Context, input model.NewUser) (*model.SignInResponse, error)
 	CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error)
-	AddPropertyUnit(ctx context.Context, input model.PropertyUnitInput) (*model.PropertyUnit, error)
-	AddPropertyUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error)
+	AddUnit(ctx context.Context, input model.UnitInput) (*model.Unit, error)
+	AddUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error)
 	UploadImage(ctx context.Context, file graphql.Upload) (string, error)
 	SendVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error)
 	VerifyUserVerificationCode(ctx context.Context, input model.UserVerificationInput) (*model.Status, error)
@@ -255,22 +260,11 @@ type MutationResolver interface {
 }
 type PropertyResolver interface {
 	Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error)
-	Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error)
+	Units(ctx context.Context, obj *model.Property) ([]*model.Unit, error)
 
 	Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error)
 
 	Owner(ctx context.Context, obj *model.Property) (*model.User, error)
-}
-type PropertyUnitResolver interface {
-	Bedrooms(ctx context.Context, obj *model.PropertyUnit) ([]*model.Bedroom, error)
-
-	Property(ctx context.Context, obj *model.PropertyUnit) (*model.Property, error)
-	Tenant(ctx context.Context, obj *model.PropertyUnit) (*model.Tenant, error)
-
-	Amenities(ctx context.Context, obj *model.PropertyUnit) ([]*model.Amenity, error)
-
-	Images(ctx context.Context, obj *model.PropertyUnit) ([]*model.AnyUpload, error)
-	Tenancy(ctx context.Context, obj *model.PropertyUnit) ([]*model.Tenant, error)
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context) (*model.User, error)
@@ -278,7 +272,7 @@ type QueryResolver interface {
 	Hello(ctx context.Context) (string, error)
 	SearchTown(ctx context.Context, town string) ([]*model.Town, error)
 	GetTowns(ctx context.Context) ([]*model.Town, error)
-	GetPropertyUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.PropertyUnit, error)
+	GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error)
 	GetPropertyTenancy(ctx context.Context, propertyID uuid.UUID) ([]*model.Tenant, error)
 	GetUserProperties(ctx context.Context) ([]*model.Property, error)
 	ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error)
@@ -287,12 +281,12 @@ type QueryResolver interface {
 }
 type TenantResolver interface {
 	User(ctx context.Context, obj *model.Tenant) (*model.User, error)
-	PropertyUnit(ctx context.Context, obj *model.Tenant) (*model.PropertyUnit, error)
 }
 type UserResolver interface {
 	Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error)
 
 	Properties(ctx context.Context, obj *model.User) ([]*model.Property, error)
+
 	Tenancy(ctx context.Context, obj *model.User) ([]*model.Tenant, error)
 }
 
@@ -616,29 +610,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ListingOverview.VacantUnits(childComplexity), true
 
-	case "Mutation.addPropertyUnit":
-		if e.complexity.Mutation.AddPropertyUnit == nil {
+	case "Mutation.addUnit":
+		if e.complexity.Mutation.AddUnit == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_addPropertyUnit_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addUnit_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddPropertyUnit(childComplexity, args["input"].(model.PropertyUnitInput)), true
+		return e.complexity.Mutation.AddUnit(childComplexity, args["input"].(model.UnitInput)), true
 
-	case "Mutation.addPropertyUnitTenant":
-		if e.complexity.Mutation.AddPropertyUnitTenant == nil {
+	case "Mutation.addUnitTenant":
+		if e.complexity.Mutation.AddUnitTenant == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_addPropertyUnitTenant_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addUnitTenant_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddPropertyUnitTenant(childComplexity, args["input"].(model.TenancyInput)), true
+		return e.complexity.Mutation.AddUnitTenant(childComplexity, args["input"].(model.TenancyInput)), true
 
 	case "Mutation.createPayment":
 		if e.complexity.Mutation.CreatePayment == nil {
@@ -844,111 +838,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Property.UpdatedAt(childComplexity), true
 
-	case "PropertyUnit.amenities":
-		if e.complexity.PropertyUnit.Amenities == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Amenities(childComplexity), true
-
-	case "PropertyUnit.bathrooms":
-		if e.complexity.PropertyUnit.Bathrooms == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Bathrooms(childComplexity), true
-
-	case "PropertyUnit.bedrooms":
-		if e.complexity.PropertyUnit.Bedrooms == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Bedrooms(childComplexity), true
-
-	case "PropertyUnit.createdAt":
-		if e.complexity.PropertyUnit.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.CreatedAt(childComplexity), true
-
-	case "PropertyUnit.id":
-		if e.complexity.PropertyUnit.ID == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.ID(childComplexity), true
-
-	case "PropertyUnit.images":
-		if e.complexity.PropertyUnit.Images == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Images(childComplexity), true
-
-	case "PropertyUnit.name":
-		if e.complexity.PropertyUnit.Name == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Name(childComplexity), true
-
-	case "PropertyUnit.price":
-		if e.complexity.PropertyUnit.Price == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Price(childComplexity), true
-
-	case "PropertyUnit.property":
-		if e.complexity.PropertyUnit.Property == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Property(childComplexity), true
-
-	case "PropertyUnit.propertyId":
-		if e.complexity.PropertyUnit.PropertyID == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.PropertyID(childComplexity), true
-
-	case "PropertyUnit.state":
-		if e.complexity.PropertyUnit.State == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.State(childComplexity), true
-
-	case "PropertyUnit.tenancy":
-		if e.complexity.PropertyUnit.Tenancy == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Tenancy(childComplexity), true
-
-	case "PropertyUnit.tenant":
-		if e.complexity.PropertyUnit.Tenant == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Tenant(childComplexity), true
-
-	case "PropertyUnit.type":
-		if e.complexity.PropertyUnit.Type == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.Type(childComplexity), true
-
-	case "PropertyUnit.updatedAt":
-		if e.complexity.PropertyUnit.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.PropertyUnit.UpdatedAt(childComplexity), true
-
 	case "Query.getListings":
 		if e.complexity.Query.GetListings == nil {
 			break
@@ -980,24 +869,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetPropertyTenancy(childComplexity, args["propertyId"].(uuid.UUID)), true
 
-	case "Query.getPropertyUnits":
-		if e.complexity.Query.GetPropertyUnits == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getPropertyUnits_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetPropertyUnits(childComplexity, args["propertyId"].(uuid.UUID)), true
-
 	case "Query.getTowns":
 		if e.complexity.Query.GetTowns == nil {
 			break
 		}
 
 		return e.complexity.Query.GetTowns(childComplexity), true
+
+	case "Query.getUnits":
+		if e.complexity.Query.GetUnits == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getUnits_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUnits(childComplexity, args["propertyId"].(uuid.UUID)), true
 
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
@@ -1135,26 +1024,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Tenant.ID(childComplexity), true
 
-	case "Tenant.propertyUnit":
-		if e.complexity.Tenant.PropertyUnit == nil {
-			break
-		}
-
-		return e.complexity.Tenant.PropertyUnit(childComplexity), true
-
-	case "Tenant.propertyUnitId":
-		if e.complexity.Tenant.PropertyUnitID == nil {
-			break
-		}
-
-		return e.complexity.Tenant.PropertyUnitID(childComplexity), true
-
 	case "Tenant.startDate":
 		if e.complexity.Tenant.StartDate == nil {
 			break
 		}
 
 		return e.complexity.Tenant.StartDate(childComplexity), true
+
+	case "Tenant.unit":
+		if e.complexity.Tenant.Unit == nil {
+			break
+		}
+
+		return e.complexity.Tenant.Unit(childComplexity), true
+
+	case "Tenant.unitId":
+		if e.complexity.Tenant.UnitID == nil {
+			break
+		}
+
+		return e.complexity.Tenant.UnitID(childComplexity), true
 
 	case "Tenant.updatedAt":
 		if e.complexity.Tenant.UpdatedAt == nil {
@@ -1204,6 +1093,146 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Town.Town(childComplexity), true
+
+	case "Unit.amenities":
+		if e.complexity.Unit.Amenities == nil {
+			break
+		}
+
+		return e.complexity.Unit.Amenities(childComplexity), true
+
+	case "Unit.bathrooms":
+		if e.complexity.Unit.Bathrooms == nil {
+			break
+		}
+
+		return e.complexity.Unit.Bathrooms(childComplexity), true
+
+	case "Unit.bedrooms":
+		if e.complexity.Unit.Bedrooms == nil {
+			break
+		}
+
+		return e.complexity.Unit.Bedrooms(childComplexity), true
+
+	case "Unit.caretaker":
+		if e.complexity.Unit.Caretaker == nil {
+			break
+		}
+
+		return e.complexity.Unit.Caretaker(childComplexity), true
+
+	case "Unit.caretakerId":
+		if e.complexity.Unit.CaretakerID == nil {
+			break
+		}
+
+		return e.complexity.Unit.CaretakerID(childComplexity), true
+
+	case "Unit.createdAt":
+		if e.complexity.Unit.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Unit.CreatedAt(childComplexity), true
+
+	case "Unit.createdBy":
+		if e.complexity.Unit.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Unit.CreatedBy(childComplexity), true
+
+	case "Unit.id":
+		if e.complexity.Unit.ID == nil {
+			break
+		}
+
+		return e.complexity.Unit.ID(childComplexity), true
+
+	case "Unit.images":
+		if e.complexity.Unit.Images == nil {
+			break
+		}
+
+		return e.complexity.Unit.Images(childComplexity), true
+
+	case "Unit.location":
+		if e.complexity.Unit.Location == nil {
+			break
+		}
+
+		return e.complexity.Unit.Location(childComplexity), true
+
+	case "Unit.name":
+		if e.complexity.Unit.Name == nil {
+			break
+		}
+
+		return e.complexity.Unit.Name(childComplexity), true
+
+	case "Unit.owner":
+		if e.complexity.Unit.Owner == nil {
+			break
+		}
+
+		return e.complexity.Unit.Owner(childComplexity), true
+
+	case "Unit.price":
+		if e.complexity.Unit.Price == nil {
+			break
+		}
+
+		return e.complexity.Unit.Price(childComplexity), true
+
+	case "Unit.property":
+		if e.complexity.Unit.Property == nil {
+			break
+		}
+
+		return e.complexity.Unit.Property(childComplexity), true
+
+	case "Unit.propertyId":
+		if e.complexity.Unit.PropertyID == nil {
+			break
+		}
+
+		return e.complexity.Unit.PropertyID(childComplexity), true
+
+	case "Unit.state":
+		if e.complexity.Unit.State == nil {
+			break
+		}
+
+		return e.complexity.Unit.State(childComplexity), true
+
+	case "Unit.tenancy":
+		if e.complexity.Unit.Tenancy == nil {
+			break
+		}
+
+		return e.complexity.Unit.Tenancy(childComplexity), true
+
+	case "Unit.tenant":
+		if e.complexity.Unit.Tenant == nil {
+			break
+		}
+
+		return e.complexity.Unit.Tenant(childComplexity), true
+
+	case "Unit.type":
+		if e.complexity.Unit.Type == nil {
+			break
+		}
+
+		return e.complexity.Unit.Type(childComplexity), true
+
+	case "Unit.updatedAt":
+		if e.complexity.Unit.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Unit.UpdatedAt(childComplexity), true
 
 	case "User.avatar":
 		if e.complexity.User.Avatar == nil {
@@ -1275,6 +1304,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Tenancy(childComplexity), true
 
+	case "User.units":
+		if e.complexity.User.Units == nil {
+			break
+		}
+
+		return e.complexity.User.Units(childComplexity), true
+
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
@@ -1297,11 +1333,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputHandshakeInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
-		ec.unmarshalInputPropertyUnitInput,
 		ec.unmarshalInputShootInput,
 		ec.unmarshalInputTenancyInput,
 		ec.unmarshalInputUnitAmenityInput,
 		ec.unmarshalInputUnitBedroomInput,
+		ec.unmarshalInputUnitInput,
 		ec.unmarshalInputUploadImages,
 		ec.unmarshalInputUserVerificationInput,
 		ec.unmarshalInputVerificationInput,
@@ -1430,7 +1466,7 @@ input GpsInput {
 }
 
 # Represents new property unit parameters
-input PropertyUnitInput {
+input UnitInput {
   propertyId: UUID!
   baths: Int!
   name: String!
@@ -1458,7 +1494,7 @@ input UnitBedroomInput {
 input TenancyInput {
   startDate: Time!
   userId: UUID!
-  propertyUnitId: UUID!
+  unitId: UUID!
 }
 
 # Represents caretaker verify verification parameters
@@ -1575,7 +1611,7 @@ type Query {
   hello: String!
   searchTown(town: String!): [Town!]!
   getTowns: [Town!]!
-  getPropertyUnits(propertyId: UUID!): [PropertyUnit!]!
+  getUnits(propertyId: UUID!): [Unit!]!
   getPropertyTenancy(propertyId: UUID!): [Tenant!]!
   getUserProperties: [Property!]!
   listingOverview(propertyId: UUID!): ListingOverview!
@@ -1586,8 +1622,8 @@ type Query {
 type Mutation {
   signIn(input: NewUser!): SignInResponse!
   createProperty(input: NewProperty!): Property!
-  addPropertyUnit(input: PropertyUnitInput!): PropertyUnit!
-  addPropertyUnitTenant(input: TenancyInput!): Tenant!
+  addUnit(input: UnitInput!): Unit!
+  addUnitTenant(input: TenancyInput!): Tenant!
   uploadImage(file: Upload!): String!
   sendVerificationCode(input: VerificationInput!): Status!
   verifyUserVerificationCode(input: UserVerificationInput!): Status!
@@ -1662,7 +1698,7 @@ type Property {
   type: PropertyType!
   location: Gps!
   thumbnail: AnyUpload
-  units: [PropertyUnit!]!
+  units: [Unit!]!
   createdBy: UUID!
   caretaker: Caretaker!
   caretakerId: UUID!
@@ -1686,10 +1722,10 @@ type Tenant {
   id: UUID!
   startDate: Time!
   endDate: Time
-  propertyUnitId: UUID! # belongs-to property unit
+  unitId: UUID! # belongs-to property unit
   userId: UUID!
   user: User!
-  propertyUnit: PropertyUnit # vacancy dictates nullity
+  unit: Unit # vacancy dictates nullity
   createdAt: Time
   updatedAt: Time
 }
@@ -1701,14 +1737,19 @@ type Tenant {
 }
 `, BuiltIn: false},
 	{Name: "../schema/types/unit.graphql", Input: `# Represent property unit
-type PropertyUnit {
+type Unit {
   id: UUID!
   name: String!
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: UUID!
+  location: Gps
+  caretakerId: UUID
+  caretaker: Caretaker
   property: Property!
   tenant: Tenant # vacancy dictates nullity
   price: String!
+  createdBy: UUID
+  owner: User
   bathrooms: Int!
   amenities: [Amenity!]!
   state: UnitState!
@@ -1742,6 +1783,7 @@ type User {
   avatar: AnyUpload
   subscribe_retries: Int!
   properties: [Property!]!
+  units: [Unit!]!
   tenancy: [Tenant!]!
   createdAt: Time
   updatedAt: Time
@@ -1754,7 +1796,7 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_addPropertyUnitTenant_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addUnitTenant_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.TenancyInput
@@ -1769,13 +1811,13 @@ func (ec *executionContext) field_Mutation_addPropertyUnitTenant_args(ctx contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_addPropertyUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.PropertyUnitInput
+	var arg0 model.UnitInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNPropertyUnitInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnitInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUnitInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1982,21 +2024,6 @@ func (ec *executionContext) field_Query_getPropertyTenancy_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getPropertyUnits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 uuid.UUID
-	if tmp, ok := rawArgs["propertyId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyId"))
-		arg0, err = ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["propertyId"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_getProperty_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2009,6 +2036,21 @@ func (ec *executionContext) field_Query_getProperty_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getUnits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 uuid.UUID
+	if tmp, ok := rawArgs["propertyId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyId"))
+		arg0, err = ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["propertyId"] = arg0
 	return args, nil
 }
 
@@ -4110,8 +4152,8 @@ func (ec *executionContext) fieldContext_Mutation_createProperty(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addPropertyUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addPropertyUnit(ctx, field)
+func (ec *executionContext) _Mutation_addUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addUnit(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4124,7 +4166,7 @@ func (ec *executionContext) _Mutation_addPropertyUnit(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddPropertyUnit(rctx, fc.Args["input"].(model.PropertyUnitInput))
+		return ec.resolvers.Mutation().AddUnit(rctx, fc.Args["input"].(model.UnitInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4136,12 +4178,12 @@ func (ec *executionContext) _Mutation_addPropertyUnit(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.PropertyUnit)
+	res := resTmp.(*model.Unit)
 	fc.Result = res
-	return ec.marshalNPropertyUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnit(ctx, field.Selections, res)
+	return ec.marshalNUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_addPropertyUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_addUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -4150,37 +4192,47 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnit(ctx context.Co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_PropertyUnit_id(ctx, field)
+				return ec.fieldContext_Unit_id(ctx, field)
 			case "name":
-				return ec.fieldContext_PropertyUnit_name(ctx, field)
+				return ec.fieldContext_Unit_name(ctx, field)
 			case "bedrooms":
-				return ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
+				return ec.fieldContext_Unit_bedrooms(ctx, field)
 			case "propertyId":
-				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
+				return ec.fieldContext_Unit_propertyId(ctx, field)
+			case "location":
+				return ec.fieldContext_Unit_location(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Unit_caretakerId(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Unit_caretaker(ctx, field)
 			case "property":
-				return ec.fieldContext_PropertyUnit_property(ctx, field)
+				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
-				return ec.fieldContext_PropertyUnit_tenant(ctx, field)
+				return ec.fieldContext_Unit_tenant(ctx, field)
 			case "price":
-				return ec.fieldContext_PropertyUnit_price(ctx, field)
+				return ec.fieldContext_Unit_price(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Unit_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Unit_owner(ctx, field)
 			case "bathrooms":
-				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+				return ec.fieldContext_Unit_bathrooms(ctx, field)
 			case "amenities":
-				return ec.fieldContext_PropertyUnit_amenities(ctx, field)
+				return ec.fieldContext_Unit_amenities(ctx, field)
 			case "state":
-				return ec.fieldContext_PropertyUnit_state(ctx, field)
+				return ec.fieldContext_Unit_state(ctx, field)
 			case "type":
-				return ec.fieldContext_PropertyUnit_type(ctx, field)
+				return ec.fieldContext_Unit_type(ctx, field)
 			case "images":
-				return ec.fieldContext_PropertyUnit_images(ctx, field)
+				return ec.fieldContext_Unit_images(ctx, field)
 			case "tenancy":
-				return ec.fieldContext_PropertyUnit_tenancy(ctx, field)
+				return ec.fieldContext_Unit_tenancy(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_PropertyUnit_createdAt(ctx, field)
+				return ec.fieldContext_Unit_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_PropertyUnit_updatedAt(ctx, field)
+				return ec.fieldContext_Unit_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PropertyUnit", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
 		},
 	}
 	defer func() {
@@ -4190,15 +4242,15 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnit(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addPropertyUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_addUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addPropertyUnitTenant(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addPropertyUnitTenant(ctx, field)
+func (ec *executionContext) _Mutation_addUnitTenant(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addUnitTenant(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4211,7 +4263,7 @@ func (ec *executionContext) _Mutation_addPropertyUnitTenant(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddPropertyUnitTenant(rctx, fc.Args["input"].(model.TenancyInput))
+		return ec.resolvers.Mutation().AddUnitTenant(rctx, fc.Args["input"].(model.TenancyInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4228,7 +4280,7 @@ func (ec *executionContext) _Mutation_addPropertyUnitTenant(ctx context.Context,
 	return ec.marshalNTenant2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTenant(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_addPropertyUnitTenant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_addUnitTenant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -4242,14 +4294,14 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnitTenant(ctx cont
 				return ec.fieldContext_Tenant_startDate(ctx, field)
 			case "endDate":
 				return ec.fieldContext_Tenant_endDate(ctx, field)
-			case "propertyUnitId":
-				return ec.fieldContext_Tenant_propertyUnitId(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Tenant_unitId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Tenant_userId(ctx, field)
 			case "user":
 				return ec.fieldContext_Tenant_user(ctx, field)
-			case "propertyUnit":
-				return ec.fieldContext_Tenant_propertyUnit(ctx, field)
+			case "unit":
+				return ec.fieldContext_Tenant_unit(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Tenant_createdAt(ctx, field)
 			case "updatedAt":
@@ -4265,7 +4317,7 @@ func (ec *executionContext) fieldContext_Mutation_addPropertyUnitTenant(ctx cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addPropertyUnitTenant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_addUnitTenant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4559,6 +4611,8 @@ func (ec *executionContext) fieldContext_Mutation_handshake(ctx context.Context,
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_User_tenancy(ctx, field)
 			case "createdAt":
@@ -4756,6 +4810,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUserInfo(ctx context.Con
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_User_tenancy(ctx, field)
 			case "createdAt":
@@ -5047,9 +5103,9 @@ func (ec *executionContext) _Property_units(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.PropertyUnit)
+	res := resTmp.([]*model.Unit)
 	fc.Result = res
-	return ec.marshalNPropertyUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnitᚄ(ctx, field.Selections, res)
+	return ec.marshalNUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Property_units(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5061,37 +5117,47 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_PropertyUnit_id(ctx, field)
+				return ec.fieldContext_Unit_id(ctx, field)
 			case "name":
-				return ec.fieldContext_PropertyUnit_name(ctx, field)
+				return ec.fieldContext_Unit_name(ctx, field)
 			case "bedrooms":
-				return ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
+				return ec.fieldContext_Unit_bedrooms(ctx, field)
 			case "propertyId":
-				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
+				return ec.fieldContext_Unit_propertyId(ctx, field)
+			case "location":
+				return ec.fieldContext_Unit_location(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Unit_caretakerId(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Unit_caretaker(ctx, field)
 			case "property":
-				return ec.fieldContext_PropertyUnit_property(ctx, field)
+				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
-				return ec.fieldContext_PropertyUnit_tenant(ctx, field)
+				return ec.fieldContext_Unit_tenant(ctx, field)
 			case "price":
-				return ec.fieldContext_PropertyUnit_price(ctx, field)
+				return ec.fieldContext_Unit_price(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Unit_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Unit_owner(ctx, field)
 			case "bathrooms":
-				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+				return ec.fieldContext_Unit_bathrooms(ctx, field)
 			case "amenities":
-				return ec.fieldContext_PropertyUnit_amenities(ctx, field)
+				return ec.fieldContext_Unit_amenities(ctx, field)
 			case "state":
-				return ec.fieldContext_PropertyUnit_state(ctx, field)
+				return ec.fieldContext_Unit_state(ctx, field)
 			case "type":
-				return ec.fieldContext_PropertyUnit_type(ctx, field)
+				return ec.fieldContext_Unit_type(ctx, field)
 			case "images":
-				return ec.fieldContext_PropertyUnit_images(ctx, field)
+				return ec.fieldContext_Unit_images(ctx, field)
 			case "tenancy":
-				return ec.fieldContext_PropertyUnit_tenancy(ctx, field)
+				return ec.fieldContext_Unit_tenancy(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_PropertyUnit_createdAt(ctx, field)
+				return ec.fieldContext_Unit_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_PropertyUnit_updatedAt(ctx, field)
+				return ec.fieldContext_Unit_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PropertyUnit", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
 		},
 	}
 	return fc, nil
@@ -5304,6 +5370,8 @@ func (ec *executionContext) fieldContext_Property_owner(ctx context.Context, fie
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_User_tenancy(ctx, field)
 			case "createdAt":
@@ -5399,773 +5467,6 @@ func (ec *executionContext) fieldContext_Property_updatedAt(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _PropertyUnit_id(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_name(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_bedrooms(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PropertyUnit().Bedrooms(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Bedroom)
-	fc.Result = res
-	return ec.marshalNBedroom2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBedroomᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_bedrooms(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Bedroom_id(ctx, field)
-			case "propertyUnitId":
-				return ec.fieldContext_Bedroom_propertyUnitId(ctx, field)
-			case "bedroomNumber":
-				return ec.fieldContext_Bedroom_bedroomNumber(ctx, field)
-			case "enSuite":
-				return ec.fieldContext_Bedroom_enSuite(ctx, field)
-			case "master":
-				return ec.fieldContext_Bedroom_master(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Bedroom_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Bedroom_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Bedroom", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_propertyId(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_propertyId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PropertyID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_propertyId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_property(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_property(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PropertyUnit().Property(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Property)
-	fc.Result = res
-	return ec.marshalNProperty2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐProperty(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_property(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Property_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Property_name(ctx, field)
-			case "type":
-				return ec.fieldContext_Property_type(ctx, field)
-			case "location":
-				return ec.fieldContext_Property_location(ctx, field)
-			case "thumbnail":
-				return ec.fieldContext_Property_thumbnail(ctx, field)
-			case "units":
-				return ec.fieldContext_Property_units(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Property_createdBy(ctx, field)
-			case "caretaker":
-				return ec.fieldContext_Property_caretaker(ctx, field)
-			case "caretakerId":
-				return ec.fieldContext_Property_caretakerId(ctx, field)
-			case "owner":
-				return ec.fieldContext_Property_owner(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Property_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Property_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_tenant(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_tenant(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PropertyUnit().Tenant(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Tenant)
-	fc.Result = res
-	return ec.marshalOTenant2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTenant(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_tenant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Tenant_id(ctx, field)
-			case "startDate":
-				return ec.fieldContext_Tenant_startDate(ctx, field)
-			case "endDate":
-				return ec.fieldContext_Tenant_endDate(ctx, field)
-			case "propertyUnitId":
-				return ec.fieldContext_Tenant_propertyUnitId(ctx, field)
-			case "userId":
-				return ec.fieldContext_Tenant_userId(ctx, field)
-			case "user":
-				return ec.fieldContext_Tenant_user(ctx, field)
-			case "propertyUnit":
-				return ec.fieldContext_Tenant_propertyUnit(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Tenant_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Tenant_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Tenant", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_price(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_price(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Price, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_bathrooms(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Bathrooms, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_bathrooms(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_amenities(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_amenities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PropertyUnit().Amenities(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Amenity)
-	fc.Result = res
-	return ec.marshalNAmenity2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenityᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_amenities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Amenity_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Amenity_name(ctx, field)
-			case "provider":
-				return ec.fieldContext_Amenity_provider(ctx, field)
-			case "category":
-				return ec.fieldContext_Amenity_category(ctx, field)
-			case "unitId":
-				return ec.fieldContext_Amenity_unitId(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Amenity_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Amenity_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Amenity", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_state(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_state(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.State, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.UnitState)
-	fc.Result = res
-	return ec.marshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_state(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UnitState does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_type(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_images(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_images(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PropertyUnit().Images(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.AnyUpload)
-	fc.Result = res
-	return ec.marshalNAnyUpload2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUploadᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_AnyUpload_id(ctx, field)
-			case "upload":
-				return ec.fieldContext_AnyUpload_upload(ctx, field)
-			case "category":
-				return ec.fieldContext_AnyUpload_category(ctx, field)
-			case "propertyId":
-				return ec.fieldContext_AnyUpload_propertyId(ctx, field)
-			case "userId":
-				return ec.fieldContext_AnyUpload_userId(ctx, field)
-			case "unitId":
-				return ec.fieldContext_AnyUpload_unitId(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_AnyUpload_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_AnyUpload_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AnyUpload", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_tenancy(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_tenancy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PropertyUnit().Tenancy(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Tenant)
-	fc.Result = res
-	return ec.marshalNTenant2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTenantᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_tenancy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Tenant_id(ctx, field)
-			case "startDate":
-				return ec.fieldContext_Tenant_startDate(ctx, field)
-			case "endDate":
-				return ec.fieldContext_Tenant_endDate(ctx, field)
-			case "propertyUnitId":
-				return ec.fieldContext_Tenant_propertyUnitId(ctx, field)
-			case "userId":
-				return ec.fieldContext_Tenant_userId(ctx, field)
-			case "user":
-				return ec.fieldContext_Tenant_user(ctx, field)
-			case "propertyUnit":
-				return ec.fieldContext_Tenant_propertyUnit(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Tenant_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Tenant_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Tenant", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PropertyUnit_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.PropertyUnit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PropertyUnit_updatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PropertyUnit_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PropertyUnit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getUser(ctx, field)
 	if err != nil {
@@ -6221,6 +5522,8 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_User_tenancy(ctx, field)
 			case "createdAt":
@@ -6474,8 +5777,8 @@ func (ec *executionContext) fieldContext_Query_getTowns(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getPropertyUnits(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getPropertyUnits(ctx, field)
+func (ec *executionContext) _Query_getUnits(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUnits(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6488,7 +5791,7 @@ func (ec *executionContext) _Query_getPropertyUnits(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetPropertyUnits(rctx, fc.Args["propertyId"].(uuid.UUID))
+		return ec.resolvers.Query().GetUnits(rctx, fc.Args["propertyId"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6500,12 +5803,12 @@ func (ec *executionContext) _Query_getPropertyUnits(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.PropertyUnit)
+	res := resTmp.([]*model.Unit)
 	fc.Result = res
-	return ec.marshalNPropertyUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnitᚄ(ctx, field.Selections, res)
+	return ec.marshalNUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getPropertyUnits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getUnits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -6514,37 +5817,47 @@ func (ec *executionContext) fieldContext_Query_getPropertyUnits(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_PropertyUnit_id(ctx, field)
+				return ec.fieldContext_Unit_id(ctx, field)
 			case "name":
-				return ec.fieldContext_PropertyUnit_name(ctx, field)
+				return ec.fieldContext_Unit_name(ctx, field)
 			case "bedrooms":
-				return ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
+				return ec.fieldContext_Unit_bedrooms(ctx, field)
 			case "propertyId":
-				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
+				return ec.fieldContext_Unit_propertyId(ctx, field)
+			case "location":
+				return ec.fieldContext_Unit_location(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Unit_caretakerId(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Unit_caretaker(ctx, field)
 			case "property":
-				return ec.fieldContext_PropertyUnit_property(ctx, field)
+				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
-				return ec.fieldContext_PropertyUnit_tenant(ctx, field)
+				return ec.fieldContext_Unit_tenant(ctx, field)
 			case "price":
-				return ec.fieldContext_PropertyUnit_price(ctx, field)
+				return ec.fieldContext_Unit_price(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Unit_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Unit_owner(ctx, field)
 			case "bathrooms":
-				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+				return ec.fieldContext_Unit_bathrooms(ctx, field)
 			case "amenities":
-				return ec.fieldContext_PropertyUnit_amenities(ctx, field)
+				return ec.fieldContext_Unit_amenities(ctx, field)
 			case "state":
-				return ec.fieldContext_PropertyUnit_state(ctx, field)
+				return ec.fieldContext_Unit_state(ctx, field)
 			case "type":
-				return ec.fieldContext_PropertyUnit_type(ctx, field)
+				return ec.fieldContext_Unit_type(ctx, field)
 			case "images":
-				return ec.fieldContext_PropertyUnit_images(ctx, field)
+				return ec.fieldContext_Unit_images(ctx, field)
 			case "tenancy":
-				return ec.fieldContext_PropertyUnit_tenancy(ctx, field)
+				return ec.fieldContext_Unit_tenancy(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_PropertyUnit_createdAt(ctx, field)
+				return ec.fieldContext_Unit_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_PropertyUnit_updatedAt(ctx, field)
+				return ec.fieldContext_Unit_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PropertyUnit", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
 		},
 	}
 	defer func() {
@@ -6554,7 +5867,7 @@ func (ec *executionContext) fieldContext_Query_getPropertyUnits(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getPropertyUnits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_getUnits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6606,14 +5919,14 @@ func (ec *executionContext) fieldContext_Query_getPropertyTenancy(ctx context.Co
 				return ec.fieldContext_Tenant_startDate(ctx, field)
 			case "endDate":
 				return ec.fieldContext_Tenant_endDate(ctx, field)
-			case "propertyUnitId":
-				return ec.fieldContext_Tenant_propertyUnitId(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Tenant_unitId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Tenant_userId(ctx, field)
 			case "user":
 				return ec.fieldContext_Tenant_user(ctx, field)
-			case "propertyUnit":
-				return ec.fieldContext_Tenant_propertyUnit(ctx, field)
+			case "unit":
+				return ec.fieldContext_Tenant_unit(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Tenant_createdAt(ctx, field)
 			case "updatedAt":
@@ -7331,6 +6644,8 @@ func (ec *executionContext) fieldContext_SignInResponse_user(ctx context.Context
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_User_tenancy(ctx, field)
 			case "createdAt":
@@ -7561,8 +6876,8 @@ func (ec *executionContext) fieldContext_Tenant_endDate(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Tenant_propertyUnitId(ctx context.Context, field graphql.CollectedField, obj *model.Tenant) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Tenant_propertyUnitId(ctx, field)
+func (ec *executionContext) _Tenant_unitId(ctx context.Context, field graphql.CollectedField, obj *model.Tenant) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tenant_unitId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7575,7 +6890,7 @@ func (ec *executionContext) _Tenant_propertyUnitId(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PropertyUnitID, nil
+		return obj.UnitID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7592,7 +6907,7 @@ func (ec *executionContext) _Tenant_propertyUnitId(ctx context.Context, field gr
 	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Tenant_propertyUnitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Tenant_unitId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Tenant",
 		Field:      field,
@@ -7704,6 +7019,8 @@ func (ec *executionContext) fieldContext_Tenant_user(ctx context.Context, field 
 				return ec.fieldContext_User_subscribe_retries(ctx, field)
 			case "properties":
 				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
 			case "tenancy":
 				return ec.fieldContext_User_tenancy(ctx, field)
 			case "createdAt":
@@ -7717,8 +7034,8 @@ func (ec *executionContext) fieldContext_Tenant_user(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Tenant_propertyUnit(ctx context.Context, field graphql.CollectedField, obj *model.Tenant) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Tenant_propertyUnit(ctx, field)
+func (ec *executionContext) _Tenant_unit(ctx context.Context, field graphql.CollectedField, obj *model.Tenant) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tenant_unit(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7731,7 +7048,7 @@ func (ec *executionContext) _Tenant_propertyUnit(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Tenant().PropertyUnit(rctx, obj)
+		return obj.Unit, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7740,51 +7057,61 @@ func (ec *executionContext) _Tenant_propertyUnit(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.PropertyUnit)
+	res := resTmp.(*model.Unit)
 	fc.Result = res
-	return ec.marshalOPropertyUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnit(ctx, field.Selections, res)
+	return ec.marshalOUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Tenant_propertyUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Tenant_unit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Tenant",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_PropertyUnit_id(ctx, field)
+				return ec.fieldContext_Unit_id(ctx, field)
 			case "name":
-				return ec.fieldContext_PropertyUnit_name(ctx, field)
+				return ec.fieldContext_Unit_name(ctx, field)
 			case "bedrooms":
-				return ec.fieldContext_PropertyUnit_bedrooms(ctx, field)
+				return ec.fieldContext_Unit_bedrooms(ctx, field)
 			case "propertyId":
-				return ec.fieldContext_PropertyUnit_propertyId(ctx, field)
+				return ec.fieldContext_Unit_propertyId(ctx, field)
+			case "location":
+				return ec.fieldContext_Unit_location(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Unit_caretakerId(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Unit_caretaker(ctx, field)
 			case "property":
-				return ec.fieldContext_PropertyUnit_property(ctx, field)
+				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
-				return ec.fieldContext_PropertyUnit_tenant(ctx, field)
+				return ec.fieldContext_Unit_tenant(ctx, field)
 			case "price":
-				return ec.fieldContext_PropertyUnit_price(ctx, field)
+				return ec.fieldContext_Unit_price(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Unit_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Unit_owner(ctx, field)
 			case "bathrooms":
-				return ec.fieldContext_PropertyUnit_bathrooms(ctx, field)
+				return ec.fieldContext_Unit_bathrooms(ctx, field)
 			case "amenities":
-				return ec.fieldContext_PropertyUnit_amenities(ctx, field)
+				return ec.fieldContext_Unit_amenities(ctx, field)
 			case "state":
-				return ec.fieldContext_PropertyUnit_state(ctx, field)
+				return ec.fieldContext_Unit_state(ctx, field)
 			case "type":
-				return ec.fieldContext_PropertyUnit_type(ctx, field)
+				return ec.fieldContext_Unit_type(ctx, field)
 			case "images":
-				return ec.fieldContext_PropertyUnit_images(ctx, field)
+				return ec.fieldContext_Unit_images(ctx, field)
 			case "tenancy":
-				return ec.fieldContext_PropertyUnit_tenancy(ctx, field)
+				return ec.fieldContext_Unit_tenancy(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_PropertyUnit_createdAt(ctx, field)
+				return ec.fieldContext_Unit_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_PropertyUnit_updatedAt(ctx, field)
+				return ec.fieldContext_Unit_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PropertyUnit", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
 		},
 	}
 	return fc, nil
@@ -8043,6 +7370,1030 @@ func (ec *executionContext) fieldContext_Town_postalCode(ctx context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_id(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_name(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_bedrooms(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_bedrooms(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Bedrooms, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Bedroom)
+	fc.Result = res
+	return ec.marshalNBedroom2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBedroomᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_bedrooms(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Bedroom_id(ctx, field)
+			case "propertyUnitId":
+				return ec.fieldContext_Bedroom_propertyUnitId(ctx, field)
+			case "bedroomNumber":
+				return ec.fieldContext_Bedroom_bedroomNumber(ctx, field)
+			case "enSuite":
+				return ec.fieldContext_Bedroom_enSuite(ctx, field)
+			case "master":
+				return ec.fieldContext_Bedroom_master(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Bedroom_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Bedroom_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Bedroom", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_propertyId(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_propertyId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PropertyID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_propertyId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_location(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_location(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Location, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Gps)
+	fc.Result = res
+	return ec.marshalOGps2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐGps(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_location(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "lat":
+				return ec.fieldContext_Gps_lat(ctx, field)
+			case "lng":
+				return ec.fieldContext_Gps_lng(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Gps", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_caretakerId(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_caretakerId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CaretakerID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uuid.UUID)
+	fc.Result = res
+	return ec.marshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_caretakerId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_caretaker(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_caretaker(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Caretaker, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Caretaker)
+	fc.Result = res
+	return ec.marshalOCaretaker2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretaker(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_caretaker(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Caretaker_id(ctx, field)
+			case "first_name":
+				return ec.fieldContext_Caretaker_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_Caretaker_last_name(ctx, field)
+			case "phone":
+				return ec.fieldContext_Caretaker_phone(ctx, field)
+			case "avatar":
+				return ec.fieldContext_Caretaker_avatar(ctx, field)
+			case "verified":
+				return ec.fieldContext_Caretaker_verified(ctx, field)
+			case "properties":
+				return ec.fieldContext_Caretaker_properties(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Caretaker_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Caretaker_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Caretaker", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_property(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_property(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Property, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Property)
+	fc.Result = res
+	return ec.marshalNProperty2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐProperty(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_property(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Property_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Property_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Property_type(ctx, field)
+			case "location":
+				return ec.fieldContext_Property_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Property_thumbnail(ctx, field)
+			case "units":
+				return ec.fieldContext_Property_units(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Property_createdBy(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Property_caretaker(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "owner":
+				return ec.fieldContext_Property_owner(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Property_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Property_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_tenant(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_tenant(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tenant, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Tenant)
+	fc.Result = res
+	return ec.marshalOTenant2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTenant(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_tenant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Tenant_id(ctx, field)
+			case "startDate":
+				return ec.fieldContext_Tenant_startDate(ctx, field)
+			case "endDate":
+				return ec.fieldContext_Tenant_endDate(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Tenant_unitId(ctx, field)
+			case "userId":
+				return ec.fieldContext_Tenant_userId(ctx, field)
+			case "user":
+				return ec.fieldContext_Tenant_user(ctx, field)
+			case "unit":
+				return ec.fieldContext_Tenant_unit(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Tenant_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Tenant_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Tenant", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_price(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_createdBy(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_createdBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uuid.UUID)
+	fc.Result = res
+	return ec.marshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_owner(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_owner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Owner, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "phone":
+				return ec.fieldContext_User_phone(ctx, field)
+			case "is_landlord":
+				return ec.fieldContext_User_is_landlord(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "subscribe_retries":
+				return ec.fieldContext_User_subscribe_retries(ctx, field)
+			case "properties":
+				return ec.fieldContext_User_properties(ctx, field)
+			case "units":
+				return ec.fieldContext_User_units(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_User_tenancy(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_bathrooms(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_bathrooms(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Bathrooms, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_bathrooms(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_amenities(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_amenities(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Amenities, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Amenity)
+	fc.Result = res
+	return ec.marshalNAmenity2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAmenityᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_amenities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Amenity_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Amenity_name(ctx, field)
+			case "provider":
+				return ec.fieldContext_Amenity_provider(ctx, field)
+			case "category":
+				return ec.fieldContext_Amenity_category(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Amenity_unitId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Amenity_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Amenity_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Amenity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_state(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UnitState)
+	fc.Result = res
+	return ec.marshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_state(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UnitState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_type(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_images(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_images(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Images, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.AnyUpload)
+	fc.Result = res
+	return ec.marshalNAnyUpload2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUploadᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnyUpload_id(ctx, field)
+			case "upload":
+				return ec.fieldContext_AnyUpload_upload(ctx, field)
+			case "category":
+				return ec.fieldContext_AnyUpload_category(ctx, field)
+			case "propertyId":
+				return ec.fieldContext_AnyUpload_propertyId(ctx, field)
+			case "userId":
+				return ec.fieldContext_AnyUpload_userId(ctx, field)
+			case "unitId":
+				return ec.fieldContext_AnyUpload_unitId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AnyUpload_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AnyUpload_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnyUpload", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_tenancy(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_tenancy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tenancy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Tenant)
+	fc.Result = res
+	return ec.marshalNTenant2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTenantᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_tenancy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Tenant_id(ctx, field)
+			case "startDate":
+				return ec.fieldContext_Tenant_startDate(ctx, field)
+			case "endDate":
+				return ec.fieldContext_Tenant_endDate(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Tenant_unitId(ctx, field)
+			case "userId":
+				return ec.fieldContext_Tenant_userId(ctx, field)
+			case "user":
+				return ec.fieldContext_Tenant_user(ctx, field)
+			case "unit":
+				return ec.fieldContext_Tenant_unit(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Tenant_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Tenant_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Tenant", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8435,6 +8786,92 @@ func (ec *executionContext) fieldContext_User_properties(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _User_units(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_units(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Units, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Unit)
+	fc.Result = res
+	return ec.marshalNUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_units(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Unit_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Unit_name(ctx, field)
+			case "bedrooms":
+				return ec.fieldContext_Unit_bedrooms(ctx, field)
+			case "propertyId":
+				return ec.fieldContext_Unit_propertyId(ctx, field)
+			case "location":
+				return ec.fieldContext_Unit_location(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Unit_caretakerId(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Unit_caretaker(ctx, field)
+			case "property":
+				return ec.fieldContext_Unit_property(ctx, field)
+			case "tenant":
+				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "price":
+				return ec.fieldContext_Unit_price(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Unit_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Unit_owner(ctx, field)
+			case "bathrooms":
+				return ec.fieldContext_Unit_bathrooms(ctx, field)
+			case "amenities":
+				return ec.fieldContext_Unit_amenities(ctx, field)
+			case "state":
+				return ec.fieldContext_Unit_state(ctx, field)
+			case "type":
+				return ec.fieldContext_Unit_type(ctx, field)
+			case "images":
+				return ec.fieldContext_Unit_images(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Unit_tenancy(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Unit_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Unit_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_tenancy(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_tenancy(ctx, field)
 	if err != nil {
@@ -8480,14 +8917,14 @@ func (ec *executionContext) fieldContext_User_tenancy(ctx context.Context, field
 				return ec.fieldContext_Tenant_startDate(ctx, field)
 			case "endDate":
 				return ec.fieldContext_Tenant_endDate(ctx, field)
-			case "propertyUnitId":
-				return ec.fieldContext_Tenant_propertyUnitId(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Tenant_unitId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Tenant_userId(ctx, field)
 			case "user":
 				return ec.fieldContext_Tenant_user(ctx, field)
-			case "propertyUnit":
-				return ec.fieldContext_Tenant_propertyUnit(ctx, field)
+			case "unit":
+				return ec.fieldContext_Tenant_unit(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Tenant_createdAt(ctx, field)
 			case "updatedAt":
@@ -10656,98 +11093,6 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPropertyUnitInput(ctx context.Context, obj interface{}) (model.PropertyUnitInput, error) {
-	var it model.PropertyUnitInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "amenities", "bedrooms", "price", "uploads"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "propertyId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyId"))
-			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.PropertyID = data
-		case "baths":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("baths"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Baths = data
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "type":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Type = data
-		case "amenities":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amenities"))
-			data, err := ec.unmarshalNUnitAmenityInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Amenities = data
-		case "bedrooms":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bedrooms"))
-			data, err := ec.unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Bedrooms = data
-		case "price":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Price = data
-		case "uploads":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uploads"))
-			data, err := ec.unmarshalOUploadImages2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUploadImagesᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Uploads = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputShootInput(ctx context.Context, obj interface{}) (model.ShootInput, error) {
 	var it model.ShootInput
 	asMap := map[string]interface{}{}
@@ -10784,7 +11129,7 @@ func (ec *executionContext) unmarshalInputTenancyInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"startDate", "userId", "propertyUnitId"}
+	fieldsInOrder := [...]string{"startDate", "userId", "unitId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10809,15 +11154,15 @@ func (ec *executionContext) unmarshalInputTenancyInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.UserID = data
-		case "propertyUnitId":
+		case "unitId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyUnitId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitId"))
 			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.PropertyUnitID = data
+			it.UnitID = data
 		}
 	}
 
@@ -10903,6 +11248,98 @@ func (ec *executionContext) unmarshalInputUnitBedroomInput(ctx context.Context, 
 				return it, err
 			}
 			it.Master = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj interface{}) (model.UnitInput, error) {
+	var it model.UnitInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "amenities", "bedrooms", "price", "uploads"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "propertyId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyId"))
+			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PropertyID = data
+		case "baths":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("baths"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Baths = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "amenities":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amenities"))
+			data, err := ec.unmarshalNUnitAmenityInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Amenities = data
+		case "bedrooms":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bedrooms"))
+			data, err := ec.unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Bedrooms = data
+		case "price":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Price = data
+		case "uploads":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uploads"))
+			data, err := ec.unmarshalOUploadImages2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUploadImagesᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Uploads = data
 		}
 	}
 
@@ -11531,16 +11968,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "addPropertyUnit":
+		case "addUnit":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addPropertyUnit(ctx, field)
+				return ec._Mutation_addUnit(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "addPropertyUnitTenant":
+		case "addUnitTenant":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addPropertyUnitTenant(ctx, field)
+				return ec._Mutation_addUnitTenant(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -11833,292 +12270,6 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var propertyUnitImplementors = []string{"PropertyUnit"}
-
-func (ec *executionContext) _PropertyUnit(ctx context.Context, sel ast.SelectionSet, obj *model.PropertyUnit) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, propertyUnitImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PropertyUnit")
-		case "id":
-			out.Values[i] = ec._PropertyUnit_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "name":
-			out.Values[i] = ec._PropertyUnit_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "bedrooms":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyUnit_bedrooms(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "propertyId":
-			out.Values[i] = ec._PropertyUnit_propertyId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "property":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyUnit_property(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "tenant":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyUnit_tenant(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "price":
-			out.Values[i] = ec._PropertyUnit_price(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "bathrooms":
-			out.Values[i] = ec._PropertyUnit_bathrooms(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "amenities":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyUnit_amenities(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "state":
-			out.Values[i] = ec._PropertyUnit_state(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "type":
-			out.Values[i] = ec._PropertyUnit_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "images":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyUnit_images(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "tenancy":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyUnit_tenancy(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "createdAt":
-			out.Values[i] = ec._PropertyUnit_createdAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._PropertyUnit_updatedAt(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -12248,7 +12399,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getPropertyUnits":
+		case "getUnits":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -12257,7 +12408,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getPropertyUnits(ctx, field)
+				res = ec._Query_getUnits(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -12575,8 +12726,8 @@ func (ec *executionContext) _Tenant(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "endDate":
 			out.Values[i] = ec._Tenant_endDate(ctx, field, obj)
-		case "propertyUnitId":
-			out.Values[i] = ec._Tenant_propertyUnitId(ctx, field, obj)
+		case "unitId":
+			out.Values[i] = ec._Tenant_unitId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -12621,39 +12772,8 @@ func (ec *executionContext) _Tenant(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "propertyUnit":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Tenant_propertyUnit(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "unit":
+			out.Values[i] = ec._Tenant_unit(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Tenant_createdAt(ctx, field, obj)
 		case "updatedAt":
@@ -12746,6 +12866,116 @@ func (ec *executionContext) _Town(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unitImplementors = []string{"Unit"}
+
+func (ec *executionContext) _Unit(ctx context.Context, sel ast.SelectionSet, obj *model.Unit) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unitImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Unit")
+		case "id":
+			out.Values[i] = ec._Unit_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Unit_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "bedrooms":
+			out.Values[i] = ec._Unit_bedrooms(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "propertyId":
+			out.Values[i] = ec._Unit_propertyId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "location":
+			out.Values[i] = ec._Unit_location(ctx, field, obj)
+		case "caretakerId":
+			out.Values[i] = ec._Unit_caretakerId(ctx, field, obj)
+		case "caretaker":
+			out.Values[i] = ec._Unit_caretaker(ctx, field, obj)
+		case "property":
+			out.Values[i] = ec._Unit_property(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tenant":
+			out.Values[i] = ec._Unit_tenant(ctx, field, obj)
+		case "price":
+			out.Values[i] = ec._Unit_price(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdBy":
+			out.Values[i] = ec._Unit_createdBy(ctx, field, obj)
+		case "owner":
+			out.Values[i] = ec._Unit_owner(ctx, field, obj)
+		case "bathrooms":
+			out.Values[i] = ec._Unit_bathrooms(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "amenities":
+			out.Values[i] = ec._Unit_amenities(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._Unit_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Unit_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "images":
+			out.Values[i] = ec._Unit_images(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tenancy":
+			out.Values[i] = ec._Unit_tenancy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Unit_createdAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._Unit_updatedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12873,6 +13103,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "units":
+			out.Values[i] = ec._User_units(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "tenancy":
 			field := field
 
@@ -13630,69 +13865,6 @@ func (ec *executionContext) marshalNPropertyType2githubᚗcomᚋ3dw1nM0535ᚋnya
 	return v
 }
 
-func (ec *executionContext) marshalNPropertyUnit2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnit(ctx context.Context, sel ast.SelectionSet, v model.PropertyUnit) graphql.Marshaler {
-	return ec._PropertyUnit(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPropertyUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnitᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PropertyUnit) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPropertyUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnit(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNPropertyUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnit(ctx context.Context, sel ast.SelectionSet, v *model.PropertyUnit) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PropertyUnit(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNPropertyUnitInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnitInput(ctx context.Context, v interface{}) (model.PropertyUnitInput, error) {
-	res, err := ec.unmarshalInputPropertyUnitInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNSignInResponse2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐSignInResponse(ctx context.Context, sel ast.SelectionSet, v model.SignInResponse) graphql.Marshaler {
 	return ec._SignInResponse(ctx, sel, &v)
 }
@@ -13883,6 +14055,64 @@ func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx
 	return res
 }
 
+func (ec *executionContext) marshalNUnit2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx context.Context, sel ast.SelectionSet, v model.Unit) graphql.Marshaler {
+	return ec._Unit(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Unit) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx context.Context, sel ast.SelectionSet, v *model.Unit) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Unit(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNUnitAmenityInput2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitAmenityInputᚄ(ctx context.Context, v interface{}) ([]*model.UnitAmenityInput, error) {
 	var vSlice []interface{}
 	if v != nil {
@@ -13925,6 +14155,11 @@ func (ec *executionContext) unmarshalNUnitBedroomInput2ᚕᚖgithubᚗcomᚋ3dw1
 func (ec *executionContext) unmarshalNUnitBedroomInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitBedroomInput(ctx context.Context, v interface{}) (*model.UnitBedroomInput, error) {
 	res, err := ec.unmarshalInputUnitBedroomInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUnitInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitInput(ctx context.Context, v interface{}) (model.UnitInput, error) {
+	res, err := ec.unmarshalInputUnitInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx context.Context, v interface{}) (model.UnitState, error) {
@@ -14267,6 +14502,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalOCaretaker2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretaker(ctx context.Context, sel ast.SelectionSet, v *model.Caretaker) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Caretaker(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerInput(ctx context.Context, v interface{}) (*model.CaretakerInput, error) {
 	if v == nil {
 		return nil, nil
@@ -14275,11 +14517,11 @@ func (ec *executionContext) unmarshalOCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM053
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOPropertyUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyUnit(ctx context.Context, sel ast.SelectionSet, v *model.PropertyUnit) graphql.Marshaler {
+func (ec *executionContext) marshalOGps2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐGps(ctx context.Context, sel ast.SelectionSet, v *model.Gps) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._PropertyUnit(ctx, sel, v)
+	return ec._Gps(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
@@ -14337,6 +14579,13 @@ func (ec *executionContext) marshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(
 	return res
 }
 
+func (ec *executionContext) marshalOUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx context.Context, sel ast.SelectionSet, v *model.Unit) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Unit(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOUploadImages2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUploadImagesᚄ(ctx context.Context, v interface{}) ([]*model.UploadImages, error) {
 	if v == nil {
 		return nil, nil
@@ -14355,6 +14604,13 @@ func (ec *executionContext) unmarshalOUploadImages2ᚕᚖgithubᚗcomᚋ3dw1nM05
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

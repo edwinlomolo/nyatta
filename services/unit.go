@@ -25,8 +25,8 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 	return &UnitServices{queries, logger}
 }
 
-// AddPropertyUnit - add property unit
-func (u *UnitServices) AddPropertyUnit(ctx context.Context, input *model.PropertyUnitInput) (*model.PropertyUnit, error) {
+// AddUnit - add property unit
+func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
 	pUUID := uuid.NullUUID{UUID: input.PropertyID, Valid: true}
 
 	unitPrice, err := strconv.ParseInt(input.Price, 10, 64)
@@ -34,7 +34,7 @@ func (u *UnitServices) AddPropertyUnit(ctx context.Context, input *model.Propert
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
-	unit, err := u.queries.CreatePropertyUnit(ctx, sqlStore.CreatePropertyUnitParams{
+	unit, err := u.queries.CreateUnit(ctx, sqlStore.CreateUnitParams{
 		PropertyID: pUUID,
 		Name:       input.Name,
 		Price:      int32(unitPrice),
@@ -45,10 +45,10 @@ func (u *UnitServices) AddPropertyUnit(ctx context.Context, input *model.Propert
 	if len(input.Bedrooms) > 0 {
 		for _, bedroom := range input.Bedrooms {
 			if _, err := u.queries.CreateUnitBedroom(ctx, sqlStore.CreateUnitBedroomParams{
-				PropertyUnitID: unit.ID,
-				BedroomNumber:  int32(bedroom.BedroomNumber),
-				EnSuite:        bedroom.EnSuite,
-				Master:         bedroom.Master,
+				UnitID:        unit.ID,
+				BedroomNumber: int32(bedroom.BedroomNumber),
+				EnSuite:       bedroom.EnSuite,
+				Master:        bedroom.Master,
 			}); err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
 				return nil, err
@@ -59,9 +59,9 @@ func (u *UnitServices) AddPropertyUnit(ctx context.Context, input *model.Propert
 	if len(input.Amenities) > 0 {
 		for _, amenity := range input.Amenities {
 			if _, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
-				Name:           amenity.Name,
-				Category:       amenity.Category,
-				PropertyUnitID: unit.ID,
+				Name:     amenity.Name,
+				Category: amenity.Category,
+				UnitID:   unit.ID,
 			}); err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
 				return nil, err
@@ -72,17 +72,17 @@ func (u *UnitServices) AddPropertyUnit(ctx context.Context, input *model.Propert
 	uidUUID := uuid.NullUUID{UUID: unit.ID, Valid: true}
 	for _, upload := range input.Uploads {
 		if _, err := u.queries.CreateUnitImage(ctx, sqlStore.CreateUnitImageParams{
-			PropertyUnitID: uidUUID,
-			Category:       model.UploadCategoryUnitImages.String(),
-			Label:          sql.NullString{String: upload.Category, Valid: true},
-			Upload:         upload.Image,
+			UnitID:   uidUUID,
+			Category: model.UploadCategoryUnitImages.String(),
+			Label:    sql.NullString{String: upload.Category, Valid: true},
+			Upload:   upload.Image,
 		}); err != nil {
 			u.logger.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, err
 		}
 	}
 
-	return &model.PropertyUnit{
+	return &model.Unit{
 		ID:         unit.ID,
 		Name:       unit.Name,
 		Bathrooms:  int(unit.Bathrooms),
@@ -133,8 +133,8 @@ func (u *UnitServices) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*mode
 	var images []*model.AnyUpload
 
 	foundUploads, err := u.queries.GetUnitImages(ctx, sqlStore.GetUnitImagesParams{
-		PropertyUnitID: uuid.NullUUID{UUID: id, Valid: true},
-		Category:       model.UploadCategoryUnitImages.String(),
+		UnitID:   uuid.NullUUID{UUID: id, Valid: true},
+		Category: model.UploadCategoryUnitImages.String(),
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -183,9 +183,9 @@ func (u *UnitServices) GetUnitAmenities(ctx context.Context, unitID uuid.UUID) (
 	return amenities, nil
 }
 
-// GetPropertyUnit - grab unit
-func (u *UnitServices) GetPropertyUnit(ctx context.Context, unitID uuid.UUID) (*model.PropertyUnit, error) {
-	foundUnit, err := u.queries.GetPropertyUnit(ctx, unitID)
+// GetUnit - grab unit
+func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error) {
+	foundUnit, err := u.queries.GetUnit(ctx, unitID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -194,7 +194,7 @@ func (u *UnitServices) GetPropertyUnit(ctx context.Context, unitID uuid.UUID) (*
 		}
 	}
 
-	return &model.PropertyUnit{
+	return &model.Unit{
 		ID:         foundUnit.ID,
 		Name:       foundUnit.Name,
 		State:      model.UnitState(foundUnit.State),

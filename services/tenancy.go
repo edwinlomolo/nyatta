@@ -27,21 +27,21 @@ func NewTenancyService(queries *sqlStore.Queries, logger *log.Logger) *TenancySe
 // AddUnitTenancy - add tenancy to property unit
 func (t *TenancyServices) AddUnitTenancy(ctx context.Context, input *model.TenancyInput) (*model.Tenant, error) {
 	insertedTenant, err := t.queries.CreateTenant(ctx, sqlStore.CreateTenantParams{
-		PropertyUnitID: input.PropertyUnitID,
-		UserID:         input.UserID,
-		StartDate:      input.StartDate,
+		UnitID:    input.UnitID,
+		UserID:    input.UserID,
+		StartDate: input.StartDate,
 	})
 	if err != nil {
 		t.logger.Errorf("%s: %v", t.ServiceName(), err)
 		return nil, err
 	}
 	return &model.Tenant{
-		ID:             insertedTenant.ID,
-		StartDate:      insertedTenant.StartDate,
-		EndDate:        &insertedTenant.EndDate.Time,
-		PropertyUnitID: input.PropertyUnitID,
-		CreatedAt:      &insertedTenant.CreatedAt,
-		UpdatedAt:      &insertedTenant.UpdatedAt,
+		ID:        insertedTenant.ID,
+		StartDate: insertedTenant.StartDate,
+		EndDate:   &insertedTenant.EndDate.Time,
+		UnitID:    input.UnitID,
+		CreatedAt: &insertedTenant.CreatedAt,
+		UpdatedAt: &insertedTenant.UpdatedAt,
 	}, nil
 }
 
@@ -61,13 +61,13 @@ func (t *TenancyServices) GetUnitTenancy(ctx context.Context, unitId uuid.UUID) 
 
 	for _, tenancy := range foundTenancies {
 		tenant := &model.Tenant{
-			ID:             tenancy.ID,
-			StartDate:      tenancy.StartDate,
-			UserID:         tenancy.UserID,
-			PropertyUnitID: tenancy.PropertyUnitID,
-			EndDate:        &tenancy.EndDate.Time,
-			CreatedAt:      &tenancy.CreatedAt,
-			UpdatedAt:      &tenancy.UpdatedAt,
+			ID:        tenancy.ID,
+			StartDate: tenancy.StartDate,
+			UserID:    tenancy.UserID,
+			UnitID:    tenancy.UnitID,
+			EndDate:   &tenancy.EndDate.Time,
+			CreatedAt: &tenancy.CreatedAt,
+			UpdatedAt: &tenancy.UpdatedAt,
 		}
 		tenancies = append(tenancies, tenant)
 	}
@@ -88,13 +88,13 @@ func (t *TenancyServices) GetCurrentTenant(ctx context.Context, unitID uuid.UUID
 	}
 
 	return &model.Tenant{
-		ID:             foundTenant.ID,
-		StartDate:      foundTenant.StartDate,
-		UserID:         foundTenant.UserID,
-		PropertyUnitID: foundTenant.PropertyUnitID,
-		EndDate:        &foundTenant.EndDate.Time,
-		CreatedAt:      &foundTenant.CreatedAt,
-		UpdatedAt:      &foundTenant.UpdatedAt,
+		ID:        foundTenant.ID,
+		StartDate: foundTenant.StartDate,
+		UserID:    foundTenant.UserID,
+		UnitID:    foundTenant.UnitID,
+		EndDate:   &foundTenant.EndDate.Time,
+		CreatedAt: &foundTenant.CreatedAt,
+		UpdatedAt: &foundTenant.UpdatedAt,
 	}, nil
 }
 

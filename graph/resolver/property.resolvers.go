@@ -22,8 +22,8 @@ func (r *propertyResolver) Thumbnail(ctx context.Context, obj *model.Property) (
 }
 
 // Units is the resolver for the units field.
-func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*model.PropertyUnit, error) {
-	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyUnits(ctx, obj.ID)
+func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*model.Unit, error) {
+	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetUnits(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

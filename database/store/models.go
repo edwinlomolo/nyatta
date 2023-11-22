@@ -13,23 +13,23 @@ import (
 )
 
 type Amenity struct {
-	ID             uuid.UUID      `json:"id"`
-	Name           string         `json:"name"`
-	Provider       sql.NullString `json:"provider"`
-	Category       string         `json:"category"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
-	PropertyUnitID uuid.UUID      `json:"property_unit_id"`
+	ID        uuid.UUID      `json:"id"`
+	Name      string         `json:"name"`
+	Provider  sql.NullString `json:"provider"`
+	Category  string         `json:"category"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	UnitID    uuid.UUID      `json:"unit_id"`
 }
 
 type Bedroom struct {
-	ID             uuid.UUID `json:"id"`
-	BedroomNumber  int32     `json:"bedroom_number"`
-	EnSuite        bool      `json:"en_suite"`
-	Master         bool      `json:"master"`
-	PropertyUnitID uuid.UUID `json:"property_unit_id"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID            uuid.UUID `json:"id"`
+	BedroomNumber int32     `json:"bedroom_number"`
+	EnSuite       bool      `json:"en_suite"`
+	Master        bool      `json:"master"`
+	UnitID        uuid.UUID `json:"unit_id"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type Caretaker struct {
@@ -78,51 +78,54 @@ type Property struct {
 	CaretakerID uuid.NullUUID  `json:"caretaker_id"`
 }
 
-type PropertyUnit struct {
-	ID         uuid.UUID     `json:"id"`
-	Name       string        `json:"name"`
-	Type       string        `json:"type"`
-	State      string        `json:"state"`
-	Price      int32         `json:"price"`
-	Bathrooms  int32         `json:"bathrooms"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  time.Time     `json:"updated_at"`
-	PropertyID uuid.NullUUID `json:"property_id"`
-}
-
 type Shoot struct {
-	ID             uuid.UUID `json:"id"`
-	ShootDate      time.Time `json:"shoot_date"`
-	PropertyID     uuid.UUID `json:"property_id"`
-	PropertyUnitID uuid.UUID `json:"property_unit_id"`
-	Status         string    `json:"status"`
-	CaretakerID    uuid.UUID `json:"caretaker_id"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID          uuid.UUID `json:"id"`
+	ShootDate   time.Time `json:"shoot_date"`
+	PropertyID  uuid.UUID `json:"property_id"`
+	UnitID      uuid.UUID `json:"unit_id"`
+	Status      string    `json:"status"`
+	CaretakerID uuid.UUID `json:"caretaker_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type Tenant struct {
-	ID             uuid.UUID    `json:"id"`
-	StartDate      time.Time    `json:"start_date"`
-	EndDate        sql.NullTime `json:"end_date"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
-	PropertyUnitID uuid.UUID    `json:"property_unit_id"`
-	UserID         uuid.UUID    `json:"user_id"`
+	ID        uuid.UUID    `json:"id"`
+	StartDate time.Time    `json:"start_date"`
+	EndDate   sql.NullTime `json:"end_date"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
+	UnitID    uuid.UUID    `json:"unit_id"`
+	UserID    uuid.UUID    `json:"user_id"`
+}
+
+type Unit struct {
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Location    interface{}   `json:"location"`
+	Type        string        `json:"type"`
+	State       string        `json:"state"`
+	Price       int32         `json:"price"`
+	Bathrooms   int32         `json:"bathrooms"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	PropertyID  uuid.NullUUID `json:"property_id"`
 }
 
 type Upload struct {
-	ID             uuid.UUID      `json:"id"`
-	Upload         string         `json:"upload"`
-	Category       string         `json:"category"`
-	Label          sql.NullString `json:"label"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
-	PropertyUnitID uuid.NullUUID  `json:"property_unit_id"`
-	PropertyID     uuid.NullUUID  `json:"property_id"`
-	UserID         uuid.NullUUID  `json:"user_id"`
-	CaretakerID    uuid.NullUUID  `json:"caretaker_id"`
-	TenantID       uuid.NullUUID  `json:"tenant_id"`
+	ID          uuid.UUID      `json:"id"`
+	Upload      string         `json:"upload"`
+	Category    string         `json:"category"`
+	Label       sql.NullString `json:"label"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	UnitID      uuid.NullUUID  `json:"unit_id"`
+	PropertyID  uuid.NullUUID  `json:"property_id"`
+	UserID      uuid.NullUUID  `json:"user_id"`
+	CaretakerID uuid.NullUUID  `json:"caretaker_id"`
+	TenantID    uuid.NullUUID  `json:"tenant_id"`
 }
 
 type User struct {

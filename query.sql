@@ -28,7 +28,7 @@ WHERE created_by = $1;
 
 -- name: CreateAmenity :one
 INSERT INTO amenities (
-  name, category, property_unit_id
+  name, category, unit_id
 ) VALUES (
   $1, $2, $3
 )
@@ -36,11 +36,11 @@ RETURNING *;
 
 -- name: GetUnitAmenities :many
 SELECT * FROM amenities
-WHERE property_unit_id = $1;
+WHERE unit_id = $1;
 
 -- name: CreateTenant :one
 INSERT INTO tenants (
-  start_date, property_unit_id, user_id
+  start_date, unit_id, user_id
 ) VALUES (
   $1, $2, $3
 )
@@ -48,23 +48,23 @@ RETURNING *;
 
 -- name: GetCurrentTenant :one
 SELECT * FROM tenants
-WHERE property_unit_id = $1 AND end_date IS NULL;
+WHERE unit_id = $1 AND end_date IS NULL;
 
--- name: CreatePropertyUnit :one
-INSERT INTO property_units (
+-- name: CreateUnit :one
+INSERT INTO units (
   property_id, bathrooms, name, type, price, state
 ) VALUES (
   $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 
--- name: GetPropertyUnit :one
-SELECT * FROM property_units
+-- name: GetUnit :one
+SELECT * FROM units
 WHERE id = $1;
 
 -- name: CreateUnitBedroom :one
 INSERT INTO bedrooms (
-  property_unit_id, bedroom_number, en_suite, master
+  unit_id, bedroom_number, en_suite, master
 ) VALUES (
   $1, $2, $3, $4
 )
@@ -72,18 +72,18 @@ RETURNING *;
 
 -- name: GetUnitBedrooms :many
 SELECT * FROM bedrooms
-WHERE property_unit_id = $1;
+WHERE unit_id = $1;
 
 -- name: GetUnitTenancy :many
 SELECT * FROM tenants
-WHERE property_unit_id = $1;
+WHERE unit_id = $1;
 
 -- name: GetUserTenancy :many
 SELECT * FROM tenants
 WHERE user_id = $1;
 
--- name: GetPropertyUnits :many
-SELECT * FROM property_units
+-- name: GetUnits :many
+SELECT * FROM units
 WHERE property_id = $1;
 
 -- name: FindUserByPhone :one
@@ -128,16 +128,16 @@ SELECT EXISTS(
   WHERE email = $1
 );
 
--- name: PropertyUnitsCount :one
-SELECT COUNT(*) FROM property_units
+-- name: UnitsCount :one
+SELECT COUNT(*) FROM units
 WHERE property_id = $1;
 
 -- name: OccupiedUnitsCount :one
-SELECT COUNT(*) FROM property_units
+SELECT COUNT(*) FROM units
 WHERE property_id = $1 AND state = 'occupied';
 
 -- name: VacantUnitsCount :one
-SELECT COUNT(*) FROM property_units
+SELECT COUNT(*) FROM units
 WHERE property_id = $1 AND state = 'vacant';
 
 -- name: CreateInvoice :one
@@ -210,7 +210,7 @@ WHERE property_id = $1 AND category = $2 LIMIT 1;
 
 -- name: CreateUnitImage :one
 INSERT INTO uploads (
-  upload, category, label, property_unit_id
+  upload, category, label, unit_id
 ) VALUES (
   $1, $2, $3, $4
 )
@@ -218,7 +218,7 @@ RETURNING *;
 
 -- name: GetUnitImages :many
 SELECT id, upload, label FROM uploads
-WHERE property_unit_id = $1 AND category = $2 LIMIT 1;
+WHERE unit_id = $1 AND category = $2 LIMIT 1;
 
 -- name: TrackSubscribeRetries :one
 UPDATE users SET subscribe_retries = $1
