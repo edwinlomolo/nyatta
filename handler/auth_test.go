@@ -36,8 +36,8 @@ func TestMain(m *testing.M) {
 
 	mailingService := services.NewMailingService(queries, cfg.Email, logger)
 	twilioService := services.NewTwilioService(cfg.Twilio, queries, logger)
-	userService := services.NewUserService(queries, logger, cfg.Server.ServerEnv, &cfg.JwtConfig, twilioService, mailingService.SendEmail)
-	propertyService := services.NewPropertyService(queries, cfg.Server.ServerEnv, logger, twilioService, mailingService.SendEmail)
+	userService := services.NewUserService(queries, logger, &cfg.JwtConfig, twilioService)
+	propertyService := services.NewPropertyService(queries, logger, twilioService)
 	unitService := services.NewUnitService(queries, logger)
 	tenancyService := services.NewTenancyService(queries, logger)
 

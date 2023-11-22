@@ -71,7 +71,7 @@ func main() {
 
 	mailingService := services.NewMailingService(queries, configuration.Email, logger)
 	twilioService := services.NewTwilioService(configuration.Twilio, queries, logger)
-	userService := services.NewUserService(queries, logger, configuration.Server.ServerEnv, &configuration.JwtConfig, twilioService)
+	userService := services.NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
 	propertyService := services.NewPropertyService(queries, logger, twilioService)
 	amenityService := services.NewAmenityService(queries, logger, propertyService)
 	unitService := services.NewUnitService(queries, logger)

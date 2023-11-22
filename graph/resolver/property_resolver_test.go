@@ -5,12 +5,6 @@ import (
 )
 
 func Test_Property_Resolver(t *testing.T) {
-	// test user
-	_, err := userService.FindUserByPhone("+254712345678")
-	if err != nil {
-		t.Errorf("expected nil err got: %v", err)
-	}
-
 	t.Run("should_create_property", func(t *testing.T) {
 	})
 

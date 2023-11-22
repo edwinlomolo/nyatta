@@ -20,15 +20,14 @@ type UserServices struct {
 	log     *logrus.Logger
 	auth    *AuthServices
 	twilio  *TwilioServices
-	env     string
 }
 
 // _ - UserServices{} implements UserService
 var _ interfaces.UserService = &UserServices{}
 
-func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, env string, config *config.Jwt, twilio *TwilioServices) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, config *config.Jwt, twilio *TwilioServices) *UserServices {
 	authServices := NewAuthService(logger, config)
-	return &UserServices{queries, logger, authServices, twilio, env}
+	return &UserServices{queries, logger, authServices, twilio}
 }
 
 // FindUserByPhone - get user by phone number
