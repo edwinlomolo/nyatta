@@ -1467,10 +1467,13 @@ input GpsInput {
 
 # Represents new property unit parameters
 input UnitInput {
-  propertyId: UUID!
+  propertyId: UUID
   baths: Int!
   name: String!
   type: String!
+  isCaretaker: Boolean
+  location: GpsInput
+  caretaker: CaretakerInput
   amenities: [UnitAmenityInput!]!
   bedrooms: [UnitBedroomInput!]!
   price: String!
@@ -11261,7 +11264,7 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "amenities", "bedrooms", "price", "uploads"}
+	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "isCaretaker", "location", "caretaker", "amenities", "bedrooms", "price", "uploads"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11272,7 +11275,7 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("propertyId"))
-			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			data, err := ec.unmarshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11304,6 +11307,33 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.Type = data
+		case "isCaretaker":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isCaretaker"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsCaretaker = data
+		case "location":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+			data, err := ec.unmarshalOGpsInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐGpsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Location = data
+		case "caretaker":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("caretaker"))
+			data, err := ec.unmarshalOCaretakerInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Caretaker = data
 		case "amenities":
 			var err error
 
@@ -14522,6 +14552,14 @@ func (ec *executionContext) marshalOGps2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋ
 		return graphql.Null
 	}
 	return ec._Gps(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOGpsInput2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐGpsInput(ctx context.Context, v interface{}) (*model.GpsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGpsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

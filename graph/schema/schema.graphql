@@ -27,10 +27,13 @@ input GpsInput {
 
 # Represents new property unit parameters
 input UnitInput {
-  propertyId: UUID!
+  propertyId: UUID
   baths: Int!
   name: String!
   type: String!
+  isCaretaker: Boolean
+  location: GpsInput
+  caretaker: CaretakerInput
   amenities: [UnitAmenityInput!]!
   bedrooms: [UnitBedroomInput!]!
   price: String!

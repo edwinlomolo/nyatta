@@ -214,14 +214,17 @@ type UnitBedroomInput struct {
 }
 
 type UnitInput struct {
-	PropertyID uuid.UUID           `json:"propertyId"`
-	Baths      int                 `json:"baths"`
-	Name       string              `json:"name"`
-	Type       string              `json:"type"`
-	Amenities  []*UnitAmenityInput `json:"amenities"`
-	Bedrooms   []*UnitBedroomInput `json:"bedrooms"`
-	Price      string              `json:"price"`
-	Uploads    []*UploadImages     `json:"uploads,omitempty"`
+	PropertyID  *uuid.UUID          `json:"propertyId,omitempty"`
+	Baths       int                 `json:"baths"`
+	Name        string              `json:"name"`
+	Type        string              `json:"type"`
+	IsCaretaker *bool               `json:"isCaretaker,omitempty"`
+	Location    *GpsInput           `json:"location,omitempty"`
+	Caretaker   *CaretakerInput     `json:"caretaker,omitempty"`
+	Amenities   []*UnitAmenityInput `json:"amenities"`
+	Bedrooms    []*UnitBedroomInput `json:"bedrooms"`
+	Price       string              `json:"price"`
+	Uploads     []*UploadImages     `json:"uploads,omitempty"`
 }
 
 type UploadImages struct {

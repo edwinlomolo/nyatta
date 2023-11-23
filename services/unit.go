@@ -27,7 +27,7 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 
 // AddUnit - add property unit
 func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
-	pUUID := uuid.NullUUID{UUID: input.PropertyID, Valid: true}
+	pUUID := uuid.NullUUID{UUID: *input.PropertyID, Valid: true}
 
 	unitPrice, err := strconv.ParseInt(input.Price, 10, 64)
 	if err != nil {
@@ -86,7 +86,7 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 		ID:         unit.ID,
 		Name:       unit.Name,
 		Bathrooms:  int(unit.Bathrooms),
-		PropertyID: input.PropertyID,
+		PropertyID: *input.PropertyID,
 		CreatedAt:  &unit.CreatedAt,
 		UpdatedAt:  &unit.UpdatedAt,
 		Price:      strconv.FormatInt(int64(unit.Price), 10),
