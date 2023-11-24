@@ -458,15 +458,20 @@ func (q *Queries) CreateUnitImage(ctx context.Context, arg CreateUnitImageParams
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  phone
+  phone, next_renewal
 ) VALUES (
-  $1
+  $1, $2
 )
 RETURNING id, first_name, last_name, subscribe_retries, next_renewal, phone, created_at, updated_at
 `
 
-func (q *Queries) CreateUser(ctx context.Context, phone string) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, phone)
+type CreateUserParams struct {
+	Phone       string `json:"phone"`
+	NextRenewal int64  `json:"next_renewal"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.Phone, arg.NextRenewal)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -1143,8 +1148,8 @@ RETURNING id, first_name, last_name, subscribe_retries, next_renewal, phone, cre
 `
 
 type UpdateLandlordParams struct {
-	NextRenewal time.Time `json:"next_renewal"`
-	Phone       string    `json:"phone"`
+	NextRenewal int64  `json:"next_renewal"`
+	Phone       string `json:"phone"`
 }
 
 func (q *Queries) UpdateLandlord(ctx context.Context, arg UpdateLandlordParams) (User, error) {

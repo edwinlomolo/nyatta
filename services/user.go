@@ -37,13 +37,16 @@ func (u *UserServices) FindUserByPhone(ctx context.Context, phone string) (*mode
 
 	foundUser, err = u.queries.FindUserByPhone(ctx, phone)
 	if err != nil && err == sql.ErrNoRows {
-		foundUser, err = u.queries.CreateUser(ctx, phone)
+		foundUser, err = u.queries.CreateUser(ctx, sqlStore.CreateUserParams{
+			Phone:       phone,
+			NextRenewal: time.Now().Unix(),
+		})
 		if err != nil {
 			u.log.Errorf("%s: %v", u.ServiceName(), err)
 			return nil, err
 		}
 
-		isLandlord := time.Now().Before(foundUser.NextRenewal)
+		isLandlord := foundUser.NextRenewal > time.Now().Unix()
 		return &model.User{
 			ID:               foundUser.ID,
 			IsLandlord:       isLandlord,
@@ -59,7 +62,7 @@ func (u *UserServices) FindUserByPhone(ctx context.Context, phone string) (*mode
 		return nil, err
 	}
 
-	isLandlord := time.Now().Before(foundUser.NextRenewal)
+	isLandlord := foundUser.NextRenewal > time.Now().Unix()
 	return &model.User{
 		ID:               foundUser.ID,
 		Phone:            foundUser.Phone,
@@ -181,7 +184,7 @@ func (u *UserServices) GetUser(ctx context.Context, id uuid.UUID) (*model.User, 
 		return nil, nil
 	}
 
-	isLandlord := time.Now().Before(foundUser.NextRenewal)
+	isLandlord := foundUser.NextRenewal > time.Now().Unix()
 	return &model.User{
 		ID:               foundUser.ID,
 		FirstName:        &foundUser.FirstName.String,

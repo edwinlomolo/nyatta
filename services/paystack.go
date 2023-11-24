@@ -76,7 +76,7 @@ func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, phone string, p
 func (p *PaystackServices) ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error {
 	if payload.Event == "charge.success" {
 		data := payload.Data
-		nextRenewal := time.Now().Add(time.Hour * 24 * 30)
+		nextRenewal := time.Now().Add(time.Hour * 24 * 30).Unix()
 
 		createdAt, err := time.Parse(time.RFC3339, data.CreatedAt)
 		if err != nil {

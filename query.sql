@@ -4,9 +4,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreateUser :one
 INSERT INTO users (
-  phone
+  phone, next_renewal
 ) VALUES (
-  $1
+  $1, $2
 )
 RETURNING *;
 
