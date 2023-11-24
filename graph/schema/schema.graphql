@@ -109,6 +109,11 @@ input CreatePaymentInput {
   amount: String!
 }
 
+# NearBy listings input
+input NearByListingsInput {
+  gps: GpsInput!
+}
+
 # after signin return this
 type Token {
   token: String!
@@ -181,6 +186,7 @@ type Query {
   listingOverview(propertyId: UUID!): ListingOverview!
   getListings: [Property!]!
   refreshToken: SignInResponse!
+  getNearByListings(input: NearByListingsInput!): [Unit!]!
 }
 
 type Mutation {

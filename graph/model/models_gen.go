@@ -101,6 +101,10 @@ type ListingOverview struct {
 	TotalUnits    int `json:"totalUnits"`
 }
 
+type NearByListingsInput struct {
+	Gps *GpsInput `json:"gps"`
+}
+
 type NewProperty struct {
 	Name        string          `json:"name"`
 	Type        string          `json:"type"`

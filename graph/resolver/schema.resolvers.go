@@ -249,6 +249,11 @@ func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse
 	}, nil
 }
 
+// GetNearByListings is the resolver for the getNearByListings field.
+func (r *queryResolver) GetNearByListings(ctx context.Context, input model.NearByListingsInput) ([]*model.Unit, error) {
+	return make([]*model.Unit, 0), nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
