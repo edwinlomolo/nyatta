@@ -26,7 +26,8 @@ func NewPaystackService(cfg config.Paystack, logger *logrus.Logger, sqlStore *st
 	return &PaystackServices{config: cfg, logger: logger, baseApi: cfg.BaseApi, sqlStore: sqlStore}
 }
 
-func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, phone string, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error) {
+func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error) {
+	phone := ctx.Value("phone").(string)
 	var chargeResponse *model.PaystackMpesaChargeResponse
 
 	url := p.baseApi + "/charge"
@@ -70,13 +71,23 @@ func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, phone string, p
 		return nil, err
 	}
 
+	isLandlord := ctx.Value("is_landlord").(bool)
+	if !isLandlord {
+		if _, err := p.sqlStore.TrackSubscribeRetries(ctx, store.TrackSubscribeRetriesParams{
+			Phone:            phone,
+			SubscribeRetries: 1,
+		}); err != nil {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
+	}
+
 	return chargeResponse, nil
 }
 
 func (p *PaystackServices) ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error {
 	if payload.Event == "charge.success" {
 		data := payload.Data
-		nextRenewal := time.Now().Add(time.Hour * 24 * 30).Unix()
 
 		createdAt, err := time.Parse(time.RFC3339, data.CreatedAt)
 		if err != nil {
@@ -109,7 +120,7 @@ func (p *PaystackServices) ReconcilePaystackMpesaCallback(ctx context.Context, p
 		}
 
 		if _, err := p.sqlStore.UpdateLandlord(ctx, store.UpdateLandlordParams{
-			NextRenewal: nextRenewal,
+			NextRenewal: time.Now().Add(time.Hour * 24 * 30).Unix(),
 			Phone:       updatedInvoice.Phone.String,
 		}); err != nil {
 			p.logger.Errorf("%s:%v", p.ServiceName(), err)

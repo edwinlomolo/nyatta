@@ -151,19 +151,6 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 		}
 	}
 
-	if notUnitType {
-		isLandlord := ctx.Value("is_landlord").(bool)
-		if !isLandlord {
-			if _, err := u.queries.TrackSubscribeRetries(ctx, sqlStore.TrackSubscribeRetriesParams{
-				Phone:            phone,
-				SubscribeRetries: 1,
-			}); err != nil {
-				u.logger.Errorf("%s:%v", u.ServiceName(), err)
-				return nil, err
-			}
-		}
-	}
-
 	return &model.Unit{
 		ID:         unit.ID,
 		Name:       unit.Name,
