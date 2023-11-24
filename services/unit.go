@@ -3,11 +3,14 @@ package services
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strconv"
 
+	"github.com/3dw1nM0535/nyatta/database/store"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/interfaces"
+	"github.com/cridenour/go-postgis"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -27,20 +30,86 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 
 // AddUnit - add property unit
 func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
-	pUUID := uuid.NullUUID{UUID: *input.PropertyID, Valid: true}
+	phone := ctx.Value("phone").(string)
+	notUnitType := input.Type != "Unit"
+	var caretaker store.Caretaker
+	var caretakerErr error
 
 	unitPrice, err := strconv.ParseInt(input.Price, 10, 64)
 	if err != nil {
 		u.logger.Errorf("%s: %v", u.ServiceName(), err)
 		return nil, err
 	}
-	unit, err := u.queries.CreateUnit(ctx, sqlStore.CreateUnitParams{
-		PropertyID: pUUID,
-		Name:       input.Name,
-		Price:      int32(unitPrice),
-		Type:       input.Type,
-		Bathrooms:  int32(input.Baths),
-	})
+
+	if notUnitType {
+		if *input.IsCaretaker == false {
+			caretaker, caretakerErr = u.queries.GetCaretakerByPhone(ctx, input.Caretaker.Phone)
+			if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
+				caretaker, caretakerErr = u.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+					FirstName: input.Caretaker.FirstName,
+					LastName:  input.Caretaker.LastName,
+					Phone:     input.Caretaker.Phone,
+				})
+				if caretakerErr != nil {
+					u.logger.Errorf("%s:%v", u.ServiceName(), caretakerErr)
+					return nil, caretakerErr
+				}
+			}
+		} else {
+			caretaker, caretakerErr = u.queries.GetCaretakerByPhone(ctx, phone)
+			if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
+				userId := ctx.Value("userId").(string)
+				user, err := ctx.Value("userService").(*UserServices).GetUser(ctx, uuid.MustParse(userId))
+				if err != nil {
+					u.logger.Errorf("%s:%v", u.ServiceName(), err)
+					return nil, err
+				}
+				caretaker, caretakerErr = u.queries.CreateCaretaker(ctx, sqlStore.CreateCaretakerParams{
+					FirstName: *user.FirstName,
+					LastName:  *user.LastName,
+					Phone:     phone,
+				})
+				if caretakerErr != nil {
+					u.logger.Errorf("%s:%v", u.ServiceName(), err)
+					return nil, err
+				}
+			}
+		}
+	}
+
+	var unit store.Unit
+	var unitErr error
+	if notUnitType {
+		gps := postgis.PointS{
+			X: input.Location.Lat,
+			Y: input.Location.Lng,
+		}
+		if unit, unitErr = u.queries.CreateOtherUnit(ctx, sqlStore.CreateOtherUnitParams{
+			Name:        input.Name,
+			State:       input.State.String(),
+			Location:    fmt.Sprintf("SRID=4326;POINT(%.8f %.8f)", gps.Y, gps.X),
+			Price:       int32(unitPrice),
+			Type:        input.Type,
+			Bathrooms:   int32(input.Baths),
+			CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
+		}); unitErr != nil {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, unitErr
+		}
+	} else {
+		pUUID := uuid.NullUUID{UUID: *input.PropertyID, Valid: true}
+		if unit, unitErr = u.queries.CreateUnit(ctx, sqlStore.CreateUnitParams{
+			PropertyID: pUUID,
+			Name:       input.Name,
+			State:      input.State.String(),
+			Price:      int32(unitPrice),
+			Type:       input.Type,
+			Bathrooms:  int32(input.Baths),
+		}); unitErr != nil {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, unitErr
+		}
+	}
 
 	if len(input.Bedrooms) > 0 {
 		for _, bedroom := range input.Bedrooms {
@@ -82,11 +151,24 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 		}
 	}
 
+	if notUnitType {
+		isLandlord := ctx.Value("is_landlord").(bool)
+		if !isLandlord {
+			if _, err := u.queries.TrackSubscribeRetries(ctx, sqlStore.TrackSubscribeRetriesParams{
+				Phone:            phone,
+				SubscribeRetries: 1,
+			}); err != nil {
+				u.logger.Errorf("%s:%v", u.ServiceName(), err)
+				return nil, err
+			}
+		}
+	}
+
 	return &model.Unit{
 		ID:         unit.ID,
 		Name:       unit.Name,
 		Bathrooms:  int(unit.Bathrooms),
-		PropertyID: *input.PropertyID,
+		PropertyID: unit.PropertyID.UUID,
 		CreatedAt:  &unit.CreatedAt,
 		UpdatedAt:  &unit.UpdatedAt,
 		Price:      strconv.FormatInt(int64(unit.Price), 10),

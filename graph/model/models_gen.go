@@ -218,6 +218,7 @@ type UnitInput struct {
 	Baths       int                 `json:"baths"`
 	Name        string              `json:"name"`
 	Type        string              `json:"type"`
+	State       UnitState           `json:"state"`
 	IsCaretaker *bool               `json:"isCaretaker,omitempty"`
 	Location    *GpsInput           `json:"location,omitempty"`
 	Caretaker   *CaretakerInput     `json:"caretaker,omitempty"`

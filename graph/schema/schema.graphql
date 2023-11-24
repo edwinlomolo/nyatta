@@ -31,6 +31,7 @@ input UnitInput {
   baths: Int!
   name: String!
   type: String!
+  state: UnitState!
   isCaretaker: Boolean
   location: GpsInput
   caretaker: CaretakerInput

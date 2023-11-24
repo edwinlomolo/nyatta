@@ -151,6 +151,57 @@ func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (I
 	return i, err
 }
 
+const createOtherUnit = `-- name: CreateOtherUnit :one
+INSERT INTO units (
+  property_id, bathrooms, name, type, price, state, caretaker_id, created_by, location
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, ST_GeomFromText($9::text)
+)
+RETURNING id, name, location, type, state, price, bathrooms, created_at, updated_at, created_by, caretaker_id, property_id
+`
+
+type CreateOtherUnitParams struct {
+	PropertyID  uuid.NullUUID `json:"property_id"`
+	Bathrooms   int32         `json:"bathrooms"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	Price       int32         `json:"price"`
+	State       string        `json:"state"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	Location    string        `json:"location"`
+}
+
+func (q *Queries) CreateOtherUnit(ctx context.Context, arg CreateOtherUnitParams) (Unit, error) {
+	row := q.db.QueryRowContext(ctx, createOtherUnit,
+		arg.PropertyID,
+		arg.Bathrooms,
+		arg.Name,
+		arg.Type,
+		arg.Price,
+		arg.State,
+		arg.CaretakerID,
+		arg.CreatedBy,
+		arg.Location,
+	)
+	var i Unit
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Location,
+		&i.Type,
+		&i.State,
+		&i.Price,
+		&i.Bathrooms,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CreatedBy,
+		&i.CaretakerID,
+		&i.PropertyID,
+	)
+	return i, err
+}
+
 const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
   name, type, created_by, caretaker_id, location

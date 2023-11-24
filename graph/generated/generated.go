@@ -1471,6 +1471,7 @@ input UnitInput {
   baths: Int!
   name: String!
   type: String!
+  state: UnitState!
   isCaretaker: Boolean
   location: GpsInput
   caretaker: CaretakerInput
@@ -11264,7 +11265,7 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "isCaretaker", "location", "caretaker", "amenities", "bedrooms", "price", "uploads"}
+	fieldsInOrder := [...]string{"propertyId", "baths", "name", "type", "state", "isCaretaker", "location", "caretaker", "amenities", "bedrooms", "price", "uploads"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11307,6 +11308,15 @@ func (ec *executionContext) unmarshalInputUnitInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.Type = data
+		case "state":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
+			data, err := ec.unmarshalNUnitState2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitState(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.State = data
 		case "isCaretaker":
 			var err error
 

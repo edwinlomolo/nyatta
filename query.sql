@@ -58,6 +58,14 @@ INSERT INTO units (
 )
 RETURNING *;
 
+-- name: CreateOtherUnit :one
+INSERT INTO units (
+  property_id, bathrooms, name, type, price, state, caretaker_id, created_by, location
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, ST_GeomFromText(sqlc.arg(location)::text)
+)
+RETURNING *;
+
 -- name: GetUnit :one
 SELECT * FROM units
 WHERE id = $1;
