@@ -155,7 +155,7 @@ const createOtherUnit = `-- name: CreateOtherUnit :one
 INSERT INTO units (
   property_id, bathrooms, name, type, price, state, caretaker_id, created_by, location
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, ST_GeomFromText($9::text)
+  $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 RETURNING id, name, location, type, state, price, bathrooms, created_at, updated_at, created_by, caretaker_id, property_id
 `
@@ -169,7 +169,7 @@ type CreateOtherUnitParams struct {
 	State       string        `json:"state"`
 	CaretakerID uuid.NullUUID `json:"caretaker_id"`
 	CreatedBy   uuid.NullUUID `json:"created_by"`
-	Location    string        `json:"location"`
+	Location    interface{}   `json:"location"`
 }
 
 func (q *Queries) CreateOtherUnit(ctx context.Context, arg CreateOtherUnitParams) (Unit, error) {
@@ -206,7 +206,7 @@ const createProperty = `-- name: CreateProperty :one
 INSERT INTO properties (
   name, type, created_by, caretaker_id, location
 ) VALUES (
-  $1, $2, $3, $4, ST_GeomFromText($5::text)
+  $1, $2, $3, $4, $5
 )
 RETURNING id, name, location, type, created_at, updated_at, created_by, caretaker_id
 `
@@ -216,7 +216,7 @@ type CreatePropertyParams struct {
 	Type        string        `json:"type"`
 	CreatedBy   uuid.NullUUID `json:"created_by"`
 	CaretakerID uuid.NullUUID `json:"caretaker_id"`
-	Location    string        `json:"location"`
+	Location    interface{}   `json:"location"`
 }
 
 func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) (Property, error) {
@@ -624,6 +624,55 @@ func (q *Queries) GetCurrentTenant(ctx context.Context, unitID uuid.UUID) (Tenan
 		&i.UserID,
 	)
 	return i, err
+}
+
+const getNearByUnits = `-- name: GetNearByUnits :many
+SELECT u.id, u.name, u.type, u.price, u.created_at, ST_Distance(p.location, $1::geography) AS distance FROM properties p
+JOIN units u
+ON ST_DWithin(p.location, $1::geography, 10000) WHERE u.property_id = p.id
+UNION ALL
+SELECT u.id, u.name, u.type, u.price, u.created_at, ST_Distance(u.location, $1::geography) AS distance FROM units u
+WHERE ST_DWithin(u.location, $1::geography, 10000)
+ORDER BY created_at
+`
+
+type GetNearByUnitsRow struct {
+	ID        uuid.UUID   `json:"id"`
+	Name      string      `json:"name"`
+	Type      string      `json:"type"`
+	Price     int32       `json:"price"`
+	CreatedAt time.Time   `json:"created_at"`
+	Distance  interface{} `json:"distance"`
+}
+
+func (q *Queries) GetNearByUnits(ctx context.Context, point interface{}) ([]GetNearByUnitsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getNearByUnits, point)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetNearByUnitsRow
+	for rows.Next() {
+		var i GetNearByUnitsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.Price,
+			&i.CreatedAt,
+			&i.Distance,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getProperty = `-- name: GetProperty :one

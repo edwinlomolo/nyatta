@@ -110,7 +110,7 @@ input CreatePaymentInput {
 }
 
 # NearBy listings input
-input NearByListingsInput {
+input NearByUnitsInput {
   gps: GpsInput!
 }
 
@@ -184,9 +184,8 @@ type Query {
   getPropertyTenancy(propertyId: UUID!): [Tenant!]!
   getUserProperties: [Property!]!
   listingOverview(propertyId: UUID!): ListingOverview!
-  getListings: [Property!]!
   refreshToken: SignInResponse!
-  getNearByListings(input: NearByListingsInput!): [Unit!]!
+  getNearByUnits(input: NearByUnitsInput!): [Unit!]!
 }
 
 type Mutation {

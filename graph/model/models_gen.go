@@ -101,7 +101,7 @@ type ListingOverview struct {
 	TotalUnits    int `json:"totalUnits"`
 }
 
-type NearByListingsInput struct {
+type NearByUnitsInput struct {
 	Gps *GpsInput `json:"gps"`
 }
 

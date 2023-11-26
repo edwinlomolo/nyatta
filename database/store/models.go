@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/cridenour/go-postgis"
 	"github.com/google/uuid"
 )
 
@@ -68,14 +67,14 @@ type Mailing struct {
 }
 
 type Property struct {
-	ID          uuid.UUID      `json:"id"`
-	Name        string         `json:"name"`
-	Location    postgis.PointS `json:"location"`
-	Type        string         `json:"type"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	CreatedBy   uuid.NullUUID  `json:"created_by"`
-	CaretakerID uuid.NullUUID  `json:"caretaker_id"`
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Location    interface{}   `json:"location"`
+	Type        string        `json:"type"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
 }
 
 type Shoot struct {

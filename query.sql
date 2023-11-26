@@ -14,7 +14,7 @@ RETURNING *;
 INSERT INTO properties (
   name, type, created_by, caretaker_id, location
 ) VALUES (
-  $1, $2, $3, $4, ST_GeomFromText(sqlc.arg(location)::text)
+  $1, $2, $3, $4, sqlc.arg(location)
 )
 RETURNING *;
 
@@ -62,7 +62,7 @@ RETURNING *;
 INSERT INTO units (
   property_id, bathrooms, name, type, price, state, caretaker_id, created_by, location
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, ST_GeomFromText(sqlc.arg(location)::text)
+  $1, $2, $3, $4, $5, $6, $7, $8, sqlc.arg(location)
 )
 RETURNING *;
 
@@ -232,3 +232,12 @@ WHERE unit_id = $1 AND category = $2 LIMIT 1;
 UPDATE users SET subscribe_retries = $1
 WHERE phone = $2
 RETURNING *;
+
+-- name: GetNearByUnits :many
+SELECT u.id, u.name, u.type, u.price, u.created_at, ST_Distance(p.location, sqlc.arg(point)::geography) AS distance FROM properties p
+JOIN units u
+ON ST_DWithin(p.location, sqlc.arg(point)::geography, 10000) WHERE u.property_id = p.id
+UNION ALL
+SELECT u.id, u.name, u.type, u.price, u.created_at, ST_Distance(u.location, sqlc.arg(point)::geography) AS distance FROM units u
+WHERE ST_DWithin(u.location, sqlc.arg(point)::geography, 10000)
+ORDER BY created_at;

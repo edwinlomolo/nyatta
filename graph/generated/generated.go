@@ -147,8 +147,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetListings        func(childComplexity int) int
-		GetNearByListings  func(childComplexity int, input model.NearByListingsInput) int
+		GetNearByUnits     func(childComplexity int, input model.NearByUnitsInput) int
 		GetProperty        func(childComplexity int, id uuid.UUID) int
 		GetPropertyTenancy func(childComplexity int, propertyID uuid.UUID) int
 		GetTowns           func(childComplexity int) int
@@ -277,9 +276,8 @@ type QueryResolver interface {
 	GetPropertyTenancy(ctx context.Context, propertyID uuid.UUID) ([]*model.Tenant, error)
 	GetUserProperties(ctx context.Context) ([]*model.Property, error)
 	ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error)
-	GetListings(ctx context.Context) ([]*model.Property, error)
 	RefreshToken(ctx context.Context) (*model.SignInResponse, error)
-	GetNearByListings(ctx context.Context, input model.NearByListingsInput) ([]*model.Unit, error)
+	GetNearByUnits(ctx context.Context, input model.NearByUnitsInput) ([]*model.Unit, error)
 }
 type TenantResolver interface {
 	User(ctx context.Context, obj *model.Tenant) (*model.User, error)
@@ -840,24 +838,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Property.UpdatedAt(childComplexity), true
 
-	case "Query.getListings":
-		if e.complexity.Query.GetListings == nil {
+	case "Query.getNearByUnits":
+		if e.complexity.Query.GetNearByUnits == nil {
 			break
 		}
 
-		return e.complexity.Query.GetListings(childComplexity), true
-
-	case "Query.getNearByListings":
-		if e.complexity.Query.GetNearByListings == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getNearByListings_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getNearByUnits_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetNearByListings(childComplexity, args["input"].(model.NearByListingsInput)), true
+		return e.complexity.Query.GetNearByUnits(childComplexity, args["input"].(model.NearByUnitsInput)), true
 
 	case "Query.getProperty":
 		if e.complexity.Query.GetProperty == nil {
@@ -1345,7 +1336,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreatePaymentInput,
 		ec.unmarshalInputGpsInput,
 		ec.unmarshalInputHandshakeInput,
-		ec.unmarshalInputNearByListingsInput,
+		ec.unmarshalInputNearByUnitsInput,
 		ec.unmarshalInputNewProperty,
 		ec.unmarshalInputNewUser,
 		ec.unmarshalInputShootInput,
@@ -1565,7 +1556,7 @@ input CreatePaymentInput {
 }
 
 # NearBy listings input
-input NearByListingsInput {
+input NearByUnitsInput {
   gps: GpsInput!
 }
 
@@ -1639,9 +1630,8 @@ type Query {
   getPropertyTenancy(propertyId: UUID!): [Tenant!]!
   getUserProperties: [Property!]!
   listingOverview(propertyId: UUID!): ListingOverview!
-  getListings: [Property!]!
   refreshToken: SignInResponse!
-  getNearByListings(input: NearByListingsInput!): [Unit!]!
+  getNearByUnits(input: NearByUnitsInput!): [Unit!]!
 }
 
 type Mutation {
@@ -2034,13 +2024,13 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getNearByListings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_getNearByUnits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NearByListingsInput
+	var arg0 model.NearByUnitsInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNearByListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNearByListingsInput(ctx, tmp)
+		arg0, err = ec.unmarshalNNearByUnitsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNearByUnitsInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6122,76 +6112,6 @@ func (ec *executionContext) fieldContext_Query_listingOverview(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getListings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getListings(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetListings(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Property)
-	fc.Result = res
-	return ec.marshalNProperty2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐPropertyᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getListings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Property_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Property_name(ctx, field)
-			case "type":
-				return ec.fieldContext_Property_type(ctx, field)
-			case "location":
-				return ec.fieldContext_Property_location(ctx, field)
-			case "thumbnail":
-				return ec.fieldContext_Property_thumbnail(ctx, field)
-			case "units":
-				return ec.fieldContext_Property_units(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Property_createdBy(ctx, field)
-			case "caretaker":
-				return ec.fieldContext_Property_caretaker(ctx, field)
-			case "caretakerId":
-				return ec.fieldContext_Property_caretakerId(ctx, field)
-			case "owner":
-				return ec.fieldContext_Property_owner(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Property_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Property_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Property", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_refreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_refreshToken(ctx, field)
 	if err != nil {
@@ -6242,8 +6162,8 @@ func (ec *executionContext) fieldContext_Query_refreshToken(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getNearByListings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getNearByListings(ctx, field)
+func (ec *executionContext) _Query_getNearByUnits(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getNearByUnits(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6256,7 +6176,7 @@ func (ec *executionContext) _Query_getNearByListings(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetNearByListings(rctx, fc.Args["input"].(model.NearByListingsInput))
+		return ec.resolvers.Query().GetNearByUnits(rctx, fc.Args["input"].(model.NearByUnitsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6273,7 +6193,7 @@ func (ec *executionContext) _Query_getNearByListings(ctx context.Context, field 
 	return ec.marshalNUnit2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnitᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getNearByListings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getNearByUnits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -6332,7 +6252,7 @@ func (ec *executionContext) fieldContext_Query_getNearByListings(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getNearByListings_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_getNearByUnits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11127,8 +11047,8 @@ func (ec *executionContext) unmarshalInputHandshakeInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNearByListingsInput(ctx context.Context, obj interface{}) (model.NearByListingsInput, error) {
-	var it model.NearByListingsInput
+func (ec *executionContext) unmarshalInputNearByUnitsInput(ctx context.Context, obj interface{}) (model.NearByUnitsInput, error) {
+	var it model.NearByUnitsInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -12689,28 +12609,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getListings":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getListings(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "refreshToken":
 			field := field
 
@@ -12733,7 +12631,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getNearByListings":
+		case "getNearByUnits":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -12742,7 +12640,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getNearByListings(ctx, field)
+				res = ec._Query_getNearByUnits(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -14011,8 +13909,8 @@ func (ec *executionContext) marshalNListingOverview2ᚖgithubᚗcomᚋ3dw1nM0535
 	return ec._ListingOverview(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNNearByListingsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNearByListingsInput(ctx context.Context, v interface{}) (model.NearByListingsInput, error) {
-	res, err := ec.unmarshalInputNearByListingsInput(ctx, v)
+func (ec *executionContext) unmarshalNNearByUnitsInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐNearByUnitsInput(ctx context.Context, v interface{}) (model.NearByUnitsInput, error) {
+	res, err := ec.unmarshalInputNearByUnitsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

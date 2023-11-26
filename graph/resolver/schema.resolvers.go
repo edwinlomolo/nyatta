@@ -230,11 +230,6 @@ func (r *queryResolver) ListingOverview(ctx context.Context, propertyID uuid.UUI
 	return overview, nil
 }
 
-// GetListings is the resolver for the getListings field.
-func (r *queryResolver) GetListings(ctx context.Context) ([]*model.Property, error) {
-	return make([]*model.Property, 0), nil
-}
-
 // RefreshToken is the resolver for the refreshToken field.
 func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse, error) {
 	phone := ctx.Value("phone").(string)
@@ -249,9 +244,14 @@ func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse
 	}, nil
 }
 
-// GetNearByListings is the resolver for the getNearByListings field.
-func (r *queryResolver) GetNearByListings(ctx context.Context, input model.NearByListingsInput) ([]*model.Unit, error) {
-	return make([]*model.Unit, 0), nil
+// GetNearByUnits is the resolver for the getNearByUnits field.
+func (r *queryResolver) GetNearByUnits(ctx context.Context, input model.NearByUnitsInput) ([]*model.Unit, error) {
+	units, err := ctx.Value("listingService").(*services.ListingServices).GetNearByUnits(ctx, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	return units, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

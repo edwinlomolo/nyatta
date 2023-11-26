@@ -23,18 +23,19 @@ CREATE TABLE IF NOT EXISTS caretakers (
 CREATE TABLE IF NOT EXISTS properties (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(100) NOT NULL,
-  location GEOMETRY(POINT, 4326) NOT NULL,
+  location GEOGRAPHY(POINT) NOT NULL,
   type VARCHAR(50) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by uuid REFERENCES users ON DELETE SET NULL ON UPDATE CASCADE,
   caretaker_id uuid REFERENCES caretakers ON DELETE SET NULL ON UPDATE CASCADE
 );
+CREATE INDEX IF NOT EXISTS properties_gix ON properties USING GIST(location);
 
 CREATE TABLE IF NOT EXISTS units (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(100) NOT NULL,
-  location GEOMETRY(POINT, 4326),
+  location GEOGRAPHY(POINT),
   type VARCHAR(100) NOT NULL,
   state VARCHAR(50) NOT NULL DEFAULT 'VACANT',
   price INTEGER NOT NULL,
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS units (
   caretaker_id uuid REFERENCES caretakers ON DELETE SET NULL,
   property_id uuid REFERENCES properties ON DELETE SET NULL
 );
+CREATE INDEX IF NOT EXISTS units_gix ON units USING GIST(location);
 
 CREATE TABLE IF NOT EXISTS tenants (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),

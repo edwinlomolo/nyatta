@@ -116,13 +116,9 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		Name:        insertedProperty.Name,
 		Type:        model.PropertyType(insertedProperty.Type),
 		CaretakerID: insertedProperty.CaretakerID.UUID,
-		Location: &model.Gps{
-			Lat: insertedProperty.Location.X,
-			Lng: insertedProperty.Location.Y,
-		},
-		CreatedBy: insertedProperty.CreatedBy.UUID,
-		CreatedAt: &insertedProperty.CreatedAt,
-		UpdatedAt: &insertedProperty.UpdatedAt,
+		CreatedBy:   insertedProperty.CreatedBy.UUID,
+		CreatedAt:   &insertedProperty.CreatedAt,
+		UpdatedAt:   &insertedProperty.UpdatedAt,
 	}, nil
 }
 
@@ -138,10 +134,6 @@ func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*mode
 		Name:      foundProperty.Name,
 		Type:      model.PropertyType(foundProperty.Type),
 		CreatedBy: foundProperty.CreatedBy.UUID,
-		Location: &model.Gps{
-			Lat: foundProperty.Location.X,
-			Lng: foundProperty.Location.Y,
-		},
 		CreatedAt: &foundProperty.CreatedAt,
 		UpdatedAt: &foundProperty.UpdatedAt,
 	}, nil
@@ -158,13 +150,9 @@ func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uu
 
 	for _, item := range properties {
 		property := &model.Property{
-			ID:   item.ID,
-			Name: item.Name,
-			Type: model.PropertyType(item.Type),
-			Location: &model.Gps{
-				Lat: item.Location.X,
-				Lng: item.Location.Y,
-			},
+			ID:        item.ID,
+			Name:      item.Name,
+			Type:      model.PropertyType(item.Type),
 			CreatedBy: item.CreatedBy.UUID,
 			CreatedAt: &item.CreatedAt,
 			UpdatedAt: &item.UpdatedAt,
