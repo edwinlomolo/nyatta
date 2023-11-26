@@ -260,13 +260,13 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 			return nil, nil
 		} else {
 			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
 		}
 	}
 
 	return &model.Unit{
 		ID:         foundUnit.ID,
 		Name:       foundUnit.Name,
-		State:      model.UnitState(foundUnit.State),
 		PropertyID: foundUnit.PropertyID.UUID,
 		Type:       foundUnit.Type,
 		Price:      strconv.FormatInt(int64(foundUnit.Price), 10),

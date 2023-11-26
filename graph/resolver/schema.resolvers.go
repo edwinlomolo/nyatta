@@ -254,6 +254,16 @@ func (r *queryResolver) GetNearByUnits(ctx context.Context, input model.NearByUn
 	return units, nil
 }
 
+// GetUnit is the resolver for the getUnit field.
+func (r *queryResolver) GetUnit(ctx context.Context, id uuid.UUID) (*model.Unit, error) {
+	unit, err := ctx.Value("unitService").(*services.UnitServices).GetUnit(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return unit, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

@@ -151,6 +151,7 @@ type ComplexityRoot struct {
 		GetProperty        func(childComplexity int, id uuid.UUID) int
 		GetPropertyTenancy func(childComplexity int, propertyID uuid.UUID) int
 		GetTowns           func(childComplexity int) int
+		GetUnit            func(childComplexity int, id uuid.UUID) int
 		GetUnits           func(childComplexity int, propertyID uuid.UUID) int
 		GetUser            func(childComplexity int) int
 		GetUserProperties  func(childComplexity int) int
@@ -208,6 +209,7 @@ type ComplexityRoot struct {
 		CaretakerID func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		CreatedBy   func(childComplexity int) int
+		Distance    func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Images      func(childComplexity int) int
 		Location    func(childComplexity int) int
@@ -278,6 +280,7 @@ type QueryResolver interface {
 	ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error)
 	RefreshToken(ctx context.Context) (*model.SignInResponse, error)
 	GetNearByUnits(ctx context.Context, input model.NearByUnitsInput) ([]*model.Unit, error)
+	GetUnit(ctx context.Context, id uuid.UUID) (*model.Unit, error)
 }
 type TenantResolver interface {
 	User(ctx context.Context, obj *model.Tenant) (*model.User, error)
@@ -881,6 +884,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetTowns(childComplexity), true
 
+	case "Query.getUnit":
+		if e.complexity.Query.GetUnit == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getUnit_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUnit(childComplexity, args["id"].(uuid.UUID)), true
+
 	case "Query.getUnits":
 		if e.complexity.Query.GetUnits == nil {
 			break
@@ -1147,6 +1162,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Unit.CreatedBy(childComplexity), true
+
+	case "Unit.distance":
+		if e.complexity.Unit.Distance == nil {
+			break
+		}
+
+		return e.complexity.Unit.Distance(childComplexity), true
 
 	case "Unit.id":
 		if e.complexity.Unit.ID == nil {
@@ -1632,6 +1654,7 @@ type Query {
   listingOverview(propertyId: UUID!): ListingOverview!
   refreshToken: SignInResponse!
   getNearByUnits(input: NearByUnitsInput!): [Unit!]!
+  getUnit(id: UUID!): Unit!
 }
 
 type Mutation {
@@ -1762,6 +1785,7 @@ type Unit {
   caretaker: Caretaker
   property: Property!
   tenant: Tenant # vacancy dictates nullity
+  distance: String
   price: String!
   createdBy: UUID
   owner: User
@@ -2055,6 +2079,21 @@ func (ec *executionContext) field_Query_getPropertyTenancy_args(ctx context.Cont
 }
 
 func (ec *executionContext) field_Query_getProperty_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 uuid.UUID
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getUnit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 uuid.UUID
@@ -4239,6 +4278,8 @@ func (ec *executionContext) fieldContext_Mutation_addUnit(ctx context.Context, f
 				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
 				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
 			case "price":
 				return ec.fieldContext_Unit_price(ctx, field)
 			case "createdBy":
@@ -5164,6 +5205,8 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
 				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
 			case "price":
 				return ec.fieldContext_Unit_price(ctx, field)
 			case "createdBy":
@@ -5864,6 +5907,8 @@ func (ec *executionContext) fieldContext_Query_getUnits(ctx context.Context, fie
 				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
 				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
 			case "price":
 				return ec.fieldContext_Unit_price(ctx, field)
 			case "createdBy":
@@ -6219,6 +6264,8 @@ func (ec *executionContext) fieldContext_Query_getNearByUnits(ctx context.Contex
 				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
 				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
 			case "price":
 				return ec.fieldContext_Unit_price(ctx, field)
 			case "createdBy":
@@ -6253,6 +6300,105 @@ func (ec *executionContext) fieldContext_Query_getNearByUnits(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getNearByUnits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getUnit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUnit(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Unit)
+	fc.Result = res
+	return ec.marshalNUnit2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐUnit(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Unit_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Unit_name(ctx, field)
+			case "bedrooms":
+				return ec.fieldContext_Unit_bedrooms(ctx, field)
+			case "propertyId":
+				return ec.fieldContext_Unit_propertyId(ctx, field)
+			case "location":
+				return ec.fieldContext_Unit_location(ctx, field)
+			case "caretakerId":
+				return ec.fieldContext_Unit_caretakerId(ctx, field)
+			case "caretaker":
+				return ec.fieldContext_Unit_caretaker(ctx, field)
+			case "property":
+				return ec.fieldContext_Unit_property(ctx, field)
+			case "tenant":
+				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
+			case "price":
+				return ec.fieldContext_Unit_price(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Unit_createdBy(ctx, field)
+			case "owner":
+				return ec.fieldContext_Unit_owner(ctx, field)
+			case "bathrooms":
+				return ec.fieldContext_Unit_bathrooms(ctx, field)
+			case "amenities":
+				return ec.fieldContext_Unit_amenities(ctx, field)
+			case "state":
+				return ec.fieldContext_Unit_state(ctx, field)
+			case "type":
+				return ec.fieldContext_Unit_type(ctx, field)
+			case "images":
+				return ec.fieldContext_Unit_images(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Unit_tenancy(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Unit_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Unit_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7145,6 +7291,8 @@ func (ec *executionContext) fieldContext_Tenant_unit(ctx context.Context, field 
 				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
 				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
 			case "price":
 				return ec.fieldContext_Unit_price(ctx, field)
 			case "createdBy":
@@ -7899,6 +8047,47 @@ func (ec *executionContext) fieldContext_Unit_tenant(ctx context.Context, field 
 				return ec.fieldContext_Tenant_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Tenant", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unit_distance(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_distance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Distance, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_distance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8900,6 +9089,8 @@ func (ec *executionContext) fieldContext_User_units(ctx context.Context, field g
 				return ec.fieldContext_Unit_property(ctx, field)
 			case "tenant":
 				return ec.fieldContext_Unit_tenant(ctx, field)
+			case "distance":
+				return ec.fieldContext_Unit_distance(ctx, field)
 			case "price":
 				return ec.fieldContext_Unit_price(ctx, field)
 			case "createdBy":
@@ -12653,6 +12844,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getUnit":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUnit(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -13055,6 +13268,8 @@ func (ec *executionContext) _Unit(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "tenant":
 			out.Values[i] = ec._Unit_tenant(ctx, field, obj)
+		case "distance":
+			out.Values[i] = ec._Unit_distance(ctx, field, obj)
 		case "price":
 			out.Values[i] = ec._Unit_price(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

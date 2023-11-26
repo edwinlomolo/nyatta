@@ -186,6 +186,7 @@ type Query {
   listingOverview(propertyId: UUID!): ListingOverview!
   refreshToken: SignInResponse!
   getNearByUnits(input: NearByUnitsInput!): [Unit!]!
+  getUnit(id: UUID!): Unit!
 }
 
 type Mutation {

@@ -627,22 +627,23 @@ func (q *Queries) GetCurrentTenant(ctx context.Context, unitID uuid.UUID) (Tenan
 }
 
 const getNearByUnits = `-- name: GetNearByUnits :many
-SELECT u.id, u.name, u.type, u.price, u.created_at, ST_Distance(p.location, $1::geography) AS distance FROM properties p
+SELECT u.id, u.property_id, u.name, u.type, u.price, u.created_at, ST_Distance(p.location, $1::geography) AS distance FROM properties p
 JOIN units u
-ON ST_DWithin(p.location, $1::geography, 10000) WHERE u.property_id = p.id
-UNION ALL
-SELECT u.id, u.name, u.type, u.price, u.created_at, ST_Distance(u.location, $1::geography) AS distance FROM units u
-WHERE ST_DWithin(u.location, $1::geography, 10000)
+ON ST_DWithin(p.location, $1::geography, 10000) WHERE u.property_id = p.id AND u.state = 'VACANT'
+UNION
+SELECT u.id, u.property_id, u.name, u.type, u.price, u.created_at, ST_Distance(u.location, $1::geography) AS distance FROM units u
+WHERE ST_DWithin(u.location, $1::geography, 10000) AND u.state = 'VACANT'
 ORDER BY created_at
 `
 
 type GetNearByUnitsRow struct {
-	ID        uuid.UUID   `json:"id"`
-	Name      string      `json:"name"`
-	Type      string      `json:"type"`
-	Price     int32       `json:"price"`
-	CreatedAt time.Time   `json:"created_at"`
-	Distance  interface{} `json:"distance"`
+	ID         uuid.UUID     `json:"id"`
+	PropertyID uuid.NullUUID `json:"property_id"`
+	Name       string        `json:"name"`
+	Type       string        `json:"type"`
+	Price      int32         `json:"price"`
+	CreatedAt  time.Time     `json:"created_at"`
+	Distance   interface{}   `json:"distance"`
 }
 
 func (q *Queries) GetNearByUnits(ctx context.Context, point interface{}) ([]GetNearByUnitsRow, error) {
@@ -656,6 +657,7 @@ func (q *Queries) GetNearByUnits(ctx context.Context, point interface{}) ([]GetN
 		var i GetNearByUnitsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.PropertyID,
 			&i.Name,
 			&i.Type,
 			&i.Price,

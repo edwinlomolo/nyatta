@@ -11,5 +11,6 @@ type UnitService interface {
 	AddUnit(ctx context.Context, unit *model.UnitInput) (*model.Unit, error)
 	GetUnitBedrooms(ctx context.Context, unitId uuid.UUID) ([]*model.Bedroom, error)
 	GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error)
+	GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error)
 	ServiceName() string
 }

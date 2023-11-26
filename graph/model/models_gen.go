@@ -193,6 +193,7 @@ type Unit struct {
 	Caretaker   *Caretaker   `json:"caretaker,omitempty"`
 	Property    *Property    `json:"property"`
 	Tenant      *Tenant      `json:"tenant,omitempty"`
+	Distance    *string      `json:"distance,omitempty"`
 	Price       string       `json:"price"`
 	CreatedBy   *uuid.UUID   `json:"createdBy,omitempty"`
 	Owner       *User        `json:"owner,omitempty"`

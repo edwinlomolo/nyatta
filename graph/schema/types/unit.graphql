@@ -9,6 +9,7 @@ type Unit {
   caretaker: Caretaker
   property: Property!
   tenant: Tenant # vacancy dictates nullity
+  distance: String
   price: String!
   createdBy: UUID
   owner: User
