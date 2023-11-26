@@ -38,25 +38,27 @@ func (l *ListingServices) GetNearByUnits(ctx context.Context, input *model.NearB
 	}
 
 	for _, unit := range foundUnits {
-		distance := (unit.Distance).(*string)
-		var d *string
-		dMtr, err := strconv.Atoi(*distance)
+		distance := (unit.Distance).(float64)
+		var d string
+		dMtr, err := strconv.Atoi(strconv.FormatFloat(distance, 'g', -1, 64))
 		if err != nil {
 			return nil, err
 		}
 
 		if dMtr > 1000 {
-			*d = fmt.Sprintf("%d km", dMtr/1000)
+			d = fmt.Sprintf("%d km", dMtr/1000)
 		} else {
-			*d = fmt.Sprintf("%d m", dMtr)
+			d = fmt.Sprintf("%d m", dMtr)
 		}
 
 		u := &model.Unit{
 			ID:         unit.ID,
 			Name:       unit.Name,
 			Price:      strconv.FormatInt(int64(unit.Price), 10),
-			Distance:   d,
+			Type:       unit.Type,
+			Distance:   &d,
 			PropertyID: unit.PropertyID.UUID,
+			UpdatedAt:  &unit.UpdatedAt,
 		}
 		units = append(units, u)
 	}
