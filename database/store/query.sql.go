@@ -8,7 +8,6 @@ package store
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -634,7 +633,7 @@ ON ST_DWithin(p.location, $1::geography, 10000) WHERE u.property_id = p.id AND u
 UNION
 SELECT u.id, u.property_id, u.name, u.type, u.price, u.updated_at, ST_Distance(u.location, $1::geography) AS distance FROM units u
 WHERE ST_DWithin(u.location, $1::geography, 10000) AND u.state = 'VACANT'
-ORDER BY updated_at
+ORDER BY updated_at DESC
 `
 
 type GetNearByUnitsRow struct {
@@ -679,18 +678,19 @@ func (q *Queries) GetNearByUnits(ctx context.Context, point interface{}) ([]GetN
 }
 
 const getProperty = `-- name: GetProperty :one
-SELECT id, name, type, ST_AsGeoJSON(location)::jsonb AS location, created_by, created_at, updated_at FROM properties
+SELECT id, name, type, caretaker_id, ST_AsGeoJSON(location) AS location, created_by, created_at, updated_at FROM properties
 WHERE id = $1 LIMIT 1
 `
 
 type GetPropertyRow struct {
-	ID        uuid.UUID       `json:"id"`
-	Name      string          `json:"name"`
-	Type      string          `json:"type"`
-	Location  json.RawMessage `json:"location"`
-	CreatedBy uuid.NullUUID   `json:"created_by"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	Location    interface{}   `json:"location"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 func (q *Queries) GetProperty(ctx context.Context, id uuid.UUID) (GetPropertyRow, error) {
@@ -700,6 +700,7 @@ func (q *Queries) GetProperty(ctx context.Context, id uuid.UUID) (GetPropertyRow
 		&i.ID,
 		&i.Name,
 		&i.Type,
+		&i.CaretakerID,
 		&i.Location,
 		&i.CreatedBy,
 		&i.CreatedAt,
@@ -731,23 +732,23 @@ func (q *Queries) GetPropertyThumbnail(ctx context.Context, arg GetPropertyThumb
 }
 
 const getUnit = `-- name: GetUnit :one
-SELECT id, name, type, state, price, bathrooms, ST_AsGeoJSON(location)::jsonb AS location, created_by, caretaker_id, property_id, created_at, updated_at FROM units
+SELECT id, name, type, state, price, bathrooms, ST_AsGeoJSON(location) AS location, created_by, caretaker_id, property_id, created_at, updated_at FROM units
 WHERE id = $1
 `
 
 type GetUnitRow struct {
-	ID          uuid.UUID       `json:"id"`
-	Name        string          `json:"name"`
-	Type        string          `json:"type"`
-	State       string          `json:"state"`
-	Price       int32           `json:"price"`
-	Bathrooms   int32           `json:"bathrooms"`
-	Location    json.RawMessage `json:"location"`
-	CreatedBy   uuid.NullUUID   `json:"created_by"`
-	CaretakerID uuid.NullUUID   `json:"caretaker_id"`
-	PropertyID  uuid.NullUUID   `json:"property_id"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	State       string        `json:"state"`
+	Price       int32         `json:"price"`
+	Bathrooms   int32         `json:"bathrooms"`
+	Location    interface{}   `json:"location"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	PropertyID  uuid.NullUUID `json:"property_id"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 func (q *Queries) GetUnit(ctx context.Context, id uuid.UUID) (GetUnitRow, error) {
@@ -1065,20 +1066,21 @@ func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID uuid.NullUU
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT p.id, p.name, p.type, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
+SELECT p.id, p.name, p.type, caretaker_id, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
 UNION
-SELECT u.id, u.name, u.type, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
+SELECT u.id, u.name, u.type, caretaker_id, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
 ORDER BY updated_at
 `
 
 type PropertiesCreatedByRow struct {
-	ID        uuid.UUID     `json:"id"`
-	Name      string        `json:"name"`
-	Type      string        `json:"type"`
-	Location  interface{}   `json:"location"`
-	CreatedBy uuid.NullUUID `json:"created_by"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	Location    interface{}   `json:"location"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]PropertiesCreatedByRow, error) {
@@ -1094,6 +1096,7 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUU
 			&i.ID,
 			&i.Name,
 			&i.Type,
+			&i.CaretakerID,
 			&i.Location,
 			&i.CreatedBy,
 			&i.CreatedAt,

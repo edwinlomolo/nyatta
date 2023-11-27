@@ -135,19 +135,20 @@ func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*mode
 	}
 
 	var location *model.Point
-	json.Unmarshal(foundProperty.Location, &location)
+	json.Unmarshal([]byte((foundProperty.Location).(string)), &location)
 	p.logger.Infoln(location)
 	lat := &location.Coordinates[1]
 	lng := &location.Coordinates[0]
 
 	return &model.Property{
-		ID:        foundProperty.ID,
-		Name:      foundProperty.Name,
-		Type:      model.PropertyType(foundProperty.Type),
-		Location:  &model.Gps{Lat: *lat, Lng: *lng},
-		CreatedBy: foundProperty.CreatedBy.UUID,
-		CreatedAt: &foundProperty.CreatedAt,
-		UpdatedAt: &foundProperty.UpdatedAt,
+		ID:          foundProperty.ID,
+		Name:        foundProperty.Name,
+		CaretakerID: &foundProperty.CaretakerID.UUID,
+		Type:        model.PropertyType(foundProperty.Type),
+		Location:    &model.Gps{Lat: *lat, Lng: *lng},
+		CreatedBy:   foundProperty.CreatedBy.UUID,
+		CreatedAt:   &foundProperty.CreatedAt,
+		UpdatedAt:   &foundProperty.UpdatedAt,
 	}, nil
 }
 
@@ -184,13 +185,14 @@ func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uu
 			}
 		}
 		property := &model.Property{
-			ID:        item.ID,
-			Name:      item.Name,
-			Location:  gps,
-			Type:      model.PropertyType(item.Type),
-			CreatedBy: item.CreatedBy.UUID,
-			CreatedAt: &item.CreatedAt,
-			UpdatedAt: &item.UpdatedAt,
+			ID:          item.ID,
+			Name:        item.Name,
+			Location:    gps,
+			CaretakerID: &item.CaretakerID.UUID,
+			Type:        model.PropertyType(item.Type),
+			CreatedBy:   item.CreatedBy.UUID,
+			CreatedAt:   &item.CreatedAt,
+			UpdatedAt:   &item.UpdatedAt,
 		}
 		userProperties = append(userProperties, property)
 	}

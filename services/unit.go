@@ -243,7 +243,7 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 	var location *model.Point
 	var gps *model.Gps
 	if foundUnit.Location != nil {
-		json.Unmarshal(foundUnit.Location, &location)
+		json.Unmarshal([]byte((foundUnit.Location).(string)), &location)
 	} else {
 		location = nil
 		gps = nil

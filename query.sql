@@ -19,13 +19,13 @@ INSERT INTO properties (
 RETURNING *;
 
 -- name: GetProperty :one
-SELECT id, name, type, ST_AsGeoJSON(location)::jsonb AS location, created_by, created_at, updated_at FROM properties
+SELECT id, name, type, caretaker_id, ST_AsGeoJSON(location) AS location, created_by, created_at, updated_at FROM properties
 WHERE id = $1 LIMIT 1;
 
 -- name: PropertiesCreatedBy :many
-SELECT p.id, p.name, p.type, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
+SELECT p.id, p.name, p.type, caretaker_id, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
 UNION
-SELECT u.id, u.name, u.type, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
+SELECT u.id, u.name, u.type, caretaker_id, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
 ORDER BY updated_at;
 
 -- name: CreateAmenity :one
@@ -69,7 +69,7 @@ INSERT INTO units (
 RETURNING *;
 
 -- name: GetUnit :one
-SELECT id, name, type, state, price, bathrooms, ST_AsGeoJSON(location)::jsonb AS location, created_by, caretaker_id, property_id, created_at, updated_at FROM units
+SELECT id, name, type, state, price, bathrooms, ST_AsGeoJSON(location) AS location, created_by, caretaker_id, property_id, created_at, updated_at FROM units
 WHERE id = $1;
 
 -- name: CreateUnitBedroom :one
@@ -242,4 +242,4 @@ ON ST_DWithin(p.location, sqlc.arg(point)::geography, 10000) WHERE u.property_id
 UNION
 SELECT u.id, u.property_id, u.name, u.type, u.price, u.updated_at, ST_Distance(u.location, sqlc.arg(point)::geography) AS distance FROM units u
 WHERE ST_DWithin(u.location, sqlc.arg(point)::geography, 10000) AND u.state = 'VACANT'
-ORDER BY updated_at;
+ORDER BY updated_at DESC;
