@@ -38,10 +38,11 @@ func (l *ListingServices) GetNearByUnits(ctx context.Context, input *model.NearB
 	}
 
 	for _, unit := range foundUnits {
-		distance := (unit.Distance).(float64)
+		distance := unit.Distance
 		var d string
 		dMtr, err := strconv.Atoi(strconv.FormatFloat(distance, 'g', -1, 64))
 		if err != nil {
+			l.logger.Errorf("%s:%v", l.ServiceName(), err)
 			return nil, err
 		}
 

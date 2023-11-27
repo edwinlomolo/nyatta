@@ -52,6 +52,7 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 					FirstName: input.Caretaker.FirstName,
 					LastName:  input.Caretaker.LastName,
 					Phone:     input.Caretaker.Phone,
+					CreatedBy: uuid.NullUUID{UUID: uuid.MustParse(userId), Valid: true},
 				})
 				if caretakerErr != nil {
 					u.logger.Errorf("%s:%v", u.ServiceName(), caretakerErr)
@@ -70,6 +71,7 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 					FirstName: *user.FirstName,
 					LastName:  *user.LastName,
 					Phone:     phone,
+					CreatedBy: uuid.NullUUID{UUID: user.ID, Valid: true},
 				})
 				if caretakerErr != nil {
 					u.logger.Errorf("%s:%v", u.ServiceName(), err)

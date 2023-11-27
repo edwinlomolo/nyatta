@@ -41,6 +41,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 	var caretaker store.Caretaker
 	var caretakerErr error
 	phone := ctx.Value("phone").(string)
+	userId := ctx.Value("userId").(string)
 	gps := postgis.PointS{
 		SRID: 4326,
 		X:    property.Location.Lat,
@@ -54,6 +55,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 				FirstName: property.Caretaker.FirstName,
 				LastName:  property.Caretaker.LastName,
 				Phone:     property.Caretaker.Phone,
+				CreatedBy: uuid.NullUUID{UUID: uuid.MustParse(userId), Valid: true},
 			})
 			if caretakerErr != nil {
 				p.logger.Errorf("%s:%v", p.ServiceName(), caretakerErr)
@@ -63,7 +65,6 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 	} else {
 		caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, phone)
 		if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
-			userId := ctx.Value("userId").(string)
 			user, err := ctx.Value("userService").(*UserServices).GetUser(ctx, uuid.MustParse(userId))
 			if err != nil {
 				p.logger.Errorf("%s:%v", p.ServiceName(), err)
@@ -73,6 +74,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 				FirstName: *user.FirstName,
 				LastName:  *user.LastName,
 				Phone:     phone,
+				CreatedBy: uuid.NullUUID{UUID: user.ID, Valid: true},
 			})
 			if caretakerErr != nil {
 				p.logger.Errorf("%s:%v", p.ServiceName(), err)
@@ -136,7 +138,6 @@ func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*mode
 
 	var location *model.Point
 	json.Unmarshal([]byte((foundProperty.Location).(string)), &location)
-	p.logger.Infoln(location)
 	lat := &location.Coordinates[1]
 	lng := &location.Coordinates[0]
 
@@ -206,8 +207,12 @@ func (p *PropertyServices) GetUnits(ctx context.Context, propertyID uuid.UUID) (
 
 	foundUnits, err := p.queries.GetUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
 	if err != nil {
-		p.logger.Errorf("%s: %v", p.ServiceName(), err)
-		return nil, err
+		if err == sql.ErrNoRows {
+			return units, nil
+		} else {
+			p.logger.Errorf("%s: %v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
 
 	for _, foundUnit := range foundUnits {
@@ -273,7 +278,12 @@ func (p *PropertyServices) GetPropertyThumbnail(ctx context.Context, propertyID 
 		Category:   model.UploadCategoryPropertyThumbnail.String(),
 	})
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
 
 	return &model.AnyUpload{
@@ -289,8 +299,12 @@ func (p *PropertyServices) GetCaretakerAvatar(ctx context.Context, caretakerID u
 		Category:    model.UploadCategoryProfileImg.String(),
 	})
 	if err != nil {
-		p.logger.Errorf("%s:%v", p.ServiceName(), err)
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
 
 	return &model.AnyUpload{
@@ -311,10 +325,16 @@ func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID
 		}
 	}
 
+	caretakerUser, err := ctx.Value("userService").(*UserServices).FindUserByPhone(ctx, foundCaretaker.Phone)
+	if err != nil {
+		p.logger.Errorf("%s:%v", p.ServiceName(), err)
+		return nil, err
+	}
+
 	return &model.Caretaker{
-		ID:        foundCaretaker.ID,
-		FirstName: foundCaretaker.FirstName,
-		LastName:  foundCaretaker.LastName,
+		ID:        caretakerUser.ID,
+		FirstName: *caretakerUser.FirstName,
+		LastName:  *caretakerUser.LastName,
 		Phone:     foundCaretaker.Phone,
 		CreatedAt: &foundCaretaker.CreatedAt,
 		UpdatedAt: &foundCaretaker.UpdatedAt,

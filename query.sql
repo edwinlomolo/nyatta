@@ -236,10 +236,10 @@ WHERE phone = $2
 RETURNING *;
 
 -- name: GetNearByUnits :many
-SELECT u.id, u.property_id, u.name, u.type, u.price, u.updated_at, ST_Distance(p.location, sqlc.arg(point)::geography) AS distance FROM properties p
+SELECT u.id, u.property_id, u.name, u.type, u.price, u.updated_at, floor(ST_Distance(p.location, sqlc.arg(point)::geography)) AS distance FROM properties p
 JOIN units u
 ON ST_DWithin(p.location, sqlc.arg(point)::geography, 10000) WHERE u.property_id = p.id AND u.state = 'VACANT'
 UNION
-SELECT u.id, u.property_id, u.name, u.type, u.price, u.updated_at, ST_Distance(u.location, sqlc.arg(point)::geography) AS distance FROM units u
+SELECT u.id, u.property_id, u.name, u.type, u.price, u.updated_at, floor(ST_Distance(u.location, sqlc.arg(point)::geography)) AS distance FROM units u
 WHERE ST_DWithin(u.location, sqlc.arg(point)::geography, 10000) AND u.state = 'VACANT'
 ORDER BY updated_at DESC;
