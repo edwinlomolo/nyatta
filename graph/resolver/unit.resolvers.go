@@ -7,21 +7,36 @@ package resolver
 import (
 	"context"
 
+	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
 	"github.com/3dw1nM0535/nyatta/services"
 )
 
 // Bedrooms is the resolver for the bedrooms field.
-func (r *propertyUnitResolver) Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.Bedroom, error) {
+func (r *unitResolver) Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.Bedroom, error) {
 	foundBedrooms, err := ctx.Value("unitService").(*services.UnitServices).GetUnitBedrooms(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
+
 	return foundBedrooms, nil
 }
 
+// Caretaker is the resolver for the caretaker field.
+func (r *unitResolver) Caretaker(ctx context.Context, obj *model.Unit) (*model.Caretaker, error) {
+	if obj.CaretakerID == nil {
+		return nil, nil
+	}
+	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(ctx, *obj.CaretakerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return caretaker, nil
+}
+
 // Property is the resolver for the property field.
-func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.Unit) (*model.Property, error) {
+func (r *unitResolver) Property(ctx context.Context, obj *model.Unit) (*model.Property, error) {
 	property, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(ctx, obj.PropertyID)
 	if err != nil {
 		return nil, err
@@ -31,7 +46,7 @@ func (r *propertyUnitResolver) Property(ctx context.Context, obj *model.Unit) (*
 }
 
 // Tenant is the resolver for the tenant field.
-func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.Unit) (*model.Tenant, error) {
+func (r *unitResolver) Tenant(ctx context.Context, obj *model.Unit) (*model.Tenant, error) {
 	tenant, err := ctx.Value("tenancyService").(*services.TenancyServices).GetCurrentTenant(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -40,8 +55,22 @@ func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.Unit) (*mo
 	return tenant, err
 }
 
+// Owner is the resolver for the owner field.
+func (r *unitResolver) Owner(ctx context.Context, obj *model.Unit) (*model.User, error) {
+	if obj.CreatedBy == nil {
+		return nil, nil
+	}
+
+	user, err := ctx.Value("userService").(*services.UserServices).GetUser(ctx, *obj.CreatedBy)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 // Amenities is the resolver for the amenities field.
-func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.Unit) ([]*model.Amenity, error) {
+func (r *unitResolver) Amenities(ctx context.Context, obj *model.Unit) ([]*model.Amenity, error) {
 	amenities, err := ctx.Value("amenityService").(*services.AmenityServices).GetUnitAmenities(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -51,7 +80,7 @@ func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.Unit) (
 }
 
 // Images is the resolver for the images field.
-func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.Unit) ([]*model.AnyUpload, error) {
+func (r *unitResolver) Images(ctx context.Context, obj *model.Unit) ([]*model.AnyUpload, error) {
 	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -61,7 +90,7 @@ func (r *propertyUnitResolver) Images(ctx context.Context, obj *model.Unit) ([]*
 }
 
 // Tenancy is the resolver for the tenancy field.
-func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.Unit) ([]*model.Tenant, error) {
+func (r *unitResolver) Tenancy(ctx context.Context, obj *model.Unit) ([]*model.Tenant, error) {
 	foundTenancies, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUnitTenancy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -69,4 +98,7 @@ func (r *propertyUnitResolver) Tenancy(ctx context.Context, obj *model.Unit) ([]
 	return foundTenancies, nil
 }
 
-type propertyUnitResolver struct{ *Resolver }
+// Unit returns generated.UnitResolver implementation.
+func (r *Resolver) Unit() generated.UnitResolver { return &unitResolver{r} }
+
+type unitResolver struct{ *Resolver }

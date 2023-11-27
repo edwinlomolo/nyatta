@@ -8,6 +8,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -678,22 +679,31 @@ func (q *Queries) GetNearByUnits(ctx context.Context, point interface{}) ([]GetN
 }
 
 const getProperty = `-- name: GetProperty :one
-SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_id FROM properties
+SELECT id, name, type, ST_AsGeoJSON(location)::jsonb AS location, created_by, created_at, updated_at FROM properties
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetProperty(ctx context.Context, id uuid.UUID) (Property, error) {
+type GetPropertyRow struct {
+	ID        uuid.UUID       `json:"id"`
+	Name      string          `json:"name"`
+	Type      string          `json:"type"`
+	Location  json.RawMessage `json:"location"`
+	CreatedBy uuid.NullUUID   `json:"created_by"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+}
+
+func (q *Queries) GetProperty(ctx context.Context, id uuid.UUID) (GetPropertyRow, error) {
 	row := q.db.QueryRowContext(ctx, getProperty, id)
-	var i Property
+	var i GetPropertyRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Location,
 		&i.Type,
+		&i.Location,
+		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.CreatedBy,
-		&i.CaretakerID,
 	)
 	return i, err
 }
@@ -721,26 +731,41 @@ func (q *Queries) GetPropertyThumbnail(ctx context.Context, arg GetPropertyThumb
 }
 
 const getUnit = `-- name: GetUnit :one
-SELECT id, name, location, type, state, price, bathrooms, created_at, updated_at, created_by, caretaker_id, property_id FROM units
+SELECT id, name, type, state, price, bathrooms, ST_AsGeoJSON(location)::jsonb AS location, created_by, caretaker_id, property_id, created_at, updated_at FROM units
 WHERE id = $1
 `
 
-func (q *Queries) GetUnit(ctx context.Context, id uuid.UUID) (Unit, error) {
+type GetUnitRow struct {
+	ID          uuid.UUID       `json:"id"`
+	Name        string          `json:"name"`
+	Type        string          `json:"type"`
+	State       string          `json:"state"`
+	Price       int32           `json:"price"`
+	Bathrooms   int32           `json:"bathrooms"`
+	Location    json.RawMessage `json:"location"`
+	CreatedBy   uuid.NullUUID   `json:"created_by"`
+	CaretakerID uuid.NullUUID   `json:"caretaker_id"`
+	PropertyID  uuid.NullUUID   `json:"property_id"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+}
+
+func (q *Queries) GetUnit(ctx context.Context, id uuid.UUID) (GetUnitRow, error) {
 	row := q.db.QueryRowContext(ctx, getUnit, id)
-	var i Unit
+	var i GetUnitRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Location,
 		&i.Type,
 		&i.State,
 		&i.Price,
 		&i.Bathrooms,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.Location,
 		&i.CreatedBy,
 		&i.CaretakerID,
 		&i.PropertyID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -1040,9 +1065,9 @@ func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID uuid.NullUU
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT p.id, p.name, p.type, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
+SELECT p.id, p.name, p.type, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
 UNION
-SELECT u.id, u.name, u.type, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
+SELECT u.id, u.name, u.type, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
 ORDER BY updated_at
 `
 
@@ -1050,6 +1075,7 @@ type PropertiesCreatedByRow struct {
 	ID        uuid.UUID     `json:"id"`
 	Name      string        `json:"name"`
 	Type      string        `json:"type"`
+	Location  interface{}   `json:"location"`
 	CreatedBy uuid.NullUUID `json:"created_by"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
@@ -1068,6 +1094,7 @@ func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUU
 			&i.ID,
 			&i.Name,
 			&i.Type,
+			&i.Location,
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -239,11 +240,22 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 		}
 	}
 
-	var location *model.Gps
+	var location *model.Point
+	var gps *model.Gps
 	if foundUnit.Location != nil {
-		location = (foundUnit.Location).(*model.Gps)
+		json.Unmarshal(foundUnit.Location, &location)
 	} else {
 		location = nil
+		gps = nil
+	}
+
+	if location != nil {
+		lat := &location.Coordinates[1]
+		lng := &location.Coordinates[0]
+		gps = &model.Gps{
+			Lng: *lng,
+			Lat: *lat,
+		}
 	}
 
 	return &model.Unit{
@@ -251,8 +263,8 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 		Name:        foundUnit.Name,
 		PropertyID:  foundUnit.PropertyID.UUID,
 		Type:        foundUnit.Type,
-		Location:    location,
 		CaretakerID: &foundUnit.CaretakerID.UUID,
+		Location:    gps,
 		Price:       strconv.FormatInt(int64(foundUnit.Price), 10),
 		Bathrooms:   int(foundUnit.Bathrooms),
 		CreatedAt:   &foundUnit.CreatedAt,

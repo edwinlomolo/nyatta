@@ -32,7 +32,7 @@ func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*m
 
 // Caretaker is the resolver for the caretaker field.
 func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error) {
-	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(ctx, obj.CaretakerID)
+	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(ctx, *obj.CaretakerID)
 	if err != nil {
 		return nil, err
 	}

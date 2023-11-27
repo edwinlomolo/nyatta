@@ -116,3 +116,22 @@ models:
         resolver: true
       propertyUnit:
         resolver: true
+
+  Unit:
+    fields:
+      amenities:
+        resolver: true
+      bedrooms:
+        resolver: true
+      caretaker:
+        resolver: true
+      tenancy:
+        resolver: true
+      tenant:
+        resolver: true
+      owner:
+        resolver: true
+      property:
+        resolver: true
+      images:
+        resolver: true

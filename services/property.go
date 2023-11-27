@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"database/sql"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -115,7 +115,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 		ID:          insertedProperty.ID,
 		Name:        insertedProperty.Name,
 		Type:        model.PropertyType(insertedProperty.Type),
-		CaretakerID: insertedProperty.CaretakerID.UUID,
+		CaretakerID: &insertedProperty.CaretakerID.UUID,
 		CreatedBy:   insertedProperty.CreatedBy.UUID,
 		CreatedAt:   &insertedProperty.CreatedAt,
 		UpdatedAt:   &insertedProperty.UpdatedAt,
@@ -125,14 +125,26 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 // GetProperty - return existing property given property id
 func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error) {
 	foundProperty, err := p.queries.GetProperty(ctx, id)
-	if err == sql.ErrNoRows {
-		return nil, errors.New("Can't find property")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
+
+	var location *model.Point
+	json.Unmarshal(foundProperty.Location, &location)
+	p.logger.Infoln(location)
+	lat := &location.Coordinates[1]
+	lng := &location.Coordinates[0]
 
 	return &model.Property{
 		ID:        foundProperty.ID,
 		Name:      foundProperty.Name,
 		Type:      model.PropertyType(foundProperty.Type),
+		Location:  &model.Gps{Lat: *lat, Lng: *lng},
 		CreatedBy: foundProperty.CreatedBy.UUID,
 		CreatedAt: &foundProperty.CreatedAt,
 		UpdatedAt: &foundProperty.UpdatedAt,
@@ -154,9 +166,27 @@ func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uu
 	}
 
 	for _, item := range properties {
+		var location *model.Point
+		var gps *model.Gps
+		if item.Location != nil {
+			json.Unmarshal([]byte((item.Location).(string)), &location)
+		} else {
+			location = nil
+			gps = nil
+		}
+
+		if location != nil {
+			lat := &location.Coordinates[1]
+			lng := &location.Coordinates[0]
+			gps = &model.Gps{
+				Lng: *lng,
+				Lat: *lat,
+			}
+		}
 		property := &model.Property{
 			ID:        item.ID,
 			Name:      item.Name,
+			Location:  gps,
 			Type:      model.PropertyType(item.Type),
 			CreatedBy: item.CreatedBy.UUID,
 			CreatedAt: &item.CreatedAt,
@@ -271,8 +301,12 @@ func (p *PropertyServices) GetCaretakerAvatar(ctx context.Context, caretakerID u
 func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID uuid.UUID) (*model.Caretaker, error) {
 	foundCaretaker, err := p.queries.GetCaretakerById(ctx, caretakerID)
 	if err != nil {
-		p.logger.Errorf("%s:%v", p.ServiceName(), err)
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
 
 	return &model.Caretaker{

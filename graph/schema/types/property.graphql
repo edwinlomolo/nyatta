@@ -3,13 +3,13 @@ type Property {
   id: UUID!
   name: String!
   type: PropertyType!
-  location: Gps!
+  location: Gps
   thumbnail: AnyUpload
   units: [Unit!]!
   createdBy: UUID!
-  caretaker: Caretaker!
-  caretakerId: UUID!
-  owner: User!
+  caretaker: Caretaker
+  caretakerId: UUID
+  owner: User
   createdAt: Time
   updatedAt: Time
 }

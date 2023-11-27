@@ -7,7 +7,7 @@ type Unit {
   location: Gps
   caretakerId: UUID
   caretaker: Caretaker
-  property: Property!
+  property: Property
   tenant: Tenant # vacancy dictates nullity
   distance: String
   price: String!
