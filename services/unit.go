@@ -31,6 +31,7 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 // AddUnit - add property unit
 func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
 	phone := ctx.Value("phone").(string)
+	userId := ctx.Value("userId").(string)
 	notUnitType := input.Type != "Unit"
 	var caretaker store.Caretaker
 	var caretakerErr error
@@ -58,7 +59,6 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 		} else {
 			caretaker, caretakerErr = u.queries.GetCaretakerByPhone(ctx, phone)
 			if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
-				userId := ctx.Value("userId").(string)
 				user, err := ctx.Value("userService").(*UserServices).GetUser(ctx, uuid.MustParse(userId))
 				if err != nil {
 					u.logger.Errorf("%s:%v", u.ServiceName(), err)
@@ -92,6 +92,7 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 			Type:        input.Type,
 			Bathrooms:   int32(input.Baths),
 			CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
+			CreatedBy:   uuid.NullUUID{UUID: uuid.MustParse(userId), Valid: true},
 		}); unitErr != nil {
 			u.logger.Errorf("%s:%v", u.ServiceName(), err)
 			return nil, unitErr
@@ -264,14 +265,23 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 		}
 	}
 
+	var location *model.Gps
+	if foundUnit.Location != nil {
+		location = (foundUnit.Location).(*model.Gps)
+	} else {
+		location = nil
+	}
+
 	return &model.Unit{
-		ID:         foundUnit.ID,
-		Name:       foundUnit.Name,
-		PropertyID: foundUnit.PropertyID.UUID,
-		Type:       foundUnit.Type,
-		Price:      strconv.FormatInt(int64(foundUnit.Price), 10),
-		Bathrooms:  int(foundUnit.Bathrooms),
-		CreatedAt:  &foundUnit.CreatedAt,
-		UpdatedAt:  &foundUnit.UpdatedAt,
+		ID:          foundUnit.ID,
+		Name:        foundUnit.Name,
+		PropertyID:  foundUnit.PropertyID.UUID,
+		Type:        foundUnit.Type,
+		Location:    location,
+		CaretakerID: &foundUnit.CaretakerID.UUID,
+		Price:       strconv.FormatInt(int64(foundUnit.Price), 10),
+		Bathrooms:   int(foundUnit.Bathrooms),
+		CreatedAt:   &foundUnit.CreatedAt,
+		UpdatedAt:   &foundUnit.UpdatedAt,
 	}, nil
 }

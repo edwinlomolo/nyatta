@@ -144,8 +144,13 @@ func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uu
 	var userProperties []*model.Property
 
 	properties, err := p.queries.PropertiesCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
-	if err == sql.ErrNoRows {
-		return userProperties, nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return userProperties, nil
+		} else {
+			p.logger.Errorf("%s:%v", p.ServiceName(), err)
+			return nil, err
+		}
 	}
 
 	for _, item := range properties {

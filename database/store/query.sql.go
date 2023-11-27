@@ -1040,28 +1040,37 @@ func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID uuid.NullUU
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT id, name, location, type, created_at, updated_at, created_by, caretaker_id FROM properties
-WHERE created_by = $1
+SELECT p.id, p.name, p.type, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
+UNION
+SELECT u.id, u.name, u.type, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
+ORDER BY updated_at
 `
 
-func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]Property, error) {
+type PropertiesCreatedByRow struct {
+	ID        uuid.UUID     `json:"id"`
+	Name      string        `json:"name"`
+	Type      string        `json:"type"`
+	CreatedBy uuid.NullUUID `json:"created_by"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+}
+
+func (q *Queries) PropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]PropertiesCreatedByRow, error) {
 	rows, err := q.db.QueryContext(ctx, propertiesCreatedBy, createdBy)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Property
+	var items []PropertiesCreatedByRow
 	for rows.Next() {
-		var i Property
+		var i PropertiesCreatedByRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Location,
 			&i.Type,
+			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.CreatedBy,
-			&i.CaretakerID,
 		); err != nil {
 			return nil, err
 		}
