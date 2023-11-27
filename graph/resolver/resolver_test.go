@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 	twilioService = services.NewTwilioService(configuration.Twilio, queries, logger)
 	userService = services.NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
 	propertyService = services.NewPropertyService(queries, logger, twilioService)
-	amenityService = services.NewAmenityService(queries, logger, propertyService)
+	amenityService = services.NewAmenityService(queries, logger)
 	unitService = services.NewUnitService(queries, logger)
 	tenancyService = services.NewTenancyService(queries, logger)
 	listingService = services.NewListingService(queries, logger)

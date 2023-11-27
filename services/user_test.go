@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 	mailingService = NewMailingService(queries, configuration.Email, logger)
 	userService = NewUserService(queries, logger, &configuration.JwtConfig, twilioService)
 	authService = NewAuthService(logger, &configuration.JwtConfig)
-	amenityService = NewAmenityService(queries, logger, propertyService)
+	amenityService = NewAmenityService(queries, logger)
 	propertyService = NewPropertyService(queries, logger, twilioService)
 	unitService = NewUnitService(queries, logger)
 	tenancyService = NewTenancyService(queries, logger)
