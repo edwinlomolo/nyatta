@@ -42,7 +42,7 @@ func (r *propertyUnitResolver) Tenant(ctx context.Context, obj *model.Unit) (*mo
 
 // Amenities is the resolver for the amenities field.
 func (r *propertyUnitResolver) Amenities(ctx context.Context, obj *model.Unit) ([]*model.Amenity, error) {
-	amenities, err := ctx.Value("unitService").(*services.UnitServices).GetUnitAmenities(ctx, obj.ID)
+	amenities, err := ctx.Value("amenityService").(*services.AmenityServices).GetUnitAmenities(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

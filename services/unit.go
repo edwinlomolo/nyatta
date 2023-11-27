@@ -32,6 +32,7 @@ func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices
 func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
 	phone := ctx.Value("phone").(string)
 	userId := ctx.Value("userId").(string)
+	amenityService := ctx.Value("amenityService").(*AmenityServices)
 	notUnitType := input.Type != "Unit"
 	var caretaker store.Caretaker
 	var caretakerErr error
@@ -128,10 +129,9 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 
 	if len(input.Amenities) > 0 {
 		for _, amenity := range input.Amenities {
-			if _, err := u.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
+			if _, err := amenityService.AddAmenity(ctx, unit.ID, &model.UnitAmenityInput{
 				Name:     amenity.Name,
 				Category: amenity.Category,
-				UnitID:   unit.ID,
 			}); err != nil {
 				u.logger.Errorf("%s: %v", u.ServiceName(), err)
 				return nil, err
@@ -225,32 +225,6 @@ func (u *UnitServices) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*mode
 	}
 
 	return images, nil
-}
-
-// GetUnitAmenities - grab unit amenities
-func (u *UnitServices) GetUnitAmenities(ctx context.Context, unitID uuid.UUID) ([]*model.Amenity, error) {
-	var amenities []*model.Amenity
-
-	foundAmenities, err := u.queries.GetUnitAmenities(ctx, unitID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return amenities, nil
-		} else {
-			u.logger.Errorf("%s:%v", u.ServiceName(), err)
-			return nil, err
-		}
-	}
-
-	for _, amenity := range foundAmenities {
-		unitAmenity := &model.Amenity{
-			ID:       amenity.ID,
-			Category: amenity.Category,
-			Name:     amenity.Name,
-		}
-		amenities = append(amenities, unitAmenity)
-	}
-
-	return amenities, nil
 }
 
 // GetUnit - grab unit
