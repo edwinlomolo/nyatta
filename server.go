@@ -10,6 +10,7 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	h "github.com/3dw1nM0535/nyatta/handler"
 	"github.com/3dw1nM0535/nyatta/services"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/3dw1nM0535/nyatta/database"
 	"github.com/3dw1nM0535/nyatta/database/store"
@@ -96,6 +97,10 @@ func main() {
 	ctx = context.WithValue(ctx, "paystackService", paystackService)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
+	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+		logger.Errorf("%s:%v", "SetRecoverFuncGqlError", err)
+		return gqlerror.Errorf("Internal server error")
+	})
 
 	logHandler := h.LoggingHandler{}
 	r.Handle("/", playground.Handler("GraphQL", "/api"))
