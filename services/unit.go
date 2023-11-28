@@ -88,6 +88,16 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 			X: input.Location.Lat,
 			Y: input.Location.Lng,
 		}
+
+		if _, err := u.queries.CreateCaretakerAvatar(ctx, sqlStore.CreateCaretakerAvatarParams{
+			Upload:      input.Caretaker.Image,
+			Category:    model.UploadCategoryProfileImg.String(),
+			CaretakerID: uuid.NullUUID{UUID: caretaker.ID, Valid: true},
+		}); err != nil {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
+		}
+
 		if unit, unitErr = u.queries.CreateOtherUnit(ctx, sqlStore.CreateOtherUnitParams{
 			Name:        input.Name,
 			State:       input.State.String(),
