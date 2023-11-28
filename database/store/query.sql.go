@@ -845,7 +845,7 @@ func (q *Queries) GetUnitBedrooms(ctx context.Context, unitID uuid.UUID) ([]Bedr
 
 const getUnitImages = `-- name: GetUnitImages :many
 SELECT id, upload, label FROM uploads
-WHERE unit_id = $1 AND category = $2 LIMIT 1
+WHERE unit_id = $1 AND category = $2
 `
 
 type GetUnitImagesParams struct {

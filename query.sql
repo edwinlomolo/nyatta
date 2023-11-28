@@ -228,7 +228,7 @@ RETURNING *;
 
 -- name: GetUnitImages :many
 SELECT id, upload, label FROM uploads
-WHERE unit_id = $1 AND category = $2 LIMIT 1;
+WHERE unit_id = $1 AND category = $2;
 
 -- name: TrackSubscribeRetries :one
 UPDATE users SET subscribe_retries = $1
