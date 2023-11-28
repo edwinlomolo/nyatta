@@ -9,12 +9,12 @@ import (
 
 // randString - generate random string ids
 func randString() string {
-	guid, _ := uuid.NewRandom()
-	return guid.String()
+	uuid, _ := uuid.NewRandom()
+	return uuid.String()
 }
 
 // GenerateRandomEmail - generate random email address
 func GenerateRandomEmail() string {
-	randPrefix := strings.ReplaceAll(randString(), "-", "")
+	randPrefix := strings.Split(randString(), "-")[4]
 	return fmt.Sprintf("%s@nyatta.app", randPrefix)
 }
