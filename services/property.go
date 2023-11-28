@@ -325,16 +325,10 @@ func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID
 		}
 	}
 
-	caretakerUser, err := ctx.Value("userService").(*UserServices).FindUserByPhone(ctx, foundCaretaker.Phone)
-	if err != nil {
-		p.logger.Errorf("%s:%v", p.ServiceName(), err)
-		return nil, err
-	}
-
 	return &model.Caretaker{
-		ID:        caretakerUser.ID,
-		FirstName: *caretakerUser.FirstName,
-		LastName:  *caretakerUser.LastName,
+		ID:        foundCaretaker.ID,
+		FirstName: foundCaretaker.FirstName,
+		LastName:  foundCaretaker.LastName,
 		Phone:     foundCaretaker.Phone,
 		CreatedAt: &foundCaretaker.CreatedAt,
 		UpdatedAt: &foundCaretaker.UpdatedAt,
