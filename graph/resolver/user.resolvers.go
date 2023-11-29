@@ -23,7 +23,7 @@ func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyU
 
 // Properties is the resolver for the properties field.
 func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*model.Property, error) {
-	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(ctx, obj.ID)
+	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).UnitsAndPropertiesCreatedBy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

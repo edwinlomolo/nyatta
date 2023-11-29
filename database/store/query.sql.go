@@ -1161,6 +1161,56 @@ func (q *Queries) TrackSubscribeRetries(ctx context.Context, arg TrackSubscribeR
 	return i, err
 }
 
+const unitsAndPropertiesCreatedBy = `-- name: UnitsAndPropertiesCreatedBy :many
+SELECT p.id, p.name, p.type, caretaker_id, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
+UNION
+SELECT u.id, u.name, u.type, caretaker_id, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
+ORDER BY updated_at
+`
+
+type UnitsAndPropertiesCreatedByRow struct {
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	CaretakerID uuid.NullUUID `json:"caretaker_id"`
+	Location    interface{}   `json:"location"`
+	CreatedBy   uuid.NullUUID `json:"created_by"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+}
+
+func (q *Queries) UnitsAndPropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]UnitsAndPropertiesCreatedByRow, error) {
+	rows, err := q.db.QueryContext(ctx, unitsAndPropertiesCreatedBy, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UnitsAndPropertiesCreatedByRow
+	for rows.Next() {
+		var i UnitsAndPropertiesCreatedByRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.CaretakerID,
+			&i.Location,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const unitsCount = `-- name: UnitsCount :one
 SELECT COUNT(*) FROM units
 WHERE property_id = $1
