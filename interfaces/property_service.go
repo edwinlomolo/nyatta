@@ -17,5 +17,4 @@ type PropertyService interface {
 	CaretakerPhoneVerification(context.Context, *model.CaretakerVerificationInput) (*model.Status, error)
 	ListingOverview(ctx context.Context, propertyId uuid.UUID) (*model.ListingOverview, error)
 	GetPropertyCaretaker(ctx context.Context, caretakerId uuid.UUID) (*model.Caretaker, error)
-	UnitsAndPropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error)
 }

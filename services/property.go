@@ -334,31 +334,3 @@ func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID
 		UpdatedAt: &foundCaretaker.UpdatedAt,
 	}, nil
 }
-
-// UnitsAndPropertiesCreatedBy - grab units/properties for user
-func (p *PropertyServices) UnitsAndPropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error) {
-	var properties []*model.Property
-
-	foundUnitsAndProperties, err := p.queries.UnitsAndPropertiesCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return properties, nil
-		} else {
-			p.logger.Errorf("%s:%v", p.ServiceName(), err)
-			return nil, err
-		}
-	}
-
-	for _, found := range foundUnitsAndProperties {
-		property := &model.Property{
-			ID:        found.ID,
-			Name:      found.Name,
-			Type:      model.PropertyType(found.Type),
-			CreatedAt: &found.CreatedAt,
-			UpdatedAt: &found.UpdatedAt,
-		}
-		properties = append(properties, property)
-	}
-
-	return properties, nil
-}

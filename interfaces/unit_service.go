@@ -13,4 +13,5 @@ type UnitService interface {
 	GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error)
 	GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error)
 	ServiceName() string
+	UnitsCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Unit, error)
 }

@@ -1066,7 +1066,7 @@ func (q *Queries) OccupiedUnitsCount(ctx context.Context, propertyID uuid.NullUU
 }
 
 const propertiesCreatedBy = `-- name: PropertiesCreatedBy :many
-SELECT p.id, p.name, p.type, caretaker_id, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
+SELECT id, name, type, caretaker_id, ST_AsGeoJSON(location) AS location, created_by, created_at, updated_at FROM properties WHERE created_by = $1
 ORDER BY updated_at
 `
 
@@ -1161,14 +1161,24 @@ func (q *Queries) TrackSubscribeRetries(ctx context.Context, arg TrackSubscribeR
 	return i, err
 }
 
-const unitsAndPropertiesCreatedBy = `-- name: UnitsAndPropertiesCreatedBy :many
-SELECT p.id, p.name, p.type, caretaker_id, ST_AsGeoJSON(p.location) AS location, p.created_by, p.created_at, p.updated_at FROM properties p WHERE p.created_by = $1
-UNION
-SELECT u.id, u.name, u.type, caretaker_id, ST_AsGeoJSON(u.location) AS location, u.created_by, u.created_at, u.updated_at FROM units u WHERE u.created_by = $1
+const unitsCount = `-- name: UnitsCount :one
+SELECT COUNT(*) FROM units
+WHERE property_id = $1
+`
+
+func (q *Queries) UnitsCount(ctx context.Context, propertyID uuid.NullUUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, unitsCount, propertyID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const unitsCreatedBy = `-- name: UnitsCreatedBy :many
+SELECT id, name, type, caretaker_id, ST_AsGeoJSON(location) AS location, created_by, created_at, updated_at FROM units WHERE created_by = $1
 ORDER BY updated_at
 `
 
-type UnitsAndPropertiesCreatedByRow struct {
+type UnitsCreatedByRow struct {
 	ID          uuid.UUID     `json:"id"`
 	Name        string        `json:"name"`
 	Type        string        `json:"type"`
@@ -1179,15 +1189,15 @@ type UnitsAndPropertiesCreatedByRow struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-func (q *Queries) UnitsAndPropertiesCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]UnitsAndPropertiesCreatedByRow, error) {
-	rows, err := q.db.QueryContext(ctx, unitsAndPropertiesCreatedBy, createdBy)
+func (q *Queries) UnitsCreatedBy(ctx context.Context, createdBy uuid.NullUUID) ([]UnitsCreatedByRow, error) {
+	rows, err := q.db.QueryContext(ctx, unitsCreatedBy, createdBy)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []UnitsAndPropertiesCreatedByRow
+	var items []UnitsCreatedByRow
 	for rows.Next() {
-		var i UnitsAndPropertiesCreatedByRow
+		var i UnitsCreatedByRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -1209,18 +1219,6 @@ func (q *Queries) UnitsAndPropertiesCreatedBy(ctx context.Context, createdBy uui
 		return nil, err
 	}
 	return items, nil
-}
-
-const unitsCount = `-- name: UnitsCount :one
-SELECT COUNT(*) FROM units
-WHERE property_id = $1
-`
-
-func (q *Queries) UnitsCount(ctx context.Context, propertyID uuid.NullUUID) (int64, error) {
-	row := q.db.QueryRowContext(ctx, unitsCount, propertyID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
 }
 
 const updateInvoiceForMpesa = `-- name: UpdateInvoiceForMpesa :one

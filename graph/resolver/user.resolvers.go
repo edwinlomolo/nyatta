@@ -23,11 +23,21 @@ func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyU
 
 // Properties is the resolver for the properties field.
 func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*model.Property, error) {
-	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).UnitsAndPropertiesCreatedBy(ctx, obj.ID)
+	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
 	return userProperties, nil
+}
+
+// Units is the resolver for the units field.
+func (r *userResolver) Units(ctx context.Context, obj *model.User) ([]*model.Unit, error) {
+	foundUnits, err := ctx.Value("unitService").(*services.UnitServices).UnitsCreatedBy(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return foundUnits, nil
 }
 
 // Tenancy is the resolver for the tenancy field.

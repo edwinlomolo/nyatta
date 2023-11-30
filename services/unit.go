@@ -283,3 +283,32 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 		UpdatedAt:   &foundUnit.UpdatedAt,
 	}, nil
 }
+
+// UnitsCreatedBy - grab user listings
+func (u *UnitServices) UnitsCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Unit, error) {
+	var units []*model.Unit
+	foundUnits, err := u.queries.UnitsCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return units, nil
+		} else {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
+		}
+	}
+
+	for _, item := range foundUnits {
+		unit := &model.Unit{
+			ID:          item.ID,
+			Name:        item.Name,
+			Type:        item.Type,
+			CaretakerID: &item.CaretakerID.UUID,
+			CreatedBy:   &item.CreatedBy.UUID,
+			CreatedAt:   &item.CreatedAt,
+			UpdatedAt:   &item.UpdatedAt,
+		}
+		units = append(units, unit)
+	}
+
+	return units, nil
+}
