@@ -22,6 +22,16 @@ func (r *unitResolver) Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.
 	return foundBedrooms, nil
 }
 
+// Thumbnail is the resolver for the thumbnail field.
+func (r *unitResolver) Thumbnail(ctx context.Context, obj *model.Unit) (*model.AnyUpload, error) {
+	foundThumbnail, err := ctx.Value("unitService").(*services.UnitServices).GetUnitThumbnail(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return foundThumbnail, nil
+}
+
 // Caretaker is the resolver for the caretaker field.
 func (r *unitResolver) Caretaker(ctx context.Context, obj *model.Unit) (*model.Caretaker, error) {
 	if obj.CaretakerID == nil {

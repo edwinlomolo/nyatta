@@ -334,3 +334,14 @@ func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID
 		UpdatedAt: &foundCaretaker.UpdatedAt,
 	}, nil
 }
+
+// GetUnitsCount - grab total property units
+func (p *PropertyServices) GetUnitsCount(ctx context.Context, id uuid.UUID) (int64, error) {
+	totalCount, err := p.queries.UnitsCount(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	if err != nil {
+		p.logger.Errorf("%s:%v", p.ServiceName(), err)
+		return 0, err
+	}
+
+	return totalCount, nil
+}

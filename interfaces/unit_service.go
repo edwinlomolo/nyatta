@@ -14,4 +14,5 @@ type UnitService interface {
 	GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error)
 	ServiceName() string
 	UnitsCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Unit, error)
+	GetUnitThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error)
 }

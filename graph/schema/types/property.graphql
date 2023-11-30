@@ -6,6 +6,7 @@ type Property {
   location: Gps
   thumbnail: AnyUpload
   units: [Unit!]!
+  unitsCount: Int!
   createdBy: UUID!
   caretaker: Caretaker
   caretakerId: UUID

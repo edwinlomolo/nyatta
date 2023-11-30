@@ -125,6 +125,7 @@ type Property struct {
 	Location    *Gps         `json:"location,omitempty"`
 	Thumbnail   *AnyUpload   `json:"thumbnail,omitempty"`
 	Units       []*Unit      `json:"units"`
+	UnitsCount  int          `json:"unitsCount"`
 	CreatedBy   uuid.UUID    `json:"createdBy"`
 	Caretaker   *Caretaker   `json:"caretaker,omitempty"`
 	CaretakerID *uuid.UUID   `json:"caretakerId,omitempty"`
@@ -189,6 +190,7 @@ type Unit struct {
 	Bedrooms    []*Bedroom   `json:"bedrooms"`
 	PropertyID  uuid.UUID    `json:"propertyId"`
 	Location    *Gps         `json:"location,omitempty"`
+	Thumbnail   *AnyUpload   `json:"thumbnail,omitempty"`
 	CaretakerID *uuid.UUID   `json:"caretakerId,omitempty"`
 	Caretaker   *Caretaker   `json:"caretaker,omitempty"`
 	Property    *Property    `json:"property,omitempty"`

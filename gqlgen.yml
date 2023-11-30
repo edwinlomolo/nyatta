@@ -89,20 +89,7 @@ models:
         resolver: true
       units:
         resolver: true
-
-  PropertyUnit:
-    fields:
-      images:
-        resolver: true
-      bedrooms:
-        resolver: true
-      tenancy:
-        resolver: true
-      amenities:
-        resolver: true
-      tenant:
-        resolver: true
-      property:
+      unitsCount:
         resolver: true
 
   Caretaker:
@@ -136,4 +123,6 @@ models:
       property:
         resolver: true
       images:
+        resolver: true
+      thumbnail:
         resolver: true

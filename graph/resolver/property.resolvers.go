@@ -30,6 +30,16 @@ func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*m
 	return foundUnits, nil
 }
 
+// UnitsCount is the resolver for the unitsCount field.
+func (r *propertyResolver) UnitsCount(ctx context.Context, obj *model.Property) (int, error) {
+	totalCount, err := ctx.Value("propertyService").(*services.PropertyServices).GetUnitsCount(ctx, obj.ID)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(totalCount), nil
+}
+
 // Caretaker is the resolver for the caretaker field.
 func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error) {
 	if obj.CaretakerID == nil {

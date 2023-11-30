@@ -211,6 +211,27 @@ func (u UnitServices) ServiceName() string {
 	return "UnitServices"
 }
 
+// GetUnitThumbnail - just grab one from images upload
+func (u *UnitServices) GetUnitThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error) {
+	foundUpload, err := u.queries.GetUnitThumbnail(ctx, sqlStore.GetUnitThumbnailParams{
+		UnitID:   uuid.NullUUID{UUID: id, Valid: true},
+		Category: model.UploadCategoryUnitImages.String(),
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			u.logger.Errorf("%s:%v", u.ServiceName(), err)
+			return nil, err
+		}
+	}
+
+	return &model.AnyUpload{
+		ID:     foundUpload.ID,
+		Upload: foundUpload.Upload,
+	}, nil
+}
+
 // GetUnitImages - grab images
 func (u *UnitServices) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error) {
 	var images []*model.AnyUpload

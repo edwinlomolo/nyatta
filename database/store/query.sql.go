@@ -918,6 +918,29 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, unitID uuid.UUID) ([]Tenan
 	return items, nil
 }
 
+const getUnitThumbnail = `-- name: GetUnitThumbnail :one
+SELECT id, upload, label FROM uploads
+WHERE unit_id = $1 AND category = $2 LIMIT 1
+`
+
+type GetUnitThumbnailParams struct {
+	UnitID   uuid.NullUUID `json:"unit_id"`
+	Category string        `json:"category"`
+}
+
+type GetUnitThumbnailRow struct {
+	ID     uuid.UUID      `json:"id"`
+	Upload string         `json:"upload"`
+	Label  sql.NullString `json:"label"`
+}
+
+func (q *Queries) GetUnitThumbnail(ctx context.Context, arg GetUnitThumbnailParams) (GetUnitThumbnailRow, error) {
+	row := q.db.QueryRowContext(ctx, getUnitThumbnail, arg.UnitID, arg.Category)
+	var i GetUnitThumbnailRow
+	err := row.Scan(&i.ID, &i.Upload, &i.Label)
+	return i, err
+}
+
 const getUnits = `-- name: GetUnits :many
 SELECT id, name, location, type, state, price, bathrooms, created_at, updated_at, created_by, caretaker_id, property_id FROM units
 WHERE property_id = $1

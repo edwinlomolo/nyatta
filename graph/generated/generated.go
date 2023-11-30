@@ -144,6 +144,7 @@ type ComplexityRoot struct {
 		Thumbnail   func(childComplexity int) int
 		Type        func(childComplexity int) int
 		Units       func(childComplexity int) int
+		UnitsCount  func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 	}
 
@@ -222,6 +223,7 @@ type ComplexityRoot struct {
 		State       func(childComplexity int) int
 		Tenancy     func(childComplexity int) int
 		Tenant      func(childComplexity int) int
+		Thumbnail   func(childComplexity int) int
 		Type        func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 	}
@@ -264,6 +266,7 @@ type MutationResolver interface {
 type PropertyResolver interface {
 	Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error)
 	Units(ctx context.Context, obj *model.Property) ([]*model.Unit, error)
+	UnitsCount(ctx context.Context, obj *model.Property) (int, error)
 
 	Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error)
 
@@ -288,6 +291,8 @@ type TenantResolver interface {
 }
 type UnitResolver interface {
 	Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.Bedroom, error)
+
+	Thumbnail(ctx context.Context, obj *model.Unit) (*model.AnyUpload, error)
 
 	Caretaker(ctx context.Context, obj *model.Unit) (*model.Caretaker, error)
 	Property(ctx context.Context, obj *model.Unit) (*model.Property, error)
@@ -849,6 +854,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Property.Units(childComplexity), true
 
+	case "Property.unitsCount":
+		if e.complexity.Property.UnitsCount == nil {
+			break
+		}
+
+		return e.complexity.Property.UnitsCount(childComplexity), true
+
 	case "Property.updatedAt":
 		if e.complexity.Property.UpdatedAt == nil {
 			break
@@ -1261,6 +1273,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Unit.Tenant(childComplexity), true
+
+	case "Unit.thumbnail":
+		if e.complexity.Unit.Thumbnail == nil {
+			break
+		}
+
+		return e.complexity.Unit.Thumbnail(childComplexity), true
 
 	case "Unit.type":
 		if e.complexity.Unit.Type == nil {
@@ -1752,6 +1771,7 @@ type Property {
   location: Gps
   thumbnail: AnyUpload
   units: [Unit!]!
+  unitsCount: Int!
   createdBy: UUID!
   caretaker: Caretaker
   caretakerId: UUID
@@ -1796,6 +1816,7 @@ type Unit {
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: UUID!
   location: Gps
+  thumbnail: AnyUpload # just grab one from images upload
   caretakerId: UUID
   caretaker: Caretaker
   property: Property
@@ -3471,6 +3492,8 @@ func (ec *executionContext) fieldContext_Caretaker_properties(ctx context.Contex
 				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
+			case "unitsCount":
+				return ec.fieldContext_Property_unitsCount(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
 			case "caretaker":
@@ -4206,6 +4229,8 @@ func (ec *executionContext) fieldContext_Mutation_createProperty(ctx context.Con
 				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
+			case "unitsCount":
+				return ec.fieldContext_Property_unitsCount(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
 			case "caretaker":
@@ -4285,6 +4310,8 @@ func (ec *executionContext) fieldContext_Mutation_addUnit(ctx context.Context, f
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -5209,6 +5236,8 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -5243,6 +5272,50 @@ func (ec *executionContext) fieldContext_Property_units(ctx context.Context, fie
 				return ec.fieldContext_Unit_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Unit", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Property_unitsCount(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_unitsCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Property().UnitsCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Property_unitsCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5664,6 +5737,8 @@ func (ec *executionContext) fieldContext_Query_getProperty(ctx context.Context, 
 				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
+			case "unitsCount":
+				return ec.fieldContext_Property_unitsCount(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
 			case "caretaker":
@@ -5902,6 +5977,8 @@ func (ec *executionContext) fieldContext_Query_getUnits(ctx context.Context, fie
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -6078,6 +6155,8 @@ func (ec *executionContext) fieldContext_Query_getUserProperties(ctx context.Con
 				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
+			case "unitsCount":
+				return ec.fieldContext_Property_unitsCount(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
 			case "caretaker":
@@ -6259,6 +6338,8 @@ func (ec *executionContext) fieldContext_Query_getNearByUnits(ctx context.Contex
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -6358,6 +6439,8 @@ func (ec *executionContext) fieldContext_Query_getUnit(ctx context.Context, fiel
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -7286,6 +7369,8 @@ func (ec *executionContext) fieldContext_Tenant_unit(ctx context.Context, field 
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -7822,6 +7907,65 @@ func (ec *executionContext) fieldContext_Unit_location(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Unit_thumbnail(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unit_thumbnail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Unit().Thumbnail(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.AnyUpload)
+	fc.Result = res
+	return ec.marshalOAnyUpload2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐAnyUpload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unit_thumbnail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unit",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnyUpload_id(ctx, field)
+			case "upload":
+				return ec.fieldContext_AnyUpload_upload(ctx, field)
+			case "category":
+				return ec.fieldContext_AnyUpload_category(ctx, field)
+			case "propertyId":
+				return ec.fieldContext_AnyUpload_propertyId(ctx, field)
+			case "userId":
+				return ec.fieldContext_AnyUpload_userId(ctx, field)
+			case "unitId":
+				return ec.fieldContext_AnyUpload_unitId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AnyUpload_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AnyUpload_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnyUpload", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Unit_caretakerId(ctx context.Context, field graphql.CollectedField, obj *model.Unit) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Unit_caretakerId(ctx, field)
 	if err != nil {
@@ -7972,6 +8116,8 @@ func (ec *executionContext) fieldContext_Unit_property(ctx context.Context, fiel
 				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
+			case "unitsCount":
+				return ec.fieldContext_Property_unitsCount(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
 			case "caretaker":
@@ -9013,6 +9159,8 @@ func (ec *executionContext) fieldContext_User_properties(ctx context.Context, fi
 				return ec.fieldContext_Property_thumbnail(ctx, field)
 			case "units":
 				return ec.fieldContext_Property_units(ctx, field)
+			case "unitsCount":
+				return ec.fieldContext_Property_unitsCount(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Property_createdBy(ctx, field)
 			case "caretaker":
@@ -9081,6 +9229,8 @@ func (ec *executionContext) fieldContext_User_units(ctx context.Context, field g
 				return ec.fieldContext_Unit_propertyId(ctx, field)
 			case "location":
 				return ec.fieldContext_Unit_location(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Unit_thumbnail(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Unit_caretakerId(ctx, field)
 			case "caretaker":
@@ -12471,6 +12621,42 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "unitsCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Property_unitsCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdBy":
 			out.Values[i] = ec._Property_createdBy(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13276,6 +13462,39 @@ func (ec *executionContext) _Unit(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "location":
 			out.Values[i] = ec._Unit_location(ctx, field, obj)
+		case "thumbnail":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Unit_thumbnail(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "caretakerId":
 			out.Values[i] = ec._Unit_caretakerId(ctx, field, obj)
 		case "caretaker":

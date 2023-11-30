@@ -5,6 +5,7 @@ type Unit {
   bedrooms: [Bedroom!]! # has-many bedrooms
   propertyId: UUID!
   location: Gps
+  thumbnail: AnyUpload # just grab one from images upload
   caretakerId: UUID
   caretaker: Caretaker
   property: Property
