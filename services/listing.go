@@ -8,22 +8,25 @@ import (
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	log "github.com/sirupsen/logrus"
 )
 
-type ListingServices struct {
+// ListngService - represent listing services
+type ListingService interface {
+	GetNearByUnits(ctx context.Context, input *model.NearByUnitsInput) ([]*model.Unit, error)
+	ServiceName() string
+}
+
+type listingClient struct {
 	queries *sqlStore.Queries
 	logger  *log.Logger
 }
 
-var _ interfaces.ListingService = &ListingServices{}
-
-func NewListingService(queries *sqlStore.Queries, logger *log.Logger) *ListingServices {
-	return &ListingServices{queries: queries, logger: logger}
+func NewListingService(queries *sqlStore.Queries, logger *log.Logger) ListingService {
+	return &listingClient{queries: queries, logger: logger}
 }
 
-func (l *ListingServices) GetNearByUnits(ctx context.Context, input *model.NearByUnitsInput) ([]*model.Unit, error) {
+func (l *listingClient) GetNearByUnits(ctx context.Context, input *model.NearByUnitsInput) ([]*model.Unit, error) {
 	var units []*model.Unit
 	p := fmt.Sprintf("SRID=4326;POINT(%.8f %.8f)", input.Gps.Lng, input.Gps.Lat)
 
@@ -67,6 +70,6 @@ func (l *ListingServices) GetNearByUnits(ctx context.Context, input *model.NearB
 	return units, err
 }
 
-func (l ListingServices) ServiceName() string {
-	return "ListingServices"
+func (l *listingClient) ServiceName() string {
+	return "listingClient"
 }

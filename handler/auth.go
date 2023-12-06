@@ -70,6 +70,6 @@ func validateBearerAuthHeader(ctx context.Context, r *http.Request) (*jwt.Token,
 	}
 	tokenString = auth[1]
 	// Is token valid?
-	token, err := ctx.Value("userService").(*services.UserServices).ValidateToken(ctx, &tokenString)
+	token, err := ctx.Value("userService").(services.UserService).ValidateToken(ctx, &tokenString)
 	return token, err
 }

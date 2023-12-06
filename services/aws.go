@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 
 	cfg "github.com/3dw1nM0535/nyatta/config"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -16,17 +15,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var _ interfaces.AwsServicesInterface = &AwsServices{}
+// AwsService client
+type AwsService interface {
+	UploadGqlFile(graphql.Upload) (string, error)
+	UploadRestFile(multipart.File, *multipart.FileHeader) (string, error)
+}
 
-// AwsServices client
-type AwsServices struct {
+type awsClient struct {
 	S3     *manager.Uploader
 	Config cfg.AwsConfig
 	log    *logrus.Logger
 }
 
 // NewAwsService - factory for aws service
-func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
+func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) AwsService {
 	config, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretAccessKey, "")),
@@ -38,11 +40,11 @@ func NewAwsService(cfg cfg.AwsConfig, logger *logrus.Logger) *AwsServices {
 	// Create S3 client
 	s3Client := manager.NewUploader(s3.NewFromConfig(config))
 
-	return &AwsServices{S3: s3Client, Config: cfg, log: logger}
+	return &awsClient{S3: s3Client, Config: cfg, log: logger}
 }
 
 // UploadGqlFile - graphql upload
-func (a *AwsServices) UploadGqlFile(file graphql.Upload) (string, error) {
+func (a *awsClient) UploadGqlFile(file graphql.Upload) (string, error) {
 	params := &s3.PutObjectInput{
 		Bucket: aws.String(a.Config.S3.Buckets.Media),
 		Key:    aws.String(file.Filename),
@@ -58,7 +60,7 @@ func (a *AwsServices) UploadGqlFile(file graphql.Upload) (string, error) {
 }
 
 // UploadRestFile - upload file to s3
-func (a *AwsServices) UploadRestFile(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+func (a *awsClient) UploadRestFile(file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
 	size := fileHeader.Size
 	buffer := make([]byte, size)
 	file.Read(buffer)
@@ -79,6 +81,6 @@ func (a *AwsServices) UploadRestFile(file multipart.File, fileHeader *multipart.
 }
 
 // ServiceName - get service name
-func (a AwsServices) ServiceName() string {
-	return "AwsServices"
+func (a *awsClient) ServiceName() string {
+	return "awsClient"
 }

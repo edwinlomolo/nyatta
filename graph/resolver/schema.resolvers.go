@@ -18,7 +18,7 @@ import (
 
 // CreateUser - resolver for createUser field
 func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*model.SignInResponse, error) {
-	res, err := ctx.Value("userService").(*services.UserServices).SignIn(ctx, &input)
+	res, err := ctx.Value("userService").(services.UserService).SignIn(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *mutationResolver) SignIn(ctx context.Context, input model.NewUser) (*mo
 func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewProperty) (*model.Property, error) {
 	userId := ctx.Value("userId").(string)
 
-	newProperty, err := ctx.Value("propertyService").(*services.PropertyServices).CreateProperty(ctx, &input, uuid.MustParse(userId))
+	newProperty, err := ctx.Value("propertyService").(services.PropertyService).CreateProperty(ctx, &input, uuid.MustParse(userId))
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (r *mutationResolver) CreateProperty(ctx context.Context, input model.NewPr
 
 // AddUnit is the resolver for the addUnit field.
 func (r *mutationResolver) AddUnit(ctx context.Context, input model.UnitInput) (*model.Unit, error) {
-	insertedUnit, err := ctx.Value("unitService").(*services.UnitServices).AddUnit(ctx, &input)
+	insertedUnit, err := ctx.Value("unitService").(services.UnitService).AddUnit(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *mutationResolver) AddUnit(ctx context.Context, input model.UnitInput) (
 
 // AddUnitTenant is the resolver for the addUnitTenant field.
 func (r *mutationResolver) AddUnitTenant(ctx context.Context, input model.TenancyInput) (*model.Tenant, error) {
-	insertedUnitTenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).AddUnitTenancy(ctx, &input)
+	insertedUnitTenancy, err := ctx.Value("tenancyService").(services.TenancyService).AddUnitTenancy(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (r *mutationResolver) AddUnitTenant(ctx context.Context, input model.Tenanc
 
 // UploadImage is the resolver for the uploadImage field.
 func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload) (string, error) {
-	fileLocation, err := ctx.Value("awsService").(*services.AwsServices).UploadGqlFile(file)
+	fileLocation, err := ctx.Value("awsService").(services.AwsService).UploadGqlFile(file)
 	if err != nil {
 		return "", err
 	}
@@ -68,7 +68,7 @@ func (r *mutationResolver) UploadImage(ctx context.Context, file graphql.Upload)
 
 // SendVerificationCode is the resolver for the sendVerificationCode field.
 func (r *mutationResolver) SendVerificationCode(ctx context.Context, input model.VerificationInput) (*model.Status, error) {
-	status, err := ctx.Value("twilioService").(*services.TwilioServices).SendVerification(input.Phone)
+	status, err := ctx.Value("twilioService").(services.TwilioService).SendVerification(input.Phone)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (r *mutationResolver) VerifyUserVerificationCode(ctx context.Context, input
 
 // VerifyCaretakerVerificationCode is the resolver for the verifyCaretakerVerificationCode field.
 func (r *mutationResolver) VerifyCaretakerVerificationCode(ctx context.Context, input model.CaretakerVerificationInput) (*model.Status, error) {
-	status, err := ctx.Value("propertyService").(*services.PropertyServices).CaretakerPhoneVerification(ctx, &input)
+	status, err := ctx.Value("propertyService").(services.PropertyService).CaretakerPhoneVerification(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (r *mutationResolver) VerifyCaretakerVerificationCode(ctx context.Context, 
 
 // Handshake is the resolver for the handshake field.
 func (r *mutationResolver) Handshake(ctx context.Context, input model.HandshakeInput) (*model.User, error) {
-	foundUser, err := ctx.Value("userService").(*services.UserServices).FindUserByPhone(ctx, input.Phone)
+	foundUser, err := ctx.Value("userService").(services.UserService).FindUserByPhone(ctx, input.Phone)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (r *mutationResolver) Handshake(ctx context.Context, input model.HandshakeI
 
 // SaveMailing is the resolver for the saveMailing field.
 func (r *mutationResolver) SaveMailing(ctx context.Context, email *string) (*model.Status, error) {
-	status, err := ctx.Value("mailingService").(*services.MailingServices).SaveMailing(ctx, *email)
+	status, err := ctx.Value("mailingService").(services.MailingService).SaveMailing(ctx, *email)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 		MobileMoney: model.MobileMoneyPayload{Phone: "+" + input.Phone},
 	}
 
-	chargeRes, err := ctx.Value("paystackService").(*services.PaystackServices).ChargeMpesaPhone(ctx, payload)
+	chargeRes, err := ctx.Value("paystackService").(services.PaystackService).ChargeMpesaPhone(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (r *mutationResolver) CreatePayment(ctx context.Context, input model.Create
 func (r *mutationResolver) UpdateUserInfo(ctx context.Context, firstName string, lastName string, avatar string) (*model.User, error) {
 	userId := ctx.Value("userId").(string)
 
-	updatedUser, err := ctx.Value("userService").(*services.UserServices).UpdateUserInfo(ctx, uuid.MustParse(userId), firstName, lastName, avatar)
+	updatedUser, err := ctx.Value("userService").(services.UserService).UpdateUserInfo(ctx, uuid.MustParse(userId), firstName, lastName, avatar)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (r *mutationResolver) UpdateUserInfo(ctx context.Context, firstName string,
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context) (*model.User, error) {
 	userId := ctx.Value("userId").(string)
-	foundUser, err := ctx.Value("userService").(*services.UserServices).GetUser(ctx, uuid.MustParse(userId))
+	foundUser, err := ctx.Value("userService").(services.UserService).GetUser(ctx, uuid.MustParse(userId))
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (r *queryResolver) GetUser(ctx context.Context) (*model.User, error) {
 
 // GetProperty is the resolver for the getProperty field.
 func (r *queryResolver) GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error) {
-	foundProperty, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(ctx, id)
+	foundProperty, err := ctx.Value("propertyService").(services.PropertyService).GetProperty(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 // SearchTown is the resolver for the searchTown field.
 func (r *queryResolver) SearchTown(ctx context.Context, town string) ([]*model.Town, error) {
 	var towns []*model.Town
-	towns, err := ctx.Value("postaService").(*services.PostaServices).SearchTown(town)
+	towns, err := ctx.Value("postaService").(services.PostaService).SearchTown(town)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (r *queryResolver) SearchTown(ctx context.Context, town string) ([]*model.T
 // GetTowns is the resolver for the getTowns field.
 func (r *queryResolver) GetTowns(ctx context.Context) ([]*model.Town, error) {
 	var towns []*model.Town
-	towns, err := ctx.Value("postaService").(*services.PostaServices).GetTowns()
+	towns, err := ctx.Value("postaService").(services.PostaService).GetTowns()
 
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func (r *queryResolver) GetTowns(ctx context.Context) ([]*model.Town, error) {
 
 // GetUnits is the resolver for the getUnits field.
 func (r *queryResolver) GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error) {
-	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetUnits(ctx, propertyID)
+	foundUnits, err := ctx.Value("propertyService").(services.PropertyService).GetUnits(ctx, propertyID)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (r *queryResolver) GetPropertyTenancy(ctx context.Context, propertyID uuid.
 func (r *queryResolver) GetUserProperties(ctx context.Context) ([]*model.Property, error) {
 	// Get user from authed user context
 	userId := ctx.Value("userId").(string)
-	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(ctx, uuid.MustParse(userId))
+	userProperties, err := ctx.Value("propertyService").(services.PropertyService).PropertiesCreatedBy(ctx, uuid.MustParse(userId))
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (r *queryResolver) GetUserProperties(ctx context.Context) ([]*model.Propert
 
 // ListingOverview is the resolver for the listingOverview field.
 func (r *queryResolver) ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error) {
-	overview, err := ctx.Value("propertyService").(*services.PropertyServices).ListingOverview(ctx, propertyID)
+	overview, err := ctx.Value("propertyService").(services.PropertyService).ListingOverview(ctx, propertyID)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (r *queryResolver) ListingOverview(ctx context.Context, propertyID uuid.UUI
 // RefreshToken is the resolver for the refreshToken field.
 func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse, error) {
 	phone := ctx.Value("phone").(string)
-	res, err := ctx.Value("userService").(*services.UserServices).SignIn(ctx, &model.NewUser{Phone: phone})
+	res, err := ctx.Value("userService").(services.UserService).SignIn(ctx, &model.NewUser{Phone: phone})
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func (r *queryResolver) RefreshToken(ctx context.Context) (*model.SignInResponse
 
 // GetNearByUnits is the resolver for the getNearByUnits field.
 func (r *queryResolver) GetNearByUnits(ctx context.Context, input model.NearByUnitsInput) ([]*model.Unit, error) {
-	units, err := ctx.Value("listingService").(*services.ListingServices).GetNearByUnits(ctx, &input)
+	units, err := ctx.Value("listingService").(services.ListingService).GetNearByUnits(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +256,7 @@ func (r *queryResolver) GetNearByUnits(ctx context.Context, input model.NearByUn
 
 // GetUnit is the resolver for the getUnit field.
 func (r *queryResolver) GetUnit(ctx context.Context, id uuid.UUID) (*model.Unit, error) {
-	unit, err := ctx.Value("unitService").(*services.UnitServices).GetUnit(ctx, id)
+	unit, err := ctx.Value("unitService").(services.UnitService).GetUnit(ctx, id)
 	if err != nil {
 		return nil, err
 	}

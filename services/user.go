@@ -8,30 +8,36 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
-// UserServices - represents user service
-type UserServices struct {
-	queries *sqlStore.Queries
-	log     *logrus.Logger
-	auth    *AuthServices
-	twilio  *TwilioServices
+// UserService - represents user service
+type UserService interface {
+	SignIn(ctx context.Context, user *model.NewUser) (*model.SignIn, error)
+	UpdateUserInfo(ctx context.Context, id uuid.UUID, firstName, lastName, avatar string) (*model.User, error)
+	GetUserAvatar(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error)
+	ValidateToken(ctx context.Context, token *string) (*jwt.Token, error)
+	ServiceName() string
+	FindUserByPhone(ctx context.Context, phone string) (*model.User, error)
+	GetUser(ctx context.Context, id uuid.UUID) (*model.User, error)
 }
 
-// _ - UserServices{} implements UserService
-var _ interfaces.UserService = &UserServices{}
+type userClient struct {
+	queries *sqlStore.Queries
+	log     *logrus.Logger
+	auth    AuthService
+	twilio  TwilioService
+}
 
-func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, config *config.Jwt, twilio *TwilioServices) *UserServices {
+func NewUserService(queries *sqlStore.Queries, logger *logrus.Logger, config *config.Jwt, twilio TwilioService) UserService {
 	authServices := NewAuthService(logger, config)
-	return &UserServices{queries, logger, authServices, twilio}
+	return &userClient{queries, logger, authServices, twilio}
 }
 
 // FindUserByPhone - get user by phone number
-func (u *UserServices) FindUserByPhone(ctx context.Context, phone string) (*model.User, error) {
+func (u *userClient) FindUserByPhone(ctx context.Context, phone string) (*model.User, error) {
 	var foundUser sqlStore.User
 	var err error
 
@@ -76,9 +82,8 @@ func (u *UserServices) FindUserByPhone(ctx context.Context, phone string) (*mode
 }
 
 // SignIn - signin existing/returning user
-func (u *UserServices) SignIn(ctx context.Context, user *model.NewUser) (*model.SignIn, error) {
+func (u *userClient) SignIn(ctx context.Context, user *model.NewUser) (*model.SignIn, error) {
 	signInResponse := &model.SignIn{}
-
 	// user - existing user
 	var newUser *model.User
 	var err error
@@ -100,18 +105,18 @@ func (u *UserServices) SignIn(ctx context.Context, user *model.NewUser) (*model.
 }
 
 // ValidateToken - validate jwt token
-func (u *UserServices) ValidateToken(ctx context.Context, tokenString *string) (*jwt.Token, error) {
+func (u *userClient) ValidateToken(ctx context.Context, tokenString *string) (*jwt.Token, error) {
 	token, err := u.auth.ValidateJWT(ctx, tokenString)
 	return token, err
 }
 
 // ServiceName - return service name
-func (u UserServices) ServiceName() string {
-	return "UserServices"
+func (u *userClient) ServiceName() string {
+	return "userClient"
 }
 
 // UpdateUserInfo - update user details
-func (u *UserServices) UpdateUserInfo(ctx context.Context, userId uuid.UUID, firstName, lastName, avatar string) (*model.User, error) {
+func (u *userClient) UpdateUserInfo(ctx context.Context, userId uuid.UUID, firstName, lastName, avatar string) (*model.User, error) {
 	phone := ctx.Value("phone").(string)
 
 	foundUpload, err := u.GetUserAvatar(ctx, userId)
@@ -162,7 +167,7 @@ func (u *UserServices) UpdateUserInfo(ctx context.Context, userId uuid.UUID, fir
 }
 
 // GetUserAvatar - grab avatar
-func (u *UserServices) GetUserAvatar(ctx context.Context, userId uuid.UUID) (*model.AnyUpload, error) {
+func (u *userClient) GetUserAvatar(ctx context.Context, userId uuid.UUID) (*model.AnyUpload, error) {
 	foundUpload, err := u.queries.GetUserAvatar(ctx, sqlStore.GetUserAvatarParams{
 		UserID:   uuid.NullUUID{UUID: userId, Valid: true},
 		Category: model.UploadCategoryProfileImg.String(),
@@ -178,7 +183,7 @@ func (u *UserServices) GetUserAvatar(ctx context.Context, userId uuid.UUID) (*mo
 }
 
 // GetUser - grab user
-func (u *UserServices) GetUser(ctx context.Context, id uuid.UUID) (*model.User, error) {
+func (u *userClient) GetUser(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	foundUser, err := u.queries.GetUser(ctx, id)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil

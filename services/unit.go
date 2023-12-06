@@ -10,30 +10,36 @@ import (
 	"github.com/3dw1nM0535/nyatta/database/store"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/cridenour/go-postgis"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
-type UnitServices struct {
+// UnitService - represent unit services
+type UnitService interface {
+	AddUnit(ctx context.Context, unit *model.UnitInput) (*model.Unit, error)
+	GetUnitBedrooms(ctx context.Context, unitId uuid.UUID) ([]*model.Bedroom, error)
+	GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error)
+	GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error)
+	ServiceName() string
+	UnitsCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Unit, error)
+	GetUnitThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error)
+}
+type unitClient struct {
 	queries *sqlStore.Queries
 	logger  *log.Logger
 }
 
-// _ - UnitServices{} implements UnitService interface
-var _ interfaces.UnitService = &UnitServices{}
-
-// NewUnitService - factory for UnitServices
-func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) *UnitServices {
-	return &UnitServices{queries, logger}
+// NewUnitService - factory for unitClient
+func NewUnitService(queries *sqlStore.Queries, logger *log.Logger) UnitService {
+	return &unitClient{queries, logger}
 }
 
 // AddUnit - add property unit
-func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
+func (u *unitClient) AddUnit(ctx context.Context, input *model.UnitInput) (*model.Unit, error) {
 	phone := ctx.Value("phone").(string)
 	userId := ctx.Value("userId").(string)
-	amenityService := ctx.Value("amenityService").(*AmenityServices)
+	amenityService := ctx.Value("amenityService").(AmenityService)
 	notUnitType := input.Type != "Unit"
 	var caretaker store.Caretaker
 	var caretakerErr error
@@ -62,7 +68,7 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 		} else {
 			caretaker, caretakerErr = u.queries.GetCaretakerByPhone(ctx, phone)
 			if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
-				user, err := ctx.Value("userService").(*UserServices).GetUser(ctx, uuid.MustParse(userId))
+				user, err := ctx.Value("userService").(UserService).GetUser(ctx, uuid.MustParse(userId))
 				if err != nil {
 					u.logger.Errorf("%s:%v", u.ServiceName(), err)
 					return nil, err
@@ -178,7 +184,7 @@ func (u *UnitServices) AddUnit(ctx context.Context, input *model.UnitInput) (*mo
 }
 
 // GetUnitBedrooms - return unit bedrooms
-func (u *UnitServices) GetUnitBedrooms(ctx context.Context, unitId uuid.UUID) ([]*model.Bedroom, error) {
+func (u *unitClient) GetUnitBedrooms(ctx context.Context, unitId uuid.UUID) ([]*model.Bedroom, error) {
 	var bedrooms []*model.Bedroom
 
 	foundBedrooms, err := u.queries.GetUnitBedrooms(ctx, unitId)
@@ -207,12 +213,12 @@ func (u *UnitServices) GetUnitBedrooms(ctx context.Context, unitId uuid.UUID) ([
 }
 
 // ServiceName - return service name
-func (u UnitServices) ServiceName() string {
-	return "UnitServices"
+func (u *unitClient) ServiceName() string {
+	return "unitClient"
 }
 
 // GetUnitThumbnail - just grab one from images upload
-func (u *UnitServices) GetUnitThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error) {
+func (u *unitClient) GetUnitThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error) {
 	foundUpload, err := u.queries.GetUnitThumbnail(ctx, sqlStore.GetUnitThumbnailParams{
 		UnitID:   uuid.NullUUID{UUID: id, Valid: true},
 		Category: model.UploadCategoryUnitImages.String(),
@@ -233,7 +239,7 @@ func (u *UnitServices) GetUnitThumbnail(ctx context.Context, id uuid.UUID) (*mod
 }
 
 // GetUnitImages - grab images
-func (u *UnitServices) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error) {
+func (u *unitClient) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*model.AnyUpload, error) {
 	var images []*model.AnyUpload
 
 	foundUploads, err := u.queries.GetUnitImages(ctx, sqlStore.GetUnitImagesParams{
@@ -262,7 +268,7 @@ func (u *UnitServices) GetUnitImages(ctx context.Context, id uuid.UUID) ([]*mode
 }
 
 // GetUnit - grab unit
-func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error) {
+func (u *unitClient) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Unit, error) {
 	foundUnit, err := u.queries.GetUnit(ctx, unitID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -306,7 +312,7 @@ func (u *UnitServices) GetUnit(ctx context.Context, unitID uuid.UUID) (*model.Un
 }
 
 // UnitsCreatedBy - grab user listings
-func (u *UnitServices) UnitsCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Unit, error) {
+func (u *unitClient) UnitsCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Unit, error) {
 	var units []*model.Unit
 	foundUnits, err := u.queries.UnitsCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
 	if err != nil {

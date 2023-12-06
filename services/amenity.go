@@ -6,26 +6,28 @@ import (
 
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
-type AmenityServices struct {
+// AmenityService - represent amenity service
+type AmenityService interface {
+	AddAmenity(ctx context.Context, unitID uuid.UUID, input *model.UnitAmenityInput) (*model.Amenity, error)
+	GetUnitAmenities(ctx context.Context, unitID uuid.UUID) ([]*model.Amenity, error)
+}
+
+// NewAmenityService - factory for amenity services
+func NewAmenityService(queries *sqlStore.Queries, logger *log.Logger) AmenityService {
+	return &amenityClient{queries: queries, logger: logger}
+}
+
+type amenityClient struct {
 	queries *sqlStore.Queries
 	logger  *log.Logger
 }
 
-// NewAmenityService - factory for amenity services
-func NewAmenityService(queries *sqlStore.Queries, logger *log.Logger) *AmenityServices {
-	return &AmenityServices{queries, logger}
-}
-
-// _ - AmenityServices{} implements AmenityService
-var _ interfaces.AmenityService = &AmenityServices{}
-
 // AddAmenity - add property amenity(s)
-func (a *AmenityServices) AddAmenity(ctx context.Context, unitID uuid.UUID, amenity *model.UnitAmenityInput) (*model.Amenity, error) {
+func (a *amenityClient) AddAmenity(ctx context.Context, unitID uuid.UUID, amenity *model.UnitAmenityInput) (*model.Amenity, error) {
 	insertedAmenity, err := a.queries.CreateAmenity(ctx, sqlStore.CreateAmenityParams{
 		Name:     amenity.Name,
 		Category: amenity.Category,
@@ -46,7 +48,7 @@ func (a *AmenityServices) AddAmenity(ctx context.Context, unitID uuid.UUID, amen
 }
 
 // GetUnitAmenities - grab unit amenities
-func (a *AmenityServices) GetUnitAmenities(ctx context.Context, unitID uuid.UUID) ([]*model.Amenity, error) {
+func (a *amenityClient) GetUnitAmenities(ctx context.Context, unitID uuid.UUID) ([]*model.Amenity, error) {
 	var amenities []*model.Amenity
 
 	foundAmenities, err := a.queries.GetUnitAmenities(ctx, unitID)
@@ -71,6 +73,6 @@ func (a *AmenityServices) GetUnitAmenities(ctx context.Context, unitID uuid.UUID
 }
 
 // ServiceName - get service name
-func (a AmenityServices) ServiceName() string {
+func (a *amenityClient) ServiceName() string {
 	return "AmenityService"
 }

@@ -31,7 +31,7 @@ func UploadHandler() http.Handler {
 		}
 		defer file.Close()
 
-		imageUri, err := ctx.Value("awsService").(*services.AwsServices).UploadRestFile(file, fileHeader)
+		imageUri, err := ctx.Value("awsService").(services.AwsService).UploadRestFile(file, fileHeader)
 		if err != nil {
 			er := "AwsServicesInternalError"
 			log.Errorf("%s:%v", er, err)

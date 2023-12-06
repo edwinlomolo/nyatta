@@ -15,18 +15,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type PaystackServices struct {
+type PaystackService interface {
+	ChargeMpesaPhone(ctx context.Context, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error)
+	ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error
+}
+
+type paystackClient struct {
 	config   config.Paystack
 	logger   *logrus.Logger
 	baseApi  string
 	sqlStore *store.Queries
 }
 
-func NewPaystackService(cfg config.Paystack, logger *logrus.Logger, sqlStore *store.Queries) *PaystackServices {
-	return &PaystackServices{config: cfg, logger: logger, baseApi: cfg.BaseApi, sqlStore: sqlStore}
+func NewPaystackService(cfg config.Paystack, logger *logrus.Logger, sqlStore *store.Queries) PaystackService {
+	return &paystackClient{config: cfg, logger: logger, baseApi: cfg.BaseApi, sqlStore: sqlStore}
 }
 
-func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error) {
+func (p *paystackClient) ChargeMpesaPhone(ctx context.Context, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error) {
 	phone := ctx.Value("phone").(string)
 	var chargeResponse *model.PaystackMpesaChargeResponse
 
@@ -85,7 +90,7 @@ func (p *PaystackServices) ChargeMpesaPhone(ctx context.Context, payload model.P
 	return chargeResponse, nil
 }
 
-func (p *PaystackServices) ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error {
+func (p *paystackClient) ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error {
 	if payload.Event == "charge.success" {
 		data := payload.Data
 
@@ -138,6 +143,6 @@ func (p *PaystackServices) ReconcilePaystackMpesaCallback(ctx context.Context, p
 	return nil
 }
 
-func (p PaystackServices) ServiceName() string {
-	return "PaystackServices"
+func (p paystackClient) ServiceName() string {
+	return "paystackClient"
 }

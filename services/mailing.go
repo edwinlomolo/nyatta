@@ -6,7 +6,6 @@ import (
 	"github.com/3dw1nM0535/nyatta/config"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/resendlabs/resend-go"
 	"github.com/sirupsen/logrus"
 )
@@ -18,22 +17,26 @@ const (
 
 type SendEmail func(email []string, from, subject, body string) error
 
-type MailingServices struct {
+// Mailing - represent mailing service
+type MailingService interface {
+	ServiceName() string
+	SaveMailing(ctx context.Context, email string) (*model.Status, error)
+	SendEmail(ctx context.Context, to []string, from, subject, body string) error
+}
+
+type mailingClient struct {
 	queries *sqlStore.Queries
 	client  *resend.Client
 	log     *logrus.Logger
 }
 
-// Enforce Mailing service interface
-var _ interfaces.Mailing = &MailingServices{}
-
-func NewMailingService(queries *sqlStore.Queries, cfg config.EmailConfig, logger *logrus.Logger) *MailingServices {
+func NewMailingService(queries *sqlStore.Queries, cfg config.EmailConfig, logger *logrus.Logger) MailingService {
 	client := resend.NewClient(cfg.Apikey)
-	return &MailingServices{queries: queries, client: client, log: logger}
+	return &mailingClient{queries: queries, client: client, log: logger}
 }
 
 // SaveMailing saves an email to the database
-func (m *MailingServices) SaveMailing(ctx context.Context, email string) (*model.Status, error) {
+func (m *mailingClient) SaveMailing(ctx context.Context, email string) (*model.Status, error) {
 	// Mail exists
 	exists, err := m.queries.MailingExists(ctx, email)
 	if err != nil {
@@ -53,7 +56,7 @@ func (m *MailingServices) SaveMailing(ctx context.Context, email string) (*model
 	}
 }
 
-func (m *MailingServices) SendEmail(ctx context.Context, to []string, from, subject, body string) error {
+func (m *mailingClient) SendEmail(ctx context.Context, to []string, from, subject, body string) error {
 	params := &resend.SendEmailRequest{
 		To:      to,
 		From:    from,
@@ -68,6 +71,6 @@ func (m *MailingServices) SendEmail(ctx context.Context, to []string, from, subj
 	return nil
 }
 
-func (m MailingServices) ServiceName() string {
+func (m *mailingClient) ServiceName() string {
 	return "Mailing"
 }

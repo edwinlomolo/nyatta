@@ -14,7 +14,7 @@ import (
 
 // Thumbnail is the resolver for the thumbnail field.
 func (r *propertyResolver) Thumbnail(ctx context.Context, obj *model.Property) (*model.AnyUpload, error) {
-	thumbnail, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyThumbnail(ctx, obj.ID)
+	thumbnail, err := ctx.Value("propertyService").(services.PropertyService).GetPropertyThumbnail(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (r *propertyResolver) Thumbnail(ctx context.Context, obj *model.Property) (
 
 // Units is the resolver for the units field.
 func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*model.Unit, error) {
-	foundUnits, err := ctx.Value("propertyService").(*services.PropertyServices).GetUnits(ctx, obj.ID)
+	foundUnits, err := ctx.Value("propertyService").(services.PropertyService).GetUnits(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *propertyResolver) Units(ctx context.Context, obj *model.Property) ([]*m
 
 // UnitsCount is the resolver for the unitsCount field.
 func (r *propertyResolver) UnitsCount(ctx context.Context, obj *model.Property) (int, error) {
-	totalCount, err := ctx.Value("propertyService").(*services.PropertyServices).GetUnitsCount(ctx, obj.ID)
+	totalCount, err := ctx.Value("propertyService").(services.PropertyService).GetUnitsCount(ctx, obj.ID)
 	if err != nil {
 		return 0, err
 	}
@@ -46,7 +46,7 @@ func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (
 		return nil, nil
 	}
 
-	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(ctx, *obj.CaretakerID)
+	caretaker, err := ctx.Value("propertyService").(services.PropertyService).GetPropertyCaretaker(ctx, *obj.CaretakerID)
 	if err != nil {
 		return nil, err
 	}

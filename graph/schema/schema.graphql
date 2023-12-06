@@ -56,9 +56,11 @@ input UnitBedroomInput {
 
 # Represents new property unit tenancy parameters
 input TenancyInput {
-  startDate: Time!
-  userId: UUID!
-  unitId: UUID!
+  first_name: String!
+  last_name: String!
+  phone: String!
+  start_date: Time!
+  unit_id: UUID!
 }
 
 # Represents caretaker verify verification parameters

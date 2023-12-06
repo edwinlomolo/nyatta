@@ -18,19 +18,19 @@ import (
 
 var (
 	ctx             context.Context
-	userService     *services.UserServices
-	propertyService *services.PropertyServices
-	amenityService  *services.AmenityServices
-	unitService     *services.UnitServices
-	tenancyService  *services.TenancyServices
-	listingService  *services.ListingServices
+	userService     services.UserService
+	propertyService services.PropertyService
+	amenityService  services.AmenityService
+	unitService     services.UnitService
+	tenancyService  services.TenancyService
+	listingService  services.ListingService
 	logger          *log.Logger
 	configuration   *config.Configuration
 	err             error
 	db              *sql.DB
-	postaService    *services.PostaServices
-	twilioService   *services.TwilioServices
-	mailingService  *services.MailingServices
+	postaService    services.PostaService
+	twilioService   services.TwilioService
+	mailingService  services.MailingService
 )
 
 // setup tests

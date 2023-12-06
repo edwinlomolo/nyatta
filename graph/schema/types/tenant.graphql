@@ -5,8 +5,9 @@ type Tenant {
   endDate: Time
   unitId: UUID! # belongs-to property unit
   userId: UUID!
+  propertyId: UUID!
   user: User!
-  unit: Unit # vacancy dictates nullity
+  unit: Unit! # vacancy dictates nullity
   createdAt: Time
   updatedAt: Time
 }

@@ -89,13 +89,14 @@ type Shoot struct {
 }
 
 type Tenant struct {
-	ID        uuid.UUID    `json:"id"`
-	StartDate time.Time    `json:"start_date"`
-	EndDate   sql.NullTime `json:"end_date"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	UnitID    uuid.UUID    `json:"unit_id"`
-	UserID    uuid.UUID    `json:"user_id"`
+	ID         uuid.UUID    `json:"id"`
+	StartDate  time.Time    `json:"start_date"`
+	EndDate    sql.NullTime `json:"end_date"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+	UnitID     uuid.UUID    `json:"unit_id"`
+	UserID     uuid.UUID    `json:"user_id"`
+	PropertyID uuid.UUID    `json:"property_id"`
 }
 
 type Unit struct {

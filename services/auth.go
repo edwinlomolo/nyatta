@@ -8,28 +8,30 @@ import (
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	jwt "github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 )
 
-// AuthServices - represent authentication service
-type AuthServices struct {
+// authClient - represent authentication service
+type AuthService interface {
+	SignJWT(ctx context.Context, user *model.User) (*string, error)
+	ValidateJWT(ctx context.Context, token *string) (*jwt.Token, error)
+	ServiceName() string
+}
+
+type authClient struct {
 	log       *log.Logger
 	secret    *string
 	expiresIn *time.Duration
 }
 
-// _ - AuthServices{} implements AuthService
-var _ interfaces.AuthService = &AuthServices{}
-
 // NewAuthService - factory for auth services
-func NewAuthService(logger *log.Logger, config *config.Jwt) *AuthServices {
-	return &AuthServices{logger, &config.JWT.Secret, &config.JWT.Expires}
+func NewAuthService(logger *log.Logger, config *config.Jwt) AuthService {
+	return &authClient{logger, &config.JWT.Secret, &config.JWT.Expires}
 }
 
 // SignJWT - signin user and return jwt token
-func (a *AuthServices) SignJWT(ctx context.Context, user *model.User) (*string, error) {
+func (a *authClient) SignJWT(ctx context.Context, user *model.User) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss":         "Nyatta",
 		"created_at":  user.CreatedAt,
@@ -49,7 +51,7 @@ func (a *AuthServices) SignJWT(ctx context.Context, user *model.User) (*string, 
 }
 
 // ValidateJWT - validate jwt token
-func (a *AuthServices) ValidateJWT(ctx context.Context, tokenString *string) (*jwt.Token, error) {
+func (a *authClient) ValidateJWT(ctx context.Context, tokenString *string) (*jwt.Token, error) {
 	token, err := jwt.Parse(*tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			a.log.Errorf("%s: %v", a.ServiceName(), fmt.Errorf("%s: %v", config.InvalidTokenSigningAlgorithm.Error(), token.Header["alg"]))
@@ -67,6 +69,6 @@ func (a *AuthServices) ValidateJWT(ctx context.Context, tokenString *string) (*j
 	return token, nil
 }
 
-func (a AuthServices) ServiceName() string {
-	return "AuthServices"
+func (a *authClient) ServiceName() string {
+	return "authClient"
 }

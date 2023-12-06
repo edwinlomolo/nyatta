@@ -41,7 +41,7 @@ func MpesaChargeCallback() http.Handler {
 
 		json.Unmarshal(body, &paystackMpesaCallbackResponse)
 
-		if err := ctx.Value("paystackService").(*services.PaystackServices).ReconcilePaystackMpesaCallback(ctx, *paystackMpesaCallbackResponse); err != nil {
+		if err := ctx.Value("paystackService").(services.PaystackService).ReconcilePaystackMpesaCallback(ctx, *paystackMpesaCallbackResponse); err != nil {
 			logger.Errorf("%s:%v", "PaystackMpesaChargeCallbackReadingBodyRequestError", err)
 		}
 

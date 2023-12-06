@@ -5,26 +5,29 @@ import (
 
 	"github.com/3dw1nM0535/nyatta/config"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/sirupsen/logrus"
 )
 
-type PostaServices struct {
+// PostaService - represent posta services
+type PostaService interface {
+	ServiceName() string
+	GetTowns() ([]*model.Town, error)
+	SearchTown(town string) ([]*model.Town, error)
+}
+
+type postaClient struct {
 	Store *sql.DB
 	log   *logrus.Logger
 }
 
-// _ - PostaServices implement Posta interface
-var _ interfaces.Posta = &PostaServices{}
-
-// NewPostaServices - return new posta instance
-func NewPostaService(logger *logrus.Logger) *PostaServices {
+// NewpostaClient - return new posta instance
+func NewPostaService(logger *logrus.Logger) PostaService {
 	store, err := newPostalStorage(logger)
 	if err != nil {
 		logger.Errorf("%s: %s", config.DatabaseError, err.Error())
 	}
 
-	return &PostaServices{Store: store, log: logger}
+	return &postaClient{Store: store, log: logger}
 }
 
 // newPostalStorage - connects to postal db
@@ -48,12 +51,12 @@ func newPostalStorage(logger *logrus.Logger) (*sql.DB, error) {
 }
 
 // ServiceName - returns service name
-func (p PostaServices) ServiceName() string {
-	return "PostaServices"
+func (p *postaClient) ServiceName() string {
+	return "postaClient"
 }
 
 // GetTowns - return list of towns
-func (p PostaServices) GetTowns() ([]*model.Town, error) {
+func (p *postaClient) GetTowns() ([]*model.Town, error) {
 	var towns []*model.Town
 	query := `SELECT id, town, postal_code FROM postal_towns ORDER BY town;`
 	rows, err := p.Store.Query(query)
@@ -87,7 +90,7 @@ func (p PostaServices) GetTowns() ([]*model.Town, error) {
 }
 
 // SearchTown - get town details
-func (p PostaServices) SearchTown(town string) ([]*model.Town, error) {
+func (p *postaClient) SearchTown(town string) ([]*model.Town, error) {
 	var towns []*model.Town
 	query := `SELECT id, town, postal_code FROM postal_towns WHERE town ~* $1`
 	rows, err := p.Store.Query(query, town)

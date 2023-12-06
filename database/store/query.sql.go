@@ -307,21 +307,27 @@ func (q *Queries) CreateShootSchedule(ctx context.Context, arg CreateShootSchedu
 
 const createTenant = `-- name: CreateTenant :one
 INSERT INTO tenants (
-  start_date, unit_id, user_id
+  start_date, property_id, unit_id, user_id
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
-RETURNING id, start_date, end_date, created_at, updated_at, unit_id, user_id
+RETURNING id, start_date, end_date, created_at, updated_at, unit_id, user_id, property_id
 `
 
 type CreateTenantParams struct {
-	StartDate time.Time `json:"start_date"`
-	UnitID    uuid.UUID `json:"unit_id"`
-	UserID    uuid.UUID `json:"user_id"`
+	StartDate  time.Time `json:"start_date"`
+	PropertyID uuid.UUID `json:"property_id"`
+	UnitID     uuid.UUID `json:"unit_id"`
+	UserID     uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
-	row := q.db.QueryRowContext(ctx, createTenant, arg.StartDate, arg.UnitID, arg.UserID)
+	row := q.db.QueryRowContext(ctx, createTenant,
+		arg.StartDate,
+		arg.PropertyID,
+		arg.UnitID,
+		arg.UserID,
+	)
 	var i Tenant
 	err := row.Scan(
 		&i.ID,
@@ -331,6 +337,7 @@ func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Ten
 		&i.UpdatedAt,
 		&i.UnitID,
 		&i.UserID,
+		&i.PropertyID,
 	)
 	return i, err
 }
@@ -607,7 +614,7 @@ func (q *Queries) GetCaretakerByPhone(ctx context.Context, phone string) (Careta
 }
 
 const getCurrentTenant = `-- name: GetCurrentTenant :one
-SELECT id, start_date, end_date, created_at, updated_at, unit_id, user_id FROM tenants
+SELECT id, start_date, end_date, created_at, updated_at, unit_id, user_id, property_id FROM tenants
 WHERE unit_id = $1 AND end_date IS NULL
 `
 
@@ -622,6 +629,7 @@ func (q *Queries) GetCurrentTenant(ctx context.Context, unitID uuid.UUID) (Tenan
 		&i.UpdatedAt,
 		&i.UnitID,
 		&i.UserID,
+		&i.PropertyID,
 	)
 	return i, err
 }
@@ -883,7 +891,7 @@ func (q *Queries) GetUnitImages(ctx context.Context, arg GetUnitImagesParams) ([
 }
 
 const getUnitTenancy = `-- name: GetUnitTenancy :many
-SELECT id, start_date, end_date, created_at, updated_at, unit_id, user_id FROM tenants
+SELECT id, start_date, end_date, created_at, updated_at, unit_id, user_id, property_id FROM tenants
 WHERE unit_id = $1
 `
 
@@ -904,6 +912,7 @@ func (q *Queries) GetUnitTenancy(ctx context.Context, unitID uuid.UUID) ([]Tenan
 			&i.UpdatedAt,
 			&i.UnitID,
 			&i.UserID,
+			&i.PropertyID,
 		); err != nil {
 			return nil, err
 		}
@@ -1027,7 +1036,7 @@ func (q *Queries) GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (G
 }
 
 const getUserTenancy = `-- name: GetUserTenancy :many
-SELECT id, start_date, end_date, created_at, updated_at, unit_id, user_id FROM tenants
+SELECT id, start_date, end_date, created_at, updated_at, unit_id, user_id, property_id FROM tenants
 WHERE user_id = $1
 `
 
@@ -1048,6 +1057,7 @@ func (q *Queries) GetUserTenancy(ctx context.Context, userID uuid.UUID) ([]Tenan
 			&i.UpdatedAt,
 			&i.UnitID,
 			&i.UserID,
+			&i.PropertyID,
 		); err != nil {
 			return nil, err
 		}

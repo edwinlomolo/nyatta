@@ -10,6 +10,7 @@ type Property {
   createdBy: UUID!
   caretaker: Caretaker
   caretakerId: UUID
+  tenancy: [Tenant!]!
   owner: User
   createdAt: Time
   updatedAt: Time

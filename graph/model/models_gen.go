@@ -157,21 +157,24 @@ type Status struct {
 }
 
 type TenancyInput struct {
-	StartDate time.Time `json:"startDate"`
-	UserID    uuid.UUID `json:"userId"`
-	UnitID    uuid.UUID `json:"unitId"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Phone     string    `json:"phone"`
+	StartDate time.Time `json:"start_date"`
+	UnitID    uuid.UUID `json:"unit_id"`
 }
 
 type Tenant struct {
-	ID        uuid.UUID  `json:"id"`
-	StartDate time.Time  `json:"startDate"`
-	EndDate   *time.Time `json:"endDate,omitempty"`
-	UnitID    uuid.UUID  `json:"unitId"`
-	UserID    uuid.UUID  `json:"userId"`
-	User      *User      `json:"user"`
-	Unit      *Unit      `json:"unit,omitempty"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	ID         uuid.UUID  `json:"id"`
+	StartDate  time.Time  `json:"startDate"`
+	EndDate    *time.Time `json:"endDate,omitempty"`
+	UnitID     uuid.UUID  `json:"unitId"`
+	UserID     uuid.UUID  `json:"userId"`
+	PropertyID uuid.UUID  `json:"propertyId"`
+	User       *User      `json:"user"`
+	Unit       *Unit      `json:"unit"`
+	CreatedAt  *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt  *time.Time `json:"updatedAt,omitempty"`
 }
 
 type Token struct {

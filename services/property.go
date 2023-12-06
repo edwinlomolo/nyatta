@@ -10,34 +10,44 @@ import (
 	"github.com/3dw1nM0535/nyatta/database/store"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
 	"github.com/3dw1nM0535/nyatta/graph/model"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/cridenour/go-postgis"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
 // PropertyServices - represents property service
-type PropertyServices struct {
-	queries *sqlStore.Queries
-	logger  *log.Logger
-	twilio  *TwilioServices
+type PropertyService interface {
+	ServiceName() string
+	CreateProperty(ctx context.Context, property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error)
+	GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error)
+	GetPropertyThumbnail(ctx context.Context, id uuid.UUID) (*model.AnyUpload, error)
+	PropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error)
+	GetUnits(ctx context.Context, propertyId uuid.UUID) ([]*model.Unit, error)
+	CaretakerPhoneVerification(context.Context, *model.CaretakerVerificationInput) (*model.Status, error)
+	GetCaretakerAvatar(ctx context.Context, caretakerID uuid.UUID) (*model.AnyUpload, error)
+	ListingOverview(ctx context.Context, propertyId uuid.UUID) (*model.ListingOverview, error)
+	GetPropertyCaretaker(ctx context.Context, caretakerId uuid.UUID) (*model.Caretaker, error)
+	GetUnitsCount(ctx context.Context, id uuid.UUID) (int64, error)
 }
 
-// _ - PropertyServices{} implements PropertyService
-var _ interfaces.PropertyService = &PropertyServices{}
+type propertyClient struct {
+	queries *sqlStore.Queries
+	logger  *log.Logger
+	twilio  TwilioService
+}
 
 // NewPropertyService - factory for property services
-func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger, twilio *TwilioServices) *PropertyServices {
-	return &PropertyServices{queries: queries, logger: logger, twilio: twilio}
+func NewPropertyService(queries *sqlStore.Queries, logger *log.Logger, twilio TwilioService) PropertyService {
+	return &propertyClient{queries: queries, logger: logger, twilio: twilio}
 }
 
 // ServiceName - return service name
-func (p PropertyServices) ServiceName() string {
-	return "PropertyServices"
+func (p *propertyClient) ServiceName() string {
+	return "propertyClient"
 }
 
 // CreateProperty - create new property
-func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error) {
+func (p *propertyClient) CreateProperty(ctx context.Context, property *model.NewProperty, createdBy uuid.UUID) (*model.Property, error) {
 	var caretaker store.Caretaker
 	var caretakerErr error
 	phone := ctx.Value("phone").(string)
@@ -65,7 +75,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 	} else {
 		caretaker, caretakerErr = p.queries.GetCaretakerByPhone(ctx, phone)
 		if caretakerErr != nil && caretakerErr == sql.ErrNoRows {
-			user, err := ctx.Value("userService").(*UserServices).GetUser(ctx, uuid.MustParse(userId))
+			user, err := ctx.Value("userService").(UserService).GetUser(ctx, uuid.MustParse(userId))
 			if err != nil {
 				p.logger.Errorf("%s:%v", p.ServiceName(), err)
 				return nil, err
@@ -125,7 +135,7 @@ func (p *PropertyServices) CreateProperty(ctx context.Context, property *model.N
 }
 
 // GetProperty - return existing property given property id
-func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error) {
+func (p *propertyClient) GetProperty(ctx context.Context, id uuid.UUID) (*model.Property, error) {
 	foundProperty, err := p.queries.GetProperty(ctx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -154,7 +164,7 @@ func (p *PropertyServices) GetProperty(ctx context.Context, id uuid.UUID) (*mode
 }
 
 // PropertiesCreatedBy - get property(s) created by user
-func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error) {
+func (p *propertyClient) PropertiesCreatedBy(ctx context.Context, createdBy uuid.UUID) ([]*model.Property, error) {
 	var userProperties []*model.Property
 
 	properties, err := p.queries.PropertiesCreatedBy(ctx, uuid.NullUUID{UUID: createdBy, Valid: true})
@@ -202,7 +212,7 @@ func (p *PropertyServices) PropertiesCreatedBy(ctx context.Context, createdBy uu
 }
 
 // GetUnits - get property units
-func (p *PropertyServices) GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error) {
+func (p *propertyClient) GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error) {
 	var units []*model.Unit
 
 	foundUnits, err := p.queries.GetUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
@@ -234,7 +244,7 @@ func (p *PropertyServices) GetUnits(ctx context.Context, propertyID uuid.UUID) (
 }
 
 // CaretakerPhoneVerification - verify caretaker
-func (p *PropertyServices) CaretakerPhoneVerification(ctx context.Context, input *model.CaretakerVerificationInput) (*model.Status, error) {
+func (p *propertyClient) CaretakerPhoneVerification(ctx context.Context, input *model.CaretakerVerificationInput) (*model.Status, error) {
 	status, err := p.twilio.VerifyCode(input.Phone, input.VerifyCode)
 	if err != nil {
 		p.logger.Errorf("%s: %v", p.ServiceName(), err)
@@ -244,7 +254,7 @@ func (p *PropertyServices) CaretakerPhoneVerification(ctx context.Context, input
 }
 
 // ListingOverview - get listing summary
-func (p *PropertyServices) ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error) {
+func (p *propertyClient) ListingOverview(ctx context.Context, propertyID uuid.UUID) (*model.ListingOverview, error) {
 	pUUID := uuid.NullUUID{UUID: propertyID, Valid: true}
 
 	totalUnits, err := p.queries.UnitsCount(ctx, pUUID)
@@ -272,7 +282,7 @@ func (p *PropertyServices) ListingOverview(ctx context.Context, propertyID uuid.
 }
 
 // GetPropertyThumbnail - grab thumbnail
-func (p *PropertyServices) GetPropertyThumbnail(ctx context.Context, propertyID uuid.UUID) (*model.AnyUpload, error) {
+func (p *propertyClient) GetPropertyThumbnail(ctx context.Context, propertyID uuid.UUID) (*model.AnyUpload, error) {
 	foundThumbnail, err := p.queries.GetPropertyThumbnail(ctx, sqlStore.GetPropertyThumbnailParams{
 		PropertyID: uuid.NullUUID{UUID: propertyID, Valid: true},
 		Category:   model.UploadCategoryPropertyThumbnail.String(),
@@ -293,7 +303,7 @@ func (p *PropertyServices) GetPropertyThumbnail(ctx context.Context, propertyID 
 }
 
 // GetCaretakerAvatar - grab caretaker avatar
-func (p *PropertyServices) GetCaretakerAvatar(ctx context.Context, caretakerID uuid.UUID) (*model.AnyUpload, error) {
+func (p *propertyClient) GetCaretakerAvatar(ctx context.Context, caretakerID uuid.UUID) (*model.AnyUpload, error) {
 	foundAvatar, err := p.queries.GetCaretakerAvatar(ctx, sqlStore.GetCaretakerAvatarParams{
 		CaretakerID: uuid.NullUUID{UUID: caretakerID, Valid: true},
 		Category:    model.UploadCategoryProfileImg.String(),
@@ -314,7 +324,7 @@ func (p *PropertyServices) GetCaretakerAvatar(ctx context.Context, caretakerID u
 }
 
 // GetPropertyCaretaker - grab property caretaker
-func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID uuid.UUID) (*model.Caretaker, error) {
+func (p *propertyClient) GetPropertyCaretaker(ctx context.Context, caretakerID uuid.UUID) (*model.Caretaker, error) {
 	foundCaretaker, err := p.queries.GetCaretakerById(ctx, caretakerID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -336,7 +346,7 @@ func (p *PropertyServices) GetPropertyCaretaker(ctx context.Context, caretakerID
 }
 
 // GetUnitsCount - grab total property units
-func (p *PropertyServices) GetUnitsCount(ctx context.Context, id uuid.UUID) (int64, error) {
+func (p *propertyClient) GetUnitsCount(ctx context.Context, id uuid.UUID) (int64, error) {
 	totalCount, err := p.queries.UnitsCount(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	if err != nil {
 		p.logger.Errorf("%s:%v", p.ServiceName(), err)

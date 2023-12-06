@@ -14,7 +14,7 @@ import (
 
 // User is the resolver for the user field.
 func (r *tenantResolver) User(ctx context.Context, obj *model.Tenant) (*model.User, error) {
-	user, err := ctx.Value("userService").(*services.UserServices).GetUser(ctx, obj.UserID)
+	user, err := ctx.Value("userService").(services.UserService).GetUser(ctx, obj.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ type tenantResolver struct{ *Resolver }
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *tenantResolver) Unit(ctx context.Context, obj *model.Tenant) (*model.Unit, error) {
-	unit, err := ctx.Value("unitService").(*services.UnitServices).GetUnit(ctx, obj.UnitID)
+	unit, err := ctx.Value("unitService").(services.UnitService).GetUnit(ctx, obj.UnitID)
 	if err != nil {
 		return nil, err
 	}

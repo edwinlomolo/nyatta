@@ -14,7 +14,7 @@ import (
 
 // Bedrooms is the resolver for the bedrooms field.
 func (r *unitResolver) Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.Bedroom, error) {
-	foundBedrooms, err := ctx.Value("unitService").(*services.UnitServices).GetUnitBedrooms(ctx, obj.ID)
+	foundBedrooms, err := ctx.Value("unitService").(services.UnitService).GetUnitBedrooms(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *unitResolver) Bedrooms(ctx context.Context, obj *model.Unit) ([]*model.
 
 // Thumbnail is the resolver for the thumbnail field.
 func (r *unitResolver) Thumbnail(ctx context.Context, obj *model.Unit) (*model.AnyUpload, error) {
-	foundThumbnail, err := ctx.Value("unitService").(*services.UnitServices).GetUnitThumbnail(ctx, obj.ID)
+	foundThumbnail, err := ctx.Value("unitService").(services.UnitService).GetUnitThumbnail(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (r *unitResolver) Caretaker(ctx context.Context, obj *model.Unit) (*model.C
 	if obj.CaretakerID == nil {
 		return nil, nil
 	}
-	caretaker, err := ctx.Value("propertyService").(*services.PropertyServices).GetPropertyCaretaker(ctx, *obj.CaretakerID)
+	caretaker, err := ctx.Value("propertyService").(services.PropertyService).GetPropertyCaretaker(ctx, *obj.CaretakerID)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (r *unitResolver) Caretaker(ctx context.Context, obj *model.Unit) (*model.C
 
 // Property is the resolver for the property field.
 func (r *unitResolver) Property(ctx context.Context, obj *model.Unit) (*model.Property, error) {
-	property, err := ctx.Value("propertyService").(*services.PropertyServices).GetProperty(ctx, obj.PropertyID)
+	property, err := ctx.Value("propertyService").(services.PropertyService).GetProperty(ctx, obj.PropertyID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (r *unitResolver) Property(ctx context.Context, obj *model.Unit) (*model.Pr
 
 // Tenant is the resolver for the tenant field.
 func (r *unitResolver) Tenant(ctx context.Context, obj *model.Unit) (*model.Tenant, error) {
-	tenant, err := ctx.Value("tenancyService").(*services.TenancyServices).GetCurrentTenant(ctx, obj.ID)
+	tenant, err := ctx.Value("tenancyService").(services.TenancyService).GetCurrentTenant(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (r *unitResolver) Owner(ctx context.Context, obj *model.Unit) (*model.User,
 		return nil, nil
 	}
 
-	user, err := ctx.Value("userService").(*services.UserServices).GetUser(ctx, *obj.CreatedBy)
+	user, err := ctx.Value("userService").(services.UserService).GetUser(ctx, *obj.CreatedBy)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (r *unitResolver) Owner(ctx context.Context, obj *model.Unit) (*model.User,
 
 // Amenities is the resolver for the amenities field.
 func (r *unitResolver) Amenities(ctx context.Context, obj *model.Unit) ([]*model.Amenity, error) {
-	amenities, err := ctx.Value("amenityService").(*services.AmenityServices).GetUnitAmenities(ctx, obj.ID)
+	amenities, err := ctx.Value("amenityService").(services.AmenityService).GetUnitAmenities(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (r *unitResolver) Amenities(ctx context.Context, obj *model.Unit) ([]*model
 
 // Images is the resolver for the images field.
 func (r *unitResolver) Images(ctx context.Context, obj *model.Unit) ([]*model.AnyUpload, error) {
-	uploads, err := ctx.Value("unitService").(*services.UnitServices).GetUnitImages(ctx, obj.ID)
+	uploads, err := ctx.Value("unitService").(services.UnitService).GetUnitImages(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (r *unitResolver) Images(ctx context.Context, obj *model.Unit) ([]*model.An
 
 // Tenancy is the resolver for the tenancy field.
 func (r *unitResolver) Tenancy(ctx context.Context, obj *model.Unit) ([]*model.Tenant, error) {
-	foundTenancies, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUnitTenancy(ctx, obj.ID)
+	foundTenancies, err := ctx.Value("tenancyService").(services.TenancyService).GetUnitTenancy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

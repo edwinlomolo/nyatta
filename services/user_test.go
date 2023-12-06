@@ -15,18 +15,18 @@ import (
 )
 
 var (
-	userService     *UserServices
-	authService     *AuthServices
-	propertyService *PropertyServices
-	listingService  *ListingServices
-	amenityService  *AmenityServices
-	unitService     *UnitServices
-	tenancyService  *TenancyServices
+	userService     UserService
+	authService     AuthService
+	propertyService PropertyService
+	listingService  ListingService
+	amenityService  AmenityService
+	unitService     UnitService
+	tenancyService  TenancyService
 	queries         *sqlStore.Queries
 	configuration   *config.Configuration
-	postaService    *PostaServices
-	twilioService   *TwilioServices
-	mailingService  *MailingServices
+	postaService    PostaService
+	twilioService   TwilioService
+	mailingService  MailingService
 )
 
 func TestMain(m *testing.M) {

@@ -14,7 +14,7 @@ import (
 
 // Avatar is the resolver for the avatar field.
 func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyUpload, error) {
-	avatar, err := ctx.Value("userService").(*services.UserServices).GetUserAvatar(ctx, obj.ID)
+	avatar, err := ctx.Value("userService").(services.UserService).GetUserAvatar(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (r *userResolver) Avatar(ctx context.Context, obj *model.User) (*model.AnyU
 
 // Properties is the resolver for the properties field.
 func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*model.Property, error) {
-	userProperties, err := ctx.Value("propertyService").(*services.PropertyServices).PropertiesCreatedBy(ctx, obj.ID)
+	userProperties, err := ctx.Value("propertyService").(services.PropertyService).PropertiesCreatedBy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *userResolver) Properties(ctx context.Context, obj *model.User) ([]*mode
 
 // Units is the resolver for the units field.
 func (r *userResolver) Units(ctx context.Context, obj *model.User) ([]*model.Unit, error) {
-	foundUnits, err := ctx.Value("unitService").(*services.UnitServices).UnitsCreatedBy(ctx, obj.ID)
+	foundUnits, err := ctx.Value("unitService").(services.UnitService).UnitsCreatedBy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *userResolver) Units(ctx context.Context, obj *model.User) ([]*model.Uni
 
 // Tenancy is the resolver for the tenancy field.
 func (r *userResolver) Tenancy(ctx context.Context, obj *model.User) ([]*model.Tenant, error) {
-	tenancy, err := ctx.Value("tenancyService").(*services.TenancyServices).GetUserTenancy(ctx, obj.ID)
+	tenancy, err := ctx.Value("tenancyService").(services.TenancyService).GetUserTenancy(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

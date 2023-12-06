@@ -3,36 +3,38 @@ package services
 import (
 	"github.com/3dw1nM0535/nyatta/config"
 	sqlStore "github.com/3dw1nM0535/nyatta/database/store"
-	"github.com/3dw1nM0535/nyatta/interfaces"
 	"github.com/sirupsen/logrus"
 	"github.com/twilio/twilio-go"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
-type TwilioServices struct {
+// TwilioService - represent twilio services
+type TwilioService interface {
+	SendVerification(phone string) (string, error)
+	VerifyCode(phone, verifyCode string) (string, error)
+}
+
+type twilioClient struct {
 	Client      *twilio.RestClient
 	Sid         string // Verify service id
-	userService *UserServices
+	userService UserService
 	queries     *sqlStore.Queries
 	logger      *logrus.Logger
 }
 
-// TwilioServices implements Twilio
-var _ interfaces.Twilio = &TwilioServices{}
-
 // NewTwilioService - create new instance of Twilio services
-func NewTwilioService(cfg config.TwilioConfig, queries *sqlStore.Queries, logger *logrus.Logger) *TwilioServices {
+func NewTwilioService(cfg config.TwilioConfig, queries *sqlStore.Queries, logger *logrus.Logger) TwilioService {
 	// Create twilio client
 	twilio := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: cfg.Sid,
 		Password: cfg.AuthToken,
 	})
 
-	return &TwilioServices{Client: twilio, Sid: cfg.VerifySid, queries: queries, logger: logger}
+	return &twilioClient{Client: twilio, Sid: cfg.VerifySid, queries: queries, logger: logger}
 }
 
 // SendVerification - sends verification code
-func (t TwilioServices) SendVerification(phone string) (string, error) {
+func (t twilioClient) SendVerification(phone string) (string, error) {
 	params := &verify.CreateVerificationParams{}
 	params.SetTo(phone)
 	params.SetChannel("sms")
@@ -51,7 +53,7 @@ func (t TwilioServices) SendVerification(phone string) (string, error) {
 }
 
 // VerifyCode - verify verification code
-func (t TwilioServices) VerifyCode(phone, verifyCode string) (string, error) {
+func (t twilioClient) VerifyCode(phone, verifyCode string) (string, error) {
 	params := &verify.CreateVerificationCheckParams{}
 	params.SetTo(phone)
 	params.SetCode(verifyCode)
@@ -70,6 +72,6 @@ func (t TwilioServices) VerifyCode(phone, verifyCode string) (string, error) {
 }
 
 // ServiceName - returns service name
-func (t TwilioServices) ServiceName() string {
-	return "TwilioServices"
+func (t *twilioClient) ServiceName() string {
+	return "twilioClient"
 }

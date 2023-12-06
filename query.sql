@@ -44,9 +44,9 @@ WHERE unit_id = $1;
 
 -- name: CreateTenant :one
 INSERT INTO tenants (
-  start_date, unit_id, user_id
+  start_date, property_id, unit_id, user_id
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
 RETURNING *;
 
