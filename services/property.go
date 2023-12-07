@@ -215,7 +215,7 @@ func (p *propertyClient) PropertiesCreatedBy(ctx context.Context, createdBy uuid
 func (p *propertyClient) GetUnits(ctx context.Context, propertyID uuid.UUID) ([]*model.Unit, error) {
 	var units []*model.Unit
 
-	foundUnits, err := p.queries.GetUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
+	foundUnits, err := p.queries.GetPropertyUnits(ctx, uuid.NullUUID{UUID: propertyID, Valid: true})
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return units, nil

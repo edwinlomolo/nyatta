@@ -94,7 +94,7 @@ WHERE unit_id = $1;
 SELECT * FROM tenants
 WHERE user_id = $1;
 
--- name: GetUnits :many
+-- name: GetPropertyUnits :many
 SELECT * FROM units
 WHERE property_id = $1;
 

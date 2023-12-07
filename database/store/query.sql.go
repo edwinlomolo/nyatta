@@ -739,6 +739,47 @@ func (q *Queries) GetPropertyThumbnail(ctx context.Context, arg GetPropertyThumb
 	return i, err
 }
 
+const getPropertyUnits = `-- name: GetPropertyUnits :many
+SELECT id, name, location, type, state, price, bathrooms, created_at, updated_at, created_by, caretaker_id, property_id FROM units
+WHERE property_id = $1
+`
+
+func (q *Queries) GetPropertyUnits(ctx context.Context, propertyID uuid.NullUUID) ([]Unit, error) {
+	rows, err := q.db.QueryContext(ctx, getPropertyUnits, propertyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Unit
+	for rows.Next() {
+		var i Unit
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Location,
+			&i.Type,
+			&i.State,
+			&i.Price,
+			&i.Bathrooms,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CreatedBy,
+			&i.CaretakerID,
+			&i.PropertyID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUnit = `-- name: GetUnit :one
 SELECT id, name, type, state, price, bathrooms, ST_AsGeoJSON(location) AS location, created_by, caretaker_id, property_id, created_at, updated_at FROM units
 WHERE id = $1
@@ -948,47 +989,6 @@ func (q *Queries) GetUnitThumbnail(ctx context.Context, arg GetUnitThumbnailPara
 	var i GetUnitThumbnailRow
 	err := row.Scan(&i.ID, &i.Upload, &i.Label)
 	return i, err
-}
-
-const getUnits = `-- name: GetUnits :many
-SELECT id, name, location, type, state, price, bathrooms, created_at, updated_at, created_by, caretaker_id, property_id FROM units
-WHERE property_id = $1
-`
-
-func (q *Queries) GetUnits(ctx context.Context, propertyID uuid.NullUUID) ([]Unit, error) {
-	rows, err := q.db.QueryContext(ctx, getUnits, propertyID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Unit
-	for rows.Next() {
-		var i Unit
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Location,
-			&i.Type,
-			&i.State,
-			&i.Price,
-			&i.Bathrooms,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.CreatedBy,
-			&i.CaretakerID,
-			&i.PropertyID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const getUser = `-- name: GetUser :one
