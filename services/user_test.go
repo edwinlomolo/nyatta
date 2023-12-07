@@ -27,6 +27,8 @@ var (
 	postaService    PostaService
 	twilioService   TwilioService
 	mailingService  MailingService
+	paystackService PaystackService
+	mpesaService    MpesaService
 )
 
 func TestMain(m *testing.M) {
@@ -53,6 +55,8 @@ func TestMain(m *testing.M) {
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)
 	postaService = NewPostaService(logger)
+	paystackService = NewPaystackService(configuration.Paystack, logger, queries)
+	mpesaService = NewMpesaService(configuration.Mpesa, logger, queries)
 
 	// exit once done
 	os.Exit(m.Run())
@@ -69,6 +73,6 @@ func Test_User_Services(t *testing.T) {
 	})
 
 	t.Run("should_get_service_name_called", func(t *testing.T) {
-		assert.Equal(t, userService.ServiceName(), "UserServices")
+		assert.Equal(t, userService.ServiceName(), "userClient")
 	})
 }

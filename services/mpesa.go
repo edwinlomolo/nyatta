@@ -14,16 +14,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type MpesaServices struct {
-	logger              *logrus.Logger
-	accessTokenEndpoint string
-	lipaExpressEndpoint string
-	config              config.MpesaConfig
-	queries             *store.Queries
-}
-
-func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger, queries *store.Queries) *MpesaServices {
-	return &MpesaServices{
+func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger, queries *store.Queries) MpesaService {
+	return &mpesaClient{
 		logger:              logger,
 		accessTokenEndpoint: fmt.Sprintf("%s/oauth/v1/generate?grant_type=client_credentials", cfg.BaseApi),
 		lipaExpressEndpoint: fmt.Sprintf("%s/mpesa/stkpush/v1/processrequest", cfg.BaseApi),
@@ -32,7 +24,21 @@ func NewMpesaService(cfg config.MpesaConfig, logger *logrus.Logger, queries *sto
 	}
 }
 
-func (m *MpesaServices) GetAccessToken() (*model.AccessResponse, error) {
+type mpesaClient struct {
+	logger              *logrus.Logger
+	accessTokenEndpoint string
+	lipaExpressEndpoint string
+	config              config.MpesaConfig
+	queries             *store.Queries
+}
+
+type MpesaService interface {
+	GetAccessToken() (*model.AccessResponse, error)
+	StkPush(payload model.LipaNaMpesaPayload) (*model.StkPushResponse, error)
+	ServiceName() string
+}
+
+func (m *mpesaClient) GetAccessToken() (*model.AccessResponse, error) {
 	response := &model.AccessResponse{}
 
 	dataToEncode := fmt.Sprintf("%s:%s", m.config.ConsumerKey, m.config.ConsumerSecret)
@@ -63,7 +69,7 @@ func (m *MpesaServices) GetAccessToken() (*model.AccessResponse, error) {
 	return response, nil
 }
 
-func (m *MpesaServices) StkPush(payload model.LipaNaMpesaPayload) (*model.StkPushResponse, error) {
+func (m *mpesaClient) StkPush(payload model.LipaNaMpesaPayload) (*model.StkPushResponse, error) {
 	var stkResponse *model.StkPushResponse
 
 	t := time.Now().Format("20060102150405")
@@ -122,4 +128,4 @@ func (m *MpesaServices) StkPush(payload model.LipaNaMpesaPayload) (*model.StkPus
 	return stkResponse, nil
 }
 
-func (m MpesaServices) ServiceName() string { return "MpesaServices" }
+func (m mpesaClient) ServiceName() string { return "mpesaClient" }

@@ -8,7 +8,7 @@ import (
 
 func Test_Posta_Services(t *testing.T) {
 	t.Run("should_return_service_name", func(t *testing.T) {
-		assert.Equal(t, postaService.ServiceName(), "PostaServices")
+		assert.Equal(t, postaService.ServiceName(), "postaClient")
 	})
 
 	t.Run("should_return_list_of_towns", func(t *testing.T) {

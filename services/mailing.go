@@ -72,5 +72,5 @@ func (m *mailingClient) SendEmail(ctx context.Context, to []string, from, subjec
 }
 
 func (m *mailingClient) ServiceName() string {
-	return "Mailing"
+	return "mailingClient"
 }

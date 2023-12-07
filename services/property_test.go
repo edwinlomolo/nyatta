@@ -8,7 +8,7 @@ import (
 
 func Test_property_service(t *testing.T) {
 	t.Run("should_return_service_name", func(t *testing.T) {
-		assert.Equal(t, propertyService.ServiceName(), "PropertyServices")
+		assert.Equal(t, propertyService.ServiceName(), "propertyClient")
 	})
 
 	t.Run("should_create_property", func(t *testing.T) {

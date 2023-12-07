@@ -14,6 +14,7 @@ import (
 type AmenityService interface {
 	AddAmenity(ctx context.Context, unitID uuid.UUID, input *model.UnitAmenityInput) (*model.Amenity, error)
 	GetUnitAmenities(ctx context.Context, unitID uuid.UUID) ([]*model.Amenity, error)
+	ServiceName() string
 }
 
 // NewAmenityService - factory for amenity services
@@ -74,5 +75,5 @@ func (a *amenityClient) GetUnitAmenities(ctx context.Context, unitID uuid.UUID) 
 
 // ServiceName - get service name
 func (a *amenityClient) ServiceName() string {
-	return "AmenityService"
+	return "amenityClient"
 }

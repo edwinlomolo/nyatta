@@ -18,6 +18,7 @@ import (
 type PaystackService interface {
 	ChargeMpesaPhone(ctx context.Context, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error)
 	ReconcilePaystackMpesaCallback(ctx context.Context, payload model.PaystackCallbackResponse) error
+	ServiceName() string
 }
 
 type paystackClient struct {
