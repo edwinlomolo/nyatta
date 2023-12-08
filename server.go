@@ -81,6 +81,7 @@ func main() {
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
 	paystackService := services.NewPaystackService(configuration.Paystack, serverConfig.ServerEnv, logger, queries)
+	equityBankService := services.NewEquityBankService(logger, serverConfig.ServerEnv)
 
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
@@ -95,6 +96,7 @@ func main() {
 	ctx = context.WithValue(ctx, "mailingService", mailingService)
 	ctx = context.WithValue(ctx, "sqlStore", queries)
 	ctx = context.WithValue(ctx, "paystackService", paystackService)
+	ctx = context.WithValue(ctx, "equityBankService", equityBankService)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(resolver.New()))
 	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
