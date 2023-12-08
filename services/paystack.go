@@ -42,6 +42,10 @@ func (p *paystackClient) ChargeMpesaPhone(ctx context.Context, payload model.Pay
 	if p.env == "development" {
 		payload.MobileMoney.Phone = "+254710000000"
 	}
+	// Lower fee just for me
+	if p.env == "staging" {
+		payload.Amount = 5 * 100
+	}
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
