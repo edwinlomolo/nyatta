@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 	tenancyService = NewTenancyService(queries, logger)
 	listingService = NewListingService(queries, logger)
 	postaService = NewPostaService(logger)
-	paystackService = NewPaystackService(configuration.Paystack, logger, queries)
+	paystackService = NewPaystackService(configuration.Paystack, configuration.Server.ServerEnv, logger, queries)
 	mpesaService = NewMpesaService(configuration.Mpesa, logger, queries)
 
 	// exit once done

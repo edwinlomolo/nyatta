@@ -25,11 +25,12 @@ type paystackClient struct {
 	config   config.Paystack
 	logger   *logrus.Logger
 	baseApi  string
+	env      string
 	sqlStore *store.Queries
 }
 
-func NewPaystackService(cfg config.Paystack, logger *logrus.Logger, sqlStore *store.Queries) PaystackService {
-	return &paystackClient{config: cfg, logger: logger, baseApi: cfg.BaseApi, sqlStore: sqlStore}
+func NewPaystackService(cfg config.Paystack, env string, logger *logrus.Logger, sqlStore *store.Queries) PaystackService {
+	return &paystackClient{config: cfg, logger: logger, env: env, baseApi: cfg.BaseApi, sqlStore: sqlStore}
 }
 
 func (p *paystackClient) ChargeMpesaPhone(ctx context.Context, payload model.PaystackMpesaChargePayload) (*model.PaystackMpesaChargeResponse, error) {
@@ -38,7 +39,7 @@ func (p *paystackClient) ChargeMpesaPhone(ctx context.Context, payload model.Pay
 
 	url := p.baseApi + "/charge"
 	payload.MobileMoney.Provider = "mpesa"
-	if p.config.Env == "test" {
+	if p.env == "development" {
 		payload.MobileMoney.Phone = "+254710000000"
 	}
 

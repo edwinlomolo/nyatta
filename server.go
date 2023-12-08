@@ -80,7 +80,7 @@ func main() {
 	listingService := services.NewListingService(queries, logger)
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
-	paystackService := services.NewPaystackService(configuration.Paystack, logger, queries)
+	paystackService := services.NewPaystackService(configuration.Paystack, serverConfig.ServerEnv, logger, queries)
 
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)
