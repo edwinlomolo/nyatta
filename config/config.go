@@ -2,7 +2,6 @@ package config
 
 import (
 	"os"
-	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -29,6 +28,7 @@ type Configuration struct {
 	Email        EmailConfig    `json:"email"`
 	Mpesa        MpesaConfig    `json:"mpesa"`
 	Paystack     Paystack       `json:"paystack"`
+	Equity       Equity         `json:"equity"`
 }
 
 var configAll *Configuration
@@ -46,6 +46,7 @@ func LoadConfig() *Configuration {
 	configuration.Email = emailConfig()
 	configuration.Mpesa = mpesaConfig()
 	configuration.Paystack = paystackConfig()
+	configuration.Equity = equityConfig()
 
 	configAll = &configuration
 
@@ -155,6 +156,7 @@ func twilioConfig() TwilioConfig {
 
 // ForcePostgresMigration - force postgres migration
 func ForcePostgresMigration() bool {
+
 	// Load env variables
 	env()
 
@@ -213,13 +215,21 @@ func paystackConfig() Paystack {
 	paystackConfig.SecretKey = os.Getenv("PAYSTACK_SECRET_KEY")
 	paystackConfig.BaseApi = os.Getenv("PAYSTACK_BASE_API")
 
-	if strings.Contains(paystackConfig.SecretKey, "sk_test") {
-		paystackConfig.Env = "test"
-	} else if strings.Contains(paystackConfig.SecretKey, "sk_live") {
-		paystackConfig.Env = "live"
-	} else {
-		paystackConfig.Env = "test"
-	}
-
 	return paystackConfig
+}
+
+// equityConfig - setup equity bank config
+func equityConfig() Equity {
+	var equityConfig Equity
+
+	// Load env
+	env()
+
+	equityConfig.MerchantCode = os.Getenv("EQUITY_MERCHANT_CODE")
+	equityConfig.ConsumerSecret = os.Getenv("EQUITY_CONSUMER_SECRET")
+	equityConfig.ApiKey = os.Getenv("EQUITY_API_KEY")
+	equityConfig.PrivateKey = os.Getenv("EQUITY_PRIVATE_KEY")
+	equityConfig.BaseApi = os.Getenv("EQUITY_BASE_API")
+
+	return equityConfig
 }
