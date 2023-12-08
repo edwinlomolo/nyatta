@@ -19,10 +19,14 @@ type Balance struct {
 }
 
 type AccountBalanceResponse struct {
+	EquityCommonResponse
+	Data struct {
+		Balances []*Balance `json:"balances"`
+	} `json:"data"`
+}
+
+type EquityCommonResponse struct {
 	Status  bool   `json:"status"`
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-	Data    struct {
-		Balances []*Balance `json:"balances"`
-	} `json:"data"`
 }
