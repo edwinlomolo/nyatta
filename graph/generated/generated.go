@@ -74,6 +74,11 @@ type ComplexityRoot struct {
 		UserID     func(childComplexity int) int
 	}
 
+	Balance struct {
+		Amount func(childComplexity int) int
+		Type   func(childComplexity int) int
+	}
+
 	Bedroom struct {
 		BedroomNumber  func(childComplexity int) int
 		CreatedAt      func(childComplexity int) int
@@ -141,6 +146,7 @@ type ComplexityRoot struct {
 		Location    func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Owner       func(childComplexity int) int
+		Tenancy     func(childComplexity int) int
 		Thumbnail   func(childComplexity int) int
 		Type        func(childComplexity int) int
 		Units       func(childComplexity int) int
@@ -149,6 +155,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetAccountBalance  func(childComplexity int, accountID string, countryCode model.CountryCode) int
 		GetNearByUnits     func(childComplexity int, input model.NearByUnitsInput) int
 		GetProperty        func(childComplexity int, id uuid.UUID) int
 		GetPropertyTenancy func(childComplexity int, propertyID uuid.UUID) int
@@ -271,6 +278,7 @@ type PropertyResolver interface {
 
 	Caretaker(ctx context.Context, obj *model.Property) (*model.Caretaker, error)
 
+	Tenancy(ctx context.Context, obj *model.Property) ([]*model.Tenant, error)
 	Owner(ctx context.Context, obj *model.Property) (*model.User, error)
 }
 type QueryResolver interface {
@@ -286,6 +294,7 @@ type QueryResolver interface {
 	RefreshToken(ctx context.Context) (*model.SignInResponse, error)
 	GetNearByUnits(ctx context.Context, input model.NearByUnitsInput) ([]*model.Unit, error)
 	GetUnit(ctx context.Context, id uuid.UUID) (*model.Unit, error)
+	GetAccountBalance(ctx context.Context, accountID string, countryCode model.CountryCode) ([]*model.Balance, error)
 }
 type TenantResolver interface {
 	User(ctx context.Context, obj *model.Tenant) (*model.User, error)
@@ -437,6 +446,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AnyUpload.UserID(childComplexity), true
+
+	case "Balance.amount":
+		if e.complexity.Balance.Amount == nil {
+			break
+		}
+
+		return e.complexity.Balance.Amount(childComplexity), true
+
+	case "Balance.type":
+		if e.complexity.Balance.Type == nil {
+			break
+		}
+
+		return e.complexity.Balance.Type(childComplexity), true
 
 	case "Bedroom.bedroomNumber":
 		if e.complexity.Bedroom.BedroomNumber == nil {
@@ -834,6 +857,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Property.Owner(childComplexity), true
 
+	case "Property.tenancy":
+		if e.complexity.Property.Tenancy == nil {
+			break
+		}
+
+		return e.complexity.Property.Tenancy(childComplexity), true
+
 	case "Property.thumbnail":
 		if e.complexity.Property.Thumbnail == nil {
 			break
@@ -868,6 +898,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Property.UpdatedAt(childComplexity), true
+
+	case "Query.getAccountBalance":
+		if e.complexity.Query.GetAccountBalance == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAccountBalance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAccountBalance(childComplexity, args["accountId"].(string), args["countryCode"].(model.CountryCode)), true
 
 	case "Query.getNearByUnits":
 		if e.complexity.Query.GetNearByUnits == nil {
@@ -1699,6 +1741,7 @@ type Query {
   refreshToken: SignInResponse!
   getNearByUnits(input: NearByUnitsInput!): [Unit!]!
   getUnit(id: UUID!): Unit!
+  getAccountBalance(accountId: String!, countryCode: CountryCode!): [Balance!]!
 }
 
 type Mutation {
@@ -1730,6 +1773,11 @@ type Amenity {
   unitId: UUID
   createdAt: Time
   updatedAt: Time
+}
+`, BuiltIn: false},
+	{Name: "../schema/types/balance.graphql", Input: `type Balance {
+  amount: String!
+  type: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/types/bedroom.graphql", Input: `# Represent a bedroom
@@ -1785,6 +1833,7 @@ type Property {
   createdBy: UUID!
   caretaker: Caretaker
   caretakerId: UUID
+  tenancy: [Tenant!]!
   owner: User
   createdAt: Time
   updatedAt: Time
@@ -2092,6 +2141,30 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAccountBalance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["accountId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["accountId"] = arg0
+	var arg1 model.CountryCode
+	if tmp, ok := rawArgs["countryCode"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("countryCode"))
+		arg1, err = ec.unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["countryCode"] = arg1
 	return args, nil
 }
 
@@ -2871,6 +2944,94 @@ func (ec *executionContext) fieldContext_AnyUpload_updatedAt(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Balance_amount(ctx context.Context, field graphql.CollectedField, obj *model.Balance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Balance_amount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Amount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Balance_amount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Balance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Balance_type(ctx context.Context, field graphql.CollectedField, obj *model.Balance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Balance_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Balance_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Balance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bedroom_id(ctx context.Context, field graphql.CollectedField, obj *model.Bedroom) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bedroom_id(ctx, field)
 	if err != nil {
@@ -3511,6 +3672,8 @@ func (ec *executionContext) fieldContext_Caretaker_properties(ctx context.Contex
 				return ec.fieldContext_Property_caretaker(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Property_tenancy(ctx, field)
 			case "owner":
 				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
@@ -4248,6 +4411,8 @@ func (ec *executionContext) fieldContext_Mutation_createProperty(ctx context.Con
 				return ec.fieldContext_Property_caretaker(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Property_tenancy(ctx, field)
 			case "owner":
 				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
@@ -5480,6 +5645,72 @@ func (ec *executionContext) fieldContext_Property_caretakerId(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Property_tenancy(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Property_tenancy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Property().Tenancy(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Tenant)
+	fc.Result = res
+	return ec.marshalNTenant2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐTenantᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Property_tenancy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Tenant_id(ctx, field)
+			case "startDate":
+				return ec.fieldContext_Tenant_startDate(ctx, field)
+			case "endDate":
+				return ec.fieldContext_Tenant_endDate(ctx, field)
+			case "unitId":
+				return ec.fieldContext_Tenant_unitId(ctx, field)
+			case "userId":
+				return ec.fieldContext_Tenant_userId(ctx, field)
+			case "propertyId":
+				return ec.fieldContext_Tenant_propertyId(ctx, field)
+			case "user":
+				return ec.fieldContext_Tenant_user(ctx, field)
+			case "unit":
+				return ec.fieldContext_Tenant_unit(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Tenant_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Tenant_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Tenant", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Property_owner(ctx context.Context, field graphql.CollectedField, obj *model.Property) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Property_owner(ctx, field)
 	if err != nil {
@@ -5758,6 +5989,8 @@ func (ec *executionContext) fieldContext_Query_getProperty(ctx context.Context, 
 				return ec.fieldContext_Property_caretaker(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Property_tenancy(ctx, field)
 			case "owner":
 				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
@@ -6178,6 +6411,8 @@ func (ec *executionContext) fieldContext_Query_getUserProperties(ctx context.Con
 				return ec.fieldContext_Property_caretaker(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Property_tenancy(ctx, field)
 			case "owner":
 				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
@@ -6500,6 +6735,67 @@ func (ec *executionContext) fieldContext_Query_getUnit(ctx context.Context, fiel
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getUnit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAccountBalance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAccountBalance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAccountBalance(rctx, fc.Args["accountId"].(string), fc.Args["countryCode"].(model.CountryCode))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Balance)
+	fc.Result = res
+	return ec.marshalNBalance2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBalanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAccountBalance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "amount":
+				return ec.fieldContext_Balance_amount(ctx, field)
+			case "type":
+				return ec.fieldContext_Balance_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Balance", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAccountBalance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -8186,6 +8482,8 @@ func (ec *executionContext) fieldContext_Unit_property(ctx context.Context, fiel
 				return ec.fieldContext_Property_caretaker(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Property_tenancy(ctx, field)
 			case "owner":
 				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
@@ -9233,6 +9531,8 @@ func (ec *executionContext) fieldContext_User_properties(ctx context.Context, fi
 				return ec.fieldContext_Property_caretaker(ctx, field)
 			case "caretakerId":
 				return ec.fieldContext_Property_caretakerId(ctx, field)
+			case "tenancy":
+				return ec.fieldContext_Property_tenancy(ctx, field)
 			case "owner":
 				return ec.fieldContext_Property_owner(ctx, field)
 			case "createdAt":
@@ -12133,6 +12433,50 @@ func (ec *executionContext) _AnyUpload(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var balanceImplementors = []string{"Balance"}
+
+func (ec *executionContext) _Balance(ctx context.Context, sel ast.SelectionSet, obj *model.Balance) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, balanceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Balance")
+		case "amount":
+			out.Values[i] = ec._Balance_amount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Balance_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var bedroomImplementors = []string{"Bedroom"}
 
 func (ec *executionContext) _Bedroom(ctx context.Context, sel ast.SelectionSet, obj *model.Bedroom) graphql.Marshaler {
@@ -12783,6 +13127,42 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "caretakerId":
 			out.Values[i] = ec._Property_caretakerId(ctx, field, obj)
+		case "tenancy":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Property_tenancy(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "owner":
 			field := field
 
@@ -13114,6 +13494,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getUnit(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAccountBalance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAccountBalance(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -14519,6 +14921,60 @@ func (ec *executionContext) marshalNAnyUpload2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnya
 	return ec._AnyUpload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNBalance2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBalanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Balance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBalance2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBalance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNBalance2ᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBalance(ctx context.Context, sel ast.SelectionSet, v *model.Balance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Balance(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNBedroom2ᚕᚖgithubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐBedroomᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Bedroom) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -14591,6 +15047,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 func (ec *executionContext) unmarshalNCaretakerVerificationInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCaretakerVerificationInput(ctx context.Context, v interface{}) (model.CaretakerVerificationInput, error) {
 	res, err := ec.unmarshalInputCaretakerVerificationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx context.Context, v interface{}) (model.CountryCode, error) {
+	var res model.CountryCode
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCountryCode2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCountryCode(ctx context.Context, sel ast.SelectionSet, v model.CountryCode) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNCreatePaymentInput2githubᚗcomᚋ3dw1nM0535ᚋnyattaᚋgraphᚋmodelᚐCreatePaymentInput(ctx context.Context, v interface{}) (model.CreatePaymentInput, error) {

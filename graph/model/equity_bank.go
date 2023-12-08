@@ -19,8 +19,10 @@ type Balance struct {
 }
 
 type AccountBalanceResponse struct {
-	Status  bool                 `json:"status"`
-	Code    int                  `json:"code"`
-	Message string               `json:"message"`
-	Data    map[string][]Balance `json:"data"`
+	Status  bool   `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		Balances []*Balance `json:"balances"`
+	} `json:"data"`
 }

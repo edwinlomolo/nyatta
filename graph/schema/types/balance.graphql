@@ -1,0 +1,4 @@
+type Balance {
+  amount: String!
+  type: String!
+}

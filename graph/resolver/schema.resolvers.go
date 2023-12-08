@@ -264,6 +264,16 @@ func (r *queryResolver) GetUnit(ctx context.Context, id uuid.UUID) (*model.Unit,
 	return unit, nil
 }
 
+// GetAccountBalance is the resolver for the getAccountBalance field.
+func (r *queryResolver) GetAccountBalance(ctx context.Context, accountID string, countryCode model.CountryCode) ([]*model.Balance, error) {
+	balance, err := ctx.Value("equityBankService").(services.EquityService).AccountBalance(accountID, countryCode.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return balance.Data.Balances, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

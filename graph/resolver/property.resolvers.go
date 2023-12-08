@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/3dw1nM0535/nyatta/graph/generated"
 	"github.com/3dw1nM0535/nyatta/graph/model"
@@ -52,6 +53,11 @@ func (r *propertyResolver) Caretaker(ctx context.Context, obj *model.Property) (
 	}
 
 	return caretaker, nil
+}
+
+// Tenancy is the resolver for the tenancy field.
+func (r *propertyResolver) Tenancy(ctx context.Context, obj *model.Property) ([]*model.Tenant, error) {
+	panic(fmt.Errorf("not implemented: Tenancy - tenancy"))
 }
 
 // Owner is the resolver for the owner field.

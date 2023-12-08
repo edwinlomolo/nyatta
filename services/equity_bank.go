@@ -105,7 +105,7 @@ func (eq *equityClient) signMessageToBase64Encode(payload string) (string, error
 func (eq *equityClient) AccountBalance(accountId, countryCode string) (*model.AccountBalanceResponse, error) {
 	var accBalance *model.AccountBalanceResponse
 	api := eq.config.BaseApi + "/v3-apis/account-api/v3.0/accounts/balances/" + countryCode + "/" + accountId
-	reqSignature, err := eq.signMessageToBase64Encode(accountId + countryCode)
+	reqSignature, err := eq.signMessageToBase64Encode(countryCode + accountId)
 	if err != nil {
 		eq.logger.Errorf("%s:%v", eq.ServiceName(), err)
 		return nil, err

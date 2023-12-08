@@ -189,7 +189,7 @@ type Query {
   refreshToken: SignInResponse!
   getNearByUnits(input: NearByUnitsInput!): [Unit!]!
   getUnit(id: UUID!): Unit!
-  getAccountBalance(accountId: String!, countryCode: CountryCode!): AccountBalanceResponse!
+  getAccountBalance(accountId: String!, countryCode: CountryCode!): [Balance!]!
 }
 
 type Mutation {

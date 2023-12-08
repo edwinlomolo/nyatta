@@ -129,6 +129,7 @@ type Property struct {
 	CreatedBy   uuid.UUID    `json:"createdBy"`
 	Caretaker   *Caretaker   `json:"caretaker,omitempty"`
 	CaretakerID *uuid.UUID   `json:"caretakerId,omitempty"`
+	Tenancy     []*Tenant    `json:"tenancy"`
 	Owner       *User        `json:"owner,omitempty"`
 	CreatedAt   *time.Time   `json:"createdAt,omitempty"`
 	UpdatedAt   *time.Time   `json:"updatedAt,omitempty"`
@@ -145,11 +146,6 @@ type Shoot struct {
 
 type ShootInput struct {
 	Date time.Time `json:"date"`
-}
-
-type SignInResponse struct {
-	User  *User  `json:"user"`
-	Token string `json:"Token"`
 }
 
 type Status struct {
