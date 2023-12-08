@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"os"
 	"time"
 
@@ -28,7 +29,7 @@ type Configuration struct {
 	Email        EmailConfig    `json:"email"`
 	Mpesa        MpesaConfig    `json:"mpesa"`
 	Paystack     Paystack       `json:"paystack"`
-	Equity       Equity         `json:"equity"`
+	EquityBank   EquityBank     `json:"equityBank"`
 }
 
 var configAll *Configuration
@@ -46,7 +47,7 @@ func LoadConfig() *Configuration {
 	configuration.Email = emailConfig()
 	configuration.Mpesa = mpesaConfig()
 	configuration.Paystack = paystackConfig()
-	configuration.Equity = equityConfig()
+	configuration.EquityBank = equityBankConfig()
 
 	configAll = &configuration
 
@@ -218,18 +219,22 @@ func paystackConfig() Paystack {
 	return paystackConfig
 }
 
-// equityConfig - setup equity bank config
-func equityConfig() Equity {
-	var equityConfig Equity
+// equityBankConfig - setup equity bank config
+func equityBankConfig() EquityBank {
+	var equityBankConfig EquityBank
 
 	// Load env
 	env()
 
-	equityConfig.MerchantCode = os.Getenv("EQUITY_MERCHANT_CODE")
-	equityConfig.ConsumerSecret = os.Getenv("EQUITY_CONSUMER_SECRET")
-	equityConfig.ApiKey = os.Getenv("EQUITY_API_KEY")
-	equityConfig.PrivateKey = os.Getenv("EQUITY_PRIVATE_KEY")
-	equityConfig.BaseApi = os.Getenv("EQUITY_BASE_API")
+	equityBankConfig.MerchantCode = os.Getenv("EQUITY_MERCHANT_CODE")
+	equityBankConfig.ConsumerSecret = os.Getenv("EQUITY_CONSUMER_SECRET")
+	equityBankConfig.ApiKey = os.Getenv("EQUITY_API_KEY")
+	privateKey, err := base64.StdEncoding.DecodeString(os.Getenv("EQUITY_PRIVATE_KEY"))
+	if err != nil {
+		log.Fatalln("Error reading private key env")
+	}
+	equityBankConfig.PrivateKey = string(privateKey)
+	equityBankConfig.BaseApi = os.Getenv("EQUITY_BASE_API")
 
-	return equityConfig
+	return equityBankConfig
 }

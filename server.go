@@ -81,7 +81,7 @@ func main() {
 	postaService := services.NewPostaService(logger)
 	awsService := services.NewAwsService(configuration.Aws, logger)
 	paystackService := services.NewPaystackService(configuration.Paystack, serverConfig.ServerEnv, logger, queries)
-	equityBankService := services.NewEquityBankService(logger, serverConfig.ServerEnv)
+	equityBankService := services.NewEquityBankService(logger, serverConfig.ServerEnv, configuration.EquityBank)
 
 	ctx = context.WithValue(ctx, "userService", userService)
 	ctx = context.WithValue(ctx, "propertyService", propertyService)

@@ -12,3 +12,15 @@ type AuthResponse struct {
 	ExpiresIn    string `json:"expiresIn"`
 	IssuedAt     string `json:"issuedAt"`
 }
+
+type Balance struct {
+	Amount string `json:"amount"`
+	Type   string `json:"type"`
+}
+
+type AccountBalanceResponse struct {
+	Status  bool                 `json:"status"`
+	Code    int                  `json:"code"`
+	Message string               `json:"message"`
+	Data    map[string][]Balance `json:"data"`
+}
