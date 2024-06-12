@@ -20,9 +20,9 @@ require (
 	github.com/resendlabs/resend-go v1.7.0
 	github.com/rs/cors v1.8.2
 	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.9.0
 	github.com/twilio/twilio-go v1.7.2
-	github.com/vektah/gqlparser/v2 v2.5.10
+	github.com/vektah/gqlparser/v2 v2.5.14
 )
 
 require (
